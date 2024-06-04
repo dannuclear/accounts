@@ -3,9 +3,9 @@ from .models import Employee
 
 
 class EmployeeSerializer (serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
+    persId = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Employee
-        fields = ('id')
-        datatables_always_serialize = ('id')
+        fields = ('persId', 'empOrgNo', 'divNo', 'pfnSurname', 'pfnName', 'pfnPatronymic', 'pqlfName', 'profName', 'empChangesDate', 'empDismissDate')
+        datatables_always_serialize = ('persId')

@@ -1,7 +1,7 @@
 {% extends 'main/base.html' %}
 
 {% block title %}
-Материал
+Сотрудники
 {% endblock %}
 
 {% block content %}
@@ -11,7 +11,7 @@
     var sampleLang = {
         info: 'Страница _PAGE_ из _PAGES_',
         lengthMenu: 'На странице _MENU_',
-        zeroRecords: 'Материалов не найдено',
+        zeroRecords: 'Сотрудников не найдено',
         infoEmpty: 'Не найдено',
         search: "Поиск",
         processing: "Загрузка...",
@@ -39,12 +39,53 @@
                     language: sampleLang,
                     columns: [
                         {
-                            title: 'Наименование',
-                            data: 'id',
-                            className: 'h5'
-                            // width: '6rem'
+                            title: 'id',
+                            data: 'persId',
+                            //className: 'h5'
+                            width: '2rem'
                         },
-                    
+                        {
+                            title: 'Табельный',
+                            data: 'empOrgNo',
+                            //className: 'h5'
+                            width: '6rem'
+                        },
+                        {
+                            title: 'Подр.',
+                            data: 'divNo',
+                            //className: 'h5'
+                            width: '6rem'
+                        },
+                        {
+                            title: 'Фамилия',
+                            data: 'pfnSurname',
+                            //className: 'h5'
+                            width: '10rem'
+                        },
+                        {
+                            title: 'Имя',
+                            data: 'pfnName',
+                            //className: 'h5'
+                            width: '10rem'
+                        },
+                        {
+                            title: 'Имя',
+                            data: 'pfnPatronymic',
+                            //className: 'h5'
+                            width: '10rem'
+                        },
+                        {
+                            title: 'Профессия',
+                            data: 'profName',
+                            //className: 'h5'
+                            width: '20rem'
+                        },
+                        {
+                            title: 'Изменения',
+                            data: 'empChangesDate',
+                            //className: 'h5'
+                            width: '6rem'
+                        },/*
                         {
                             title: '',
                             data: null,
@@ -54,7 +95,7 @@
                             render: function (data, type, row) {
                                 return `<a href="/employees/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
                             }
-                        },
+                        },*/
                         // {
                         //     title: '',
                         //     data: null,
@@ -66,14 +107,14 @@
                         //     }
                         // }
                     ],
-                    buttons: [
+                    buttons: [/*
                         {
                             text: '&nbsp;Создать',
                             className: 'btn btn-info btn-sm bi bi-boxes',
                             action: function (e, dt, node, config) {
                                 window.location.href = '/employees/new';
                             }
-                        }
+                        }*/
                     ]
                 });
         }
