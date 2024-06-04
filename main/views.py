@@ -3,9 +3,8 @@ from django.http import HttpResponse
 
 # Create your views here.
 
-
 def main(request):
-    return render(request, 'main/settingsыыыыы.html')
+    return render(request, 'main/main.html')
 
 def settings(request):
     return render(request, 'main/settings.html')

@@ -1,42 +1,48 @@
 <nav class="navbar navbar-expand-sm navbar-dark bg-success">
-    <a class="navbar-brand bi bi-stack" href="#">&nbsp;АО</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+  <a class="navbar-brand bi bi-stack" href="#">&nbsp;АО</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
 
-    <div class="collapse navbar-collapse" id="navbarsExample03" style="font-size: 1.2em;">
-        <ul class="navbar-nav mr-auto">
-            <!-- <li class="nav-item active">
+  <div class="collapse navbar-collapse" id="navbarsExample03" style="font-size: 1.2em;">
+    <ul class="navbar-nav mr-auto">
+      <!--    <li class="nav-item active">
                 <a class="nav-link" href="#">Домой <span class="sr-only">(current)</span></a>
-            </li> -->
-            <li class="nav-item dropdown active">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Картотеки и жуналы</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown03">
-                    {% comment %} <a class="dropdown-item bi bi-calculator" href="{% url 'calculations' %}">&nbsp;Расчеты</a> {% endcomment %}
-                </div>
-            </li>
-            <li class="nav-item dropdown active">
-                <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Справочники</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown03">
-                    {% comment %} <a class="dropdown-item bi bi-shuffle" href="{% url 'operations' %}">&nbsp;Переходы</a>
-                    <a class="dropdown-item bi bi-tools" href="{% url 'tools' %}">&nbsp;Оборудование</a>
-                    <a class="dropdown-item bi bi-clipboard-data" href="{% url 'calculationTypes' %}">&nbsp;Виды расчетов</a>
-                    <a class="dropdown-item bi bi-boxes" href="{% url 'materials' %}">&nbsp;Материалы</a> {% endcomment %}
-                </div>
-            </li>
-        </ul>
-
-        <div class="form-inline my-2 my-lg-0 navbar-nav">
-            <div style="line-height: 1;">
-                <div class="nav-link active p-0">{{user}}</div>
-                <small id="browser-info" class="p-0"></small>
-            </div>
+            </li>    -->
+      <li class="nav-item dropdown active">
+        <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Картотеки и жуналы</a>
+        <div class="dropdown-menu" aria-labelledby="dropdown03">
+          {% comment %} <a class="dropdown-item bi bi-calculator" href="{% url 'calculations' %}">&nbsp;Расчеты</a> {% endcomment %}
         </div>
+      </li>
+      <li class="nav-item dropdown active">
+        <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Справочники</a>
+        <div class="dropdown-menu" aria-labelledby="dropdown03">
+          {% comment %} <a class="dropdown-item bi bi-shuffle" href="{% url 'operations' %}">&nbsp;Переходы</a>
+          <a class="dropdown-item bi bi-tools" href="{% url 'tools' %}">&nbsp;Оборудование</a>
+          <a class="dropdown-item bi bi-clipboard-data" href="{% url 'calculationTypes' %}">&nbsp;Виды расчетов</a>
+          <a class="dropdown-item bi bi-boxes" href="{% url 'materials' %}">&nbsp;Материалы</a> {% endcomment %}
+        </div>
+      </li>
+      <li class="nav-item dropdown active">
+        <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Настройки</a>
+        <div class="dropdown-menu" aria-labelledby="dropdown04">
+          <a class="dropdown-item bi bi-calculator" href="{% url 'settings' %}">&nbsp;Каталоги файлов</a>
+          <a class="dropdown-item bi bi-calculator" href="{% url 'admin:index' %}">&nbsp;Пользователи и группы</a>
+        </div>
+      </li>
+    </ul>
 
-        <script type="text/javascript">
-            $(document).ready(function () {
-                const browser = $.browser
-                $('#browser-info').text(`${browser.name}: ${browser.versionNumber}`);
-            })
-        </script>
+    <div class="form-inline my-2 my-lg-0 navbar-nav">
+      <div style="line-height: 1;">
+        <div class="nav-link active p-0">{{ user }}</div>
+        <small id="browser-info" class="p-0"></small>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      $(document).ready(function () {
+        const browser = $.browser
+        $('#browser-info').text(`${browser.name}: ${browser.versionNumber}`)
+      })
+    </script>
+  </div>
 </nav>
