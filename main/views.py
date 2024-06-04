@@ -5,7 +5,7 @@ from django.http import HttpResponse
 
 
 def main(request):
-    pass
+    return render(request, 'main/settingsыыыыы.html')
 
 def settings(request):
     return render(request, 'main/settings.html')
