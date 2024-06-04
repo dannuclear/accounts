@@ -16,8 +16,8 @@
       <li class="nav-item dropdown active">
         <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Справочники</a>
         <div class="dropdown-menu" aria-labelledby="dropdown03">
-          {% comment %} <a class="dropdown-item bi bi-shuffle" href="{% url 'operations' %}">&nbsp;Переходы</a>
-          <a class="dropdown-item bi bi-tools" href="{% url 'tools' %}">&nbsp;Оборудование</a>
+          <a class="dropdown-item bi bi-shuffle" href="{% url 'employees' %}">&nbsp;Сотрудники</a>
+          {% comment %} <a class="dropdown-item bi bi-tools" href="{% url 'tools' %}">&nbsp;Оборудование</a>
           <a class="dropdown-item bi bi-clipboard-data" href="{% url 'calculationTypes' %}">&nbsp;Виды расчетов</a>
           <a class="dropdown-item bi bi-boxes" href="{% url 'materials' %}">&nbsp;Материалы</a> {% endcomment %}
         </div>
@@ -25,8 +25,8 @@
       <li class="nav-item dropdown active">
         <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Настройки</a>
         <div class="dropdown-menu" aria-labelledby="dropdown04">
-          <a class="dropdown-item bi bi-calculator" href="{% url 'settings' %}">&nbsp;Каталоги файлов</a>
-          <a class="dropdown-item bi bi-calculator" href="{% url 'admin:index' %}">&nbsp;Пользователи и группы</a>
+          <a class="dropdown-item bi bi-gear" href="{% url 'settings' %}">&nbsp;Каталоги файлов</a>
+          <a class="dropdown-item bi bi-people" href="{% url 'admin:index' %}">&nbsp;Пользователи и группы</a>
         </div>
       </li>
     </ul>

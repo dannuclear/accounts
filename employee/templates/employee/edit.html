@@ -1,0 +1,87 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+Расчет
+{% endblock %}
+
+{% block content %}
+
+<ul class="nav nav-tabs container" id="employeeTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <a class="nav-link active" id="main-tab" data-toggle="tab" href="#main" role="tab" aria-controls="main" aria-selected="true">Главная</a>
+    </li>
+</ul>
+<div class="tab-content container border" id="employeeTabContent">
+    <div class="tab-pane fade show active" id="main" role="tabpanel" aria-labelledby="main-tab">
+
+        <form method="post">
+            {% csrf_token %}
+            {{employeeForm.errors}}
+            <input type="hidden" name="id" value="{{employeeForm.id.value}}">
+            <!-- <input id="param-value" type="hidden" name="{{employeeForm.result.name}}" value="{{ employeeForm.result.value|default_if_none:'' }}"> -->
+            <!-- <div class="container border"> -->
+
+            <div class="row">
+                <div class="col-12 p-1 input-group input-group-sm">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">{{employeeForm.name.label}}</span>
+                    </div>
+                    <input type="text" class="h5 text-center mb-0 form-control form-control-sm" name="{{employeeForm.name.name}}" value="{{ employeeForm.name.value|default_if_none:'' }}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 p-1 input-group input-group-sm">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">{{employeeForm.params.label}}</span>
+                    </div>
+                    <textarea cols="100" rows="30" class="h5 text-center mb-0 form-control form-control-sm" name="{{employeeForm.params.name}}" style="text-align: left !important;">{{ employeeForm.params.value|default_if_none:'' }}</textarea>
+                </div>
+            </div>
+    </div>
+
+    <div class="row justify-content-end p-1">
+        <div class="d-inline-flex">
+            <!-- <button type="submit" href="" class="btn btn-info">Сохранить</button> -->
+            <a href="{% url 'employees' %}" class="btn btn-secondary ml-1">Отмена</a>
+        </div>
+    </div>
+    <!-- </div> -->
+    </form>
+</div>
+</div>
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        let json_params = JSON.parse($('#param-value').val());
+        console.log(json_params);
+
+        $('.datepeeker').datepicker();
+
+        var subscriberTable = $('#subscriber-table').DataTable({
+            ajax: null,
+            searching: false,
+            ordering: false,
+            processing: false,
+            serverSide: false,
+            dom: '<"row"<"col-sm-12"tr>>'
+        });
+
+        $('#subscriber-table tbody').on('click', 'tr', function () {
+            if ($(this).hasClass('selected')) {
+                $(this).removeClass('selected');
+            }
+            else {
+                subscriberTable.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+            }
+        });
+
+        // $('.classified-select2').select2()
+    });
+
+</script>
+
+{% endblock %}

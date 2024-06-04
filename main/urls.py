@@ -3,5 +3,6 @@ from . import views
 
 urlpatterns = [
     path('main/', views.main),
-    path('settings/', views.settings, name='settings')
+    path('settings/', views.settings, name='settings'),
+    path('settings/checkFolder', views.checkFolder)
 ]

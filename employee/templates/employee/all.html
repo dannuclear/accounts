@@ -1,0 +1,82 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+Материал
+{% endblock %}
+
+{% block content %}
+<table id="employee-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100"></table>
+
+<script type="text/javascript">
+    var sampleLang = {
+        info: 'Страница _PAGE_ из _PAGES_',
+        lengthMenu: 'На странице _MENU_',
+        zeroRecords: 'Материалов не найдено',
+        infoEmpty: 'Не найдено',
+        search: "Поиск",
+        processing: "Загрузка...",
+        loadingRecords: "Загрузка...",
+        paginate: {
+            first: "|<",
+            last: ">|",
+            next: ">",
+            previous: "<"
+        }
+    };
+    $(document).ready(
+        function () {
+
+            var employeeTable = $('#employee-table').DataTable(
+                {
+                    ajax: {
+                        url: '/api/v1/employees/?format=datatables',
+                        data: function (d) {
+
+                        }
+                    },
+                    rowId: 'id',
+                    pagingType: 'first_last_numbers',
+                    language: sampleLang,
+                    columns: [
+                        {
+                            title: 'Наименование',
+                            data: 'id',
+                            className: 'h5'
+                            // width: '6rem'
+                        },
+                    
+                        {
+                            title: '',
+                            data: null,
+                            width: '1%',
+                            defaultContent: '',
+                            orderable: false,
+                            render: function (data, type, row) {
+                                return `<a href="/employees/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
+                            }
+                        },
+                        // {
+                        //     title: '',
+                        //     data: null,
+                        //     width: '1%',
+                        //     defaultContent: '',
+                        //     orderable: false,
+                        //     render: function (data, type, row) {
+                        //         return `<a href="/employees/${data.id}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить оборуование?');"></a>`
+                        //     }
+                        // }
+                    ],
+                    buttons: [
+                        {
+                            text: '&nbsp;Создать',
+                            className: 'btn btn-info btn-sm bi bi-boxes',
+                            action: function (e, dt, node, config) {
+                                window.location.href = '/employees/new';
+                            }
+                        }
+                    ]
+                });
+        }
+    );
+</script>
+{% endblock %}
