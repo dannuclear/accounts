@@ -19,6 +19,7 @@ def estimates(request):
     return render(request, 'estimate/all.html')
 
 def employees(request):
+    load = request.user.has_perm('integration.load')
     return render(request, 'employee/all.html')
 
 def prepayments(request):

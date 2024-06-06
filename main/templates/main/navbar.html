@@ -16,12 +16,15 @@
       <li class="nav-item dropdown active">
         <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Справочники</a>
         <div class="dropdown-menu" aria-labelledby="dropdown03">
-          <a class="dropdown-item bi bi-cash" href="{% url 'prepayments' %}">&nbsp;Выданные авансы</a>
+          {% if perms.integration.view_prepayments %}
+          <a class="dropdown-item bi bi-cash" href="{% url 'prepayments' %}" >&nbsp;Выданные авансы</a>
+          {% endif %}
+          {% if perms.integration.view_employees %}
           <a class="dropdown-item bi bi-person" href="{% url 'employees' %}">&nbsp;Сотрудники</a>
-          <a class="dropdown-item bi bi-card-checklist" href="{% url 'estimates' %}">&nbsp;Смета</a>
-          {% comment %} <a class="dropdown-item bi bi-tools" href="{% url 'tools' %}">&nbsp;Оборудование</a>
-          <a class="dropdown-item bi bi-clipboard-data" href="{% url 'calculationTypes' %}">&nbsp;Виды расчетов</a>
-          <a class="dropdown-item bi bi-boxes" href="{% url 'materials' %}">&nbsp;Материалы</a> {% endcomment %}
+          {% endif %}
+          {% if perms.integration.view_estimates %}
+          <a class="dropdown-item bi bi-card-checklist" href="{% url 'estimates' %}">&nbsp;Сметы</a>
+          {% endif %}
         </div>
       </li>
       <li class="nav-item dropdown active">

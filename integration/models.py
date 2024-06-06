@@ -31,36 +31,50 @@ class Employee(models.Model):
 
     class Meta:
         db_table = 'employee'
+        verbose_name = 'Сотрудник'
+        verbose_name_plural = 'Сотрудники'
+        default_permissions = ()
+        permissions = [
+            ("load_employees", "Загрузка"),
+            ("view_employees", "Просмотр")
+        ]
 
 
 class Prepayment(models.Model):
     # pd_id	VARCHAR(20)	integer	да	Идентификатор выданного аванса	Только цифры.
-    pdId = models.IntegerField(primary_key=True, db_column="pd_id")
+    pdId = models.IntegerField(primary_key=True, db_column="pd_id", null=False)
     # pd_source	CHAR(1)	tinyint	да	Источник выдачи аванса: 0 — безналичный расчет на карту, 1 — наличный расчет через кассу предприятия
-    pdSource = models.SmallIntegerField(db_column="pd_source", blank=False)
+    pdSource = models.SmallIntegerField(db_column="pd_source", blank=False, null=False)
     # emp_org_no	CHAR(8)	integer	да	Табельный номер	Всегда 8 цифр. Незначащие символы должны быть заполнены [0] слева.
-    empOrgNo = models.IntegerField(db_column="emp_org_no", blank=False)
+    empOrgNo = models.IntegerField(db_column="emp_org_no", blank=False, null=False)
     # xv26ei_id	VARCHAR(4)	SMALLINT	нет	Суррогатный идентификатор пункта сметы	Только цифры
-    xv26eiId = models.SmallIntegerField(db_column="xv26ei_id", blank=True)
+    xv26eiId = models.SmallIntegerField(db_column="xv26ei_id", blank=True, null=True)
     # order_id	VARCHAR(20)	varchar(20)	нет	Идентификатор электронного приказа (идентификатор программы WC07P документ_ID)	Только цифры.
-    orderId = models.CharField(max_length=20, blank=True, db_column="order_id")
+    orderId = models.CharField(max_length=20, blank=True, db_column="order_id", null=True)
     # order_id_upd	VARCHAR(20)	varchar(20)	нет	Идентификатор электронного приказа (идентификатор программы WC07P документ_ID_меняемый)	
-    orderIdUpd = models.CharField(max_length=20, blank=True, db_column="order_id_upd")
+    orderIdUpd = models.CharField(max_length=20, blank=True, db_column="order_id_upd", null=True)
     # order_no	VARCHAR(100)	varchar(100)	нет	Номер документа (WC07P)	
-    orderNo = models.CharField(max_length=100, blank=True, db_column="order_no")
+    orderNo = models.CharField(max_length=100, blank=True, db_column="order_no", null=True)
     # order_date	CHAR(10)	date	нет	Дата документа (WC07P)	использовать формат (YYYY-MM-DD)
-    orderDate = models.DateField(blank=True, db_column="order_date")
+    orderDate = models.DateField(blank=True, db_column="order_date", null=True)
     # bic	CHAR(9)	integer	нет	Банковский идентификационный код	Только цифры.
-    bic = models.IntegerField(db_column="bic", blank=True)
+    bic = models.IntegerField(db_column="bic", blank=True, null=True)
     # sum	VARCHAR(20)	money	да	Сумма выданного аванса, руб.	разделитель целой и дробной части — точка, дробная часть 2 знака, допустимы только цифры и [.]
-    sum = models.DecimalField(max_digits=10, decimal_places=2, db_column="sum", blank=False)
+    sum = models.DecimalField(max_digits=10, decimal_places=2, db_column="sum", blank=False, null=False)
     # acpl_account	CHAR(2)	smallint	нет	Балансовый счет	незначащие символы должны быть заполнены [0] слева
-    acplAccount = models.SmallIntegerField(db_column="acpl_account", blank=True)
+    acplAccount = models.SmallIntegerField(db_column="acpl_account", blank=True, null=True)
     # acpl_subaccount	CHAR(2)	smallint	нет	Балансовый субсчет	незначащие символы должны быть заполнены [0] слева
-    acplSubaccount = models.SmallIntegerField(db_column="acpl_subaccount", blank=True)
+    acplSubaccount = models.SmallIntegerField(db_column="acpl_subaccount", blank=True, null=True)
 
     class Meta:
         db_table = 'prepayment'
+        verbose_name = 'Аванс'
+        verbose_name_plural = 'Авансы'
+        default_permissions = ()
+        permissions = [
+            ("load_prepayments", "Загрузка"),
+            ("view_prepayments", "Просмотр")
+        ]
 
 class Estimate(models.Model):
     # xv26ei_id	VARCHAR(4)	SMALLINT	да	Суррогатный идентификатор пункта сметы	Только цифры
@@ -78,3 +92,10 @@ class Estimate(models.Model):
 
     class Meta:
         db_table = 'estimate'
+        verbose_name = 'Смета'
+        verbose_name_plural = 'Сметы'
+        default_permissions = ()
+        permissions = [
+            ("load_estimates", "Загрузка"),
+            ("view_estimates", "Просмотр")
+        ]

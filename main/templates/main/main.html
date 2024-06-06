@@ -1,76 +1,9 @@
 {% extends 'main/base.html' %}
 
 {% block title %}
-Нормы
+  Авансовые отчеты
 {% endblock %}
 
 {% block content %}
-
-<!-- <table id="document-table" class="table table-striped table-hover table-bordered table-sm document-table w-100 dataTable no-footer"></table> -->
-<table id="document-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100"></table>
-
-
-
-<script type="text/javascript">
-    var sampleLang = {
-        info: 'Страница _PAGE_ из _PAGES_',
-        lengthMenu: 'На странице _MENU_',
-        zeroRecords: 'Проб не найдено',
-        infoEmpty: 'Не найдено',
-        search: "Поиск",
-        processing: "Загрузка...",
-        loadingRecords: "Загрузка...",
-        paginate: {
-            first: "|<",
-            last: ">|",
-            next: ">",
-            previous: "<"
-        }
-    };
-    $(document).ready(
-        function () {
-            console.log('ready');
-            $('#document-table').dataTable(
-                {
-                    ajax: {
-                        url: '/archive/documents/dataTable?format=datatables'
-                    },
-                    rowId: 'id',
-                    pagingType: 'first_last_numbers',
-                    language: sampleLang,
-                    // rowCallback: function (row, data) {
-                    //     if ($.inArray(row.id, selected) !== -1) {
-                    //         $(row).addClass('selected');
-                    //     }
-                    // },
-                    columns: [
-                        {
-                            title: 'Код',
-                            data: 'id',
-                            width: '5rem',
-                            className: 'h5 text-body-right text-center'
-                        },
-                        {
-                            title: 'Обозначение',
-                            data: 'designation',
-                            className: 'h5'
-                        },
-                        {
-                            title: 'Шифр',
-                            data: 'cipher',
-                            className: 'h5'
-                        }
-                    ]
-                })
-
-
-            // ({
-            //     ajax: {
-            //         url: '/webService/private/reports/dataTable'
-            //     }
-            // });
-        }
-    );
-
-</script>
+  <h1>Добро пожаловать</h1>
 {% endblock %}
