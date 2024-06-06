@@ -76,6 +76,15 @@
         <input type="text" class="h5 mb-0 form-control form-control-sm {% if form.estimateItemFileTemplate.errors %}{% endif %}" name="{{ form.estimateItemFileTemplate.name }}" value="{{ form.estimateItemFileTemplate.value|default_if_none:'' }}" />
       </div>
     </div>
+
+    <div class="form-row align-items-center">
+      <div class="col-4 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">{{ form.orderFileTemplate.label }}</span>
+        </div>
+        <input type="text" class="h5 mb-0 form-control form-control-sm {% if form.orderFileTemplate.errors %}{% endif %}" name="{{ form.orderFileTemplate.name }}" value="{{ form.orderFileTemplate.value|default_if_none:'' }}" />
+      </div>
+    </div>
   </form>
 
   <script type="text/javascript">

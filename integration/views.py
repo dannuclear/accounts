@@ -9,8 +9,8 @@ from main.models import Settings
 from rest_framework import viewsets
 
 from . import loaders
-from .models import Employee, Estimate, Prepayment
-from .serializers import EstimateSerializer, EmployeeSerializer, PrepaymentSerializer
+from .models import Employee, Estimate, Prepayment, WC07POrder
+from .serializers import EstimateSerializer, EmployeeSerializer, PrepaymentSerializer, WC07POrderSerializer
 from .helper import FileType
 
 # Create your views here.
@@ -19,11 +19,13 @@ def estimates(request):
     return render(request, 'estimate/all.html')
 
 def employees(request):
-    load = request.user.has_perm('integration.load')
     return render(request, 'employee/all.html')
 
 def prepayments(request):
     return render(request, 'prepayment/all.html')
+
+def orders(request):
+    return render(request, 'orders/all.html')
 
 class EstimateViewSet (viewsets.ModelViewSet):
     queryset = Estimate.objects.all().order_by('id')
@@ -36,6 +38,10 @@ class EmployeeViewSet (viewsets.ModelViewSet):
 class PrepaymentViewSet (viewsets.ModelViewSet):
     queryset = Prepayment.objects.all().order_by('id')
     serializer_class = PrepaymentSerializer
+
+class OrderViewSet (viewsets.ModelViewSet):
+    queryset = WC07POrder.objects.all().order_by('id')
+    serializer_class = WC07POrderSerializer
 
 def edit(request, id):
     if id == 'new':
@@ -66,11 +72,14 @@ def loadEmployees(request):
 def loadPrepayments(request):
     return load(FileType.PREPAYMENT)
 
+def loadOrders(request):
+    return load(FileType.WC07P_ORDER)
+
 def load (type):
     settings = Settings.objects.first()
     if settings == None:
         return HttpResponseBadRequest('Настройки не сделаны')
-    fileTemplate = settings.estimateItemFileTemplate if type == FileType.ESTIMATE else settings.employeeFileTemplate if type == FileType.EMPLOYEE else settings.prepaymentFileTemplate if type == FileType.PREPAYMENT else None
+    fileTemplate = settings.estimateItemFileTemplate if type == FileType.ESTIMATE else settings.employeeFileTemplate if type == FileType.EMPLOYEE else settings.prepaymentFileTemplate if type == FileType.PREPAYMENT else settings.orderFileTemplate if type == FileType.WC07P_ORDER else None
     datePart, suffixPart = fileTemplate.split('_', maxsplit=1)
     files = glob.glob(settings.inputDir + '\*_' + suffixPart)
     if len(files) > 0:

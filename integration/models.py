@@ -99,3 +99,45 @@ class Estimate(models.Model):
             ("load_estimates", "Загрузка"),
             ("view_estimates", "Просмотр")
         ]
+
+class WC07POrder(models.Model):
+    # наименование_документа
+    orderName = models.CharField(db_column="order_name", max_length=200, blank=True, null=True)
+    # документ_ID
+    orderId = models.CharField( db_column="order_id", primary_key=True, max_length=20)
+    # номер_документа
+    orderNum = models.CharField(db_column="order_num", max_length=50, blank=True, null=True)
+    # дата_документа
+    orderDate = models.DateField(db_column="order_date", blank=True, null=True)
+    # табельный_номер
+    empOrgNo = models.IntegerField(db_column="emp_org_no", blank=False, null=False)
+    # подразделение
+    depName = models.CharField(db_column="dep_name", max_length=200, blank=True, null=True)
+    # фио
+    fio = models.CharField(db_column="fio", max_length=200, blank=True, null=True)
+    # должность
+    profName = models.CharField(db_column="prof_name", max_length=256, blank=True, null=True)
+    # место_назначение
+    distName = models.CharField(db_column="dist_name", max_length=500, blank=True, null=True)
+    # дата_начала_командирования
+    missionBegin = models.DateField(db_column="mission_begin", blank=True, null=True)
+    # дата_окончания_командирования
+    missionEnd = models.DateField(db_column="mission_end", blank=True, null=True)
+    # цель_командирования
+    missionPurpose = models.CharField(db_column="mission_purpose", max_length=500, blank=True, null=True)
+    # смета_ID
+    estimateId = models.IntegerField(db_column="estimate_id", blank=True, null=True)
+    # командировка_за_счет_документа
+    payDoc = models.CharField(db_column="pay_doc", max_length=20, blank=True, null=True)
+    # документ_ID_меняемый
+    orderIdUpd = models.CharField(db_column="order_id_upd", max_length=20, blank=True, null=True)
+
+    class Meta:
+        db_table = 'wc07p_order'
+        verbose_name = 'Приказ'
+        verbose_name_plural = 'Приказы'
+        default_permissions = ()
+        permissions = [
+            ("load_orders", "Загрузка"),
+            ("view_orders", "Просмотр")
+        ]

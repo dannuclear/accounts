@@ -25,6 +25,9 @@
           {% if perms.integration.view_estimates %}
           <a class="dropdown-item bi bi-card-checklist" href="{% url 'estimates' %}">&nbsp;Сметы</a>
           {% endif %}
+          {% if perms.integration.view_orders %}
+          <a class="dropdown-item bi bi-award" href="{% url 'orders' %}">&nbsp;Приказы</a>
+          {% endif %}
         </div>
       </li>
       <li class="nav-item dropdown active">

@@ -14,6 +14,7 @@ class Settings(models.Model):
     employeeFileTemplate = models.CharField(max_length=50, db_column='employee_file_template')
     prepaymentFileTemplate = models.CharField(max_length=50, db_column='prepayment_file_template')
     estimateItemFileTemplate = models.CharField(max_length=50, db_column='estimate_item_file_template')
+    orderFileTemplate = models.CharField(max_length=50, db_column='order_file_template', default='ГГГГ-ММ-ДД_075903.987_wc07p.csv')
 
     accountEntryFileTemplate = models.CharField(max_length=50, db_column='account_entry_file_template')
     factFileTemplate = models.CharField(max_length=50, db_column='fact_file_template')
@@ -32,6 +33,7 @@ class SettingsForm (ModelForm):
     employeeFileTemplate = forms.CharField(label='Шаблон файла сотрудников', required=False, empty_value='ГГГГ-ММ-ДД_employees.csv')
     prepaymentFileTemplate = forms.CharField(label='Шаблон файла фактически выданных авансов', required=False, empty_value='ГГГГ-ММ-ДД_prepayment.csv')
     estimateItemFileTemplate = forms.CharField(label='Шаблон файла справочника смет', required=False, empty_value='ГГГГ-ММ-ДД_estimate_item.csv')
+    orderFileTemplate = forms.CharField(label='Шаблон файла приказов', required=False, empty_value='ГГГГ-ММ-ДД_075903.987_wc07p.csv')
 
     accountEntryFileTemplate = forms.CharField(label='Шаблон файла бухгалтерских проводок', required=False, empty_value='ГГГГ-ММ-ДД_ЧЧННСС_account_entry.csv')
     factFileTemplate = forms.CharField(label='Шаблон файла подтвержденных командировочных расходов', required=False, empty_value='ГГГГ-ММ-ДД_fact.csv')

@@ -7,6 +7,7 @@ integrationRouter = routers.DefaultRouter()
 integrationRouter.register(r'estimates', views.EstimateViewSet)
 integrationRouter.register(r'prepayments', views.PrepaymentViewSet)
 integrationRouter.register(r'employees', views.EmployeeViewSet)
+integrationRouter.register(r'orders', views.OrderViewSet)
 
 urlpatterns = [
     path('estimates', views.estimates, name='estimates'),
@@ -17,4 +18,7 @@ urlpatterns = [
 
     path('employees', views.employees, name='employees'),
     path('employees/load', views.loadEmployees),
+
+    path('orders', views.orders, name='orders'),
+    path('orders/load', views.loadOrders),
 ]
