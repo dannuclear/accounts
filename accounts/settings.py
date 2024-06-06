@@ -39,11 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'main',
-    #'crispy_forms',
-    'employee',
-    'prepayment',
-    'estimate'
-
+    'integration'
 ]
 
 MIDDLEWARE = [

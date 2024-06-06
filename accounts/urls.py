@@ -15,18 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from employee.urls import employeeRouter
-from prepayment.urls import prepaymentRouter
-from estimate.urls import estimateRouter
+from integration.urls import integrationRouter
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
-    path('employees/', include('employee.urls')),
-    path('prepayments/', include('prepayment.urls')),
-    path('estimates/', include('estimate.urls')),
+    path('', include('integration.urls')),
 
-    path('api/v1/', include(employeeRouter.urls)),
-    path('api/v1/', include(estimateRouter.urls)),
-    path('api/v1/', include(prepaymentRouter.urls))
+    path('api/v1/', include(integrationRouter.urls)),
 ]
