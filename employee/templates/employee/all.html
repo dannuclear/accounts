@@ -1,123 +1,108 @@
 {% extends 'main/base.html' %}
 
 {% block title %}
-Сотрудники
+  Сотрудники
 {% endblock %}
 
 {% block content %}
-<table id="employee-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100"></table>
+  <div class="alert alert-primary" role="alert" style="display: none;"></div>
+  <table id="employee-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100"></table>
 
-<script type="text/javascript">
+  <script type="text/javascript">
     var sampleLang = {
-        info: 'Страница _PAGE_ из _PAGES_',
-        lengthMenu: 'На странице _MENU_',
-        zeroRecords: 'Сотрудников не найдено',
-        infoEmpty: 'Не найдено',
-        search: "Поиск",
-        processing: "Загрузка...",
-        loadingRecords: "Загрузка...",
-        paginate: {
-            first: "|<",
-            last: ">|",
-            next: ">",
-            previous: "<"
-        }
-    };
-    $(document).ready(
-        function () {
-
-            var employeeTable = $('#employee-table').DataTable(
-                {
-                    ajax: {
-                        url: '/api/v1/employees/?format=datatables',
-                        data: function (d) {
-
-                        }
-                    },
-                    rowId: 'id',
-                    pagingType: 'first_last_numbers',
-                    language: sampleLang,
-                    columns: [
-                        {
-                            title: 'id',
-                            data: 'persId',
-                            //className: 'h5'
-                            width: '2rem'
-                        },
-                        {
-                            title: 'Табельный',
-                            data: 'empOrgNo',
-                            //className: 'h5'
-                            width: '6rem'
-                        },
-                        {
-                            title: 'Подр.',
-                            data: 'divNo',
-                            //className: 'h5'
-                            width: '6rem'
-                        },
-                        {
-                            title: 'Фамилия',
-                            data: 'pfnSurname',
-                            //className: 'h5'
-                            width: '10rem'
-                        },
-                        {
-                            title: 'Имя',
-                            data: 'pfnName',
-                            //className: 'h5'
-                            width: '10rem'
-                        },
-                        {
-                            title: 'Имя',
-                            data: 'pfnPatronymic',
-                            //className: 'h5'
-                            width: '10rem'
-                        },
-                        {
-                            title: 'Профессия',
-                            data: 'profName',
-                            //className: 'h5'
-                            width: '20rem'
-                        },
-                        {
-                            title: 'Изменения',
-                            data: 'empChangesDate',
-                            //className: 'h5'
-                            width: '6rem'
-                        },/*
-                        {
-                            title: '',
-                            data: null,
-                            width: '1%',
-                            defaultContent: '',
-                            orderable: false,
-                            render: function (data, type, row) {
-                                return `<a href="/employees/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
-                            }
-                        },*/
-                        // {
-                        //     title: '',
-                        //     data: null,
-                        //     width: '1%',
-                        //     defaultContent: '',
-                        //     orderable: false,
-                        //     render: function (data, type, row) {
-                        //         return `<a href="/employees/${data.id}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить оборуование?');"></a>`
-                        //     }
-                        // }
-                    ],
-                    buttons: [/*
-                        {
-                            text: '&nbsp;Создать',
-                            className: 'btn btn-info btn-sm bi bi-boxes',
-                            action: function (e, dt, node, config) {
-                                window.location.href = '/employees/new';
-                            }
-                        }*/
-                    ]
-                });
-        }
-    );
-</script>
+      info: 'Страница _PAGE_ из _PAGES_',
+      lengthMenu: 'На странице _MENU_',
+      zeroRecords: 'Сотрудников не найдено',
+      infoEmpty: 'Не найдено',
+      search: 'Поиск',
+      processing: 'Загрузка...',
+      loadingRecords: 'Загрузка...',
+      paginate: {
+        first: '|<',
+        last: '>|',
+        next: '>',
+        previous: '<'
+      }
+    }
+    $(document).ready(function () {
+      var employeeTable = $('#employee-table').DataTable({
+        ajax: {
+          url: '/api/v1/employees/?format=datatables',
+          data: function (d) {}
+        },
+        rowId: 'id',
+        pagingType: 'first_last_numbers',
+        language: sampleLang,
+        columns: [
+          {
+            title: 'id',
+            data: 'persId',
+            width: '2rem'
+          },
+          {
+            title: 'Табельный',
+            data: 'empOrgNo',
+            width: '6rem'
+          },
+          {
+            title: 'Подр.',
+            data: 'divNo',
+            width: '6rem'
+          },
+          {
+            title: 'Фамилия',
+            data: 'pfnSurname',
+            width: '10rem'
+          },
+          {
+            title: 'Имя',
+            data: 'pfnName',
+            width: '10rem'
+          },
+          {
+            title: 'Имя',
+            data: 'pfnPatronymic',
+            width: '10rem'
+          },
+          {
+            title: 'Профессия',
+            data: 'profName',
+            width: '20rem'
+          },
+          {
+            title: 'Изменения',
+            data: 'empChangesDate',
+            width: '6rem'
+          },
+          {
+            title: 'Увольнение',
+            data: 'empDismissDate',
+            width: '6rem'
+          }
+        ],
+        buttons: [
+          {
+            text: '&nbsp;Загрузить',
+            className: 'btn btn-info btn-sm bi bi-boxes',
+            action: function (e, dt, node, config) {
+              const alertEl = $('.alert')
+              $.get('/employees/load', function (e) {
+                alertEl.attr('class', 'alert alert-success')
+                alertEl.html(e)
+              })
+                .fail(function (e) {
+                  alertEl.attr('class', 'alert alert-danger')
+                  alertEl.html(e.responseText)
+                })
+                .always(function () {
+                  alertEl.show().delay(3000).fadeOut()
+                  employeeTable.ajax.reload()
+                })
+              //window.location.href = '/employees/load';
+            }
+          }
+        ]
+      })
+    })
+  </script>
 {% endblock %}

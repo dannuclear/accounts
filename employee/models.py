@@ -26,12 +26,10 @@ class Employee(models.Model):
     profName = models.CharField(
         max_length=64, blank=False, db_column="prof_name")
     # emp_changes_date	CHAR(10)	date	да	Дата приёма\последнего изменения в карточке	использовать формат (YYYY-MM-DD)
-    empChangesDate = models.DateField(
-        max_length=64, blank=False, db_column="emp_changes_date")
+    empChangesDate = models.DateField(blank=False, db_column="emp_changes_date")
     # emp_dismiss_date	CHAR(10)	date	нет	Дата увольнения	использовать формат (YYYY-MM-DD)
 
-    empDismissDate = models.DateField(
-        max_length=64, blank=True, db_column="emp_dismiss_date")
+    empDismissDate = models.DateField(blank=True, db_column="emp_dismiss_date")
 
     class Meta:
         db_table = 'employee'

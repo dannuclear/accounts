@@ -7,6 +7,7 @@ employeeRouter.register(r'employees', views.EmployeeViewSet)
 
 urlpatterns = [
     path('', views.all, name='employees'),
+    path('load', views.load),
     path('<id>', views.edit),
     path('<id>/delete', views.delete),
 ]

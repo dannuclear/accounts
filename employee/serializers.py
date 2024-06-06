@@ -8,4 +8,4 @@ class EmployeeSerializer (serializers.ModelSerializer):
     class Meta:
         model = Employee
         fields = ('persId', 'empOrgNo', 'divNo', 'pfnSurname', 'pfnName', 'pfnPatronymic', 'pqlfName', 'profName', 'empChangesDate', 'empDismissDate')
-        datatables_always_serialize = ('persId')
+        datatables_always_serialize = ('persId', 'pfnSurname', 'pfnName', 'pfnPatronymic')

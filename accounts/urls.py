@@ -16,11 +16,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from employee.urls import employeeRouter
+from prepayment.urls import prepaymentRouter
+from estimate.urls import estimateRouter
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
-    path('', include('employee.urls')),
+    path('employees/', include('employee.urls')),
+    path('prepayments/', include('prepayment.urls')),
+    path('estimates/', include('estimate.urls')),
 
-    path('api/v1/', include(employeeRouter.urls))
+    path('api/v1/', include(employeeRouter.urls)),
+    path('api/v1/', include(estimateRouter.urls)),
+    path('api/v1/', include(prepaymentRouter.urls))
 ]

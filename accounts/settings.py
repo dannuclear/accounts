@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'main',
     #'crispy_forms',
-    'employee'
+    'employee',
+    'prepayment',
+    'estimate'
 
 ]
 
