@@ -91,7 +91,7 @@
     $(document).ready(function () {
       $('.check-folder-btn').click(function (e) {
         const btn = e.target
-        const inputId = btn?.dataset?.inputId
+        const inputId = btn.dataset.inputId
         const path = $(`#${inputId}`).val()
         $.get(`/settings/checkFolder?path=${path}`, function (e) {
           btn.className = 'btn btn-outline-success check-folder-btn'

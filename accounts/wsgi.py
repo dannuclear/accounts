@@ -27,7 +27,7 @@ class LoggingMiddleware:
 
         request = WSGIRequest(environ)
         try:
-            request.META['KRB5CCNAME'] = 'admin'
+            request.META['REMOTE_USER'] = 'admin'
             os.environ['KRB5CCNAME'] = request.META['KRB5CCNAME']
         except Exception as ex:
             pprint.pprint(ex)

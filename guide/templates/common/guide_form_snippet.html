@@ -1,0 +1,21 @@
+<form action="#" method="post">
+  {% csrf_token %}
+
+  <div class="form-row align-items-center">
+    <div class="col-12 p-1 text-right">
+      <input type="submit" class="btn btn-success btn-sm" value="Сохранить" />
+      <input onclick="history.back()" class="btn btn-danger btn-sm" value="Отмена" />
+    </div>
+  </div>
+
+  {% for field in form %}
+    <div class="form-row align-items-center">
+      <div class="col-6 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">{{ field.label }}</span>
+        </div>
+        <input id="input-path" type="text" class="h5 mb-0 form-control form-control-sm {% if field.errors %}{% endif %}" name="{{ field.name }}" value="{{ field.value|default_if_none:'' }}" />
+      </div>
+    </div>
+  {% endfor %}
+</form>

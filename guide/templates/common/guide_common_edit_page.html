@@ -1,0 +1,9 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+  {{ title|default_if_none:'Справочник' }}
+{% endblock %}
+
+{% block content %}
+  {% include 'common/guide_form_snippet.html' %}
+{% endblock %}
