@@ -1,4 +1,21 @@
 var csrftoken = Cookies.get('csrftoken');
+
+const defaultLang = {
+	info: 'Страница _PAGE_ из _PAGES_',
+	lengthMenu: 'На странице _MENU_',
+	zeroRecords: 'Сотрудников не найдено',
+	infoEmpty: 'Не найдено',
+	search: 'Поиск',
+	processing: 'Загрузка...',
+	loadingRecords: 'Загрузка...',
+	paginate: {
+	  first: '|<',
+	  last: '>|',
+	  next: '>',
+	  previous: '<'
+	}
+  }
+
 $.extend(true, $.fn.dataTable.defaults, {
 	ajax: {
 		//type: 'POST',
@@ -8,10 +25,12 @@ $.extend(true, $.fn.dataTable.defaults, {
 		// },
 		headers: {'X-CSRFToken': csrftoken}
 	},
+	language: defaultLang,
 	searching: true,
 	ordering: true,
 	processing: true,
 	serverSide: true,
+	pagingType: 'first_last_numbers',
 	dom: '<"row"<"toolbar col-sm-12 col-md-6"B><"col-sm-12 col-md-6"fb>>'
 		+ '<"row"<"col-sm-12"tr>>'
 		+ '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-2"l><"col-sm-12 col-md-5"p>>'

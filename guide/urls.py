@@ -5,14 +5,20 @@ from rest_framework import routers
 guideRouter = routers.DefaultRouter()
 guideRouter.register(r'imprestAccounts', views.ImprestAccountViewSet)
 guideRouter.register(r'expenseCodes', views.ExpenseCodeViewSet)
+guideRouter.register(r'expenseRates', views.ExpenseRateViewSet)
 # integrationRouter.register(r'employees', views.EmployeeViewSet)
 # integrationRouter.register(r'orders', views.OrderViewSet)
 
 urlpatterns = [
     path('imprestAccounts', views.imprestAccounts, name='imprestAccounts'),
-    # path('imprestAccounts/load', views.loadEstimates),
+    path('imprestAccounts/<id>', views.editImprestAccount, name='editExpenseCode'),
+    path('imprestAccounts/<id>/delete', views.deleteImprestAccount, name='deleteExpenseCode'),
 
     path('expenseCodes', views.expenseCodes, name='expenseCodes'),
     path('expenseCodes/<id>', views.editExpenseCode, name='editExpenseCode'),
     path('expenseCodes/<id>/delete', views.deleteExpenseCode, name='deleteExpenseCode'),
+
+    path('expenseRates', views.expenseRates, name='expenseRates'),
+    path('expenseRates/<id>', views.editExpenseRate, name='editExpenseRate'),
+    path('expenseRates/<id>/delete', views.deleteExpenseRate, name='deleteExpenseRate'),
 ]

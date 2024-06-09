@@ -1,7 +1,7 @@
 {% extends 'main/base.html' %}
 
 {% block title %}
-  Сотрудники
+  Коды учета подотчетной суммы
 {% endblock %}
 
 {% block content %}
@@ -9,21 +9,7 @@
   <table id="imprestAccount-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100"></table>
 
   <script type="text/javascript">
-    var sampleLang = {
-      info: 'Страница _PAGE_ из _PAGES_',
-      lengthMenu: 'На странице _MENU_',
-      zeroRecords: 'Сотрудников не найдено',
-      infoEmpty: 'Не найдено',
-      search: 'Поиск',
-      processing: 'Загрузка...',
-      loadingRecords: 'Загрузка...',
-      paginate: {
-        first: '|<',
-        last: '>|',
-        next: '>',
-        previous: '<'
-      }
-    }
+    
     $(document).ready(function () {
       var imprestAccountTable = $('#imprestAccount-table').DataTable({
         ajax: {
@@ -31,44 +17,44 @@
           data: function (d) {}
         },
         rowId: 'id',
-        pagingType: 'first_last_numbers',
-        language: sampleLang,
         columns: [
           {
-            title: 'id',
-            data: 'persId',
+            title: 'Счет',
+            data: 'account',
             width: '2rem'
           },
           {
-            title: 'Табельный',
-            data: 'empOrgNo',
+            title: 'Наименование',
+            data: 'name',
             width: '6rem'
           },
           {
-            title: 'Подр.',
-            data: 'divNo',
-            width: '6rem'
-          }
+            title: '',
+            data: null,
+            width: '1%',
+            defaultContent: '',
+            orderable: false,
+            render: function (data, type, row) {
+                return `<a href="/imprestAccounts/${data.account}" class="text-info bi bi-pencil h4 m-0"></a>`
+            }
+          },
+          {
+            title: '',
+            data: null,
+            width: '1%',
+            defaultContent: '',
+            orderable: false,
+            render: function (data, type, row) {
+              return `<a href="/imprestAccounts/${data.account}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить код расхода?');"></a>`
+            }
+         }
         ],
         buttons: [
           {
-            text: '&nbsp;Загрузить',
+            text: '&nbsp;Создать',
             className: 'btn btn-info btn-sm bi bi-boxes',
             action: function (e, dt, node, config) {
-              const alertEl = $('.alert')
-              $.get('/imprestAccounts/load', function (e) {
-                alertEl.attr('class', 'alert alert-success')
-                alertEl.html(e)
-              })
-                .fail(function (e) {
-                  alertEl.attr('class', 'alert alert-danger')
-                  alertEl.html(e.responseText)
-                })
-                .always(function () {
-                  alertEl.show().delay(3000).fadeOut()
-                  imprestAccountTable.ajax.reload()
-                })
-              //window.location.href = '/imprestAccounts/load';
+              window.location.href = '/imprestAccounts/new'
             }
           }
         ]
