@@ -1,0 +1,186 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+  Статьи расходов
+{% endblock %}
+
+{% block content %}
+  <style>
+    tr > th {
+      text-align: center;
+      border-bottom-width: 1px!important;
+      padding: .2rem!important;
+    }
+  </style>
+  <div class="alert alert-primary" role="alert" style="display: none;"></div>
+  <div class="row mb-1">
+    <div class="col-4 pr-1 flex-shrink-0">
+        <div class="input-group input-group-sm">
+            <div class="input-group-prepend">
+                <label class="input-group-text">Код учета подотчетной суммы</label>
+            </div>
+            <select id="imprest-account-select" class="text-center form-control custom-select">
+                <option value="">Все</option>
+                {% for opt in imprestAccounts %}
+                <option value="{{ opt.account }}" {% ifequal opt.account|stringformat:"i" request.GET.imprestAccount %}selected="selected"{% endifequal %}>{{ opt.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
+  <table id="expenseItem-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100">
+    <thead>
+      <tr>
+          <th rowspan="3">Пункт</th>
+          <th rowspan="3">Наименование расхода</th>
+          <th rowspan="3">Принято к учету</th>
+          <th colspan="6">Дебет</th>
+          <th colspan="6">Кредит</th>
+          <th rowspan="3">Схема</th>
+          <th rowspan="3">Для печати</th>
+          <th rowspan="3"></th>
+          <th rowspan="3"></th>
+      </tr>
+      <tr>
+          <th rowspan="2" data-dt-order="disable">Счет</th>
+          <th colspan="2" data-dt-order="disable">КАУ</th>
+          <th rowspan="2" data-dt-order="disable">Статья</th>
+          <th rowspan="2" data-dt-order="disable" width="30px">Расх. Подр.</th>
+          <th rowspan="2" data-dt-order="disable">Доп</th>
+
+          <th rowspan="2" data-dt-order="disable">Счет</th>
+          <th colspan="2" data-dt-order="disable">КАУ</th>
+          <th rowspan="2" data-dt-order="disable">Статья</th>
+          <th rowspan="2" data-dt-order="disable" width="30px">Расх. Подр.</th>
+          <th rowspan="2" data-dt-order="disable">Доп</th>
+      </tr>
+      <tr>
+        <th colspan="1" data-dt-order="disable" width="30px">&nbsp;</th>
+        <th colspan="1" data-dt-order="disable" width="30px">&nbsp;</th>
+        <th colspan="1" data-dt-order="disable" width="30px">&nbsp;</th>
+        <th colspan="1" data-dt-order="disable" width="30px">&nbsp;</th>
+    </tr>
+    </thead>
+  </table>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      var expenseItemTable = $('#expenseItem-table').DataTable({
+        ajax: {
+          url: '/api/v1/expenseItems/?format=datatables',
+          data: function (d) {
+            if ($('#imprest-account-select').length > 0)
+              d.imprestAccount = $('#imprest-account-select').val();
+          }
+        },
+        rowId: 'id',
+        pagingType: 'first_last_numbers',
+        columns: [
+          {
+            data: 'category.num',
+          },
+          {
+            data: 'category.name',
+          },
+          {
+            data: 'accept',
+            orderable: false
+          },
+          {
+            data: 'debitAccount',
+            orderable: false
+          },
+          {
+            data: 'debitKAU1',
+            orderable: false
+          },
+          {
+            data: 'debitKAU2',
+            orderable: false
+          },
+          {
+            data: 'debitExpenseItem',
+            orderable: false
+          },
+          {
+            data: 'debitExpenseDept',
+            orderable: false
+          },
+          {
+            data: 'debitExtra',
+            orderable: false
+          },
+
+
+          {
+            data: 'creditAccount',
+            orderable: false
+          },
+          {
+            data: 'creditKAU1',
+            orderable: false
+          },
+          {
+            data: 'creditKAU2',
+            orderable: false
+          },
+          {
+            data: 'creditExpenseItem',
+            orderable: false
+          },
+          {
+            data: 'creditExpenseDept',
+            orderable: false
+          },
+          {
+            data: 'creditExtra',
+            orderable: false
+          },
+
+          {
+            data: 'schema',
+            orderable: false
+          },
+          {
+            data: 'category.printName',
+            orderable: false
+          },
+
+          {
+            title: '',
+            data: null,
+            width: '1%',
+            defaultContent: '',
+            orderable: false,
+            render: function (data, type, row) {
+                return `<a href="/expenseItems/${data.code}" class="text-info bi bi-pencil h4 m-0"></a>`
+            }
+          },
+          {
+            title: '',
+            data: null,
+            width: '1%',
+            defaultContent: '',
+            orderable: false,
+            render: function (data, type, row) {
+              return `<a href="/expenseItems/${data.code}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить код расхода?');"></a>`
+            }
+          }
+        ],
+        buttons: [
+          {
+            text: '&nbsp;Создать',
+            className: 'btn btn-info btn-sm bi bi-boxes',
+            action: function (e, dt, node, config) {
+              window.location.href = '/expenseItems/new'
+            }
+          }
+        ]
+      })
+
+      $('#imprest-account-select').on('change', function () {
+        expenseItemTable.ajax.reload();
+    });
+    })
+  </script>
+{% endblock %}

@@ -4,9 +4,9 @@
 
   <div class="collapse navbar-collapse" id="navbarsExample03" style="font-size: 1.2em;">
     <ul class="navbar-nav mr-auto">
-      <!--            <li class="nav-item active">
+      <!--                 <li class="nav-item active">
                 <a class="nav-link" href="#">Домой <span class="sr-only">(current)</span></a>
-            </li>            -->
+            </li>                 -->
 
       {% comment %} <li class="nav-item dropdown active">
         <a class="nav-link" href="#" data-toggle="dropdown"><i class="fa-light fa-file-signature"></i>&nbsp;Заявления на аванс</a>
@@ -57,93 +57,111 @@
       <li class="nav-item dropdown active">
         <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa-light fa-layer-group"></i>&nbsp;Справочники</a>
         <ul class="dropdown-menu">
-          <li>
-            <a class="dropdown-item" href="#">Расходы по командировкам (б.сч.7101) &raquo</a>
-            <ul class="submenu dropdown-menu">
-              <li>
-                <a class="dropdown-item" href="">Статьи расхода</a>
-              </li>
-              <li>
-                <a class="dropdown-item" href="">Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
-              </li>
-            </ul>
-          </li>
+          {% if perms.guide.view_expense_items or perms.guide.edit_expense_items %}
+            <li>
+              <a class="dropdown-item" href="#">Расходы по командировкам (б.сч.7101) &raquo</a>
+              <ul class="submenu dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7101"><i class="fa-light fa-list-ol"></i>&nbsp;Статьи расхода</a>
+                </li>
 
-          <li>
-            <a class="dropdown-item" href="#">Расходы по загранкомандировкам (б.сч.7102) &raquo</a>
-            <ul class="submenu dropdown-menu">
-              <li>
-                <a class="dropdown-item" href="">Статьи расхода</a>
-              </li>
-            </ul>
-          </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'expenseItems' %}"><i class="fa-light fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
+                </li>
+              </ul>
+            </li>
+          {% endif %}
 
-          <li>
-            <a class="dropdown-item" href="#">Расходы 013 цеха (б.сч.7103) &raquo</a>
-            <ul class="submenu dropdown-menu">
-              <li>
-                <a class="dropdown-item" href="">Статьи расхода</a>
-              </li>
-              <li>
-                <a class="dropdown-item" href="">Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
-              </li>
-            </ul>
-          </li>
+          {% if perms.guide.view_expense_items or perms.guide.edit_expense_items %}
+            <li>
+              <a class="dropdown-item" href="#">Расходы по загранкомандировкам (б.сч.7102) &raquo</a>
+              <ul class="submenu dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7102"><i class="fa-light fa-list-ol"></i>&nbsp;Статьи расхода</a>
+                </li>
+              </ul>
+            </li>
+          {% endif %}
 
-          <li>
-            <a class="dropdown-item" href="#">Расходы по приобретению ТМЦ, работ, услуг (б.сч.7104) &raquo</a>
-            <ul class="submenu dropdown-menu">
-              <li>
-                <a class="dropdown-item" href="">Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
-              </li>
-            </ul>
-          </li>
+          {% if perms.guide.view_expense_items or perms.guide.edit_expense_items %}
+            <li>
+              <a class="dropdown-item" href="#">Расходы 013 цеха (б.сч.7103) &raquo</a>
+              <ul class="submenu dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7103"><i class="fa-light fa-list-ol"></i>&nbsp;Статьи расхода</a>
+                </li>
 
-          <li>
-            <a class="dropdown-item" href="#">Расходы 075 отдела (б.сч.7105) &raquo</a>
-            <ul class="submenu dropdown-menu">
-              <li>
-                <a class="dropdown-item" href="">Статьи расхода</a>
-              </li>
-              <li>
-                <a class="dropdown-item" href="">Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
-              </li>
-            </ul>
-          </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'expenseItems' %}"><i class="fa-light fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
+                </li>
+              </ul>
+            </li>
+          {% endif %}
 
-          <li>
-            <a class="dropdown-item" href="#">Расходы по приобретению ТМЦ, работ, услуг г. Москва (б.сч. 7106) &raquo</a>
-            <ul class="submenu dropdown-menu">
-              <li>
-                <a class="dropdown-item" href="">Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
-              </li>
-            </ul>
-          </li>
+          {% if perms.guide.view_expense_items or perms.guide.edit_expense_items %}
+            <li>
+              <a class="dropdown-item" href="#">Расходы по приобретению ТМЦ, работ, услуг (б.сч.7104) &raquo</a>
+              <ul class="submenu dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7104"><i class="fa-light fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
+                </li>
+              </ul>
+            </li>
+          {% endif %}
 
-          <li>
-            <a class="dropdown-item" href="#">Расходы 900 отдела (б.сч.7108) &raquo</a>
-            <ul class="submenu dropdown-menu">
-              <li>
-                <a class="dropdown-item" href="">Статьи расхода</a>
-              </li>
-              <li>
-                <a class="dropdown-item" href="">Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
-              </li>
-            </ul>
-          </li>
+          {% if perms.guide.view_expense_items or perms.guide.edit_expense_items %}
+            <li>
+              <a class="dropdown-item" href="#">Расходы 075 отдела (б.сч.7105) &raquo</a>
+              <ul class="submenu dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7105"><i class="fa-light fa-list-ol"></i>&nbsp;Статьи расхода</a>
+                </li>
+
+                <li>
+                  <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7105"><i class="fa-light fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
+                </li>
+              </ul>
+            </li>
+          {% endif %}
+
+          {% if perms.guide.view_expense_items or perms.guide.edit_expense_items %}
+            <li>
+              <a class="dropdown-item" href="#">Расходы по приобретению ТМЦ, работ, услуг г. Москва (б.сч. 7106) &raquo</a>
+              <ul class="submenu dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7106"><i class="fa-light fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
+                </li>
+              </ul>
+            </li>
+          {% endif %}
+
+          {% if perms.guide.view_expense_items or perms.guide.edit_expense_items %}
+            <li>
+              <a class="dropdown-item" href="#">Расходы 900 отдела (б.сч.7108) &raquo</a>
+              <ul class="submenu dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7108"><i class="fa-light fa-list-ol"></i>&nbsp;Статьи расхода</a>
+                </li>
+
+                <li>
+                  <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7108"><i class="fa-light fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
+                </li>
+              </ul>
+            </li>
+          {% endif %}
 
           <li>
             <a class="dropdown-item" href="#">Общие справочники для кодов учета подотчетной суммы &raquo</a>
             <ul class="submenu dropdown-menu">
               {% if perms.guide.view_imprest_accounts or perms.guide.edit_imprest_accounts %}
-              <li>
-                <a class="dropdown-item" href="{% url 'imprestAccounts' %}"><i class="fa-light fa-list-dropdown"></i>&nbsp;Код учета подотчетной суммы</a>
-              </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'imprestAccounts' %}"><i class="fa-light fa-list-dropdown"></i>&nbsp;Код учета подотчетной суммы</a>
+                </li>
               {% endif %}
               {% if perms.guide.view_expense_codes or perms.guide.edit_expense_codes %}
-              <li>
-                <a class="dropdown-item" href="{% url 'expenseCodes' %}"><i class="fa-light fa-list"></i>&nbsp;Код расхода</a>
-              </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'expenseCodes' %}"><i class="fa-light fa-list"></i>&nbsp;Код расхода</a>
+                </li>
               {% endif %}
               <li>
                 <a class="dropdown-item" href="">Справочник подразделений</a>
@@ -154,9 +172,9 @@
                 </li>
               {% endif %}
               {% if perms.guide.view_expense_rates or perms.guide.edit_expense_rates %}
-              <li>
-                <a class="dropdown-item" href="{% url 'expenseRates' %}"><i class="fa-light fa-user-helmet-safety"></i>&nbsp;Нормы командировочных расходов</a>
-              </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'expenseRates' %}"><i class="fa-light fa-wave-pulse"></i>&nbsp;Нормы командировочных расходов</a>
+                </li>
               {% endif %}
               <li>
                 <a class="dropdown-item" href="">Список документов</a>

@@ -88,7 +88,7 @@ class ExpenseItem(models.Model):
     # Категории расходов
     category = models.ForeignKey(ExpenseCategory, db_column='category_id', on_delete=models.PROTECT)
     # Код расхода
-    expenseCode = models.ForeignKey(ExpenseCode, db_column='expense_code_id', on_delete=models.PROTECT)
+    expenseCode = models.ForeignKey(ExpenseCode, db_column='expense_code_id', on_delete=models.PROTECT, blank=True, null=True)
 
     # Принято к учету
     accept = models.CharField(db_column="name", max_length=50, blank=False, null=False)
@@ -121,7 +121,9 @@ class ExpenseItem(models.Model):
     creditKAU2 = models.CharField(db_column="credit_kau_2", max_length=10, blank=True, null=True)
 
     # Схема проводок
-    scema = models.IntegerField(db_column='schema', blank=True, null=True)
+    schema = models.IntegerField(db_column='schema', blank=True, null=True)
+
+    itemType = models.IntegerField(db_column='item_type', blank=True, null=True)
 
     class Meta:
         db_table = 'expense_item'

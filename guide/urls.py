@@ -6,6 +6,7 @@ guideRouter = routers.DefaultRouter()
 guideRouter.register(r'imprestAccounts', views.ImprestAccountViewSet)
 guideRouter.register(r'expenseCodes', views.ExpenseCodeViewSet)
 guideRouter.register(r'expenseRates', views.ExpenseRateViewSet)
+guideRouter.register(r'expenseItems', views.ExpenseItemViewSet)
 # integrationRouter.register(r'employees', views.EmployeeViewSet)
 # integrationRouter.register(r'orders', views.OrderViewSet)
 
@@ -21,4 +22,6 @@ urlpatterns = [
     path('expenseRates', views.expenseRates, name='expenseRates'),
     path('expenseRates/<id>', views.editExpenseRate, name='editExpenseRate'),
     path('expenseRates/<id>/delete', views.deleteExpenseRate, name='deleteExpenseRate'),
+
+    path('expenseItems', views.expenseItems, name='expenseItems')
 ]
