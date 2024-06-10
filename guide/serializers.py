@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ImprestAccount, ExpenseCode, ExpenseRate, ExpenseItem, ExpenseCategory
+from .models import ImprestAccount, ExpenseCode, ExpenseRate, ExpenseItem, ExpenseCategory, Document
 
 
 class ImprestAccountSerializer (serializers.ModelSerializer):
@@ -41,3 +41,10 @@ class ExpenseItemSerializer (serializers.ModelSerializer):
         model = ExpenseItem
         fields = serializers.ALL_FIELDS
         datatables_always_serialize = ('id', 'category')
+
+class DocumentSerializer (serializers.ModelSerializer):
+
+    class Meta:
+        model = Document
+        fields = serializers.ALL_FIELDS
+        datatables_always_serialize = ('id')

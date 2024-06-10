@@ -1,6 +1,6 @@
 from django import forms
 from django.forms.models import ALL_FIELDS
-from .models import ExpenseCode, ImprestAccount, ExpenseRate
+from .models import ExpenseCode, ImprestAccount, ExpenseRate, Document
 
 class ExpenseCodeForm (forms.ModelForm):
     code = forms.CharField(label='Код', required=True)
@@ -33,4 +33,11 @@ class ExpenseRateForm (forms.ModelForm):
     
     class Meta:
         model = ExpenseRate
+        fields = ALL_FIELDS
+
+
+class DocumentForm (forms.ModelForm):
+   
+    class Meta:
+        model = Document
         fields = ALL_FIELDS

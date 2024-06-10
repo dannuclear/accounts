@@ -122,7 +122,7 @@ class ExpenseItem(models.Model):
 
     # Схема проводок
     schema = models.IntegerField(db_column='schema', blank=True, null=True)
-
+    # Тип. Поидее это ImprestAccount (Код учета подотчетной суммы) но в справочнике для 7101 были и другие коды? которых нет в справочнике
     itemType = models.IntegerField(db_column='item_type', blank=True, null=True)
 
     class Meta:
@@ -133,4 +133,20 @@ class ExpenseItem(models.Model):
         permissions = [
             ("view_expense_item", "Просмотр"),
             ("edit_expense_item", "Редактирование")
+        ]
+
+
+# Документ
+class Document (models.Model):
+    id = models.IntegerField(primary_key=True, blank=False)
+    name = models.CharField(db_column="name", max_length=100, blank=True, null=True)
+
+    class Meta:
+        db_table = 'document'
+        verbose_name = 'Документ'
+        verbose_name_plural = 'Документы'
+        default_permissions = ()
+        permissions = [
+            ("view_document", "Просмотр"),
+            ("edit_document", "Редактирование")
         ]

@@ -2,9 +2,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from rest_framework import viewsets
 
-from .forms import ExpenseCodeForm, ImprestAccountForm, ExpenseRateForm
-from .models import ExpenseCode, ImprestAccount, ExpenseRate, ExpenseItem
-from .serializers import ExpenseCodeSerializer, ImprestAccountSerializer, ExpenseRateSerializer, ExpenseItemSerializer
+from .forms import ExpenseCodeForm, ImprestAccountForm, ExpenseRateForm, DocumentForm
+from .models import ExpenseCode, ImprestAccount, ExpenseRate, ExpenseItem, Document
+from .serializers import ExpenseCodeSerializer, ImprestAccountSerializer, ExpenseRateSerializer, ExpenseItemSerializer, DocumentSerializer
 
 # Create your views here.
 
@@ -26,6 +26,10 @@ def expenseItems(request):
     return render(request, 'expenseItem/all.html', {'imprestAccounts': imprestAccounts})
 
 
+def documents(request):
+    return render(request, 'document/all.html')
+
+
 class ImprestAccountViewSet (viewsets.ModelViewSet):
     queryset = ImprestAccount.objects.all().order_by('id')
     serializer_class = ImprestAccountSerializer
@@ -39,6 +43,11 @@ class ExpenseCodeViewSet (viewsets.ModelViewSet):
 class ExpenseRateViewSet (viewsets.ModelViewSet):
     queryset = ExpenseRate.objects.all().order_by('id')
     serializer_class = ExpenseRateSerializer
+
+
+class DocumentViewSet (viewsets.ModelViewSet):
+    queryset = Document.objects.all().order_by('id')
+    serializer_class = DocumentSerializer
 
 
 class ExpenseItemViewSet (viewsets.ModelViewSet):
@@ -118,3 +127,16 @@ def deleteExpenseRate(request, id):
     if request.method == 'GET':
         ExpenseRate.objects.get(id=id).delete()
     return HttpResponseRedirect('/expenseRates')
+
+
+def editDocument(request, id):
+    document = Document() if id == 'new' else Document.objects.get(id=id)
+
+    if request.method == 'POST':
+        form = DocumentForm(request.POST, instance=document)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/documents')
+    if request.method == 'GET':
+        form = DocumentForm(instance=document)
+    return render(request, 'common/guide_common_edit_page.html', {'form': form, 'title': 'Документы'})
