@@ -3,8 +3,8 @@ from django.shortcuts import render
 from rest_framework import viewsets
 
 from .forms import ExpenseCodeForm, ImprestAccountForm, ExpenseRateForm, DocumentForm
-from .models import ExpenseCode, ImprestAccount, ExpenseRate, ExpenseItem, Document
-from .serializers import ExpenseCodeSerializer, ImprestAccountSerializer, ExpenseRateSerializer, ExpenseItemSerializer, DocumentSerializer
+from .models import ExpenseCode, ImprestAccount, ExpenseRate, ExpenseItem, Document, AccountingCert, Status
+from .serializers import AccountingCertSerializer, ExpenseCodeSerializer, ImprestAccountSerializer, ExpenseRateSerializer, ExpenseItemSerializer, DocumentSerializer, StatusSerializer
 
 # Create your views here.
 
@@ -29,6 +29,12 @@ def expenseItems(request):
 def documents(request):
     return render(request, 'document/all.html')
 
+def accountingCerts(request):
+    return render(request, 'accountingCert/all.html')
+
+def statuses(request):
+    return render(request, 'status/all.html')
+
 
 class ImprestAccountViewSet (viewsets.ModelViewSet):
     queryset = ImprestAccount.objects.all().order_by('id')
@@ -49,6 +55,14 @@ class DocumentViewSet (viewsets.ModelViewSet):
     queryset = Document.objects.all().order_by('id')
     serializer_class = DocumentSerializer
 
+
+class AccountingCertViewSet (viewsets.ModelViewSet):
+    queryset = AccountingCert.objects.all().order_by('account')
+    serializer_class = AccountingCertSerializer
+
+class StatusViewSet (viewsets.ModelViewSet):
+    queryset = Status.objects.all().order_by('id')
+    serializer_class = StatusSerializer
 
 class ExpenseItemViewSet (viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
@@ -140,3 +154,8 @@ def editDocument(request, id):
     if request.method == 'GET':
         form = DocumentForm(instance=document)
     return render(request, 'common/guide_common_edit_page.html', {'form': form, 'title': 'Документы'})
+
+def deleteDocument(request, id):
+    if request.method == 'GET':
+        Document.objects.get(id=id).delete()
+    return HttpResponseRedirect('/documents')

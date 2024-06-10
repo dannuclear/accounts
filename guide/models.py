@@ -150,3 +150,35 @@ class Document (models.Model):
             ("view_document", "Просмотр"),
             ("edit_document", "Редактирование")
         ]
+
+
+# Бухгалтерская справка
+class AccountingCert(models.Model):
+    account = models.IntegerField(primary_key=True, blank=False)
+    num = models.CharField(db_column="num", max_length=10, blank=False, null=False)
+
+    class Meta:
+        db_table = 'accounting_cert'
+        verbose_name = 'Бухгалтерская справка'
+        verbose_name_plural = 'Бухгалтерские справки'
+        default_permissions = ()
+        permissions = [
+            ("view_accounting_cert", "Просмотр"),
+            ("edit_accounting_cert", "Редактирование")
+        ]
+
+
+#Статус
+class Status(models.Model):
+    id = models.IntegerField(primary_key=True, blank=False)
+    name = models.CharField(db_column="name", max_length=50, blank=False, null=False)
+
+    class Meta:
+        db_table = 'status'
+        verbose_name = 'Статус'
+        verbose_name_plural = 'Статусы'
+        default_permissions = ()
+        permissions = [
+            ("view_status", "Просмотр"),
+            ("edit_status", "Редактирование")
+        ]

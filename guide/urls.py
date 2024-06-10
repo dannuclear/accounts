@@ -8,7 +8,9 @@ guideRouter.register(r'expenseCodes', views.ExpenseCodeViewSet)
 guideRouter.register(r'expenseRates', views.ExpenseRateViewSet)
 guideRouter.register(r'expenseItems', views.ExpenseItemViewSet)
 guideRouter.register(r'documents', views.DocumentViewSet)
-# integrationRouter.register(r'orders', views.OrderViewSet)
+guideRouter.register(r'accountingCerts', views.AccountingCertViewSet)
+guideRouter.register(r'statuses', views.StatusViewSet)
+
 
 urlpatterns = [
     path('imprestAccounts', views.imprestAccounts, name='imprestAccounts'),
@@ -27,5 +29,9 @@ urlpatterns = [
 
     path('documents', views.documents, name='documents'),
     path('documents/<id>', views.editDocument, name='editDocument'),
-    #path('documents/<id>/delete', views.documents, name='documents'),
+    path('documents/<id>/delete', views.deleteDocument, name='deleteDocument'),
+
+    path('accountingCerts', views.accountingCerts, name='accountingCerts'),
+
+    path('statuses', views.statuses, name='statuses'),
 ]
