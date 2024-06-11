@@ -3,8 +3,8 @@ from django.shortcuts import render
 from rest_framework import viewsets
 
 from .forms import ExpenseCodeForm, ImprestAccountForm, ExpenseRateForm, DocumentForm
-from .models import ExpenseCode, ImprestAccount, ExpenseRate, ExpenseItem, Document, AccountingCert, Status
-from .serializers import AccountingCertSerializer, ExpenseCodeSerializer, ImprestAccountSerializer, ExpenseRateSerializer, ExpenseItemSerializer, DocumentSerializer, StatusSerializer
+from .models import ExpenseCode, ImprestAccount, ExpenseRate, ExpenseItem, Document, AccountingCert, Status, Department, DepartmentAccount, ObtainMethod, PrepaidDest
+from .serializers import AccountingCertSerializer, ExpenseCodeSerializer, ImprestAccountSerializer, ExpenseRateSerializer, ExpenseItemSerializer, DocumentSerializer, StatusSerializer, DepartmentSerializer, DepartmentAccountSerializer, ObtainMethodSerializer, PrepaidDestSerializer
 
 # Create your views here.
 
@@ -35,6 +35,17 @@ def accountingCerts(request):
 def statuses(request):
     return render(request, 'status/all.html')
 
+def departments(request):
+    return render(request, 'department/all.html')
+
+def departmentAccounts(request):
+    return render(request, 'departmentAccount/all.html')
+
+def obtainMethods(request):
+    return render(request, 'obtainMethod/all.html')
+
+def prepaidDests(request):
+    return render(request, 'prepaidDest/all.html')
 
 class ImprestAccountViewSet (viewsets.ModelViewSet):
     queryset = ImprestAccount.objects.all().order_by('id')
@@ -63,6 +74,22 @@ class AccountingCertViewSet (viewsets.ModelViewSet):
 class StatusViewSet (viewsets.ModelViewSet):
     queryset = Status.objects.all().order_by('id')
     serializer_class = StatusSerializer
+
+class DepartmentViewSet (viewsets.ModelViewSet):
+    queryset = Department.objects.all().order_by('id')
+    serializer_class = DepartmentSerializer
+
+class ObtainMethodViewSet (viewsets.ModelViewSet):
+    queryset = ObtainMethod.objects.all().order_by('id')
+    serializer_class = ObtainMethodSerializer
+
+class PrepaidDestViewSet (viewsets.ModelViewSet):
+    queryset = PrepaidDest.objects.all().order_by('id')
+    serializer_class = PrepaidDestSerializer
+
+class DepartmentAccountViewSet (viewsets.ModelViewSet):
+    queryset = DepartmentAccount.objects.select_related('department').order_by('id')
+    serializer_class = DepartmentAccountSerializer
 
 class ExpenseItemViewSet (viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):

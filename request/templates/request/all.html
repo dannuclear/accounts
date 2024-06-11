@@ -1,0 +1,86 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+Заявления на аванс
+{% endblock %}
+
+{% block content %}
+<div class="alert alert-primary" role="alert" style="display: none;">
+
+</div>
+<table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100"></table>
+
+<div id="request-variant-dialog" title="Выберите вариант заявления на выдачу аванса">
+    <div class="container">
+      <div class="row p-1">
+        <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new">Аванс на приобретение ТМЦ, работ, услуг</a>
+      </div>
+      <div class="row p-1">
+        <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new">Аванс на приобретение ГСМ</a>
+      </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(
+        function () {
+            var requestTable = $('#request-table').DataTable(
+                {
+                    ajax: {
+                        url: '/api/v1/requests/?format=datatables',
+                        data: function (d) {
+
+                        }
+                    },
+                    rowId: 'id',
+                    pagingType: 'first_last_numbers',
+                    columns: [
+                        {
+                            title: 'id',
+                            data: 'id',
+                            width: '2rem'
+                        },
+                        {
+                            title: '',
+                            data: null,
+                            width: '1%',
+                            defaultContent: '',
+                            orderable: false,
+                            render: function (data, type, row) {
+                                return `<a href="/departments/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
+                            }
+                        },
+                        {
+                            title: '',
+                            data: null,
+                            width: '1%',
+                            defaultContent: '',
+                            orderable: false,
+                            render: function (data, type, row) {
+                              return `<a href="/departments/${data.id}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить заявку?');"></a>`
+                            }
+                         }
+                    ],
+                    buttons: [
+                        {
+                            text: '&nbsp;СОЗДАТЬ НОВУЮ ЗАЯВКУ',
+                            className: 'btn btn-info fa-light fa-square-plus',
+                            action: function (e, dt, node, config) {
+                                requestVariantDialog.dialog("open")
+                            }
+                        }
+                    ]
+                });
+
+            const requestVariantDialog = $( "#request-variant-dialog" ).dialog({
+                    autoOpen: false,
+                    //height: 150,
+                    width: 500,
+                    modal: true,
+                    appendTo: "body",
+                    closeText: "hide"
+                  });
+        }
+    );
+</script>
+{% endblock %}

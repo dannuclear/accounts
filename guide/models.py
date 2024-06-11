@@ -182,3 +182,69 @@ class Status(models.Model):
             ("view_status", "Просмотр"),
             ("edit_status", "Редактирование")
         ]
+
+# Подразделение
+class Department(models.Model):
+    id = models.CharField(primary_key=True, blank=False, max_length=3)
+    name = models.CharField(db_column="name", max_length=200, blank=False, null=False)
+    # account = models.IntegerField(db_column="account", blank=True, null=True)
+    # extra = models.CharField(db_column="extra", blank=True, null=True, max_length=10)
+
+    class Meta:
+        db_table = 'department'
+        verbose_name = 'Подразделение'
+        verbose_name_plural = 'Подразделения'
+        default_permissions = ()
+        permissions = [
+            ("view_department", "Просмотр"),
+            ("edit_department", "Редактирование")
+        ]
+
+# Счет подразделения
+class DepartmentAccount(models.Model):
+    id = models.AutoField(primary_key=True, blank=False)
+    department = models.ForeignKey(Department, db_column='department_id', on_delete=models.PROTECT, blank=False, null=False)
+    account = models.IntegerField(db_column="account", blank=True, null=True)
+    extra = models.CharField(db_column="extra", blank=True, null=True, max_length=10)
+
+    class Meta:
+        db_table = 'department_account'
+        verbose_name = 'Счет подразделения'
+        verbose_name_plural = 'Счета подразделений'
+        default_permissions = ()
+        permissions = [
+            ("view_department_account", "Просмотр"),
+            ("edit_department_account", "Редактирование")
+        ]
+
+# Способ получения
+class ObtainMethod(models.Model):
+    id = models.AutoField(primary_key=True, blank=False)
+    name = models.CharField(db_column="name", blank=False, null=False, max_length=50)
+    source = models.SmallIntegerField(db_column="source", blank=True, null=True)
+    bik = models.IntegerField(db_column="bik", blank=True, null=True)
+
+    class Meta:
+        db_table = 'obtain_method'
+        verbose_name = 'Способ получения'
+        verbose_name_plural = 'Способы получения'
+        default_permissions = ()
+        permissions = [
+            ("view_obtain_method", "Просмотр"),
+            ("edit_obtain_method", "Редактирование")
+        ]
+
+# Назначение аванса
+class PrepaidDest(models.Model):
+    id = models.AutoField(primary_key=True, blank=False)
+    name = models.CharField(db_column="name", blank=False, null=False, max_length=200)
+
+    class Meta:
+        db_table = 'prepaid_dest'
+        verbose_name = 'Назначение аванса'
+        verbose_name_plural = 'Назначения аванса'
+        default_permissions = ()
+        permissions = [
+            ("view_prepaid_dest", "Просмотр"),
+            ("edit_prepaid_dest", "Редактирование")
+        ]

@@ -10,7 +10,10 @@ guideRouter.register(r'expenseItems', views.ExpenseItemViewSet)
 guideRouter.register(r'documents', views.DocumentViewSet)
 guideRouter.register(r'accountingCerts', views.AccountingCertViewSet)
 guideRouter.register(r'statuses', views.StatusViewSet)
-
+guideRouter.register(r'departments', views.DepartmentViewSet)
+guideRouter.register(r'departmentAccounts', views.DepartmentAccountViewSet)
+guideRouter.register(r'obtainMethods', views.ObtainMethodViewSet)
+guideRouter.register(r'prepaidDests', views.PrepaidDestViewSet)
 
 urlpatterns = [
     path('imprestAccounts', views.imprestAccounts, name='imprestAccounts'),
@@ -34,4 +37,12 @@ urlpatterns = [
     path('accountingCerts', views.accountingCerts, name='accountingCerts'),
 
     path('statuses', views.statuses, name='statuses'),
+
+    path('departments', views.departments, name='departments'),
+
+    path('departmentAccounts', views.departmentAccounts, name='departmentAccounts'),
+
+    path('obtainMethods', views.obtainMethods, name='obtainMethods'),
+
+    path('prepaidDests', views.prepaidDests, name='prepaidDests'),
 ]

@@ -1,0 +1,56 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+Заявление на аванс
+{% endblock %}
+
+{% block content %}
+
+<ul class="nav nav-tabs container" id="prepaymentTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <a class="nav-link active" id="main-tab" data-toggle="tab" href="#main" role="tab" aria-controls="main" aria-selected="true">Главная</a>
+    </li>
+</ul>
+<div class="tab-content container border" id="prepaymentTabContent">
+    <div class="tab-pane fade show active" id="main" role="tabpanel" aria-labelledby="main-tab">
+
+        <form method="post">
+            {% csrf_token %}
+            {{prepaymentForm.errors}}
+            <input type="hidden" name="id" value="{{prepaymentForm.id.value}}">
+            <!-- <input id="param-value" type="hidden" name="{{prepaymentForm.result.name}}" value="{{ prepaymentForm.result.value|default_if_none:'' }}"> -->
+            <!-- <div class="container border"> -->
+
+            <div class="row">
+                <div class="col-12 p-1 input-group input-group-sm">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">{{prepaymentForm.name.label}}</span>
+                    </div>
+                    <input type="text" class="h5 text-center mb-0 form-control form-control-sm" name="{{prepaymentForm.name.name}}" value="{{ prepaymentForm.name.value|default_if_none:'' }}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 p-1 input-group input-group-sm">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">{{prepaymentForm.params.label}}</span>
+                    </div>
+                    <textarea cols="100" rows="30" class="h5 text-center mb-0 form-control form-control-sm" name="{{prepaymentForm.params.name}}" style="text-align: left !important;">{{ prepaymentForm.params.value|default_if_none:'' }}</textarea>
+                </div>
+            </div>
+    </div>
+
+    <div class="row justify-content-end p-1">
+        <div class="d-inline-flex">
+            <!-- <button type="submit" href="" class="btn btn-info">Сохранить</button> -->
+            <a href="{% url 'prepayments' %}" class="btn btn-secondary ml-1">Отмена</a>
+        </div>
+    </div>
+    <!-- </div> -->
+    </form>
+</div>
+</div>
+
+</div>
+
+{% endblock %}

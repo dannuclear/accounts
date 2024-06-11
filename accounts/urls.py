@@ -17,13 +17,16 @@ from django.contrib import admin
 from django.urls import path, include
 from integration.urls import integrationRouter
 from guide.urls import guideRouter
+from request.urls import requestRouter
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
     path('', include('integration.urls')),
     path('', include('guide.urls')),
+    path('', include('request.urls')),
 
     path('api/v1/', include(integrationRouter.urls)),
     path('api/v1/', include(guideRouter.urls)),
+    path('api/v1/', include(requestRouter.urls)),
 ]

@@ -1,0 +1,67 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+  Способ получения
+{% endblock %}
+
+{% block content %}
+  <div class="alert alert-primary" role="alert" style="display: none;"></div>
+  <table id="obtainMethod-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100"></table>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      var obtainMethodTable = $('#obtainMethod-table').DataTable({
+        ajax: {
+          url: '/api/v1/obtainMethods/?format=datatables',
+          data: function (d) {}
+        },
+        rowId: 'id',
+        pagingType: 'first_last_numbers',
+        columns: [
+          {
+            title: 'ID',
+            data: 'id',
+            width: '5rem'
+          },
+          {
+            title: 'Наименование',
+            data: 'name'
+          },
+          {
+            title: 'БИК',
+            data: 'bik'
+          },
+          {
+            title: '',
+            data: null,
+            width: '1%',
+            defaultContent: '',
+            orderable: false,
+            render: function (data, type, row) {
+                return `<a href="/obtainMethods/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
+            }
+        },
+        {
+            title: '',
+            data: null,
+            width: '1%',
+            defaultContent: '',
+            orderable: false,
+            render: function (data, type, row) {
+              return `<a href="/obtainMethods/${data.id}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить код расхода?');"></a>`
+            }
+         }
+        ],
+        buttons: [
+          {
+            text: '&nbsp;Создать',
+            className: 'btn btn-info btn-sm bi bi-boxes',
+            action: function (e, dt, node, config) {
+              window.location.href = '/obtainMethods/new'
+            }
+          }
+        ]
+      })
+    })
+  </script>
+{% endblock %}
