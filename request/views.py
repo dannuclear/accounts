@@ -23,4 +23,4 @@ def editRequest(request, id):
             return HttpResponseRedirect('/requests')
     if request.method == 'GET':
         form = RequestForm(instance=prepaymentRequest)
-    return render(request, 'common/guide_common_edit_page.html', {'form': form, 'title': 'Заявление'})
+    return render(request, 'request/edit.html', {'form': form, 'title': 'Заявление'})
