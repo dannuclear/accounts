@@ -173,6 +173,9 @@ class Status(models.Model):
     id = models.IntegerField(primary_key=True, blank=False)
     name = models.CharField(db_column="name", max_length=50, blank=False, null=False)
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         db_table = 'status'
         verbose_name = 'Статус'

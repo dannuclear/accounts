@@ -29,6 +29,9 @@ class Employee(models.Model):
     # emp_dismiss_date	CHAR(10)	date	нет	Дата увольнения	использовать формат (YYYY-MM-DD)
     empDismissDate = models.DateField(blank=True, db_column="emp_dismiss_date", null=True)
 
+    def __str__(self):
+        return '%s: %s %s %s' % (self.empOrgNo, self.pfnSurname, self.pfnName, self.pfnPatronymic)
+
     class Meta:
         db_table = 'employee'
         verbose_name = 'Сотрудник'

@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-  <form method="post">
+  <form method="post" class="container">
     {% csrf_token %}
     <div class="form-row align-items-center">
       <div class="col-12 p-1 text-right">
@@ -13,25 +13,53 @@
         <a href="{% url 'requests' %}" class="btn btn-danger btn-sm">Отмена</a>
       </div>
     </div>
-    {% comment %} {{ form.errors }} {% endcomment %}
+    {{ form.errors }}
     <input type="hidden" name="id" value="{{ form.id.value }}" />
 
-    {% comment %} <div class="row">
-      <div class="col-12 p-1 input-group input-group-sm">
+    <div class="row">
+      <div class="col-2 p-1 input-group input-group-sm">
         <div class="input-group-prepend">
-          <span class="input-group-text">{{ form.name.label }}</span>
+          <span class="input-group-text">{{ form.num.label }}</span>
         </div>
-        <input type="text" class="h5 text-center mb-0 form-control form-control-sm" name="{{ form.name.name }}" value="{{ form.name.value|default_if_none:'' }}" />
+        <input type="text" class="h5 text-center mb-0 form-control form-control-sm" name="{{ form.num.name }}" value="{{ form.num.value|default_if_none:'' }}" disabled/>
+      </div>
+
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">{{ form.createDate.label }}</span>
+        </div>
+        <input type="text" class="h5 text-center mb-0 form-control form-control-sm" name="{{ form.createDate.name }}" value="{{ form.createDate.value|default_if_none:'' }}" disabled/>
       </div>
     </div>
 
     <div class="row">
-      <div class="col-12 p-1 input-group input-group-sm">
+      <div class="col-4 p-1 input-group input-group-sm">
         <div class="input-group-prepend">
-          <span class="input-group-text">{{ form.params.label }}</span>
+          <span class="input-group-text">{{ form.issuedSum.label }}</span>
         </div>
-        <textarea cols="100" rows="30" class="h5 text-center mb-0 form-control form-control-sm" name="{{ form.params.name }}" style="text-align: left !important;">{{ form.params.value|default_if_none:'' }}</textarea>
+        <input type="text" class="h5 text-center mb-0 form-control form-control-sm" name="{{ form.issuedSum.name }}" value="{{ form.issuedSum.value|default_if_none:'' }}"/>
       </div>
-    </div> {% endcomment %}
+    </div>
+
+    <div class="row">
+      <div class="col-4 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text {% if form.applicant.errors %} bg-danger {% endif %}">{{ form.applicant.label }}</span>
+        </div>
+        {{ form.applicant }}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-9 p-1 input-group input-group-sm">
+      </div>
+
+      <div class="col-3 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text {% if form.status.errors %} bg-danger {% endif %}">{{ form.status.label }}</span>
+        </div>
+        {{ form.status }}
+      </div>
+    </div>
   </form>
 {% endblock %}

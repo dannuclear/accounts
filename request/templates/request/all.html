@@ -10,13 +10,13 @@
 </div>
 <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100"></table>
 
-<div id="request-variant-dialog" title="Выберите вариант заявления на выдачу аванса">
+<div id="request-variant-dialog" title="Выберите вариант заявления на выдачу аванса" style="display: none;">
     <div class="container">
       <div class="row p-1">
-        <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new">Аванс на приобретение ТМЦ, работ, услуг</a>
+        <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=0">Аванс на приобретение ТМЦ, работ, услуг</a>
       </div>
       <div class="row p-1">
-        <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new">Аванс на приобретение ГСМ</a>
+        <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=1">Аванс на приобретение ГСМ</a>
       </div>
     </div>
 </div>
@@ -36,9 +36,70 @@
                     pagingType: 'first_last_numbers',
                     columns: [
                         {
-                            title: 'id',
-                            data: 'id',
-                            width: '2rem'
+                            title: '№',
+                            data: 'num',
+                            width: '2rem',
+                            orderable: false
+                        },
+                        {
+                            title: 'Дата',
+                            data: 'createDate',
+                            width: '2rem',
+                            orderable: false
+                        },
+                        {
+                            title: '№ Подр.',
+                            data: 'applicant.divNo',
+                            orderable: false,
+                            className: 'text-center',
+                            width: '6rem'
+                        },
+                        {
+                            title: 'Табельный',
+                            data: 'applicant.empOrgNo',
+                            orderable: false,
+                            className: 'text-center',
+                            width: '6rem'
+                        },
+                        {
+                            title: 'ФИО',
+                            data: 'applicant.fullName',
+                            orderable: false
+                        },
+                        {
+                            title: 'Должность',
+                            data: 'applicant.profName',
+                            orderable: false
+                        },
+                        {
+                            title: 'Сумма, руб.',
+                            data: 'issuedSum',
+                            orderable: false,
+                            width: '6rem',
+                            className: 'text-center'
+                        },
+                        {
+                            title: 'Код учета',
+                            data: 'comment',
+                            orderable: false,
+                            width: '5rem',
+                        },
+                        {
+                            title: 'Назначение аванса',
+                            data: 'comment',
+                            orderable: false
+                        },
+                        {
+                            title: 'Описание покупок',
+                            data: 'comment',
+                            orderable: false
+                        },
+                        {
+                            title: 'Статус',
+                            data: 'status.name',
+                            orderable: false,
+                            width: '7rem',
+                            className: 'text-center'
                         },
                         {
                             title: '',
@@ -47,7 +108,7 @@
                             defaultContent: '',
                             orderable: false,
                             render: function (data, type, row) {
-                                return `<a href="/departments/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
+                                return `<a href="/requests/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
                             }
                         },
                         {
@@ -57,7 +118,7 @@
                             defaultContent: '',
                             orderable: false,
                             render: function (data, type, row) {
-                              return `<a href="/departments/${data.id}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить заявку?');"></a>`
+                              return `<a href="/requests/${data.id}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить заявку?');"></a>`
                             }
                          }
                     ],

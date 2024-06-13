@@ -1,5 +1,6 @@
 from django.db import models
 from integration.models import Employee
+from guide.models import Status
 # Create your models here.
 
 # Заявление на выдачу денег под отчет на приобретение ТМЦ, работ, услуг
@@ -22,6 +23,13 @@ class Request(models.Model):
     comment = models.CharField(db_column="comment", blank=True, null=True, max_length=500)
     # Предполагаемая дата получения денежных средств
     receivingDate = models.DateField(db_column="receiving_date", blank=True, null=True)
+    # Тип заявления 0 - услуги, 1 - ГСМ
+    type = models.SmallIntegerField(db_column="type", blank=False, null=False)
+
+    createdBy = models.CharField(db_column='created_by', max_length=200)
+    createdAt = models.DateTimeField(db_column='created_at')
+
+    status = models.ForeignKey(Status, db_column='status_id', on_delete=models.PROTECT, blank=False, null=False)
 
     class Meta:
         db_table = 'request'

@@ -11,10 +11,18 @@ class EstimateSerializer (serializers.ModelSerializer):
 
 class EmployeeSerializer (serializers.ModelSerializer):
     persId = serializers.IntegerField(read_only=True)
+    fullName = serializers.SerializerMethodField()
+    empOrgNoWithfullName = serializers.SerializerMethodField()
+
+    def get_fullName(self, obj):
+        return '%s %s %s' % (obj.pfnSurname, obj.pfnName, obj.pfnPatronymic)
+
+    def get_empOrgNoWithfullName(self, obj):
+        return '%s: %s' % (obj.empOrgNo, self.get_fullName(obj))
 
     class Meta:
         model = Employee
-        fields = ('persId', 'empOrgNo', 'divNo', 'pfnSurname', 'pfnName', 'pfnPatronymic', 'pqlfName', 'profName', 'empChangesDate', 'empDismissDate')
+        fields = ('persId', 'empOrgNo', 'divNo', 'pfnSurname', 'pfnName', 'pfnPatronymic', 'pqlfName', 'profName', 'empChangesDate', 'empDismissDate', 'fullName', 'empOrgNoWithfullName')
         datatables_always_serialize = ('persId', 'pfnSurname', 'pfnName', 'pfnPatronymic')
 
 class PrepaymentSerializer (serializers.ModelSerializer):
