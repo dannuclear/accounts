@@ -13,7 +13,7 @@
         <a class="nav-link" href="{% url 'requests' %}"><i class="fa-light fa-file-signature"></i>&nbsp;Заявления на аванс</a>
       </li>
       {% endif %}
-
+{% comment %} 
       {% if perms.integration.view_prepayments %}
         <li class="nav-item dropdown active">
           <a class="nav-link" href="{% url 'prepayments' %}"><i class="fa-light fa-money-bill-transfer"></i>&nbsp;Выданный под отчет аванс</a>
@@ -22,12 +22,7 @@
 
       <li class="nav-item dropdown active">
         <a class="nav-link" href="#" data-toggle="dropdown"><i class="fa-light fa-file-contract"></i>&nbsp;Авансовые отчеты</a>
-        {% comment %} <ul class="dropdown-menu">
-          <li>
-            <a class="dropdown-item" href="">Код учета подотчетной суммы</a>
-          </li>
-        </ul> {% endcomment %}
-      </li>
+      </li> {% endcomment %}
 
       <li class="nav-item dropdown active">
         <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa-light fa-scale-balanced"></i>&nbsp;Бухгалтерский учет</a>

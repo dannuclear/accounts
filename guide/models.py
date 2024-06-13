@@ -10,6 +10,9 @@ class ImprestAccount(models.Model):
     # Наименование
     name = models.CharField(db_column="name", max_length=500, blank=True, null=True)
 
+    def __str__(self):
+        return u'%s'%self.account
+    
     class Meta:
         db_table = 'imprest_account'
         verbose_name = 'Код учета подотчетной суммы'

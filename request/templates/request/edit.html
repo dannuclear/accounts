@@ -33,16 +33,7 @@
     </div>
 
     <div class="row">
-      <div class="col-4 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">{{ form.issuedSum.label }}</span>
-        </div>
-        <input type="text" class="h5 text-center mb-0 form-control form-control-sm" name="{{ form.issuedSum.name }}" value="{{ form.issuedSum.value|default_if_none:'' }}"/>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-4 p-1 input-group input-group-sm">
+      <div class="col-12 p-1 input-group input-group-sm">
         <div class="input-group-prepend">
           <span class="input-group-text {% if form.applicant.errors %} bg-danger {% endif %}">{{ form.applicant.label }}</span>
         </div>
@@ -51,7 +42,40 @@
     </div>
 
     <div class="row">
-      <div class="col-9 p-1 input-group input-group-sm">
+      <div class="col-4 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">{{ form.issuedSum.label }}</span>
+        </div>
+        <input type="text" class="h5 text-center mb-0 form-control form-control-sm" name="{{ form.issuedSum.name }}" value="{{ form.issuedSum.value|default_if_none:'' }}"/>
+      </div>
+
+      <div class="col-4 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">{{ form.receivingDate.label }}</span>
+        </div>
+        <input type="text" class="h5 text-center mb-0 form-control form-control-sm datepeeker" name="{{ form.receivingDate.name }}" value="{{ form.receivingDate.value|default_if_none:'' }}" autocomplete="off"/>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">{{ form.comment.label }}</span>
+        </div>
+        <textarea type="text" rows="3" class="h5 mb-0 form-control form-control-sm" name="{{ form.comment.name }}" >{{ form.comment.value|default_if_none:'' }}</textarea>
+      </div>
+    </div>
+
+    <div class="row">
+
+      <div class="col-7 p-1 input-group input-group-sm">
+      </div>
+
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text {% if form.imprestAccount.errors %} bg-danger {% endif %}">{{ form.imprestAccount.label }}</span>
+        </div>
+        {{ form.imprestAccount }}
       </div>
 
       <div class="col-3 p-1 input-group input-group-sm">
@@ -62,4 +86,8 @@
       </div>
     </div>
   </form>
+
+  <script type="text/javascript">
+    $('.datepeeker').datepicker();
+  </script>
 {% endblock %}

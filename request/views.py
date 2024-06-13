@@ -11,7 +11,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 
 
 class RequestViewSet (viewsets.ModelViewSet):
-    queryset = Request.objects.all().select_related('applicant').select_related('status').order_by('-id')
+    queryset = Request.objects.all().select_related('applicant').select_related('status').select_related('imprestAccount').order_by('-id')
     serializer_class = RequestSerializer
 
 
@@ -28,6 +28,8 @@ def editRequest(request, id):
         prepaymentRequest.createdAt = datetime.now()
         prepaymentRequest.createDate = datetime.now()
         prepaymentRequest.type = request.GET['type']
+        prepaymentRequest.status_id = 1
+        prepaymentRequest.imprestAccount_id = 7101
     else:
         prepaymentRequest = Request.objects.get(id=id)
 
