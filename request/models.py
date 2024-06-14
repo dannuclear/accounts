@@ -1,6 +1,6 @@
 from django.db import models
 from integration.models import Employee
-from guide.models import Status, ImprestAccount
+from guide.models import Status, ImprestAccount, ObtainMethod
 # Create your models here.
 
 # Заявление на выдачу денег под отчет на приобретение ТМЦ, работ, услуг
@@ -33,6 +33,8 @@ class Request(models.Model):
 
     imprestAccount = models.ForeignKey(ImprestAccount, db_column='imprest_account_id', on_delete=models.PROTECT, blank=False, null=False)
     
+    obtainMethod = models.ForeignKey(ObtainMethod, db_column='obtain_method_id', on_delete=models.PROTECT, blank=True, null=True)
+
     class Meta:
         db_table = 'request'
         verbose_name = 'Заявление на аванс'

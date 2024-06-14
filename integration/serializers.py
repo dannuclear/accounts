@@ -13,6 +13,7 @@ class EmployeeSerializer (serializers.ModelSerializer):
     persId = serializers.IntegerField(read_only=True)
     fullName = serializers.SerializerMethodField()
     empOrgNoWithfullName = serializers.SerializerMethodField()
+    empOrgNoWithfullNameAndPost = serializers.SerializerMethodField()
 
     def get_fullName(self, obj):
         return '%s %s %s' % (obj.pfnSurname, obj.pfnName, obj.pfnPatronymic)
@@ -20,9 +21,12 @@ class EmployeeSerializer (serializers.ModelSerializer):
     def get_empOrgNoWithfullName(self, obj):
         return '%s: %s' % (obj.empOrgNo, self.get_fullName(obj))
 
+    def get_empOrgNoWithfullNameAndPost(self, obj):
+        return '%s (%s)' % (self.get_empOrgNoWithfullName(obj), obj.profName)
+
     class Meta:
         model = Employee
-        fields = ('persId', 'empOrgNo', 'divNo', 'pfnSurname', 'pfnName', 'pfnPatronymic', 'pqlfName', 'profName', 'empChangesDate', 'empDismissDate', 'fullName', 'empOrgNoWithfullName')
+        fields = ('persId', 'empOrgNo', 'divNo', 'pfnSurname', 'pfnName', 'pfnPatronymic', 'pqlfName', 'profName', 'empChangesDate', 'empDismissDate', 'fullName', 'empOrgNoWithfullName', 'empOrgNoWithfullNameAndPost')
         datatables_always_serialize = ('persId', 'pfnSurname', 'pfnName', 'pfnPatronymic')
 
 class PrepaymentSerializer (serializers.ModelSerializer):

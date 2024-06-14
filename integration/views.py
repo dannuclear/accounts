@@ -6,7 +6,7 @@ from django.http import (HttpResponse, HttpResponseBadRequest,
                          HttpResponseRedirect)
 from django.shortcuts import render
 from main.models import Settings
-from rest_framework import viewsets
+from rest_framework import viewsets,generics
 
 from . import loaders
 from .models import Employee, Estimate, Prepayment, WC07POrder
@@ -15,33 +15,48 @@ from .helper import FileType
 
 # Create your views here.
 
+
 def estimates(request):
     return render(request, 'estimate/all.html')
+
 
 def employees(request):
     return render(request, 'employee/all.html')
 
+
 def prepayments(request):
     return render(request, 'prepayment/all.html')
 
+
 def orders(request):
     return render(request, 'orders/all.html')
+
 
 class EstimateViewSet (viewsets.ModelViewSet):
     queryset = Estimate.objects.all().order_by('id')
     serializer_class = EstimateSerializer
 
+
 class EmployeeViewSet (viewsets.ModelViewSet):
-    queryset = Employee.objects.all().order_by('id')
+    queryset = Employee.objects.all().order_by('persId')
     serializer_class = EmployeeSerializer
+    def get_queryset(self):
+        queryset = self.queryset
+        empOrgNo = self.request.query_params.get('empOrgNo')
+        if empOrgNo is not None:
+            queryset = queryset.filter(empOrgNo=empOrgNo)
+        return queryset
+
 
 class PrepaymentViewSet (viewsets.ModelViewSet):
     queryset = Prepayment.objects.all().order_by('id')
     serializer_class = PrepaymentSerializer
 
+
 class OrderViewSet (viewsets.ModelViewSet):
     queryset = WC07POrder.objects.all().order_by('id')
     serializer_class = WC07POrderSerializer
+
 
 def edit(request, id):
     if id == 'new':
@@ -57,6 +72,7 @@ def edit(request, id):
         form = EmployeeForm(instance=Employee)
     return render(request, 'employee/edit.html', {'EmployeeForm': form})
 
+
 def delete(request, id):
     if request.method == 'GET':
         Employee.objects.get(id=id).delete()
@@ -66,16 +82,20 @@ def delete(request, id):
 def loadEstimates(request):
     return load(FileType.ESTIMATE)
 
+
 def loadEmployees(request):
     return load(FileType.EMPLOYEE)
+
 
 def loadPrepayments(request):
     return load(FileType.PREPAYMENT)
 
+
 def loadOrders(request):
     return load(FileType.WC07P_ORDER)
 
-def load (type):
+
+def load(type):
     settings = Settings.objects.first()
     if settings == None:
         return HttpResponseBadRequest('Настройки не сделаны')

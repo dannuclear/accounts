@@ -11,7 +11,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 
 
 class RequestViewSet (viewsets.ModelViewSet):
-    queryset = Request.objects.all().select_related('applicant').select_related('status').select_related('imprestAccount').order_by('-id')
+    queryset = Request.objects.all().select_related('applicant').select_related(
+        'status').select_related('imprestAccount').select_related('obtainMethod').order_by('-id')
     serializer_class = RequestSerializer
 
 
@@ -27,8 +28,8 @@ def editRequest(request, id):
         prepaymentRequest.createdBy = request.user.username
         prepaymentRequest.createdAt = datetime.now()
         prepaymentRequest.createDate = datetime.now()
-        prepaymentRequest.type = request.GET['type']
-        prepaymentRequest.status_id = 1
+        prepaymentRequest.type = int(request.GET['type'])
+        prepaymentRequest.status_id = 2
         prepaymentRequest.imprestAccount_id = 7101
     else:
         prepaymentRequest = Request.objects.get(id=id)
@@ -40,4 +41,13 @@ def editRequest(request, id):
             return HttpResponseRedirect('/requests')
     if request.method == 'GET':
         form = RequestForm(instance=prepaymentRequest)
-    return render(request, 'request/edit.html', {'form': form, 'title': 'Заявление'})
+        if is_user_in_group(request.user, ['Администратор', 'Подотчетное лицо с расширенным функционалом', 'Руководитель']):
+            form.fields['status'].queryset = Status.objects.order_by('id')
+        elif is_user_in_group(request.user, ['Подотчетное лицо']):
+            form.fields['status'].queryset = Status.objects.filter(pk__in=[1, 2]).order_by('id')
+        elif is_user_in_group(request.user, ['Бухгалтер']):
+            form.fields['status'].queryset = Status.objects.filter(pk__in=[3, 4, 5]).order_by('id')
+    return render(request, 'request/edit.html', {'form': form, 'title': 'Заявление', 'type': prepaymentRequest.type})
+
+def is_user_in_group (user, groups):
+    return user.groups.filter(name__in=groups).exists()

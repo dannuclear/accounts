@@ -14,4 +14,4 @@ class RequestSerializer (serializers.ModelSerializer):
     class Meta:
         model = Request
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id')
+        datatables_always_serialize = ('id', 'type')

@@ -13,6 +13,13 @@
         <a href="{% url 'requests' %}" class="btn btn-danger btn-sm">Отмена</a>
       </div>
     </div>
+
+    {% comment %} <div>user.username {{ user.username }}</div>
+    <div>user.get_full_name {{ user.get_full_name }}</div>
+    <div>user.groups.all.0 {{ user.groups.all }}</div>
+    <div>user.email {{ user.email }}</div>
+    <div>user.last_login {{ user.last_login }}</div> {% endcomment %}
+
     {{ form.errors }}
     <input type="hidden" name="id" value="{{ form.id.value }}" />
 
@@ -21,14 +28,14 @@
         <div class="input-group-prepend">
           <span class="input-group-text">{{ form.num.label }}</span>
         </div>
-        <input type="text" class="h5 text-center mb-0 form-control form-control-sm" name="{{ form.num.name }}" value="{{ form.num.value|default_if_none:'' }}" disabled/>
+        <input type="text" class="h5 text-center mb-0 form-control form-control-sm" name="{{ form.num.name }}" value="{{ form.num.value|default_if_none:'' }}" disabled />
       </div>
 
       <div class="col-2 p-1 input-group input-group-sm">
         <div class="input-group-prepend">
           <span class="input-group-text">{{ form.createDate.label }}</span>
         </div>
-        <input type="text" class="h5 text-center mb-0 form-control form-control-sm" name="{{ form.createDate.name }}" value="{{ form.createDate.value|default_if_none:'' }}" disabled/>
+        <input type="text" class="h5 text-center mb-0 form-control form-control-sm" name="{{ form.createDate.name }}" value="{{ form.createDate.value|default_if_none:'' }}" disabled />
       </div>
     </div>
 
@@ -46,14 +53,105 @@
         <div class="input-group-prepend">
           <span class="input-group-text">{{ form.issuedSum.label }}</span>
         </div>
-        <input type="text" class="h5 text-center mb-0 form-control form-control-sm" name="{{ form.issuedSum.name }}" value="{{ form.issuedSum.value|default_if_none:'' }}"/>
+        <input type="text" class="h5 text-center mb-0 form-control form-control-sm" name="{{ form.issuedSum.name }}" value="{{ form.issuedSum.value|default_if_none:'' }}" />
       </div>
 
       <div class="col-4 p-1 input-group input-group-sm">
         <div class="input-group-prepend">
           <span class="input-group-text">{{ form.receivingDate.label }}</span>
         </div>
-        <input type="text" class="h5 text-center mb-0 form-control form-control-sm datepeeker" name="{{ form.receivingDate.name }}" value="{{ form.receivingDate.value|default_if_none:'' }}" autocomplete="off"/>
+        <input type="text" class="h5 text-center mb-0 form-control form-control-sm datepeeker" name="{{ form.receivingDate.name }}" value="{{ form.receivingDate.value|default_if_none:'' }}" autocomplete="off" />
+      </div>
+
+      <div class="col-4 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text {% if form.obtainMethod.errors %} bg-danger {% endif %}">{{ form.obtainMethod.label }}</span>
+        </div>
+        {{ form.obtainMethod }}
+      </div>
+    </div>
+
+    {% if type == 0 %}
+    <div class="row p-1">
+      <div class="col-12 border rounded p-1" style="background-color: #fff3e4;">
+        <button id="add-mpz-group" type="button" class="btn btn-sm btn-success">+</button>
+      </div>
+    </div>
+
+    <div class="row p-1 mpz-group">
+      <div class="col-12 border rounded p-1" style="background-color: #fff3e4;">
+
+        <div class="row px-3">
+          <div class="col-12 py-1 px-0 input-group input-group-sm">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Приобретение МПЗ (заявка №:</span>
+            </div>
+            <input type="text" class="h5 mb-0 form-control form-control-sm" name="mzp-request" value="" autocomplete="off" />
+            <div class="input-group-append">
+              <span class="input-group-text">)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row px-3">
+          <div class="col-12 py-1 px-0 input-group input-group-sm">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Комментарий</span>
+            </div>
+            <input type="text" class="h5 mb-0 form-control form-control-sm" name="mzp-comment" value="" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="row px-3 pt-1">
+          <table class="table table-bordered table-sm text-center mb-0">
+            <thead>
+              <tr>
+                <th scope="col" width="10%">№ п/п</th>
+                <th scope="col" width="50%">Наименование ТМЦ</th>
+                <th scope="col" width="10%">Кол-во</th>
+                <th scope="col" width="10%">Цена</th>
+                <th scope="col" width="20%">Сумма, итого</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <input name="mzp-cell-num" type="text" class="form-control form-control-sm" autocomplete="off" />
+                </td>
+                <td>
+                  <input name="mzp-cell-name" type="text" class="form-control form-control-sm" autocomplete="off" />
+                </td>
+                <td>
+                  <input name="mzp-cell-count" type="text" class="form-control form-control-sm" autocomplete="off" />
+                </td>
+                <td>
+                  <input name="mzp-cell-cost" type="text" class="form-control form-control-sm" autocomplete="off" />
+                </td>
+                <td>
+                  <input name="mzp-cell-sum" type="text" class="form-control form-control-sm" autocomplete="off" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="row px-3">
+          <div class="col-12 py-1 px-0 input-group input-group-sm">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Приложение</span>
+            </div>
+            <input type="text" class="h5 mb-0 form-control form-control-sm" name="mzp-attachment" value="" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">{{ form.servicePayment.label }}</span>
+        </div>
+        <input type="text" class="h5 mb-0 form-control form-control-sm" name="{{ form.servicePayment.name }}" value="{{ form.servicePayment.value|default_if_none:'' }}" autocomplete="off" />
       </div>
     </div>
 
@@ -62,14 +160,14 @@
         <div class="input-group-prepend">
           <span class="input-group-text">{{ form.comment.label }}</span>
         </div>
-        <textarea type="text" rows="3" class="h5 mb-0 form-control form-control-sm" name="{{ form.comment.name }}" >{{ form.comment.value|default_if_none:'' }}</textarea>
+        <textarea type="text" rows="3" class="h5 mb-0 form-control form-control-sm" name="{{ form.comment.name }}">{{ form.comment.value|default_if_none:'' }}</textarea>
       </div>
     </div>
 
-    <div class="row">
+    {% endif %}
 
-      <div class="col-7 p-1 input-group input-group-sm">
-      </div>
+    <div class="row">
+      <div class="col-7 p-1 input-group input-group-sm"></div>
 
       <div class="col-2 p-1 input-group input-group-sm">
         <div class="input-group-prepend">
@@ -88,6 +186,14 @@
   </form>
 
   <script type="text/javascript">
-    $('.datepeeker').datepicker();
+    $(document).ready(function () {
+      $('.datepeeker').datepicker()
+
+      const mpzGroup = $('.mpz-group').first()
+
+      $('#add-mpz-group').on('click', function (e) {
+        $('.mpz-group').after(mpzGroup.clone())
+      })
+    })
   </script>
 {% endblock %}

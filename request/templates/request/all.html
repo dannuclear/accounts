@@ -22,6 +22,7 @@
 </div>
 
 <script type="text/javascript">
+    const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ']
     $(document).ready(
         function () {
             var requestTable = $('#request-table').DataTable(
@@ -36,6 +37,19 @@
                     pagingType: 'first_last_numbers',
                     columns: [
                         {
+                            title: '',
+                            data: null,
+                            width: '25px',
+                            defaultContent: '',
+                            orderable: false,
+                            searchable: false,
+                            render: function (data, type, row) {
+                                if (data.status.id == 5)
+                                    return `<a href="/requests/${data.id}/report" target="_blank" class="text-success bi bi-printer h4 m-0"></a>`
+                                else return ''
+                            }
+                        },
+                        {
                             title: '№',
                             data: 'num',
                             width: '2rem',
@@ -48,11 +62,11 @@
                             orderable: false
                         },
                         {
-                            title: '№ Подр.',
+                            title: 'Подр.',
                             data: 'applicant.divNo',
                             orderable: false,
                             className: 'text-center',
-                            width: '6rem'
+                            width: '4rem'
                         },
                         {
                             title: 'Табельный',
@@ -76,7 +90,8 @@
                             data: 'issuedSum',
                             orderable: false,
                             width: '6rem',
-                            className: 'text-center'
+                            className: 'text-center',
+                            render: $.fn.dataTable.render.number( ' ', ',', 2 )
                         },
                         {
                             title: 'Код учета',
@@ -86,9 +101,12 @@
                         },
                         {
                             title: 'Назначение аванса',
-                            data: 'type',
+                            data: null,
                             orderable: false,
-                            render: ['qee','123123']
+                            render: function (data, type, row, meta) {
+                                return purposes[data.type];
+                            },
+                            width: '10rem',
                         },
                         {
                             title: 'Описание покупок',
