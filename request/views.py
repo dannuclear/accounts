@@ -7,13 +7,31 @@ from datetime import datetime
 from django.db.models import Max
 from guide.models import Status
 from django.http import HttpResponse, HttpResponseRedirect
+from rest_framework.filters import BaseFilterBackend
 # Create your views here.
 
+class PeriodFilter(BaseFilterBackend):
+
+    def filter_queryset(self, request, queryset, view):
+        periodFrom = request.query_params.get("periodFrom")
+        periodTo = request.query_params.get("periodTo")
+
+        if periodFrom is not None:
+            queryset = queryset.filter(createDate__gte=datetime.strptime(periodFrom, '%d.%m.%Y'))
+        if periodTo is not None:
+            queryset = queryset.filter(createDate__lte=datetime.strptime(periodTo, '%d.%m.%Y')) 
+        return queryset
 
 class RequestViewSet (viewsets.ModelViewSet):
     queryset = Request.objects.all().select_related('applicant').select_related(
         'status').select_related('imprestAccount').select_related('obtainMethod').order_by('-id')
     serializer_class = RequestSerializer
+    
+    def filter_queryset(self, queryset):
+        if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
+            self.filter_backends.append(PeriodFilter)
+
+        return super().filter_queryset(queryset)
 
 
 def requests(request):

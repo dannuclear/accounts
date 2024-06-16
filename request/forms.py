@@ -23,7 +23,6 @@ class ApplicantChoiceField(forms.ModelChoiceField):
 
 class StatusChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
-        self.getreq
         return obj.name
 
 
