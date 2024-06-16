@@ -22,11 +22,11 @@ from request.urls import requestRouter
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
-    path('', include('integration.urls')),
+    path('integration/', include('integration.urls')),
     path('', include('guide.urls')),
     path('', include('request.urls')),
 
-    path('api/v1/', include(integrationRouter.urls)),
+    path('api/v1/integration/', include(integrationRouter.urls)),
     path('api/v1/', include(guideRouter.urls)),
     path('api/v1/', include(requestRouter.urls)),
 ]

@@ -8,9 +8,9 @@ class RequestSerializer (serializers.ModelSerializer):
     applicant = EmployeeSerializer(read_only=True, many=False)
 
     status = StatusSerializer(read_only=True, many=False)
-    
+
     imprestAccount = ImprestAccountSerializer(read_only=True, many=False)
-    
+
     class Meta:
         model = Request
         fields = serializers.ALL_FIELDS

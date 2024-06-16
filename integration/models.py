@@ -70,7 +70,7 @@ class Prepayment(models.Model):
     acplSubaccount = models.SmallIntegerField(db_column="acpl_subaccount", blank=True, null=True)
 
     class Meta:
-        db_table = 'prepayment'
+        db_table = 'integration_prepayment'
         verbose_name = 'Аванс'
         verbose_name_plural = 'Авансы'
         default_permissions = ()

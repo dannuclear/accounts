@@ -32,7 +32,7 @@
             var prepaymentTable = $('#prepayment-table').DataTable(
                 {
                     ajax: {
-                        url: '/api/v1/prepayments/?format=datatables',
+                        url: '/api/v1/integration/prepayments/?format=datatables',
                         data: function (d) {
 
                         }
@@ -98,7 +98,7 @@
                             className: 'btn btn-info btn-sm bi bi-boxes',
                             action: function (e, dt, node, config) {
                                 const alertEl = $('.alert')
-                                $.get('/prepayments/load', function(e){
+                                $.get('/integration/prepayments/load', function(e){
                                     alertEl.attr('class', 'alert alert-success')
                                     alertEl.html(e)
                                 }).fail(function(e){
