@@ -1,0 +1,98 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+Сотрудники
+{% endblock %}
+
+{% block content %}
+<div class="alert alert-primary" role="alert" style="display: none;">
+
+</div>
+<table id="estimate-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100"></table>
+
+<script type="text/javascript">
+    var sampleLang = {
+        info: 'Страница _PAGE_ из _PAGES_',
+        lengthMenu: 'На странице _MENU_',
+        zeroRecords: 'Авансов не найдено',
+        infoEmpty: 'Не найдено',
+        search: "Поиск",
+        processing: "Загрузка...",
+        loadingRecords: "Загрузка...",
+        paginate: {
+            first: "|<",
+            last: ">|",
+            next: ">",
+            previous: "<"
+        }
+    };
+    $(document).ready(
+        function () {
+
+            var estimateTable = $('#estimate-table').DataTable(
+                {
+                    ajax: {
+                        url: '/api/v1/integration/estimates/?format=datatables',
+                        data: function (d) {
+
+                        }
+                    },
+                    rowId: 'id',
+                    pagingType: 'first_last_numbers',
+                    language: sampleLang,
+                    columns: [
+                        {
+                            title: 'ID',
+                            data: 'xv26eiId',
+                            width: '2rem'
+                        },
+                        {
+                            title: 'Наименование пункта сметы',
+                            data: 'xv26eihName',
+                            //width: '6rem',
+                        },
+                        {
+                            title: 'Отчетный год',
+                            data: 'xv26eicYear',
+                            width: '8rem'
+                        },
+                        {
+                            title: 'Период с',
+                            data: 'xv26eihDateBegin',
+                            width: '7rem'
+                        },
+                        {
+                            title: 'Период по',
+                            data: 'xv26eihDateEnd',
+                            width: '7rem'
+                        },
+                        {
+                            title: 'Сумма план',
+                            data: 'xv26eirSumPlan',
+                            width: '7rem'
+                        },
+                    ],
+                    buttons: [
+                        {
+                            text: '&nbsp;Загрузить',
+                            className: 'btn btn-info btn-sm fa-light fa-upload',
+                            action: function (e, dt, node, config) {
+                                const alertEl = $('.alert')
+                                $.get('/integration/estimates/load', function(e){
+                                    alertEl.attr('class', 'alert alert-success')
+                                    alertEl.html(e)
+                                }).fail(function(e){
+                                    alertEl.attr('class', 'alert alert-danger')
+                                    alertEl.html(e.responseText)
+                                }).always(function(){
+                                    alertEl.show().delay(3000).fadeOut()
+                                    estimateTable.ajax.reload()
+                                })
+                            }
+                        }
+                    ]
+                });
+        }
+    );
+</script>
+{% endblock %}

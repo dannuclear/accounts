@@ -6,40 +6,50 @@ from django.http import (HttpResponse, HttpResponseBadRequest,
                          HttpResponseRedirect)
 from django.shortcuts import render
 from main.models import Settings
-from rest_framework import viewsets,generics
+from rest_framework import viewsets, generics
 
 from . import loaders
-from .models import Employee, Estimate, Prepayment, WC07POrder
-from .serializers import EstimateSerializer, EmployeeSerializer, PrepaymentSerializer, WC07POrderSerializer
+from .models import Employee, Estimate, Prepayment, WC07POrder, Protocol
+from .serializers import EstimateSerializer, EmployeeSerializer, PrepaymentSerializer, WC07POrderSerializer, ProtocolSerializer
 from .helper import FileType
 
 # Create your views here.
 
 
 def estimates(request):
-    return render(request, 'estimate/all.html')
+    return render(request, 'integration/estimate/all.html')
 
 
 def employees(request):
-    return render(request, 'employee/all.html')
+    return render(request, 'integration/employee/all.html')
 
 
 def prepayments(request):
-    return render(request, 'prepayment/all.html')
+    return render(request, 'integration/prepayment/all.html')
 
 
 def orders(request):
-    return render(request, 'orders/all.html')
+    return render(request, 'integration/orders/all.html')
+
+
+def protocols(request):
+    return render(request, 'integration/protocol/all.html')
+
+
+class ProtocolViewSet (viewsets.ModelViewSet):
+    queryset = Protocol.objects.order_by('-operDate')
+    serializer_class = ProtocolSerializer
 
 
 class EstimateViewSet (viewsets.ModelViewSet):
-    queryset = Estimate.objects.all().order_by('id')
+    queryset = Estimate.objects.order_by('id')
     serializer_class = EstimateSerializer
 
 
 class EmployeeViewSet (viewsets.ModelViewSet):
-    queryset = Employee.objects.all().order_by('persId')
+    queryset = Employee.objects.order_by('persId')
     serializer_class = EmployeeSerializer
+
     def get_queryset(self):
         queryset = self.queryset
         empOrgNo = self.request.query_params.get('empOrgNo')
@@ -49,12 +59,12 @@ class EmployeeViewSet (viewsets.ModelViewSet):
 
 
 class PrepaymentViewSet (viewsets.ModelViewSet):
-    queryset = Prepayment.objects.all().order_by('id')
+    queryset = Prepayment.objects.order_by('id')
     serializer_class = PrepaymentSerializer
 
 
 class OrderViewSet (viewsets.ModelViewSet):
-    queryset = WC07POrder.objects.all().order_by('id')
+    queryset = WC07POrder.objects.order_by('id')
     serializer_class = WC07POrderSerializer
 
 

@@ -18,6 +18,7 @@ from django.urls import path, include
 from integration.urls import integrationRouter
 from guide.urls import guideRouter
 from request.urls import requestRouter
+from prepayment.urls import prepaymentRouter
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,8 +26,10 @@ urlpatterns = [
     path('integration/', include('integration.urls')),
     path('', include('guide.urls')),
     path('', include('request.urls')),
+    path('', include('prepayment.urls')),
 
     path('api/v1/integration/', include(integrationRouter.urls)),
     path('api/v1/', include(guideRouter.urls)),
     path('api/v1/', include(requestRouter.urls)),
+    path('api/v1/', include(prepaymentRouter.urls)),
 ]

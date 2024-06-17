@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'main',
     'integration',
     'guide',
-    'request'
+    'request',
+    'prepayment'
 ]
 
 MIDDLEWARE = [

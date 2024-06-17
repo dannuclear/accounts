@@ -27,7 +27,7 @@
     $(document).ready(function () {
       var employeeTable = $('#employee-table').DataTable({
         ajax: {
-          url: '/api/v1/employees/?format=datatables',
+          url: '/api/v1/integration/employees/?format=datatables',
           data: function (d) {}
         },
         rowId: 'id',
@@ -83,10 +83,10 @@
         buttons: [
           {
             text: '&nbsp;Загрузить',
-            className: 'btn btn-info btn-sm bi bi-boxes',
+            className: 'btn btn-info btn-sm fa-light fa-upload',
             action: function (e, dt, node, config) {
               const alertEl = $('.alert')
-              $.get('/employees/load', function (e) {
+              $.get('/integration/employees/load', function (e) {
                 alertEl.attr('class', 'alert alert-success')
                 alertEl.html(e)
               })

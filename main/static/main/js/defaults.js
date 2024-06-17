@@ -25,7 +25,9 @@ $.extend(true, $.fn.dataTable.defaults, {
 		// },
 		headers: {'X-CSRFToken': csrftoken}
 	},
-	language: defaultLang,
+	language: {
+        url: '/static/main/json/ru.json',
+    },
 	searching: true,
 	ordering: true,
 	processing: true,

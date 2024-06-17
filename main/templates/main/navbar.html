@@ -2,19 +2,19 @@
   <a class="navbar-brand bi bi-stack" href="#">&nbsp;АО</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
 
-  <div class="collapse navbar-collapse" id="navbarsExample03" style="font-size: 1.2em;">
+  <div class="collapse navbar-collapse" id="navbarsExample03" style="font-size: 1.0em;">
     <ul class="navbar-nav mr-auto">
-      <!--  <li class="nav-item active">
+      <!--      <li class="nav-item active">
                 <a class="nav-link" href="#">Домой <span class="sr-only">(current)</span></a>
-            </li> -->
+            </li>     -->
 
       {% if perms.request.view_request %}
-      <li class="nav-item dropdown active">
-        <a class="nav-link" href="{% url 'requests' %}"><i class="fa-light fa-file-signature"></i>&nbsp;Заявления на аванс</a>
-      </li>
+        <li class="nav-item dropdown active">
+          <a class="nav-link" href="{% url 'requests' %}"><i class="fa-light fa-file-signature"></i>&nbsp;Заявления на аванс</a>
+        </li>
       {% endif %}
 
-      {% if perms.integration.view_prepayments %}
+      {% if perms.prepayment.view_prepayments %}
         <li class="nav-item dropdown active">
           <a class="nav-link" href="{% url 'prepayments' %}"><i class="fa-light fa-money-bill-transfer"></i>&nbsp;Выданный под отчет аванс</a>
         </li>
@@ -22,7 +22,7 @@
 
       <li class="nav-item dropdown active">
         <a class="nav-link" href="#" data-toggle="dropdown"><i class="fa-light fa-file-contract"></i>&nbsp;Авансовые отчеты</a>
-      </li> 
+      </li>
 
       <li class="nav-item dropdown active">
         <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa-light fa-scale-balanced"></i>&nbsp;Бухгалтерский учет</a>
@@ -160,16 +160,19 @@
                   <a class="dropdown-item" href="{% url 'expenseCodes' %}"><i class="fa-light fa-list"></i>&nbsp;Код расхода</a>
                 </li>
               {% endif %}
+
               {% if perms.integration.view_employees %}
-              <li>
-                <a class="dropdown-item" href="{% url 'departmentAccounts' %}"><i class="fa-light fa-building"></i>&nbsp;Справочник подразделений</a>
-              </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'departmentAccounts' %}"><i class="fa-light fa-building"></i>&nbsp;Справочник подразделений</a>
+                </li>
               {% endif %}
-              {% if perms.integration.view_employees %}
+
+              {% comment %} {% if perms.integration.view_employees %}
                 <li>
                   <a class="dropdown-item" href="{% url 'employees' %}"><i class="fa-light fa-user-helmet-safety"></i>&nbsp;Сотрудники</a>
                 </li>
-              {% endif %}
+              {% endif %} {% endcomment %}
+
               {% if perms.guide.view_expense_rates or perms.guide.edit_expense_rates %}
                 <li>
                   <a class="dropdown-item" href="{% url 'expenseRates' %}"><i class="fa-light fa-wave-pulse"></i>&nbsp;Нормы командировочных расходов</a>
@@ -199,17 +202,17 @@
               {% endif %}
 
               {% if perms.guide.view_prepaid_dest or perms.guide.edit_prepaid_dest %}
-              <li>
-                <a class="dropdown-item" href="{% url 'prepaidDests' %}"><i class="fa-light fa-bullseye"></i>&nbsp;Назначение аванса</a>
-              </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'prepaidDests' %}"><i class="fa-light fa-bullseye"></i>&nbsp;Назначение аванса</a>
+                </li>
               {% endif %}
 
               {% if perms.guide.view_obtain_method or perms.guide.edit_obtain_method %}
-              <li>
-                <a class="dropdown-item" href="{% url 'obtainMethods' %}"><i class="fa-light fa-credit-card"></i>&nbsp;Способы получения</a>
-              </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'obtainMethods' %}"><i class="fa-light fa-credit-card"></i>&nbsp;Способы получения</a>
+                </li>
               {% endif %}
-              {% if perms.integration.view_estimates %}
+              {% comment %} {% if perms.integration.view_estimates %}
                 <li>
                   <a class="dropdown-item" href="{% url 'estimates' %}"><i class="fa-light fa-list"></i>&nbsp;Сметы</a>
                 </li>
@@ -218,9 +221,43 @@
                 <li>
                   <a class="dropdown-item" href="{% url 'orders' %}"><i class="fa-light fa-award"></i>&nbsp;Приказы</a>
                 </li>
-              {% endif %}
+              {% endif %} {% endcomment %}
             </ul>
           </li>
+        </ul>
+      </li>
+
+      <li class="nav-item dropdown active">
+        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa-light fa-arrow-down-arrow-up"></i>&nbsp;Обмен данными</a>
+        <ul class="dropdown-menu">
+          {% if perms.integration.view_prepayments %}
+            <li class="nav-item dropdown active">
+              <a class="dropdown-item" href="{% url 'integrationPrepayments' %}"><i class="fa-light fa-money-bill-transfer"></i>&nbsp;Выданный аванс</a>
+            </li>
+          {% endif %}
+
+          {% if perms.integration.view_employees %}
+            <li>
+              <a class="dropdown-item" href="{% url 'employees' %}"><i class="fa-light fa-user-helmet-safety"></i>&nbsp;Сотрудники</a>
+            </li>
+          {% endif %}
+
+          {% if perms.integration.view_estimates %}
+            <li>
+              <a class="dropdown-item" href="{% url 'estimates' %}"><i class="fa-light fa-list"></i>&nbsp;Сметы</a>
+            </li>
+          {% endif %}
+
+          {% if perms.integration.view_orders %}
+            <li>
+              <a class="dropdown-item" href="{% url 'orders' %}"><i class="fa-light fa-award"></i>&nbsp;Приказы</a>
+            </li>
+          {% endif %}
+
+          <li>
+            <a class="dropdown-item" href="{% url 'protocols' %}"><i class="fa-light fa-layer-group"></i>&nbsp;Протокол</a>
+          </li>
+
         </ul>
       </li>
 

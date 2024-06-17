@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Estimate, Employee, Prepayment, WC07POrder
+from .models import Estimate, Employee, Prepayment, WC07POrder, Protocol
 
 
 class EstimateSerializer (serializers.ModelSerializer):
@@ -24,6 +24,13 @@ class EmployeeSerializer (serializers.ModelSerializer):
     def get_empOrgNoWithfullNameAndPost(self, obj):
         return '%s (%s)' % (self.get_empOrgNoWithfullName(obj), obj.profName)
 
+    divNo = serializers.SerializerMethodField()
+
+    def get_divNo(self, obj):
+        if (obj.divNo == None):
+            return
+        return '%03d' % obj.divNo
+
     class Meta:
         model = Employee
         fields = ('persId', 'empOrgNo', 'divNo', 'pfnSurname', 'pfnName', 'pfnPatronymic', 'pqlfName', 'profName', 'empChangesDate', 'empDismissDate', 'fullName', 'empOrgNoWithfullName', 'empOrgNoWithfullNameAndPost')
@@ -46,3 +53,9 @@ class WC07POrderSerializer (serializers.ModelSerializer):
         datatables_always_serialize = ('orderId')
 
 
+class ProtocolSerializer (serializers.ModelSerializer):
+
+    class Meta:
+        model = Protocol
+        fields = ('id', 'operDate', 'comment')
+        datatables_always_serialize = ('id')
