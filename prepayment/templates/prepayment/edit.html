@@ -18,164 +18,177 @@
     {{ form.errors }}
     <input type="hidden" name="id" value="{{ form.id.value }}" />
 
-    <div class="row">
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text {% if form.imprestAccount.errors %} is-invalid {% endif %}">{{ form.imprestAccount.label }}</span>
+    <div class="col border rounded mt-1">
+      <div class="row">
+        <div class="col-2 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text {% if form.imprestAccount.errors %} is-invalid {% endif %}">{{ form.imprestAccount.label }}</span>
+          </div>
+          {{ form.imprestAccount }}
         </div>
-        {{ form.imprestAccount }}
+
+        <div class="col-7 p-1 input-group input-group-sm"></div>
+
+        <div class="col-3 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text {% if form.status.errors %} bg-danger {% endif %}">{{ form.status.label }}</span>
+          </div>
+          {{ form.status }}
+        </div>
       </div>
     </div>
 
-    <p class="h3">Документ:</p>
-    <div class="row">
-      <div class="col-8 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">{{ form.docName.label }}</span>
+    <div class="col border rounded mt-1">
+      <p class="h3">Документ:</p>
+      <div class="row">
+        <div class="col-8 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.docName.label }}</span>
+          </div>
+          <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.docName.errors %} is-invalid {% endif %}" name="{{ form.docName.name }}" value="{{ form.docName.value|default_if_none:'' }}" />
         </div>
-        <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.docName.errors %} is-invalid {% endif %}" name="{{ form.docName.name }}" value="{{ form.docName.value|default_if_none:'' }}" />
-      </div>
 
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">{{ form.docNum.label }}</span>
+        <div class="col-2 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.docNum.label }}</span>
+          </div>
+          <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.docNum.errors %} is-invalid {% endif %}" name="{{ form.docNum.name }}" value="{{ form.docNum.value|default_if_none:'' }}" />
         </div>
-        <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.docNum.errors %} is-invalid {% endif %}" name="{{ form.docNum.name }}" value="{{ form.docNum.value|default_if_none:'' }}" />
-      </div>
 
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">{{ form.docDate.label }}</span>
+        <div class="col-2 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.docDate.label }}</span>
+          </div>
+          <input type="text" class="h5 text-center mb-0 form-control form-control-sm datepeeker {% if form.docDate.errors %} is-invalid {% endif %}" name="{{ form.docDate.name }}" value="{{ form.docDate.value|default_if_none:'' }}" />
         </div>
-        <input type="text" class="h5 text-center mb-0 form-control form-control-sm datepeeker {% if form.docDate.errors %} is-invalid {% endif %}" name="{{ form.docDate.name }}" value="{{ form.docDate.value|default_if_none:'' }}" />
-      </div>
-    </div>
-
-    <p class="h4">Раздел 1. Подотчетное лицо:</p>
-    <div class="row">
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">{{ form.empNum.label }}</span>
-        </div>
-        <input id='emp-num-input' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empNum.errors %} is-invalid {% endif %}" name="{{ form.empNum.name }}" value="{{ form.empNum.value|default_if_none:'' }}" />
-        <div class="input-group-append">
-          <button id='emp-num-search' class="btn btn-outline-secondary" type="button"><i class="fa-light fa-magnifying-glass"></i></button>
-        </div>
-      </div>
-
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">{{ form.empDivNum.label }}</span>
-        </div>
-        <input id='emp-div-num' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empDivNum.errors %} is-invalid {% endif %}" name="{{ form.empDivNum.name }}" value="{{ form.empDivNum.value|default_if_none:'' }}" />
-      </div>
-
-      <div class="col-3 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">{{ form.empFullName.label }}</span>
-        </div>
-        <input id='emp-full-name' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empFullName.errors %} is-invalid {% endif %}" name="{{ form.empFullName.name }}" value="{{ form.empFullName.value|default_if_none:'' }}" />
-      </div>
-
-      <div class="col-5 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">{{ form.empProfName.label }}</span>
-        </div>
-        <input id='emp-prof-name' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empProfName.errors %} is-invalid {% endif %}" name="{{ form.empProfName.name }}" value="{{ form.empProfName.value|default_if_none:'' }}" />
       </div>
     </div>
 
+    <div class="col border rounded mt-1">
+      <p class="h4">Раздел 1. Подотчетное лицо:</p>
+      <div class="row">
+        <div class="col-2 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.empNum.label }}</span>
+          </div>
+          <input id='emp-num-input' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empNum.errors %} is-invalid {% endif %}" name="{{ form.empNum.name }}" value="{{ form.empNum.value|default_if_none:'' }}" />
+          <div class="input-group-append">
+            <button id='emp-num-search' class="btn btn-outline-secondary" type="button"><i class="fa-light fa-magnifying-glass"></i></button>
+          </div>
+        </div>
+
+        <div class="col-2 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.empDivNum.label }}</span>
+          </div>
+          <input id='emp-div-num' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empDivNum.errors %} is-invalid {% endif %}" name="{{ form.empDivNum.name }}" value="{{ form.empDivNum.value|default_if_none:'' }}" />
+        </div>
+
+        <div class="col-3 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.empFullName.label }}</span>
+          </div>
+          <input id='emp-full-name' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empFullName.errors %} is-invalid {% endif %}" name="{{ form.empFullName.name }}" value="{{ form.empFullName.value|default_if_none:'' }}" />
+        </div>
+
+        <div class="col-5 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.empProfName.label }}</span>
+          </div>
+          <input id='emp-prof-name' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empProfName.errors %} is-invalid {% endif %}" name="{{ form.empProfName.name }}" value="{{ form.empProfName.value|default_if_none:'' }}" />
+        </div>
+      </div>
+    </div>
+
+    <div class="col border rounded mt-1">
     <p class="h4">Сумма аванса:</p>
-    <div class="row">
-      <div class="col-3 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">{{ form.totalSum.label }}</span>
+      <div class="row">
+        <div class="col-3 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.totalSum.label }}</span>
+          </div>
+          <input id='emp-num-input' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.totalSum.errors %} is-invalid {% endif %}" name="{{ form.totalSum.name }}" value="{{ form.totalSum.value|default_if_none:'' }}" />
         </div>
-        <input id='emp-num-input' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.totalSum.errors %} is-invalid {% endif %}" name="{{ form.totalSum.name }}" value="{{ form.totalSum.value|default_if_none:'' }}" />
       </div>
     </div>
 
-    <p class="h4">Переходящий остаток:</p>
-    <div class="row">
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">{{ form.carryOverSum.label }}</span>
+    <div class="col border rounded mt-1">
+      <p class="h4">Переходящий остаток:</p>
+      <div class="row">
+        <div class="col-2 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.carryOverSum.label }}</span>
+          </div>
+          <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.carryOverSum.errors %} is-invalid {% endif %}" name="{{ form.carryOverSum.name }}" value="{{ form.carryOverSum.value|default_if_none:'' }}" />
         </div>
-        <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.carryOverSum.errors %} is-invalid {% endif %}" name="{{ form.carryOverSum.name }}" value="{{ form.carryOverSum.value|default_if_none:'' }}" />
-      </div>
 
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">{{ form.carryOverAdvanceReportNum.label }}</span>
+        <div class="col-2 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.carryOverAdvanceReportNum.label }}</span>
+          </div>
+          <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.carryOverAdvanceReportNum.errors %} is-invalid {% endif %}" name="{{ form.carryOverAdvanceReportNum.name }}" value="{{ form.carryOverAdvanceReportNum.value|default_if_none:'' }}" />
         </div>
-        <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.carryOverAdvanceReportNum.errors %} is-invalid {% endif %}" name="{{ form.carryOverAdvanceReportNum.name }}" value="{{ form.carryOverAdvanceReportNum.value|default_if_none:'' }}" />
-      </div>
 
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">{{ form.carryOverAdvanceReportDate.label }}</span>
+        <div class="col-2 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.carryOverAdvanceReportDate.label }}</span>
+          </div>
+          <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.carryOverAdvanceReportDate.errors %} is-invalid {% endif %}" name="{{ form.carryOverAdvanceReportDate.name }}" value="{{ form.carryOverAdvanceReportDate.value|default_if_none:'' }}" />
         </div>
-        <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.carryOverAdvanceReportDate.errors %} is-invalid {% endif %}" name="{{ form.carryOverAdvanceReportDate.name }}" value="{{ form.carryOverAdvanceReportDate.value|default_if_none:'' }}" />
       </div>
     </div>
 
-  <div class="row border rounded pl-4 mt-2">
-    <div class="col-12 items-container">
-      {{ items.management_form }}
-      {% for itemForm in items %}
-      <div id='{{ itemForm.prefix }}'>
-        <input type="hidden" name="{{ itemForm.DELETE.html_name }}" id="{{ itemForm.DELETE.auto_id }}">
-        <p class="h4 m-0">Аванс: {{ itemForm.prefix|cut:"items-"|add:1 }}</p>
-        <div class="row" >
-          <div class="col-2 p-1 input-group input-group-sm">
-            <div class="input-group-prepend">
-              <span class="input-group-text">{{ itemForm.sum.label }}</span>
-            </div>
-            <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if itemForm.sum.errors %} is-invalid {% endif %}" name="{{ itemForm.sum.html_name  }}" value="{{ itemForm.sum.value|default_if_none:'' }}" />
-          </div>
-
-          <div class="col-2 p-1 input-group input-group-sm">
-            <div class="input-group-prepend">
-              <span class="input-group-text">{{ itemForm.obtainMethod.label }}</span>
-            </div>
-            {{ itemForm.obtainMethod }}
-          </div>
-
-          <div class="col-2 p-1 input-group input-group-sm">
-            <div class="input-group-prepend">
-              <span class="input-group-text">{{ itemForm.date.label }}</span>
-            </div>
-            <input type="text" class="h5 text-center mb-0 form-control form-control-sm datepeeker {% if itemForm.date.errors %} is-invalid {% endif %}" name="{{ itemForm.date.html_name  }}" value="{{ itemForm.date.value|default_if_none:'' }}" />
-          </div>
-
-          <div class="col-2 p-1">
-            <button type="button" class='btn btn-sm btn-outline-danger delete-item' ><i class="fa-light fa-trash" data-prefix="{{ itemForm.prefix }}"></i></button>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
+    <div class="col border rounded p-1 mt-2">
+      <button type="button" class="btn btn-sm btn-outline-primary button-add-item">Добавить</button>
     </div>
-  </div>
+    <div class="col border rounded mt-1 items-container">
+        {{ items.management_form }}
+        {% for itemForm in items %}
+        <div id='{{ itemForm.prefix }}'>
+          <input type="hidden" name="{{ itemForm.DELETE.html_name }}" id="{{ itemForm.DELETE.auto_id }}">
+          <p class="h4 m-0">Аванс: {{ itemForm.prefix|cut:"items-"|add:1 }}</p>
+          <div class="row" >
+            <div class="col-2 p-1 input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text">{{ itemForm.sum.label }}</span>
+              </div>
+              <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if itemForm.sum.errors %} is-invalid {% endif %}" name="{{ itemForm.sum.html_name  }}" value="{{ itemForm.sum.value|default_if_none:'' }}" />
+            </div>
 
-    <div class="row">
-      <div class="col-9 p-1 input-group input-group-sm"></div>
+            <div class="col-2 p-1 input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text">{{ itemForm.obtainMethod.label }}</span>
+              </div>
+              {{ itemForm.obtainMethod }}
+            </div>
 
-      <div class="col-3 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text {% if form.status.errors %} bg-danger {% endif %}">{{ form.status.label }}</span>
+            <div class="col-2 p-1 input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text">{{ itemForm.date.label }}</span>
+              </div>
+              <input type="text" class="h5 text-center mb-0 form-control form-control-sm datepeeker {% if itemForm.date.errors %} is-invalid {% endif %}" name="{{ itemForm.date.html_name  }}" value="{{ itemForm.date.value|default_if_none:'' }}" />
+            </div>
+
+            <div class="col-2 p-1">
+              <button type="button" class='btn btn-sm btn-outline-danger delete-item' data-prefix="{{ itemForm.prefix }}"><i class="fa-light fa-trash"></i></button>
+            </div>
+          </div>
         </div>
-        {{ form.status }}
-      </div>
+        {% endfor %}
     </div>
   </form>
 
   <script type="text/javascript">
     $(document).ready(function () {
-      $('.datepeeker').datepicker()
-
       $('.items-container').on('click', '.delete-item', function (e) {
-        $(`#${e.target.dataset.prefix}`).hide()
+        $(`#${e.currentTarget.dataset.prefix}`).hide()
       })
+
+      $('#button-add-item').on('click', function(e){
+        
+      })
+
+      $('.datepeeker').datepicker()
 
       $('#emp-num-search').on('click', function(e) {
         const empNum = $('#emp-num-input').val()
