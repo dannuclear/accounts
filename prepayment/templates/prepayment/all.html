@@ -91,10 +91,28 @@
                         }) 
                     },
                     columns: [
-                        { data: 'docName', orderable: false },
-                        { data: 'docNum', orderable: false },
-                        { data: 'docDate', orderable: false },
-
+                        { data: null, orderable: false, render: function (data, type, row, meta) {
+                                if (data.wc07pOrder)
+                                    return `${data.wc07pOrder.orderName}`
+                                else if (data.document)
+                                    return data.document.name;
+                                else return 'Не указан'
+                            }
+                        },
+                        { data: null, orderable: false, render: function (data, type, row, meta) {
+                                if (data.wc07pOrder)
+                                    return data.wc07pOrder.orderNum
+                                else 
+                                    return data.docNum;
+                            }
+                        },
+                        { data: null, orderable: false, render: function (data, type, row, meta) {
+                                if (data.wc07pOrder)
+                                    return data.wc07pOrder.orderDate
+                                else 
+                                    return data.docDate;
+                            }
+                        },
                         { data: 'empDivNum', orderable: false },
                         { data: 'empNum', orderable: false },
                         { data: 'empFullName', orderable: false },

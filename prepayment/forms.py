@@ -1,8 +1,8 @@
 from django import forms
 from django.forms.models import ALL_FIELDS
-from .models import Prepayment
-from guide.models import Status, ImprestAccount
-from integration.models import Employee
+from .models import Prepayment, PrepaymentPurpose, ExpenseCode
+from guide.models import Status, ImprestAccount, Document, PrepaidDest
+from integration.models import Employee, WC07POrder
 
 
 class MyDateField(forms.DateField):
@@ -17,13 +17,34 @@ class StatusChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
 
+class DocumentChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.name
+
+class WC07POrderChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.name
+
+class PrepaidDestChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.name
+
+class ExpenseCodeChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.name
 
 class PrepaymentForm (forms.ModelForm):
     id = forms.IntegerField(label='id', disabled=True, required=False)
 
     docNum = forms.CharField(label='Номер', required=False)
     docDate = MyDateField(label='Дата', localize=True, required=False)
-    docName = forms.CharField(label='Наименование', required=False)
+
+    # «приказ», «заявление», «авансовый отчет», «электронный документ» справочника «Список документов»
+    document = DocumentChoiceField(queryset=Document.objects.filter(pk__in=[5, 14, 15, 16]).order_by('id'), widget=forms.Select(
+        attrs={'class': 'custom-select form-control-sm'}), label='Наименование', required=False, empty_label=None)
+
+    wc07pOrder = WC07POrderChoiceField(queryset=WC07POrder.objects.order_by('id'), widget=forms.Select(
+        attrs={'class': 'custom-select form-control-sm'}), label='Номер', required=False, empty_label=None)
 
     # Табельный
     # empNum = forms.IntegerField(label='Табельный')
@@ -46,14 +67,14 @@ class PrepaymentForm (forms.ModelForm):
         attrs={'class': 'custom-select form-control-sm'}), label='Статус', required=False, empty_label='Не установлен')
 
     imprestAccount = ImprestAccountChoiceField(queryset=ImprestAccount.objects.order_by('account'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Код учета', required=True, empty_label=None)
+        attrs={'class': 'custom-select form-control-sm'}), label='Код учета', required=True, empty_label='Не указан')
 
     comment = forms.CharField(label='Приложения', required=False)
 
     class Meta:
         model = Prepayment
         fields = ALL_FIELDS
-        exclude = ['createdBy', 'createdAt']
+        exclude = ['createdBy', 'createdAt', 'wc07pOrder']
 
     def __init__(self, *args, **kwargs):
         super(PrepaymentForm, self).__init__(*args, **kwargs)
@@ -63,3 +84,16 @@ class PrepaymentItemForm(forms.Form):
     obtainMethod = StatusChoiceField(queryset=Status.objects.order_by('id'), widget=forms.Select(
         attrs={'class': 'custom-select form-control-sm'}), label='Статус', required=False, empty_label='Не установлен')
     date = MyDateField(label='Дата', localize=True, required=False)
+
+
+class PrepaymentPurposeForm(forms.ModelForm):
+    prepaidDest = WC07POrderChoiceField(queryset=PrepaidDest.objects.order_by('id'), widget=forms.Select(
+        attrs={'class': 'custom-select form-control-sm'}), label='Назначение аванса', required=False, empty_label=None)
+
+    expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), widget=forms.Select(
+        attrs={'class': 'custom-select form-control-sm'}), label='Коды расхода', required=False, empty_label=None)
+
+    class Meta:
+        model = PrepaymentPurpose
+        fields = ALL_FIELDS
+        exclude = ['prepayment']

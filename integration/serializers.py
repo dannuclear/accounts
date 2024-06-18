@@ -47,10 +47,17 @@ class PrepaymentSerializer (serializers.ModelSerializer):
 class WC07POrderSerializer (serializers.ModelSerializer):
     orderId = serializers.IntegerField(read_only=True)
 
+    prepaymentId = serializers.SerializerMethodField()
+
+    def get_prepaymentId(self, obj):
+        if (hasattr(obj, 'prepayment_id')):
+            return obj.prepayment_id
+        return ''
+
     class Meta:
         model = WC07POrder
-        fields = ('orderName', 'orderId', 'orderNum', 'orderDate', 'empOrgNo', 'depName', 'fio', 'profName', 'distName', 'missionBegin', 'missionEnd', 'missionPurpose', 'estimateId', 'payDoc', 'orderIdUpd')
-        datatables_always_serialize = ('orderId')
+        fields = ('orderName', 'orderId', 'orderNum', 'orderDate', 'empOrgNo', 'depName', 'fio', 'profName', 'distName', 'missionBegin', 'missionEnd', 'missionPurpose', 'estimateId', 'payDoc', 'orderIdUpd', 'prepaymentId')
+        datatables_always_serialize = ('orderId', 'prepaymentId')
 
 
 class ProtocolSerializer (serializers.ModelSerializer):

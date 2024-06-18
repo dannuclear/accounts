@@ -1,5 +1,6 @@
 from django.db import models
-from guide.models import ImprestAccount, Status
+from guide.models import ImprestAccount, Status, Document, PrepaidDest, ExpenseCode
+from integration.models import WC07POrder
 # Create your models here.
 
 
@@ -7,9 +8,10 @@ from guide.models import ImprestAccount, Status
 class Prepayment(models.Model):
     id = models.AutoField(primary_key=True, blank=False)
 
+    document = models.ForeignKey(Document, db_column='document_id', on_delete=models.PROTECT, null=True)
+
     docNum = models.CharField(db_column="doc_num", max_length=100, blank=True, null=True)
     docDate = models.DateField(db_column="doc_date", blank=True, null=True)
-    docName = models.CharField(db_column="doc_name", max_length=200, blank=True, null=True)
 
     # Табельный
     empNum = models.IntegerField(db_column="emp_num", blank=False, null=False, verbose_name="Табельный")
@@ -28,7 +30,7 @@ class Prepayment(models.Model):
     # Подразделение наименование
     empDivName = models.CharField(db_column="emp_div_name", max_length=200, blank=True, null=True, verbose_name='Наименование')
     # Итоговая сумма
-    totalSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="total_sum", blank=False, null=False, verbose_name='Подотчетная сумма')
+    totalSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="total_sum", blank=False, null=True, verbose_name='Подотчетная сумма')
 
     # Переходящий остаток сумма
     carryOverSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="carry_over_sum", blank=True, null=True, verbose_name='Сумма, руб.')
@@ -38,12 +40,14 @@ class Prepayment(models.Model):
     carryOverAdvanceReportDate = models.DateField(db_column="carry_over_advance_report_date", blank=True, null=True, verbose_name='Дата')
 
     # Код учета подотчетной суммы
-    imprestAccount = models.ForeignKey(ImprestAccount, db_column='imprest_account_id', on_delete=models.PROTECT, blank=False, null=False)
+    imprestAccount = models.ForeignKey(ImprestAccount, db_column='imprest_account_id', on_delete=models.PROTECT, blank=False, null=True)
 
     createdBy = models.CharField(db_column='created_by', max_length=200)
     createdAt = models.DateTimeField(db_column='created_at')
 
     status = models.ForeignKey(Status, db_column='status_id', on_delete=models.PROTECT, blank=True, null=True)
+
+    wc07pOrder = models.ForeignKey(WC07POrder, db_column='order_id', on_delete=models.PROTECT, null=True)
 
     class Meta:
         db_table = 'prepayment'
@@ -54,3 +58,54 @@ class Prepayment(models.Model):
             ("view_prepaymentы", "Просмотр"),
             ("edit_prepayments", "Редактирование"),
         ]
+
+# Назначение аванса
+class PrepaymentPurpose(models.Model):
+    id = models.AutoField(primary_key=True, blank=False)
+
+    # Выдача денежных средств подотчет
+    prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.PROTECT, blank=False, null=False)
+    # Назначение аванса
+    prepaidDest = models.ForeignKey(PrepaidDest, db_column='prepaid_dest_id', on_delete=models.PROTECT, blank=False, null=True)
+
+    # Расходы подразделения
+    # xv26eih_name	VARCHAR(200)	VARCHAR(200)	да	Наименование пункта сметы
+    # Из файла «ГГГГ-ММ-ДД_estimate_item.csv», столбец «xv26eih_name».
+    # Допускается ручной ввод (цифровой (10 знаков)). 
+    deptExpense = models.CharField(db_column="dept_expense", max_length=200, blank=True, null=True)
+
+    # Код расхода
+    expenseCode = models.ForeignKey(ExpenseCode, db_column='expense_code_id', on_delete=models.PROTECT, blank=True, null=True)
+
+    # Шифр отнесения затрат/ поле «Счет/субсчет»
+    account = models.CharField(db_column="account", max_length=4, blank=True, null=True)
+
+    # Шифр затрат поле «Статья». Ручной ввод (цифровой (3 знака)).
+    expenditure = models.SmallIntegerField(db_column="expenditure", blank=True, null=True)
+
+    # Шифр затрат поле «Подразделение/статья». Ручной ввод (цифровой (3 знака)).
+    deptExpenditure = models.SmallIntegerField(db_column="dept_expenditure", blank=True, null=True)
+
+    # Шифр затрат поле «Доп.признак». Ручной ввод (цифровой (10 знаков)).
+    extra = models.CharField(db_column="extra", max_length=10, blank=True, null=True)
+
+    # Предельный срок предоставления АО (дата)
+    missionFromDate = models.DateField(db_column="mission_from_date", blank=True, null=True)
+
+    # Предельный срок предоставления АО (дата)
+    missionToDate = models.DateField(db_column="mission_to_date", blank=True, null=True)
+
+    # Место командирования
+    missionDest = models.CharField(db_column="mission_dest", max_length=200, blank=True, null=True)
+
+    # Цель командировки
+    missionPurpose = models.CharField(db_column="mission_purpose", max_length=200, blank=True, null=True)
+
+    # Предельный срок предоставления АО (дата)
+    reportDeadline = models.DateField(db_column="report_deadline", blank=True, null=True)
+
+    class Meta:
+        db_table = 'prepayment_purpose'
+        verbose_name = 'Назначение аванса'
+        verbose_name_plural = 'Назначения аванса'
+        default_permissions = ()

@@ -22,6 +22,7 @@ urlpatterns = [
 
     path('orders', views.orders, name='orders'),
     path('orders/load', views.loadOrders),
+    path('orders/<id>/createPrepayment', views.createPrepaymentFromOrder),
 
     path('protocols', views.protocols, name='protocols'),
 ]

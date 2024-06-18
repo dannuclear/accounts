@@ -117,6 +117,18 @@
                             data: 'orderIdUpd',
                             width: '6rem'
                         },
+                        {
+                            title: '',
+                            data: null,
+                            width: '1%',
+                            defaultContent: '',
+                            orderable: false,
+                            render: function (data, type, row) {
+                                if (data.prepaymentId)
+                                    return ''
+                                return `<a href="/integration/orders/${data.orderId}/createPrepayment" class="create-prepayment-button text-info fa-light fa-plus h4 m-0"></a>`
+                            }
+                        }
                     ],
                     buttons: [
                         {
@@ -138,6 +150,22 @@
                         }
                     ]
                 });
+
+                orderTable.on('click', '.create-prepayment-button', function(e){
+                    e.preventDefault();
+                    const alertEl = $('.alert')
+                    const url = e.target.getAttribute('href')
+                    $.get(url, function(e) {
+                        alertEl.attr('class', 'alert alert-success')
+                        alertEl.html(e)
+                    }).fail(function(e){
+                        alertEl.attr('class', 'alert alert-danger')
+                        alertEl.html(e.responseText)
+                    }).always(function(){
+                        alertEl.show().delay(3000).fadeOut()
+                        orderTable.ajax.reload()
+                    })
+                })
         }
     );
 </script>

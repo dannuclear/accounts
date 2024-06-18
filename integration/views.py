@@ -12,7 +12,10 @@ from . import loaders
 from .models import Employee, Estimate, Prepayment, WC07POrder, Protocol
 from .serializers import EstimateSerializer, EmployeeSerializer, PrepaymentSerializer, WC07POrderSerializer, ProtocolSerializer
 from .helper import FileType
-
+from django.db.models import OuterRef, Subquery
+from prepayment import models as prepaymentModels
+from guide.models import Document
+from datetime import datetime
 # Create your views here.
 
 
@@ -64,7 +67,7 @@ class PrepaymentViewSet (viewsets.ModelViewSet):
 
 
 class OrderViewSet (viewsets.ModelViewSet):
-    queryset = WC07POrder.objects.order_by('id')
+    queryset = WC07POrder.objects.annotate(prepayment_id=Subquery(prepaymentModels.Prepayment.objects.filter(wc07pOrder=OuterRef("pk")).values('pk')[:1])).order_by('id')
     serializer_class = WC07POrderSerializer
 
 
@@ -122,3 +125,30 @@ def load(type):
         return HttpResponseBadRequest('Файлов с форматом ' + fileTemplate + ' не найдено')
 
     return HttpResponse('Файл ' + files[-1] + ' загружен')
+
+
+def createPrepaymentFromOrder(request, id):
+    order = WC07POrder.objects.get(pk=id)
+
+    if prepaymentModels.Prepayment.objects.filter(wc07pOrder=order).exists():
+        return HttpResponseBadRequest('Выданный под отчет аванс уже существует')
+
+    document = Document.objects.filter(name__iexact=order.orderName).first()
+    if document is None:
+        return HttpResponseBadRequest('Тип документа \'' + order.orderName + '\' не найден в справочнике')
+
+    
+    prep = prepaymentModels.Prepayment()
+    prep.createdBy = request.user.username
+    prep.createdAt = datetime.now()
+    prep.wc07pOrder = order
+    prep.document = document
+    prep.docNum = order.orderNum
+    prep.docDate = order.orderDate
+    prep.empNum = order.empOrgNo
+    prep.empDivNum = order.depName
+    prep.empFullName = order.fio
+    prep.empProfName = order.profName
+    prep.save()
+
+    return HttpResponse('Выданный под отчет аванс создан')

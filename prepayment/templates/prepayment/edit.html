@@ -1,7 +1,7 @@
 {% extends 'main/base.html' %}
 
 {% block title %}
-  Заявление на аванс
+  Выданный под отчет аванс
 {% endblock %}
 
 {% block content %}
@@ -39,27 +39,50 @@
     </div>
 
     <div class="col border rounded mt-1">
-      <p class="h3">Документ:</p>
+      <p class="h3">Документ: {% if form.instance.wc07pOrder is not None %}<i class="fa-light fa-link" title="Связь с загруженным документом: ({{ form.instance.wc07pOrder.orderId }}) {{ form.instance.wc07pOrder.orderName }} № {{ form.instance.wc07pOrder.orderNum }}"" style="color: #2d9efb;"></i>{% endif %}</p>
+      
       <div class="row">
-        <div class="col-8 p-1 input-group input-group-sm">
+        <div class="col-3 p-1 input-group input-group-sm">
           <div class="input-group-prepend">
-            <span class="input-group-text">{{ form.docName.label }}</span>
+            <span class="input-group-text">{{ form.document.label }}</span>
           </div>
-          <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.docName.errors %} is-invalid {% endif %}" name="{{ form.docName.name }}" value="{{ form.docName.value|default_if_none:'' }}" />
+
+          {% comment %} {% if form.instance.wc07pOrder is not None %}
+            <span class="form-control form-control-sm bg-info" style="background-color: #c8e5ea !important;"> {{ form.instance.wc07pOrder.orderName }} </span>
+          {% else %}
+            {{ form.document }}
+          {% endif %} {% endcomment %}
+
+          {{ form.document }}
+
         </div>
 
         <div class="col-2 p-1 input-group input-group-sm">
           <div class="input-group-prepend">
             <span class="input-group-text">{{ form.docNum.label }}</span>
           </div>
-          <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.docNum.errors %} is-invalid {% endif %}" name="{{ form.docNum.name }}" value="{{ form.docNum.value|default_if_none:'' }}" />
+          {% comment %} {% if form.instance.wc07pOrder is not None %}
+            <span class="form-control form-control-sm bg-info" style="background-color: #c8e5ea !important;"> {{ form.instance.wc07pOrder.orderNum }} </span>
+          {% else %}
+            <input type="text" class="mb-0 form-control form-control-sm {% if form.docNum.errors %} is-invalid {% endif %}" name="{{ form.docNum.name }}" value="{{ form.docNum.value|default_if_none:'' }}" />
+          {% endif %} {% endcomment %}
+
+          <input type="text" class="mb-0 form-control form-control-sm {% if form.docNum.errors %} is-invalid {% endif %}" name="{{ form.docNum.name }}" value="{{ form.docNum.value|default_if_none:'' }}" />
+
         </div>
 
         <div class="col-2 p-1 input-group input-group-sm">
           <div class="input-group-prepend">
             <span class="input-group-text">{{ form.docDate.label }}</span>
           </div>
-          <input type="text" class="h5 text-center mb-0 form-control form-control-sm datepeeker {% if form.docDate.errors %} is-invalid {% endif %}" name="{{ form.docDate.name }}" value="{{ form.docDate.value|default_if_none:'' }}" />
+          {% comment %} {% if form.instance.wc07pOrder is not None %}
+            <span class="form-control form-control-sm" style="background-color: #c8e5ea !important;"> {{ form.instance.wc07pOrder.orderDate }} </span>
+          {% else %}
+            <input type="text" class="text-center mb-0 form-control form-control-sm datepeeker {% if form.docDate.errors %} is-invalid {% endif %}" name="{{ form.docDate.name }}" value="{{ form.docDate.value|default_if_none:'' }}" />
+          {% endif %} {% endcomment %}
+
+          <input type="text" class="text-center mb-0 form-control form-control-sm datepeeker {% if form.docDate.errors %} is-invalid {% endif %}" name="{{ form.docDate.name }}" value="{{ form.docDate.value|default_if_none:'' }}" />
+
         </div>
       </div>
     </div>
@@ -71,7 +94,16 @@
           <div class="input-group-prepend">
             <span class="input-group-text">{{ form.empNum.label }}</span>
           </div>
-          <input id='emp-num-input' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empNum.errors %} is-invalid {% endif %}" name="{{ form.empNum.name }}" value="{{ form.empNum.value|default_if_none:'' }}" />
+          {% comment %} {% if form.instance.wc07pOrder is not None %}
+            <span class="text-center form-control form-control-sm bg-info" style="background-color: #c8e5ea !important;"> {{ form.instance.wc07pOrder.empOrgNo }} </span>
+          {% else %}
+            <input id='emp-num-input' type="text" class="text-center mb-0 form-control form-control-sm {% if form.empNum.errors %} is-invalid {% endif %}" name="{{ form.empNum.name }}" value="{{ form.empNum.value|default_if_none:'' }}" />      
+            <div class="input-group-append">
+              <button id='emp-num-search' class="btn btn-outline-secondary" type="button"><i class="fa-light fa-magnifying-glass"></i></button>
+            </div>   
+          {% endif %} {% endcomment %}
+
+          <input id='emp-num-input' type="text" class="text-center mb-0 form-control form-control-sm {% if form.empNum.errors %} is-invalid {% endif %}" name="{{ form.empNum.name }}" value="{{ form.empNum.value|default_if_none:'' }}" />      
           <div class="input-group-append">
             <button id='emp-num-search' class="btn btn-outline-secondary" type="button"><i class="fa-light fa-magnifying-glass"></i></button>
           </div>
@@ -81,6 +113,12 @@
           <div class="input-group-prepend">
             <span class="input-group-text">{{ form.empDivNum.label }}</span>
           </div>
+          {% comment %} {% if form.instance.wc07pOrder is not None and form.instance.wc07pOrder.depName is not None %}
+            <span class="form-control form-control-sm bg-info" style="background-color: #c8e5ea !important;"> {{ form.instance.wc07pOrder.depName }} </span>
+          {% else %}
+            <input id='emp-div-num' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empDivNum.errors %} is-invalid {% endif %}" name="{{ form.empDivNum.name }}" value="{{ form.empDivNum.value|default_if_none:'' }}" />
+          {% endif %} {% endcomment %}
+
           <input id='emp-div-num' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empDivNum.errors %} is-invalid {% endif %}" name="{{ form.empDivNum.name }}" value="{{ form.empDivNum.value|default_if_none:'' }}" />
         </div>
 
@@ -88,26 +126,40 @@
           <div class="input-group-prepend">
             <span class="input-group-text">{{ form.empFullName.label }}</span>
           </div>
-          <input id='emp-full-name' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empFullName.errors %} is-invalid {% endif %}" name="{{ form.empFullName.name }}" value="{{ form.empFullName.value|default_if_none:'' }}" />
+
+          {% comment %} {% if form.instance.wc07pOrder is not None and form.instance.wc07pOrder.fio is not None %}
+            <span class="form-control form-control-sm bg-info" style="background-color: #c8e5ea !important;"> {{ form.instance.wc07pOrder.fio }} </span>
+          {% else %}
+            <input id='emp-full-name' type="text" class="mb-0 form-control form-control-sm {% if form.empFullName.errors %} is-invalid {% endif %}" name="{{ form.empFullName.name }}" value="{{ form.empFullName.value|default_if_none:'' }}" />
+          {% endif %} {% endcomment %}
+
+          <input id='emp-full-name' type="text" class="mb-0 form-control form-control-sm {% if form.empFullName.errors %} is-invalid {% endif %}" name="{{ form.empFullName.name }}" value="{{ form.empFullName.value|default_if_none:'' }}" />
         </div>
 
         <div class="col-5 p-1 input-group input-group-sm">
           <div class="input-group-prepend">
             <span class="input-group-text">{{ form.empProfName.label }}</span>
           </div>
-          <input id='emp-prof-name' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empProfName.errors %} is-invalid {% endif %}" name="{{ form.empProfName.name }}" value="{{ form.empProfName.value|default_if_none:'' }}" />
+
+          {% comment %} {% if form.instance.wc07pOrder is not None and form.instance.wc07pOrder.profName is not None %}
+            <span class="form-control form-control-sm bg-info" style="background-color: #c8e5ea !important;"> {{ form.instance.wc07pOrder.profName }} </span>
+          {% else %}
+            <input id='emp-prof-name' type="text" class="mb-0 form-control form-control-sm {% if form.empProfName.errors %} is-invalid {% endif %}" name="{{ form.empProfName.name }}" value="{{ form.empProfName.value|default_if_none:'' }}" />
+          {% endif %} {% endcomment %}
+
+          <input id='emp-prof-name' type="text" class="mb-0 form-control form-control-sm {% if form.empProfName.errors %} is-invalid {% endif %}" name="{{ form.empProfName.name }}" value="{{ form.empProfName.value|default_if_none:'' }}" />
         </div>
       </div>
     </div>
 
     <div class="col border rounded mt-1">
-    <p class="h4">Сумма аванса:</p>
+      <p class="h4">Сумма аванса:</p>
       <div class="row">
         <div class="col-3 p-1 input-group input-group-sm">
           <div class="input-group-prepend">
             <span class="input-group-text">{{ form.totalSum.label }}</span>
           </div>
-          <input id='emp-num-input' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.totalSum.errors %} is-invalid {% endif %}" name="{{ form.totalSum.name }}" value="{{ form.totalSum.value|default_if_none:'' }}" />
+          <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.totalSum.errors %} is-invalid {% endif %}" name="{{ form.totalSum.name }}" value="{{ form.totalSum.value|default_if_none:'' }}" />
         </div>
       </div>
     </div>
@@ -175,6 +227,83 @@
           </div>
         </div>
         {% endfor %}
+    </div>
+
+    <div class="col border rounded p-1 mt-2">
+      <button type="button" class="btn btn-sm btn-outline-primary button-add-assignment">Добавить</button>
+    </div>
+
+    <div class="col border rounded mt-1">
+      <p class="h4">Раздел 2. Сведения о назначении аванса</p>
+
+      <table class="table table-bordered table-sm text-center" style="font-size: 0.8em;">
+        <thead>
+          <tr>
+            <th rowspan="3" width="10%">Назначение аванса</th>
+            <th rowspan="3" width="10%">Расходы подразделения</th>
+            <th rowspan="3" width="10%">Код расхода</th>
+            <th rowspan="1" colspan="4" width="20%">Шифр отнесения затрат</th>
+            <th rowspan="1" colspan="2" width="10%">Даты командирования</th>
+            <th rowspan="3" width="10%">Место командирования</th>
+            <th rowspan="3" width="10%">Цель командировки</th>
+            <th rowspan="3" width="10%">Предельный срок предоставления АО (дата)</th>
+          </tr>
+          <tr>
+            <th rowspan="2" width="10%">Счет/субсчет</th>
+            <th rowspan="1" colspan="2" width="10%">КАУ</th>
+            <th rowspan="2" width="10%">Доп. признак</th>
+            <th rowspan="2" width="10%">С</th>
+            <th rowspan="2" width="10%">По</th>
+          </tr>
+          <tr>
+            <th rowspan="1" width="10%">Статья</th>
+            <th rowspan="1" width="10%">Подразделение/Статья</th>
+          </tr>
+        </thead>
+        <tbody>
+        {{ purposes.management_form }}
+        {% for purpose in purposes %}
+          <tr>
+            <td>
+              {{ purpose.prepaidDest }}
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.deptExpense.html_name  }}" value="{{ itemForm.deptExpense.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              {{ purpose.expenseCode }}
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.account.html_name  }}" value="{{ itemForm.account.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.expenditure.html_name  }}" value="{{ itemForm.expenditure.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.deptExpenditure.html_name  }}" value="{{ itemForm.deptExpenditure.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.extra.html_name  }}" value="{{ itemForm.extra.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm datepeeker" name="{{ purpose.missionFromDate.html_name  }}" value="{{ itemForm.missionFromDate.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm datepeeker" name="{{ purpose.missionToDate.html_name  }}" value="{{ itemForm.missionToDate.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.missionDest.html_name  }}" value="{{ itemForm.missionDest.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.missionPurpose.html_name  }}" value="{{ itemForm.missionPurpose.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm datepeeker" name="{{ purpose.reportDeadline.html_name  }}" value="{{ itemForm.reportDeadline.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
     </div>
   </form>
 
