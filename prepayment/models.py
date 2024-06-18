@@ -72,7 +72,7 @@ class PrepaymentPurpose(models.Model):
     # xv26eih_name	VARCHAR(200)	VARCHAR(200)	да	Наименование пункта сметы
     # Из файла «ГГГГ-ММ-ДД_estimate_item.csv», столбец «xv26eih_name».
     # Допускается ручной ввод (цифровой (10 знаков)). 
-    deptExpense = models.CharField(db_column="dept_expense", max_length=200, blank=True, null=True)
+    deptExpense = models.CharField(db_column="dept_expense", max_length=200, blank=False, null=True)
 
     # Код расхода
     expenseCode = models.ForeignKey(ExpenseCode, db_column='expense_code_id', on_delete=models.PROTECT, blank=True, null=True)

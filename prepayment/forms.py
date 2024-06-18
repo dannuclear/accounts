@@ -87,11 +87,13 @@ class PrepaymentItemForm(forms.Form):
 
 
 class PrepaymentPurposeForm(forms.ModelForm):
+    id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+
     prepaidDest = WC07POrderChoiceField(queryset=PrepaidDest.objects.order_by('id'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Назначение аванса', required=False, empty_label=None)
+        attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), label='Назначение аванса', required=False, empty_label=None)
 
     expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Коды расхода', required=False, empty_label=None)
+        attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), label='Коды расхода', required=False, empty_label=None)
 
     class Meta:
         model = PrepaymentPurpose

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Prepayment
+from .models import Prepayment, PrepaymentPurpose
 from rest_framework import viewsets
 from .serializers import PrepaymentSerializer
 from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm
@@ -7,7 +7,7 @@ from datetime import datetime
 from guide.models import Status
 from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.filters import BaseFilterBackend
-from django.forms import formset_factory
+from django.forms import formset_factory, inlineformset_factory, models
 
 # Create your views here.
 
@@ -30,19 +30,23 @@ def editPrepayment(request, id):
         prepayment = Prepayment.objects.select_related('status').select_related('imprestAccount').select_related('document').get(id=id)
 
     PrepaymentItemFormSet = formset_factory(PrepaymentItemForm, can_delete=True, can_order=True)
-    PrepaymentPurposeFormSet = formset_factory(PrepaymentPurposeForm, can_delete=True)
+    PrepaymentPurposeFormSet = inlineformset_factory(Prepayment, PrepaymentPurpose, PrepaymentPurposeForm, can_delete=True ,extra=0)
     if request.method == 'POST':
         form = PrepaymentForm(request.POST, instance=prepayment)
         itemFormSet = PrepaymentItemFormSet(request.POST, prefix='items')
-        purposeFormSet = PrepaymentPurposeFormSet(prefix='purpose')
+        purposeFormSet = PrepaymentPurposeFormSet(request.POST, prefix='purpose')
 
-        if form.is_valid() and itemFormSet.is_valid():
-            form.save()
+        if form.is_valid() and purposeFormSet.is_valid():
+            prepayment = form.save()
+            for purpose in purposeFormSet.save(commit=False):
+                purpose.prepayment = prepayment
+                purpose.save()
+            #purposeFormSet.save()
             return HttpResponseRedirect('/prepayments')
     if request.method == 'GET':
         form = PrepaymentForm(instance=prepayment)
         itemFormSet = PrepaymentItemFormSet(prefix='items')
-        purposeFormSet = PrepaymentPurposeFormSet(prefix='purpose')
+        purposeFormSet = PrepaymentPurposeFormSet(prefix='purpose', instance=prepayment)
 
     context = {
         'form': form,

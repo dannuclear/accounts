@@ -263,42 +263,43 @@
         <tbody>
         {{ purposes.management_form }}
         {% for purpose in purposes %}
+          {{ purpose.id }}
           <tr>
             <td>
               {{ purpose.prepaidDest }}
             </td>
             <td>
-              <input type="text" class="form-control form-control-sm" name="{{ purpose.deptExpense.html_name  }}" value="{{ itemForm.deptExpense.value|default_if_none:'' }}" autocomplete="off" />
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.deptExpense.html_name  }}" value="{{ purpose.deptExpense.value|default_if_none:'' }}" autocomplete="off" />
             </td>
             <td>
               {{ purpose.expenseCode }}
             </td>
             <td>
-              <input type="text" class="form-control form-control-sm" name="{{ purpose.account.html_name  }}" value="{{ itemForm.account.value|default_if_none:'' }}" autocomplete="off" />
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.account.html_name  }}" value="{{ purpose.account.value|default_if_none:'' }}" autocomplete="off" />
             </td>
             <td>
-              <input type="text" class="form-control form-control-sm" name="{{ purpose.expenditure.html_name  }}" value="{{ itemForm.expenditure.value|default_if_none:'' }}" autocomplete="off" />
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.expenditure.html_name  }}" value="{{ purpose.expenditure.value|default_if_none:'' }}" autocomplete="off" />
             </td>
             <td>
-              <input type="text" class="form-control form-control-sm" name="{{ purpose.deptExpenditure.html_name  }}" value="{{ itemForm.deptExpenditure.value|default_if_none:'' }}" autocomplete="off" />
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.deptExpenditure.html_name  }}" value="{{ purpose.deptExpenditure.value|default_if_none:'' }}" autocomplete="off" />
             </td>
             <td>
-              <input type="text" class="form-control form-control-sm" name="{{ purpose.extra.html_name  }}" value="{{ itemForm.extra.value|default_if_none:'' }}" autocomplete="off" />
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.extra.html_name  }}" value="{{ purpose.extra.value|default_if_none:'' }}" autocomplete="off" />
             </td>
             <td>
-              <input type="text" class="form-control form-control-sm datepeeker" name="{{ purpose.missionFromDate.html_name  }}" value="{{ itemForm.missionFromDate.value|default_if_none:'' }}" autocomplete="off" />
+              <input type="text" class="form-control form-control-sm datepeeker" name="{{ purpose.missionFromDate.html_name  }}" value="{{ purpose.missionFromDate.value|default_if_none:'' }}" autocomplete="off" />
             </td>
             <td>
-              <input type="text" class="form-control form-control-sm datepeeker" name="{{ purpose.missionToDate.html_name  }}" value="{{ itemForm.missionToDate.value|default_if_none:'' }}" autocomplete="off" />
+              <input type="text" class="form-control form-control-sm datepeeker" name="{{ purpose.missionToDate.html_name  }}" value="{{ purpose.missionToDate.value|default_if_none:'' }}" autocomplete="off" />
             </td>
             <td>
-              <input type="text" class="form-control form-control-sm" name="{{ purpose.missionDest.html_name  }}" value="{{ itemForm.missionDest.value|default_if_none:'' }}" autocomplete="off" />
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.missionDest.html_name  }}" value="{{ purpose.missionDest.value|default_if_none:'' }}" autocomplete="off" />
             </td>
             <td>
-              <input type="text" class="form-control form-control-sm" name="{{ purpose.missionPurpose.html_name  }}" value="{{ itemForm.missionPurpose.value|default_if_none:'' }}" autocomplete="off" />
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.missionPurpose.html_name  }}" value="{{ purpose.missionPurpose.value|default_if_none:'' }}" autocomplete="off" />
             </td>
             <td>
-              <input type="text" class="form-control form-control-sm datepeeker" name="{{ purpose.reportDeadline.html_name  }}" value="{{ itemForm.reportDeadline.value|default_if_none:'' }}" autocomplete="off" />
+              <input type="text" class="form-control form-control-sm datepeeker" name="{{ purpose.reportDeadline.html_name  }}" value="{{ purpose.reportDeadline.value|default_if_none:'' }}" autocomplete="off" />
             </td>
           </tr>
         {% endfor %}
@@ -314,7 +315,7 @@
       })
 
       $('#button-add-item').on('click', function(e){
-        
+
       })
 
       $('.datepeeker').datepicker()
