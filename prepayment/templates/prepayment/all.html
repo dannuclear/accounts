@@ -92,11 +92,11 @@
                     },
                     columns: [
                         { data: null, orderable: false, render: function (data, type, row, meta) {
-                                if (data.wc07pOrder)
-                                    return `${data.wc07pOrder.orderName}`
-                                else if (data.document)
+                                //if (data.wc07pOrder)
+                                //    return `${data.wc07pOrder.orderName}`
+                                //else if (data.document)
                                     return data.document.name;
-                                else return 'Не указан'
+                                //else return 'Не указан'
                             }
                         },
                         { data: null, orderable: false, render: function (data, type, row, meta) {

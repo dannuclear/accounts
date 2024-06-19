@@ -30,16 +30,16 @@ def editPrepayment(request, id):
         prepayment = Prepayment.objects.select_related('status').select_related('imprestAccount').select_related('document').get(id=id)
 
     PrepaymentItemFormSet = formset_factory(PrepaymentItemForm, can_delete=True, can_order=True)
-    PrepaymentPurposeFormSet = inlineformset_factory(Prepayment, PrepaymentPurpose, PrepaymentPurposeForm, can_delete=True ,extra=0)
+    PrepaymentPurposeFormSet = inlineformset_factory(Prepayment, PrepaymentPurpose, form=PrepaymentPurposeForm, can_delete=True ,extra=0, min_num=1)
     if request.method == 'POST':
         form = PrepaymentForm(request.POST, instance=prepayment)
         itemFormSet = PrepaymentItemFormSet(request.POST, prefix='items')
-        purposeFormSet = PrepaymentPurposeFormSet(request.POST, prefix='purpose')
+        purposeFormSet = PrepaymentPurposeFormSet(request.POST, prefix='purpose', instance=prepayment)
 
         if form.is_valid() and purposeFormSet.is_valid():
             prepayment = form.save()
             for purpose in purposeFormSet.save(commit=False):
-                purpose.prepayment = prepayment
+                # purpose.prepayment = prepayment
                 purpose.save()
             #purposeFormSet.save()
             return HttpResponseRedirect('/prepayments')
