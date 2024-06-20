@@ -19,6 +19,7 @@ from integration.urls import integrationRouter
 from guide.urls import guideRouter
 from request.urls import requestRouter
 from prepayment.urls import prepaymentRouter
+# from advance_report.urls import advanceReportRouter
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,9 +28,11 @@ urlpatterns = [
     path('', include('guide.urls')),
     path('', include('request.urls')),
     path('', include('prepayment.urls')),
+    # path('', include('advance_report.urls')),
 
     path('api/v1/integration/', include(integrationRouter.urls)),
     path('api/v1/', include(guideRouter.urls)),
     path('api/v1/', include(requestRouter.urls)),
     path('api/v1/', include(prepaymentRouter.urls)),
+    # path('api/v1/', include(advanceReportRouter.urls)),
 ]
