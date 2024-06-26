@@ -13,7 +13,11 @@ class PrepaymentSerializer (serializers.ModelSerializer):
 
     wc07pOrder = WC07POrderSerializer(read_only=True, many=False)
 
+    missionFrom = serializers.DateField()
+
+    missionTo= serializers.DateField()
+
     class Meta:
         model = Prepayment
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id', 'document', 'wc07pOrder', 'docNum', 'docDate')
+        datatables_always_serialize = ('id', 'document', 'wc07pOrder', 'docNum', 'docDate', 'missionFrom', 'missionTo')

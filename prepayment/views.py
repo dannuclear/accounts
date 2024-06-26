@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Prepayment, PrepaymentPurpose
+from .models import Prepayment, PrepaymentPurpose, PrepaymentItem
 from rest_framework import viewsets
 from .serializers import PrepaymentSerializer
 from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm
@@ -8,11 +8,12 @@ from guide.models import Status
 from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
+from django.db.models import OuterRef, Subquery, Max, Min, Aggregate
 
 # Create your views here.
-
+purposesSubquery = PrepaymentPurpose.objects.filter(prepayment=OuterRef("pk")).annotate(missionFrom = Min('missionFromDate'), missionTo = Max('missionToDate'))
 class PrepaymentViewSet (viewsets.ModelViewSet):
-    queryset = Prepayment.objects.all().select_related('status').select_related('imprestAccount').select_related('document').order_by('-id')
+    queryset = Prepayment.objects.all().annotate(missionFrom=Subquery(purposesSubquery.values('missionFrom')), missionTo=Subquery(purposesSubquery.values('missionTo'))).select_related('status').select_related('imprestAccount').select_related('document').select_related('wc07pOrder').order_by('-id')
     serializer_class = PrepaymentSerializer
 
 
@@ -29,23 +30,26 @@ def editPrepayment(request, id):
     else:
         prepayment = Prepayment.objects.select_related('status').select_related('imprestAccount').select_related('document').get(id=id)
 
-    PrepaymentItemFormSet = formset_factory(PrepaymentItemForm, can_delete=True, can_order=True)
+    PrepaymentItemFormSet = inlineformset_factory(Prepayment, PrepaymentItem, form=PrepaymentItemForm, can_delete=True, extra=0, min_num=1)
     PrepaymentPurposeFormSet = inlineformset_factory(Prepayment, PrepaymentPurpose, form=PrepaymentPurposeForm, can_delete=True ,extra=0, min_num=1)
     if request.method == 'POST':
         form = PrepaymentForm(request.POST, instance=prepayment)
-        itemFormSet = PrepaymentItemFormSet(request.POST, prefix='items')
+        itemFormSet = PrepaymentItemFormSet(request.POST, prefix='item', instance=prepayment)
         purposeFormSet = PrepaymentPurposeFormSet(request.POST, prefix='purpose', instance=prepayment)
 
-        if form.is_valid() and purposeFormSet.is_valid():
+        if form.is_valid() and purposeFormSet.is_valid() and itemFormSet.is_valid():
             prepayment = form.save()
+            for item in itemFormSet.save(commit=False):
+                item.save()
+            for deletedItem in itemFormSet.deleted_forms:
+                if deletedItem.instance.id is not None:
+                    deletedItem.instance.delete()
             for purpose in purposeFormSet.save(commit=False):
-                # purpose.prepayment = prepayment
                 purpose.save()
-            #purposeFormSet.save()
             return HttpResponseRedirect('/prepayments')
     if request.method == 'GET':
         form = PrepaymentForm(instance=prepayment)
-        itemFormSet = PrepaymentItemFormSet(prefix='items')
+        itemFormSet = PrepaymentItemFormSet(prefix='item', instance=prepayment)
         purposeFormSet = PrepaymentPurposeFormSet(prefix='purpose', instance=prepayment)
 
     context = {

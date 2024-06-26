@@ -1,6 +1,7 @@
 from django import forms
 from django.forms.models import ALL_FIELDS
-from .models import Prepayment, PrepaymentPurpose, ExpenseCode
+from .models import Prepayment, PrepaymentPurpose, ExpenseCode, PrepaymentItem
+from guide.models import ObtainMethod
 from guide.models import Status, ImprestAccount, Document, PrepaidDest
 from integration.models import Employee, WC07POrder
 
@@ -30,6 +31,10 @@ class PrepaidDestChoiceField(forms.ModelChoiceField):
         return obj.name
 
 class ExpenseCodeChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.name
+
+class ObtainMethodChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
 
@@ -79,12 +84,19 @@ class PrepaymentForm (forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(PrepaymentForm, self).__init__(*args, **kwargs)
 
-class PrepaymentItemForm(forms.Form):
-    sum = forms.DecimalField(label='Сумма', localize=True, required=False)
-    obtainMethod = StatusChoiceField(queryset=Status.objects.order_by('id'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Статус', required=False, empty_label='Не установлен')
+class PrepaymentItemForm(forms.ModelForm):
+
+    obtainMethod = StatusChoiceField(queryset=ObtainMethod.objects.order_by('id'), widget=forms.Select(
+        attrs={'class': 'custom-select form-control-sm'}), label='Способ получения', required=False, empty_label='Не установлен')
+
     date = MyDateField(label='Дата', localize=True, required=False)
 
+    value = forms.DecimalField(label='Сумма', localize=True, required=True)
+
+    class Meta:
+        model = PrepaymentItem
+        fields = ALL_FIELDS
+        exclude = ['prepayment']
 
 class PrepaymentPurposeForm(forms.ModelForm):
     # id = forms.IntegerField(widget = forms.HiddenInput(), required = False)
@@ -94,6 +106,10 @@ class PrepaymentPurposeForm(forms.ModelForm):
 
     expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), widget=forms.Select(
         attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), label='Коды расхода', required=False, empty_label=None)
+
+    missionFromDate = MyDateField(label='Командировка с', localize=True, required=False)
+
+    missionToDate = MyDateField(label='Командировка по', localize=True, required=False)
 
     class Meta:
         model = PrepaymentPurpose

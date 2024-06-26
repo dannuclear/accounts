@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'guide',
     'request',
     'prepayment',
-    # 'advance_report'
 ]
 
 MIDDLEWARE = [

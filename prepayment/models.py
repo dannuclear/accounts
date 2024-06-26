@@ -1,5 +1,5 @@
 from django.db import models
-from guide.models import ImprestAccount, Status, Document, PrepaidDest, ExpenseCode
+from guide.models import ImprestAccount, Status, Document, PrepaidDest, ExpenseCode, ObtainMethod
 from integration.models import WC07POrder
 # Create your models here.
 
@@ -58,6 +58,22 @@ class Prepayment(models.Model):
             ("view_prepaymentы", "Просмотр"),
             ("edit_prepayments", "Редактирование"),
         ]
+
+# Аванс пункт
+class PrepaymentItem (models.Model):
+    id = models.AutoField(primary_key=True, blank=False)
+
+    prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.PROTECT, blank=False, null=False)
+
+    value = models.DecimalField(max_digits=10, decimal_places=2, db_column="value", null=False, verbose_name='Сумма')
+    obtainMethod = models.ForeignKey(ObtainMethod, db_column='obtain_method_id', on_delete=models.PROTECT, blank=True, null=True)
+    date = models.DateField(db_column='obtain_date', verbose_name='Дата', null=True)
+
+    class Meta:
+        db_table = 'prepayment_item'
+        verbose_name = 'Аванс пункт'
+        verbose_name_plural = 'Авансы пункт'
+        default_permissions = ()
 
 # Назначение аванса
 class PrepaymentPurpose(models.Model):

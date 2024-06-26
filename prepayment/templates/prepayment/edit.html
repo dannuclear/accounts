@@ -190,21 +190,24 @@
       </div>
     </div>
 
-    <div class="col border rounded p-1 mt-2">
-      <button type="button" class="btn btn-sm btn-outline-primary button-add-item">Добавить</button>
-    </div>
-    <div class="col border rounded mt-1 items-container">
+    <div class="col border rounded mt-1 item-container">
+        <div class="row p-1">
+          <button id="button-add-item" type="button" class="btn btn-sm btn-outline-primary">Добавить</button>
+        </div>
+          
+
         {{ items.management_form }}
         {% for itemForm in items %}
-        <div id='{{ itemForm.prefix }}'>
+        <div id='{{ itemForm.prefix }}' class='item-form'>
+          {{ itemForm.id }}
           <input type="hidden" name="{{ itemForm.DELETE.html_name }}" id="{{ itemForm.DELETE.auto_id }}">
-          <p class="h4 m-0">Аванс: {{ itemForm.prefix|cut:"items-"|add:1 }}</p>
+          <p class="h4 m-0">Аванс: {{ itemForm.prefix|cut:"item-"|add:1 }}</p>
           <div class="row" >
             <div class="col-2 p-1 input-group input-group-sm">
               <div class="input-group-prepend">
-                <span class="input-group-text">{{ itemForm.sum.label }}</span>
+                <span class="input-group-text">{{ itemForm.value.label }}</span>
               </div>
-              <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if itemForm.sum.errors %} is-invalid {% endif %}" name="{{ itemForm.sum.html_name  }}" value="{{ itemForm.sum.value|default_if_none:'' }}" />
+              <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if itemForm.value.errors %} is-invalid {% endif %}" name="{{ itemForm.value.html_name  }}" value="{{ itemForm.value.value|default_if_none:'' }}" />
             </div>
 
             <div class="col-2 p-1 input-group input-group-sm">
@@ -222,20 +225,18 @@
             </div>
 
             <div class="col-2 p-1">
-              <button type="button" class='btn btn-sm btn-outline-danger delete-item' data-prefix="{{ itemForm.prefix }}"><i class="fa-light fa-trash"></i></button>
+              <button type="button" class='btn btn-sm btn-outline-danger delete-item'><i class="fa-light fa-trash"></i></button>
             </div>
           </div>
         </div>
         {% endfor %}
     </div>
 
-    <div class="col border rounded p-1 mt-2">
-      <button type="button" class="btn btn-sm btn-outline-primary button-add-assignment">Добавить</button>
-    </div>
+
 
     <div class="col border rounded mt-1">
       <p class="h4">Раздел 2. Сведения о назначении аванса</p>
-
+      <button id="button-add-assignment" type="button" class="btn btn-sm btn-outline-primary my-1">Добавить</button>
       <table class="table table-bordered table-sm text-center" style="font-size: 0.8em;">
         <thead>
           <tr>
@@ -260,12 +261,12 @@
             <th rowspan="1" width="10%">Подразделение/Статья</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="purpose-container">
         {{ purposes.management_form }}
 
         {% for purpose in purposes %}
-          {{ purpose.id }}
-          <tr>
+          <tr class='purpose-form'>
+            {{ purpose.id }}
             <td>
               {{ purpose.prepaidDest }}
             </td>
@@ -310,13 +311,34 @@
   </form>
 
   <script type="text/javascript">
+
+  function addForm (prefix) {
+        const container = $(`.${prefix}-container`)
+        const allForms = $(`.${prefix}-form`)
+        const formsCount = allForms.length
+
+        const newForm = allForms[0].cloneNode(true)
+        console.log(container)
+        const formRegex = RegExp(`${prefix}-(\\d){1}-`,'g')
+        const nextNum = formsCount + 1
+        newForm.innerHTML = newForm.innerHTML.replace(formRegex, `${prefix}-${formsCount}-`)
+        container.append(newForm).find(`#id_${prefix}-${formsCount}-id`).remove()
+        document.querySelector(`#id_${prefix}-TOTAL_FORMS`).setAttribute('value', `${nextNum}`)
+  }
+
     $(document).ready(function () {
-      $('.items-container').on('click', '.delete-item', function (e) {
-        $(`#${e.currentTarget.dataset.prefix}`).hide()
+      $(`.item-container`).on('click', '.delete-item', function (e) {
+        const form = $(e.currentTarget).parents('.item-form')
+        form.hide()
+        form.find("[id$='DELETE']").val(1)
       })
 
       $('#button-add-item').on('click', function(e){
+        addForm('item')
+      })
 
+      $('#button-add-assignment').on('click', function(e){
+        addForm('purpose')
       })
 
       $('.datepeeker').datepicker()
