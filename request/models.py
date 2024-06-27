@@ -46,3 +46,22 @@ class Request(models.Model):
             ("view_owner_requests", "Просмотр только свои заявления"),
             ("edit_owner_requests", "Редактирование только свои заявления"),
         ]
+
+
+class RequestInventory(models.Model):
+    id = models.AutoField(primary_key=True, blank=False)
+
+    # Ссылка на заявку
+    request = models.ForeignKey(Request, db_column='request_id', on_delete=models.PROTECT, blank=False, null=False)
+    # Номер заявления
+    requestNum = models.CharField(db_column="request_num", blank=True, null=True, max_length=200)
+    # Комментарий
+    comment = models.CharField(db_column="comment", blank=True, null=True, max_length=200)
+    # Приложение
+    attachment = models.CharField(db_column="attachment", blank=True, null=True, max_length=200)
+
+    class Meta:
+        db_table = 'request_inventory'
+        verbose_name = 'МПЗ по заявлению'
+        verbose_name_plural = 'МПЗ по заявлению'
+        default_permissions = ()
