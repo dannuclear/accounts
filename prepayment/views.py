@@ -9,17 +9,23 @@ from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
 from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func
-from .filters import PeriodFilter
+from .filters import PeriodFilter, ImprestAccountFilter
 
 # Create your views here.
 purposesSubquery = PrepaymentPurpose.objects.select_related('prepaidDest').annotate(missionFrom = Func('missionFromDate', function='min'), missionTo = Func('missionToDate', function='max'), missionDestList= Func('missionDest', function='string_agg', template="%(function)s(%(expressions)s, ', ')"), prepaidDestList=Func('prepaidDest__name', function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')")).filter(prepayment=OuterRef("pk"))
 class PrepaymentViewSet (viewsets.ModelViewSet):
-    queryset = Prepayment.objects.annotate(missionFrom=Subquery(purposesSubquery.values('missionFrom')), missionTo=Subquery(purposesSubquery.values('missionTo')), missionDestList=Subquery(purposesSubquery.values('missionDestList')), prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList'))).select_related('status').select_related('imprestAccount').select_related('document').select_related('wc07pOrder').order_by('-id')
+    queryset = Prepayment.objects.all().annotate(missionFrom=Subquery(purposesSubquery.values('missionFrom')), missionTo=Subquery(purposesSubquery.values('missionTo')), missionDestList=Subquery(purposesSubquery.values('missionDestList')), prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList'))).select_related('status').select_related('imprestAccount').select_related('document').select_related('wc07pOrder').order_by('-id')
     serializer_class = PrepaymentSerializer
 
     def filter_queryset(self, queryset):
+        if PeriodFilter in self.filter_backends:
+            self.filter_backends.remove(PeriodFilter)
+        if ImprestAccountFilter in self.filter_backends:   
+            self.filter_backends.remove(ImprestAccountFilter)
         if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
-            self.filter_backends.append(PeriodFilter)
+            self.filter_backends.insert(0, PeriodFilter)
+        if 'imprestAccount' in self.request.query_params:
+            self.filter_backends.insert(0, ImprestAccountFilter)
 
         return super().filter_queryset(queryset)
 

@@ -14,13 +14,13 @@ class PeriodFilter(BaseFilterBackend):
             queryset = queryset.filter(docDate__lte=datetime.strptime(periodTo, '%d.%m.%Y'))
         return queryset
 
-class ExpenseCodeFilter(BaseFilterBackend):
+class ImprestAccountFilter(BaseFilterBackend):
 
     def filter_queryset(self, request, queryset, view):
-        expenseCode = request.query_params.get("expenseCode")
+        imprestAccount = request.query_params.get("imprestAccount")
 
-        if periodFrom is not None:
-            queryset = queryset.filter(expenseCode_id=expenseCode)
+        if imprestAccount is not None:
+            queryset = queryset.filter(imprestAccount_id=imprestAccount)
     
         return queryset
 

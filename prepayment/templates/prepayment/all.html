@@ -55,6 +55,9 @@
 
 <script type="text/javascript">
     const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ']
+
+    let urlParams = new URLSearchParams(document.location.search)
+
     $(document).ready(
         function () {
             var requestTable = $('#request-table').DataTable(
@@ -62,6 +65,9 @@
                     ajax: {
                         url: '/api/v1/prepayments/?format=datatables',
                         data: function (d) {
+                            let imprestAccount = urlParams.get("imprestAccount")
+                            if (imprestAccount)
+                                d.imprestAccount=imprestAccount
                             if ($('#period-from').val())
                                 d.periodFrom=$('#period-from').val()
                             if ($('#period-to').val())
