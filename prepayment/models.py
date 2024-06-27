@@ -26,7 +26,7 @@ class Prepayment(models.Model):
     # Профессия
     empProfName = models.CharField(db_column="emp_prof_name", max_length=256, blank=True, null=True, verbose_name='Профессия')
     # Подразделение номер
-    empDivNum = models.SmallIntegerField(db_column="emp_div_num", blank=True, null=True, verbose_name='Номер подразделения')
+    empDivNum = models.SmallIntegerField(db_column="emp_div_num", blank=True, null=True, verbose_name='Подразд.')
     # Подразделение наименование
     empDivName = models.CharField(db_column="emp_div_name", max_length=200, blank=True, null=True, verbose_name='Наименование')
     # Итоговая сумма

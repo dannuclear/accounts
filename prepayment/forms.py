@@ -32,7 +32,7 @@ class PrepaidDestChoiceField(forms.ModelChoiceField):
 
 class ExpenseCodeChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
-        return obj.name
+        return obj.code
 
 class ObtainMethodChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
