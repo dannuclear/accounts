@@ -8,12 +8,12 @@ from guide.models import Status
 from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
-from django.db.models import OuterRef, Subquery, Max, Min, Aggregate
+from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func
 
 # Create your views here.
-purposesSubquery = PrepaymentPurpose.objects.filter(prepayment=OuterRef("pk")).annotate(missionFrom = Min('missionFromDate'), missionTo = Max('missionToDate'))
+purposesSubquery = PrepaymentPurpose.objects.select_related('prepaidDest').annotate(missionFrom = Func('missionFromDate', function='min'), missionTo = Func('missionToDate', function='max'), missionDestList= Func('missionDest', function='string_agg', template="%(function)s(%(expressions)s, ', ')"), prepaidDestList=Func('prepaidDest__name', function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')")).filter(prepayment=OuterRef("pk"))
 class PrepaymentViewSet (viewsets.ModelViewSet):
-    queryset = Prepayment.objects.all().annotate(missionFrom=Subquery(purposesSubquery.values('missionFrom')), missionTo=Subquery(purposesSubquery.values('missionTo'))).select_related('status').select_related('imprestAccount').select_related('document').select_related('wc07pOrder').order_by('-id')
+    queryset = Prepayment.objects.annotate(missionFrom=Subquery(purposesSubquery.values('missionFrom')), missionTo=Subquery(purposesSubquery.values('missionTo')), missionDestList=Subquery(purposesSubquery.values('missionDestList')), prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList'))).select_related('status').select_related('imprestAccount').select_related('document').select_related('wc07pOrder').order_by('-id')
     serializer_class = PrepaymentSerializer
 
 

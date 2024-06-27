@@ -65,7 +65,7 @@ class PrepaymentItem (models.Model):
 
     prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.PROTECT, blank=False, null=False)
 
-    value = models.DecimalField(max_digits=10, decimal_places=2, db_column="value", null=False, verbose_name='Сумма')
+    value = models.DecimalField(max_digits=10, decimal_places=2, db_column="value", null=True, verbose_name='Сумма')
     obtainMethod = models.ForeignKey(ObtainMethod, db_column='obtain_method_id', on_delete=models.PROTECT, blank=True, null=True)
     date = models.DateField(db_column='obtain_date', verbose_name='Дата', null=True)
 

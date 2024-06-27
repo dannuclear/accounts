@@ -72,78 +72,90 @@
     </div>
 
     {% if type == 0 %}
-    <div class="row p-1">
-      <div class="col-12 border rounded p-1" style="background-color: #fff3e4;">
+    <div class="row p-1 border rounded inventory-container">
+
+      <div class="col-12 p-1" style="background-color: #fff3e4;">
         <button id="add-mpz-group" type="button" class="btn btn-sm btn-success">+</button>
       </div>
-    </div>
 
-    <div class="row p-1 mpz-group">
-      <div class="col-12 border rounded p-1" style="background-color: #fff3e4;">
+      {{ inventories.management_form }}
+      {% for inventory in inventories %}
+        <div id='{{ inventory.prefix }}' class="col-12 border rounded mt-1 inventory-form" style="background-color: #fff3e4;">
+          <input type="hidden" name="{{ inventory.DELETE.html_name }}" id="{{ inventory.DELETE.auto_id }}">
+          {{ inventory.id }}
+          <div class="row">
+            <div class="col">
+              <div class="row pt-1 px-1 pb-0">
+                <div class="col-12 p-0 input-group input-group-sm">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Приобретение МПЗ (заявка №:</span>
+                  </div>
+                  <input type="text" class="h5 mb-0 form-control form-control-sm {% if inventory.requestNum.errors %} is-invalid {% endif %}" name="{{ inventory.requestNum.html_name }}" value="{{ inventory.requestNum.value|default_if_none:'' }}" autocomplete="off" />
+                  <div class="input-group-append">
+                    <span class="input-group-text">)</span>
+                  </div>
+                </div>
+              </div>
 
-        <div class="row px-3">
-          <div class="col-12 py-1 px-0 input-group input-group-sm">
-            <div class="input-group-prepend">
-              <span class="input-group-text">Приобретение МПЗ (заявка №:</span>
+              <div class="row pt-1 px-1 pb-0">
+                <div class="col-12 p-0 input-group input-group-sm">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Комментарий</span>
+                  </div>
+                  <input type="text" class="h5 mb-0 form-control form-control-sm {% if inventory.comment.errors %} is-invalid {% endif %}" name="{{ inventory.comment.html_name }}" value="{{ inventory.comment.value|default_if_none:'' }}" autocomplete="off" />
+                </div>
+              </div>
+
+              <div class="row pt-1 px-1 pb-0">
+                <table class="table table-bordered table-sm text-center mb-0" style="font-size: 0.9em;">
+                  <thead>
+                    <tr>
+                      <th scope="col" width="10%">№ п/п</th>
+                      <th scope="col" width="50%">Наименование ТМЦ</th>
+                      <th scope="col" width="10%">Кол-во</th>
+                      <th scope="col" width="10%">Цена</th>
+                      <th scope="col" width="20%">Сумма, итого</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <input name="mzp-cell-num" type="text" class="form-control form-control-sm" autocomplete="off" />
+                      </td>
+                      <td>
+                        <input name="mzp-cell-name" type="text" class="form-control form-control-sm" autocomplete="off" />
+                      </td>
+                      <td>
+                        <input name="mzp-cell-count" type="text" class="form-control form-control-sm" autocomplete="off" />
+                      </td>
+                      <td>
+                        <input name="mzp-cell-cost" type="text" class="form-control form-control-sm" autocomplete="off" />
+                      </td>
+                      <td>
+                        <input name="mzp-cell-sum" type="text" class="form-control form-control-sm" autocomplete="off" />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="row p-1">
+                <div class="col-12 p-0 input-group input-group-sm">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Приложение</span>
+                  </div>
+                  <input type="text" class="h5 mb-0 form-control form-control-sm {% if inventory.attachment.errors %} is-invalid {% endif %}" name="{{ inventory.attachment.html_name }}" value="{{ inventory.attachment.value|default_if_none:'' }}" autocomplete="off" />
+                </div>
+              </div>
             </div>
-            <input type="text" class="h5 mb-0 form-control form-control-sm" name="mzp-request" value="" autocomplete="off" />
-            <div class="input-group-append">
-              <span class="input-group-text">)</span>
+            <div class="col-auto p-1 d-flex">
+              <button type="button" class='btn btn-sm btn-outline-danger delete-inventory align-self-stretch'><i class="fa-light fa-trash"></i></button>
             </div>
           </div>
         </div>
+      
+      {% endfor %}
 
-        <div class="row px-3">
-          <div class="col-12 py-1 px-0 input-group input-group-sm">
-            <div class="input-group-prepend">
-              <span class="input-group-text">Комментарий</span>
-            </div>
-            <input type="text" class="h5 mb-0 form-control form-control-sm" name="mzp-comment" value="" autocomplete="off" />
-          </div>
-        </div>
-
-        <div class="row px-3 pt-1">
-          <table class="table table-bordered table-sm text-center mb-0">
-            <thead>
-              <tr>
-                <th scope="col" width="10%">№ п/п</th>
-                <th scope="col" width="50%">Наименование ТМЦ</th>
-                <th scope="col" width="10%">Кол-во</th>
-                <th scope="col" width="10%">Цена</th>
-                <th scope="col" width="20%">Сумма, итого</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <input name="mzp-cell-num" type="text" class="form-control form-control-sm" autocomplete="off" />
-                </td>
-                <td>
-                  <input name="mzp-cell-name" type="text" class="form-control form-control-sm" autocomplete="off" />
-                </td>
-                <td>
-                  <input name="mzp-cell-count" type="text" class="form-control form-control-sm" autocomplete="off" />
-                </td>
-                <td>
-                  <input name="mzp-cell-cost" type="text" class="form-control form-control-sm" autocomplete="off" />
-                </td>
-                <td>
-                  <input name="mzp-cell-sum" type="text" class="form-control form-control-sm" autocomplete="off" />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="row px-3">
-          <div class="col-12 py-1 px-0 input-group input-group-sm">
-            <div class="input-group-prepend">
-              <span class="input-group-text">Приложение</span>
-            </div>
-            <input type="text" class="h5 mb-0 form-control form-control-sm" name="mzp-attachment" value="" autocomplete="off" />
-          </div>
-        </div>
-      </div>
     </div>
 
     <div class="row">
@@ -192,7 +204,16 @@
       const mpzGroup = $('.mpz-group').first()
 
       $('#add-mpz-group').on('click', function (e) {
-        $('.mpz-group').after(mpzGroup.clone())
+        addForm('inventory')
+      })
+
+      $('.inventory-container').on('click', '.delete-inventory', function(e) {
+        const form = $(e.currentTarget).parents('.inventory-form')
+        form.children('[id$="DELETE"]').val(1)
+        if (!form.children('[id$="id"]').val())
+          form.remove()
+        else
+          form.hide()
       })
     })
   </script>

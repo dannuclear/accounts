@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Request
+from .models import Request, RequestInventory
 from rest_framework import viewsets
 from .serializers import RequestSerializer
 from .forms import RequestForm
@@ -8,7 +8,9 @@ from django.db.models import Max
 from guide.models import Status
 from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.filters import BaseFilterBackend
+from django.forms import formset_factory, inlineformset_factory, models
 # Create your views here.
+
 
 class PeriodFilter(BaseFilterBackend):
 
@@ -19,14 +21,15 @@ class PeriodFilter(BaseFilterBackend):
         if periodFrom is not None:
             queryset = queryset.filter(createDate__gte=datetime.strptime(periodFrom, '%d.%m.%Y'))
         if periodTo is not None:
-            queryset = queryset.filter(createDate__lte=datetime.strptime(periodTo, '%d.%m.%Y')) 
+            queryset = queryset.filter(createDate__lte=datetime.strptime(periodTo, '%d.%m.%Y'))
         return queryset
+
 
 class RequestViewSet (viewsets.ModelViewSet):
     queryset = Request.objects.all().select_related('applicant').select_related(
         'status').select_related('imprestAccount').select_related('obtainMethod').order_by('-id')
     serializer_class = RequestSerializer
-    
+
     def filter_queryset(self, queryset):
         if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
             self.filter_backends.append(PeriodFilter)
@@ -52,20 +55,36 @@ def editRequest(request, id):
     else:
         prepaymentRequest = Request.objects.get(id=id)
 
+    RequestInventoryForm = inlineformset_factory(Request, RequestInventory, can_delete=True, extra=0, min_num=1, exclude=['request'])
     if request.method == 'POST':
         form = RequestForm(request.POST, instance=prepaymentRequest)
-        if form.is_valid():
+        inventoriesFormSet = RequestInventoryForm(request.POST, prefix='inventory', instance=prepaymentRequest)
+        if form.is_valid() and inventoriesFormSet.is_valid():
             form.save()
+            for inventory in inventoriesFormSet.save(commit=False):
+                inventory.save()
+            for deleted in inventoriesFormSet.deleted_forms:
+                deleted.instance.delete()
             return HttpResponseRedirect('/requests')
     if request.method == 'GET':
         form = RequestForm(instance=prepaymentRequest)
+        inventoriesFormSet = RequestInventoryForm(prefix='inventory', instance=prepaymentRequest)
+
         if is_user_in_group(request.user, ['Администратор', 'Подотчетное лицо с расширенным функционалом', 'Руководитель']):
             form.fields['status'].queryset = Status.objects.order_by('id')
         elif is_user_in_group(request.user, ['Подотчетное лицо']):
             form.fields['status'].queryset = Status.objects.filter(pk__in=[1, 2]).order_by('id')
         elif is_user_in_group(request.user, ['Бухгалтер']):
             form.fields['status'].queryset = Status.objects.filter(pk__in=[3, 4, 5]).order_by('id')
-    return render(request, 'request/edit.html', {'form': form, 'title': 'Заявление', 'type': prepaymentRequest.type})
 
-def is_user_in_group (user, groups):
+    context = {
+        'form': form,
+        'inventories': inventoriesFormSet,
+        'title': 'Заявление',
+        'type': prepaymentRequest.type
+    }
+    return render(request, 'request/edit.html', context)
+
+
+def is_user_in_group(user, groups):
     return user.groups.filter(name__in=groups).exists()

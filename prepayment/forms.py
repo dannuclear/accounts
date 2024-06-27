@@ -91,7 +91,7 @@ class PrepaymentItemForm(forms.ModelForm):
 
     date = MyDateField(label='Дата', localize=True, required=False)
 
-    value = forms.DecimalField(label='Сумма', localize=True, required=True)
+    value = forms.DecimalField(label='Сумма', localize=True, required=False)
 
     class Meta:
         model = PrepaymentItem
