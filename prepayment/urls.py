@@ -9,4 +9,6 @@ urlpatterns = [
     path('prepayments', views.prepayments, name='prepayments'),
     path('prepayments/<id>', views.editPrepayment, name='editPrepayment'),
     path('prepayments/<id>/delete', views.deletePrepayment),
+
+    path('advanceReports', views.advanceReports, name='advanceReports'),
 ]

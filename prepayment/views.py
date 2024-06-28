@@ -14,7 +14,7 @@ from .filters import PeriodFilter, ImprestAccountFilter
 # Create your views here.
 purposesSubquery = PrepaymentPurpose.objects.select_related('prepaidDest').annotate(missionFrom = Func('missionFromDate', function='min'), missionTo = Func('missionToDate', function='max'), missionDestList= Func('missionDest', function='string_agg', template="%(function)s(%(expressions)s, ', ')"), prepaidDestList=Func('prepaidDest__name', function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')")).filter(prepayment=OuterRef("pk"))
 class PrepaymentViewSet (viewsets.ModelViewSet):
-    queryset = Prepayment.objects.all().annotate(missionFrom=Subquery(purposesSubquery.values('missionFrom')), missionTo=Subquery(purposesSubquery.values('missionTo')), missionDestList=Subquery(purposesSubquery.values('missionDestList')), prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList'))).select_related('status').select_related('imprestAccount').select_related('document').select_related('wc07pOrder').order_by('-id')
+    queryset = Prepayment.objects.all().annotate(missionFrom=Subquery(purposesSubquery.values('missionFrom')), missionTo=Subquery(purposesSubquery.values('missionTo')), missionDestList=Subquery(purposesSubquery.values('missionDestList')), prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList'))).select_related('status').select_related('imprestAccount').select_related('document').select_related('wc07pOrder').select_related('reportStatus').order_by('-id')
     serializer_class = PrepaymentSerializer
 
     def filter_queryset(self, queryset):
@@ -30,8 +30,11 @@ class PrepaymentViewSet (viewsets.ModelViewSet):
         return super().filter_queryset(queryset)
 
 
-def prepayments(prepayment):
-    return render(prepayment, 'prepayment/all.html')
+def prepayments(request):
+    return render(request, 'prepayment/all.html')
+
+def advanceReports(request):
+    return render(request, 'advanceReport/all.html')
 
 
 def editPrepayment(request, id):
@@ -41,7 +44,7 @@ def editPrepayment(request, id):
         prepayment.createdAt = datetime.now()
         prepayment.imprestAccount_id = 7101
     else:
-        prepayment = Prepayment.objects.select_related('status').select_related('imprestAccount').select_related('document').get(id=id)
+        prepayment = Prepayment.objects.select_related('status').select_related('imprestAccount').select_related('document').select_related('reportStatus').get(id=id)
 
     PrepaymentItemFormSet = inlineformset_factory(Prepayment, PrepaymentItem, form=PrepaymentItemForm, can_delete=True, extra=0, min_num=1)
     PrepaymentPurposeFormSet = inlineformset_factory(Prepayment, PrepaymentPurpose, form=PrepaymentPurposeForm, can_delete=True ,extra=0, min_num=1)

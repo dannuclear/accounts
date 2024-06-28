@@ -45,9 +45,16 @@ class Prepayment(models.Model):
     createdBy = models.CharField(db_column='created_by', max_length=200)
     createdAt = models.DateTimeField(db_column='created_at')
 
-    status = models.ForeignKey(Status, db_column='status_id', on_delete=models.PROTECT, blank=True, null=True)
+    status = models.ForeignKey(Status, db_column='status_id', on_delete=models.PROTECT, blank=True, null=True, related_name='status')
 
     wc07pOrder = models.ForeignKey(WC07POrder, db_column='order_id', on_delete=models.PROTECT, null=True)
+
+
+    # Потраченная сумма
+    spendedSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="spended_sum", blank=True, null=True, verbose_name='Потраченная сумма')
+    # Статус авансового отчета
+    reportStatus = models.ForeignKey(Status, db_column='report_status_id', on_delete=models.PROTECT, blank=True, null=True, related_name='reportStatus')
+
 
     class Meta:
         db_table = 'prepayment'

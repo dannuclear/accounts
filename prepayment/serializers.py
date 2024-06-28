@@ -21,6 +21,8 @@ class PrepaymentSerializer (serializers.ModelSerializer):
 
     prepaidDestList = serializers.CharField()
     
+    reportStatus = StatusSerializer(read_only=True, many=False)
+
     class Meta:
         model = Prepayment
         fields = serializers.ALL_FIELDS
