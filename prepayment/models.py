@@ -1,6 +1,7 @@
 from django.db import models
 from guide.models import ImprestAccount, Status, Document, PrepaidDest, ExpenseCode, ObtainMethod
-from integration.models import WC07POrder
+from request.models import Request
+from integration.models import WC07POrder, Prepayment as iPrepayment
 # Create your models here.
 
 
@@ -8,7 +9,7 @@ from integration.models import WC07POrder
 class Prepayment(models.Model):
     id = models.AutoField(primary_key=True, blank=False)
 
-    document = models.ForeignKey(Document, db_column='document_id', on_delete=models.PROTECT, null=True)
+    document = models.ForeignKey(Document, db_column='document_id', on_delete=models.PROTECT, null=False)
 
     docNum = models.CharField(db_column="doc_num", max_length=100, blank=True, null=True)
     docDate = models.DateField(db_column="doc_date", blank=True, null=True)
@@ -47,14 +48,22 @@ class Prepayment(models.Model):
 
     status = models.ForeignKey(Status, db_column='status_id', on_delete=models.PROTECT, blank=True, null=True, related_name='status')
 
+    # Если аванс сделан на основе загруженного приказа или заявки, то прописываем связь
     wc07pOrder = models.ForeignKey(WC07POrder, db_column='order_id', on_delete=models.PROTECT, null=True)
-
+    iPrepayment = models.ForeignKey(iPrepayment, db_column='integration_prepayment_id', on_delete=models.PROTECT, null=True)
+    request = models.ForeignKey(Request, db_column='request_id', on_delete=models.PROTECT, null=True)
 
     # Потраченная сумма
     spendedSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="spended_sum", blank=True, null=True, verbose_name='Потраченная сумма')
     # Статус авансового отчета
     reportStatus = models.ForeignKey(Status, db_column='report_status_id', on_delete=models.PROTECT, blank=True, null=True, related_name='reportStatus')
 
+    # Номер авансового отчета
+    reportNum = models.IntegerField(db_column='report_num', blank=True, null=True)
+    # Дата авансового отчета
+    reportDate = models.DateField(db_column="report_date", blank=True, null=True)
+    # Номер бухгалтерской справки
+    reportAccountingNum = models.CharField(db_column='report_accounting_num', max_length=50, null=True, verbose_name='Номер бухгалтерской справки')
 
     class Meta:
         db_table = 'prepayment'
@@ -70,7 +79,7 @@ class Prepayment(models.Model):
 class PrepaymentItem (models.Model):
     id = models.AutoField(primary_key=True, blank=False)
 
-    prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.PROTECT, blank=False, null=False)
+    prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.CASCADE, blank=False, null=False)
 
     value = models.DecimalField(max_digits=10, decimal_places=2, db_column="value", null=True, verbose_name='Сумма')
     obtainMethod = models.ForeignKey(ObtainMethod, db_column='obtain_method_id', on_delete=models.PROTECT, blank=True, null=True)
@@ -87,7 +96,7 @@ class PrepaymentPurpose(models.Model):
     id = models.AutoField(primary_key=True, blank=False)
 
     # Выдача денежных средств подотчет
-    prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.PROTECT, blank=False, null=False)
+    prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.CASCADE, blank=False, null=False)
     # Назначение аванса
     prepaidDest = models.ForeignKey(PrepaidDest, db_column='prepaid_dest_id', on_delete=models.PROTECT, blank=False, null=True)
 
@@ -95,7 +104,7 @@ class PrepaymentPurpose(models.Model):
     # xv26eih_name	VARCHAR(200)	VARCHAR(200)	да	Наименование пункта сметы
     # Из файла «ГГГГ-ММ-ДД_estimate_item.csv», столбец «xv26eih_name».
     # Допускается ручной ввод (цифровой (10 знаков)). 
-    deptExpense = models.CharField(db_column="dept_expense", max_length=200, blank=False, null=True)
+    deptExpense = models.CharField(db_column="dept_expense", max_length=200, blank=True, null=True)
 
     # Код расхода
     expenseCode = models.ForeignKey(ExpenseCode, db_column='expense_code_id', on_delete=models.PROTECT, blank=True, null=True)

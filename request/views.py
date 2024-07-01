@@ -1,14 +1,16 @@
 from django.shortcuts import render
 from .models import Request, RequestInventory
+from prepayment.models import Prepayment
 from rest_framework import viewsets
 from .serializers import RequestSerializer
 from .forms import RequestForm
 from datetime import datetime
-from django.db.models import Max
-from guide.models import Status
-from django.http import HttpResponse, HttpResponseRedirect
+from django.db.models import Max, OuterRef, Subquery
+from guide.models import Status, Document
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
+from integration.models import Employee
 # Create your views here.
 
 
@@ -27,7 +29,7 @@ class PeriodFilter(BaseFilterBackend):
 
 class RequestViewSet (viewsets.ModelViewSet):
     queryset = Request.objects.all().select_related('applicant').select_related(
-        'status').select_related('imprestAccount').select_related('obtainMethod').order_by('-id')
+        'status').select_related('imprestAccount').select_related('obtainMethod').annotate(prepayment_id=Subquery(Prepayment.objects.filter(request=OuterRef("pk")).values('pk')[:1])).order_by('-id')
     serializer_class = RequestSerializer
 
     def filter_queryset(self, queryset):
@@ -88,3 +90,35 @@ def editRequest(request, id):
 
 def is_user_in_group(user, groups):
     return user.groups.filter(name__in=groups).exists()
+
+
+def createPrepayment(request, id):
+    req = Request.objects.select_related('imprestAccount').get(pk=id)
+
+    if Prepayment.objects.filter(request=req).exists():
+        return HttpResponseBadRequest('Выданный под отчет аванс уже существует')
+
+    document = Document.objects.filter(name__iexact='Заявление').first()
+    if document is None:
+        return HttpResponseBadRequest('Тип документа \'Заявление\' не найден в справочнике')
+
+    applicant = req.applicant
+    prep = Prepayment()
+    prep.createdBy = request.user.username
+    prep.createdAt = datetime.now()
+    prep.request = req
+    prep.document = document
+    prep.docNum = req.num
+    prep.docDate = req.createDate
+    prep.empNum = applicant.empOrgNo
+    prep.empDivNum = applicant.divNo
+    prep.empFullName = '%s %s %s' % (applicant.pfnSurname, applicant.pfnName, applicant.pfnPatronymic)
+    prep.empProfName = applicant.profName
+    prep.imprestAccount = req.imprestAccount
+    prep.totalSum = req.issuedSum
+    status = Status.objects.first()
+    prep.status = status
+    prep.reportStatus = status
+    prep.save()
+
+    return HttpResponse('Выданный под отчет аванс создан')

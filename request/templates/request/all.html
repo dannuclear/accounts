@@ -164,6 +164,18 @@
                             defaultContent: '',
                             orderable: false,
                             render: function (data, type, row) {
+                                if (data.prepaymentId)
+                                    return ''
+                                return `<a href="/requests/${data.id}/createPrepayment" title='Создать запись в реестре выданных под отчет авансов' class="create-prepayment-button h4 m-0"><i class="fa-light fa-money-bill-transfer"></i></a>`
+                            }
+                        },
+                        {
+                            title: '',
+                            data: null,
+                            width: '1%',
+                            defaultContent: '',
+                            orderable: false,
+                            render: function (data, type, row) {
                                 return `<a href="/requests/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
                             }
                         },
@@ -209,6 +221,22 @@
             $('#request-table').on('click', 'tbody td .print', function(e){
                 console.log(e.target.dataset.id)
                 printDialog.dialog('open')
+            })
+
+            requestTable.on('click', '.create-prepayment-button', function(e){
+                e.preventDefault();
+                const alertEl = $('.alert')
+                const url = e.currentTarget.getAttribute('href')
+                $.get(url, function(e) {
+                    alertEl.attr('class', 'alert alert-success')
+                    alertEl.html(e)
+                }).fail(function(e){
+                    alertEl.attr('class', 'alert alert-danger')
+                    alertEl.html(e.responseText)
+                }).always(function(){
+                    alertEl.show().delay(3000).fadeOut()
+                    requestTable.ajax.reload()
+                })
             })
         }
     );

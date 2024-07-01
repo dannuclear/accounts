@@ -43,6 +43,9 @@
         {% if form.instance.wc07pOrder is not None %}
           <i class="fa-light fa-link" title="Связь с загруженным документом: ({{ form.instance.wc07pOrder.orderId }}) {{ form.instance.wc07pOrder.orderName }} № {{ form.instance.wc07pOrder.orderNum }}" style="color: #2d9efb;"></i>
         {% endif %}
+        {% if form.instance.request is not None %}
+          <i class="fa-light fa-link" title="Загружено из заявления: ({{ form.instance.request.id }}) № {{ form.instance.request.num }} {{ form.instance.request.createDate }}" style="color: #2d9efb;"></i>
+        {% endif %}
       </p>
 
       <div class="row">
@@ -51,8 +54,8 @@
             <span class="input-group-text">{{ form.document.label }}</span>
           </div>
 
-          {% comment %} {% if form.instance.wc07pOrder is not None %}
-            <span class="form-control form-control-sm bg-info" style="background-color: #c8e5ea !important;"> {{ form.instance.wc07pOrder.orderName }} </span>
+          {% comment %} {% if form.instance.wc07pOrder is not None or form.instance.request is not None%}
+            <span class="form-control form-control-sm" readonly> {{ form.instance.document.name }} </span>
           {% else %}
             {{ form.document }}
           {% endif %} {% endcomment %}
@@ -71,7 +74,7 @@
             <input type="text" class="mb-0 form-control form-control-sm {% if form.docNum.errors %} is-invalid {% endif %}" name="{{ form.docNum.name }}" value="{{ form.docNum.value|default_if_none:'' }}" />
           {% endif %} {% endcomment %}
 
-          <input type="text" class="mb-0 form-control form-control-sm {% if form.docNum.errors %} is-invalid {% endif %}" name="{{ form.docNum.name }}" value="{{ form.docNum.value|default_if_none:'' }}" />
+          <input type="text" class="mb-0 form-control form-control-sm {% if form.docNum.errors %} is-invalid {% endif %}" name="{{ form.docNum.name }}" value="{{ form.docNum.value|default_if_none:'' }}" {% if form.instance.wc07pOrder is not None or form.instance.request is not None %}disabled{% endif %}/>
 
         </div>
 
@@ -85,7 +88,7 @@
             <input type="text" class="text-center mb-0 form-control form-control-sm datepeeker {% if form.docDate.errors %} is-invalid {% endif %}" name="{{ form.docDate.name }}" value="{{ form.docDate.value|default_if_none:'' }}" />
           {% endif %} {% endcomment %}
 
-          <input type="text" class="text-center mb-0 form-control form-control-sm datepeeker {% if form.docDate.errors %} is-invalid {% endif %}" name="{{ form.docDate.name }}" value="{{ form.docDate.value|default_if_none:'' }}" />
+          <input type="text" class="text-center mb-0 form-control form-control-sm datepeeker {% if form.docDate.errors %} is-invalid {% endif %}" name="{{ form.docDate.name }}" value="{{ form.docDate.value|default_if_none:'' }}" {% if form.instance.wc07pOrder is not None or form.instance.request is not None %}disabled{% endif %}/>
 
         </div>
       </div>

@@ -79,10 +79,14 @@ class PrepaymentForm (forms.ModelForm):
     class Meta:
         model = Prepayment
         fields = ALL_FIELDS
-        exclude = ['createdBy', 'createdAt', 'wc07pOrder']
+        exclude = ['createdBy', 'createdAt', 'wc07pOrder', 'request', 'iPrepayment']
 
     def __init__(self, *args, **kwargs):
         super(PrepaymentForm, self).__init__(*args, **kwargs)
+        if self.instance.wc07pOrder is not None or self.instance.request is not None or self.instance.iPrepayment is not None:
+            self.fields['document'].disabled = True
+            self.fields['docNum'].disabled = True
+            self.fields['docDate'].disabled = True
 
 class PrepaymentItemForm(forms.ModelForm):
 
@@ -115,3 +119,19 @@ class PrepaymentPurposeForm(forms.ModelForm):
         model = PrepaymentPurpose
         fields = ALL_FIELDS
         exclude = ['prepayment']
+
+
+class AdvanceReportForm (forms.ModelForm):
+    id = forms.IntegerField(label='id', disabled=True, required=False)
+
+    reportNum = forms.IntegerField(label='Номер', required=False)
+    reportDate = MyDateField(label='Дата утв. АО', localize=True, required=False)
+
+    reportStatus = StatusChoiceField(queryset=Status.objects.order_by('id'), widget=forms.Select(
+        attrs={'class': 'custom-select form-control-sm'}), label='Статус', required=False, empty_label='Не установлен')
+
+    comment = forms.CharField(label='Приложения', required=False)
+
+    class Meta:
+        model = Prepayment
+        fields = ['reportStatus', 'empDivName', 'reportNum', 'reportDate', 'reportAccountingNum']

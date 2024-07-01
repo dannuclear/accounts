@@ -122,7 +122,7 @@
                         { data: null, orderable: false, defaultContent: "" },
                         { data: null, orderable: false, defaultContent: "" },
                         { data: 'reportStatus.name', orderable: false, defaultContent: "Не установлен" },
-                        { data: null, orderable: false, defaultContent: "" },
+                        { data: 'reportAccountingNum', orderable: false, defaultContent: "" },
                         { data: null, orderable: false, defaultContent: "" },
 
                         {
@@ -130,7 +130,7 @@
                             defaultContent: '',
                             orderable: false,
                             render: function (data, type, row) {
-                                return `<a href="/prepayments/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
+                                return `<a href="/advanceReports/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
                             }
                         }
                     ],

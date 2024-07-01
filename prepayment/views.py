@@ -2,7 +2,7 @@ from django.shortcuts import render
 from .models import Prepayment, PrepaymentPurpose, PrepaymentItem
 from rest_framework import viewsets
 from .serializers import PrepaymentSerializer
-from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm
+from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm, AdvanceReportForm
 from datetime import datetime
 from guide.models import Status
 from django.http import HttpResponse, HttpResponseRedirect
@@ -44,7 +44,7 @@ def editPrepayment(request, id):
         prepayment.createdAt = datetime.now()
         prepayment.imprestAccount_id = 7101
     else:
-        prepayment = Prepayment.objects.select_related('status').select_related('imprestAccount').select_related('document').select_related('reportStatus').get(id=id)
+        prepayment = Prepayment.objects.select_related('status').select_related('imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
 
     PrepaymentItemFormSet = inlineformset_factory(Prepayment, PrepaymentItem, form=PrepaymentItemForm, can_delete=True, extra=0, min_num=1)
     PrepaymentPurposeFormSet = inlineformset_factory(Prepayment, PrepaymentPurpose, form=PrepaymentPurposeForm, can_delete=True ,extra=0, min_num=1)
@@ -75,6 +75,23 @@ def editPrepayment(request, id):
         'purposes' : purposeFormSet
     }
     return render(request, 'prepayment/edit.html', context)
+
+def editAdvanceReport(request, id):
+    prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList'))).select_related('status').select_related('imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
+    if request.method == 'POST':
+        form = AdvanceReportForm(request.POST, instance=prepayment)
+
+        if form.is_valid():
+            prepayment = form.save()
+            return HttpResponseRedirect('/advanceReports')
+    if request.method == 'GET':
+        form = AdvanceReportForm(instance=prepayment)
+
+    context = {
+        'form': form,
+        'title': 'Заявление',
+    }
+    return render(request, 'advanceReport/edit.html', context)
 
 def deletePrepayment(request, id):
     if request.method == 'GET':

@@ -11,4 +11,5 @@ urlpatterns = [
     path('prepayments/<id>/delete', views.deletePrepayment),
 
     path('advanceReports', views.advanceReports, name='advanceReports'),
+    path('advanceReports/<id>', views.editAdvanceReport, name='editAdvanceReport'),
 ]
