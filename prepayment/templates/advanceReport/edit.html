@@ -18,8 +18,7 @@
     {{ form.errors }}
     <input type="hidden" name="id" value="{{ form.id.value }}" />
 
-    <div class="col border rounded mt-1">
-      <div class="row">
+    <div class="form-row border rounded mt-1">
         <div class="col-xl-3 col-md-3 p-1 text-center">
           <h4 class="m-0 border rounded">Авансовый отчет</h4>
         </div>
@@ -46,21 +45,18 @@
           </div>
           {{ form.reportStatus }}
         </div>
-      </div>
     </div>
 
-    <div class="col border rounded mt-1 p-1">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-2 border text-left col">
+    <div class="form-row border rounded mt-1 p-1">
+      <div class="col-12 pl-0">
+        <div class="row container-fluid">
+          <div class="col-2 border text-left">
             <h6 class="align-middle d-inline m-0">Структурное подразделение*</h6>
           </div>
-          <div class="col-3 border p-1">
-            <div class="input-group input-group-sm">
-              <textarea id='emp-div-name' rows="1" type="text" class="text-center mb-0 form-control form-control-sm {% if form.empDivName.errors %} is-invalid {% endif %}" name="{{ form.empDivName.name }}" style="resize: none;">{{ form.empDivName.value|default_if_none:'' }}</textarea>
-              <div class="input-group-append">
-                <button id='div-search' class="btn btn-outline-secondary" type="button"><i class="fa-light fa-magnifying-glass"></i></button>
-              </div>
+          <div class="col-3 border p-1 input-group input-group-sm">
+            <textarea id='emp-div-name' rows="1" class="text-center mb-0 form-control form-control-sm {% if form.empDivName.errors %} is-invalid {% endif %}" name="{{ form.empDivName.name }}" style="resize: none;">{{ form.empDivName.value|default_if_none:'' }}</textarea>
+            <div class="input-group-append">
+              <button id='div-search' class="btn btn-outline-secondary" type="button"><i class="fa-light fa-magnifying-glass"></i></button>
             </div>
           </div>
           <div class="col-1 d-flex">
@@ -78,13 +74,11 @@
             </div>
             <textarea rows="1" class="text-center mb-0 form-control form-control-sm {% if form.reportAccountingNum.errors %} is-invalid {% endif %}" name="{{ form.reportAccountingNum.name }}" style="resize: none;">{{ form.reportAccountingNum.value|default_if_none:'' }}</textarea>
           </div>
-
         </div>
       </div>
     </div>
 
-    <div class="col border rounded mt-1">
-      <div class="row">
+    <div class="form-row border rounded mt-1">
         <div class="col-sm-6 col-xl-4 p-1 input-group input-group-sm">
           <div class="input-group-prepend">
             <span class="input-group-text">Подотчетное лицо*</span>
@@ -112,52 +106,39 @@
           </div>
           <input type="text" class="mb-0 form-control form-control-sm" value="" readonly/>
         </div>
-      </div>
     </div>
 
-    <div class="col border rounded mt-1">
-      <div class="row">
+    <div class="form-row border rounded mt-1">
         <div class="col-sm-12 p-1 input-group input-group-sm">
           <div class="input-group-prepend">
             <span class="input-group-text">Назначение аванса*</span>
           </div>
           <input type="text" class="mb-0 form-control form-control-sm" value="{{ form.instance.prepaidDestList|default_if_none:'' }}" readonly/>
         </div>
-      </div>
     </div>
     
-    <div class="col border rounded mt-1">
-      <p class="h3 m-0">Документ: 
-        {% if form.instance.wc07pOrder is not None %}
-          <i class="fa-light fa-link" title="Связь с загруженным документом: ({{ form.instance.wc07pOrder.orderId }}) {{ form.instance.wc07pOrder.orderName }} № {{ form.instance.wc07pOrder.orderNum }}" style="color: #2d9efb;"></i>
-        {% endif %}
-        {% if form.instance.request is not None %}
-          <i class="fa-light fa-link" title="Загружено из заявления: ({{ form.instance.request.id }}) {{ form.instance.request.num }} № {{ form.instance.request.createDate }}" style="color: #2d9efb;"></i>
-        {% endif %}
-      </p>
-
-      <div class="row">
+    <div class="form-row border rounded mt-1">
+      
         <div class="col-3 p-1 input-group input-group-sm">
           <div class="input-group-prepend">
-            <span class="input-group-text">Документ</span>
+            <span class="input-group-text text-left">Идентификатор <br/>государственного<br/>контракта</span>
           </div>
-          <span class="mb-0 form-control form-control-sm" readonly/>{{ form.instance.document.name }}</span>
+          <span class="mb-0 form-control form-control-sm h-auto" readonly/>{{ form.instance.document.name }}</span>
         </div>
 
         <div class="col-2 p-1 input-group input-group-sm">
           <div class="input-group-prepend">
             <span class="input-group-text">Номер</span>
           </div>
-          <span class="mb-0 form-control form-control-sm" readonly/>{{ form.instance.docNum }}</span>
+          <span class="mb-0 form-control form-control-sm h-auto" readonly/>{{ form.instance.docNum }}</span>
         </div>
 
         <div class="col-2 p-1 input-group input-group-sm">
           <div class="input-group-prepend">
             <span class="input-group-text">Дата</span>
           </div>
-          <span class="mb-0 form-control form-control-sm" readonly/>{{ form.instance.docDate }}</span>
+          <span class="mb-0 form-control form-control-sm h-auto" readonly/>{{ form.instance.docDate }}</span>
         </div>
-      </div>
     </div>
 
   </form>
