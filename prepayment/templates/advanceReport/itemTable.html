@@ -52,7 +52,7 @@
         <input type="hidden" name="{{ item.DELETE.html_name }}" id="{{ item.DELETE.auto_id }}" />
         <input type="hidden" name="{{ item.itemType.html_name }}" value="{{ itemType }}" />
         <td>
-          <h5 class="m-0">{{ forloop.counter }}</h5>
+          <p class="text-center m-0" style="font-size: 1.4em;">{{ forloop.counter }}</p>
         </td>
         <td>
           <input type="text" class="form-control form-control-sm datepeeker" name="{{ item.approveDocDate.html_name }}" value="{{ item.approveDocDate.value|default_if_none:'' }}" autocomplete="off" />
