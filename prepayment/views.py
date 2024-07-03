@@ -1,8 +1,8 @@
 from django.shortcuts import render
-from .models import Prepayment, PrepaymentPurpose, PrepaymentItem
+from .models import Prepayment, PrepaymentPurpose, PrepaymentItem, AdvanceReportItem, Attachment
 from rest_framework import viewsets
 from .serializers import PrepaymentSerializer
-from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm, AdvanceReportForm
+from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm, AdvanceReportForm, AdvanceReportItemForm, AttachmentForm
 from datetime import datetime
 from guide.models import Status
 from django.http import HttpResponse, HttpResponseRedirect
@@ -78,20 +78,70 @@ def editPrepayment(request, id):
 
 def editAdvanceReport(request, id):
     prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList'))).select_related('status').select_related('imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
+    
+    ItemsFormSet = inlineformset_factory(Prepayment, AdvanceReportItem, form=AdvanceReportItemForm, can_delete=True, extra=0, min_num=1)
+    AttachmentFormSet = inlineformset_factory(Prepayment, Attachment, form=AttachmentForm, can_delete=True, extra=0, min_num=1)
+    queryset=AdvanceReportItem.objects
+
     if request.method == 'POST':
         form = AdvanceReportForm(request.POST, instance=prepayment)
+        travelExpenses = ItemsFormSet(request.POST, prefix='travel-expense', instance=prepayment, queryset=queryset.filter(itemType=0))
+        orgServices = ItemsFormSet(request.POST, prefix='org-service', instance=prepayment, queryset=queryset.filter(itemType=1))
+        iventoryItems = ItemsFormSet(request.POST, prefix='inventory', instance=prepayment, queryset=queryset.filter(itemType=2))
+        services = ItemsFormSet(request.POST, prefix='service', instance=prepayment, queryset=queryset.filter(itemType=3))
+        presentationExpenses = ItemsFormSet(request.POST, prefix='presentation', instance=prepayment, queryset=queryset.filter(itemType=4))
+        purchaseOrderExpenses = ItemsFormSet(request.POST, prefix='purchase-order', instance=prepayment, queryset=queryset.filter(itemType=5))
 
-        if form.is_valid():
+        attachments = AttachmentFormSet(request.POST, request.FILES, prefix='attachment', instance=prepayment)
+
+        if form.is_valid() and travelExpenses.is_valid() and orgServices.is_valid() and iventoryItems.is_valid() and services.is_valid() and presentationExpenses.is_valid() and purchaseOrderExpenses.is_valid() and attachments.is_valid():
             prepayment = form.save()
+            # Обрабатываем командироваочные расходы
+            processFormset(travelExpenses)
+            # Расходы, оплаченные организацией за услуги проезда, проживания подотчетного лица и пр.услуги
+            processFormset(orgServices)
+            # Приобретение ТМЦ
+            processFormset(iventoryItems)
+            # Оплата работ, услуг
+            processFormset(services)
+            # Представительские расходы
+            processFormset(presentationExpenses)
+            # Оплата заказ-наряда
+            processFormset(purchaseOrderExpenses)
+            # Вложения
+            processFormset(attachments)
+
             return HttpResponseRedirect('/advanceReports')
     if request.method == 'GET':
         form = AdvanceReportForm(instance=prepayment)
+        travelExpenses = ItemsFormSet(prefix='travel-expense', instance=prepayment, queryset=queryset.filter(itemType=0))
+        orgServices = ItemsFormSet(prefix='org-service', instance=prepayment, queryset=queryset.filter(itemType=1))
+        iventoryItems = ItemsFormSet(prefix='inventory', instance=prepayment, queryset=queryset.filter(itemType=2))
+        services = ItemsFormSet(prefix='service', instance=prepayment, queryset=queryset.filter(itemType=3))
+        presentationExpenses = ItemsFormSet(prefix='presentation', instance=prepayment, queryset=queryset.filter(itemType=4))
+        purchaseOrderExpenses = ItemsFormSet(prefix='purchase-order', instance=prepayment, queryset=queryset.filter(itemType=5))
+
+        attachments = AttachmentFormSet(prefix='attachment', instance=prepayment)
 
     context = {
         'form': form,
         'title': 'Заявление',
+        'travelExpenses': travelExpenses,
+        'orgServices': orgServices,
+        'iventoryItems': iventoryItems,
+        'services': services,
+        'presentationExpenses': presentationExpenses,
+        'purchaseOrderExpenses': purchaseOrderExpenses,
+        'attachments': attachments,
     }
     return render(request, 'advanceReport/edit.html', context)
+
+def processFormset (formset):
+    for el in formset.save(commit=False):
+        el.save()
+    for deletedEl in formset.deleted_forms:
+        if deletedEl.instance.id is not None:
+            deletedEl.instance.delete()
 
 def deletePrepayment(request, id):
     if request.method == 'GET':

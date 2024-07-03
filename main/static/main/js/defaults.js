@@ -41,3 +41,13 @@ $.extend(true, $.fn.dataTable.defaults, {
 $.datepicker.setDefaults( $.datepicker.regional[ "ru" ] )
 
 $.fn.select2.defaults.set("theme", "bootstrap4");
+
+function stringDif (val1, val2) {
+	if (val1 == null || val2 == null || val1.trim() == '' || val2.trim() == '')
+		return null;
+	let valNum1 = Number(val1.replace(',','.').replace(' ',''))
+	let valNum2 = Number(val2.replace(',','.').replace(' ',''))
+	if (Number.isNaN(valNum1) || Number.isNaN(valNum2))
+		return null
+	return valNum1 - valNum2
+}

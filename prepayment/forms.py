@@ -1,8 +1,8 @@
 from django import forms
 from django.forms.models import ALL_FIELDS
-from .models import Prepayment, PrepaymentPurpose, ExpenseCode, PrepaymentItem
+from .models import Prepayment, PrepaymentPurpose, ExpenseCode, PrepaymentItem, AdvanceReportItem, Attachment
 from guide.models import ObtainMethod
-from guide.models import Status, ImprestAccount, Document, PrepaidDest
+from guide.models import Status, ImprestAccount, Document, PrepaidDest, ExpenseCategory
 from integration.models import Employee, WC07POrder
 
 
@@ -10,33 +10,46 @@ class MyDateField(forms.DateField):
     def prepare_value(self, value):
         return self.widget.format_value(value)
 
+
 class ImprestAccountChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.account
+
 
 class StatusChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
 
+
 class DocumentChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
+
 
 class WC07POrderChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
 
+
 class PrepaidDestChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
+
 
 class ExpenseCodeChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.code
 
+
+class ExpenseCategoryChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.name
+
+
 class ObtainMethodChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
+
 
 class PrepaymentForm (forms.ModelForm):
     id = forms.IntegerField(label='id', disabled=True, required=False)
@@ -79,7 +92,7 @@ class PrepaymentForm (forms.ModelForm):
     class Meta:
         model = Prepayment
         fields = ALL_FIELDS
-        exclude = ['createdBy', 'createdAt', 'wc07pOrder', 'request', 'iPrepayment']
+        exclude = ['createdBy', 'createdAt', 'wc07pOrder', 'request', 'iPrepayment', 'reportAccountingNum', 'reportAccountingSum', 'reportNum', 'reportDate', 'reportComment']
 
     def __init__(self, *args, **kwargs):
         super(PrepaymentForm, self).__init__(*args, **kwargs)
@@ -87,6 +100,7 @@ class PrepaymentForm (forms.ModelForm):
             self.fields['document'].disabled = True
             self.fields['docNum'].disabled = True
             self.fields['docDate'].disabled = True
+
 
 class PrepaymentItemForm(forms.ModelForm):
 
@@ -101,6 +115,7 @@ class PrepaymentItemForm(forms.ModelForm):
         model = PrepaymentItem
         fields = ALL_FIELDS
         exclude = ['prepayment']
+
 
 class PrepaymentPurposeForm(forms.ModelForm):
     # id = forms.IntegerField(widget = forms.HiddenInput(), required = False)
@@ -132,6 +147,60 @@ class AdvanceReportForm (forms.ModelForm):
 
     comment = forms.CharField(label='Приложения', required=False)
 
+    spendedSum = forms.DecimalField(localize=True, required=False)
+
+    reportAccountingSum = forms.DecimalField(localize=True, required=False)
+
     class Meta:
         model = Prepayment
-        fields = ['reportStatus', 'empDivName', 'reportNum', 'reportDate', 'reportAccountingNum']
+        fields = ['reportStatus', 'empDivName', 'reportNum', 'reportDate', 'reportAccountingNum', 'spendedSum', 'reportAccountingSum', 'reportComment']
+
+
+class AdvanceReportItemForm(forms.ModelForm):
+
+    approveDocument = DocumentChoiceField(queryset=Document.objects.order_by('id').all(), widget=forms.Select(
+        attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
+
+    expenseCategory = ExpenseCategoryChoiceField(queryset=ExpenseCategory.objects.order_by('id'), widget=forms.Select(
+        attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
+
+    expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), widget=forms.Select(
+        attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
+
+    approveDocDate = MyDateField(localize=True, required=False)
+
+    class Meta:
+        model = AdvanceReportItem
+        fields = ALL_FIELDS
+        exclude = ['prepayment']
+        localized_fields = ALL_FIELDS
+
+
+class AttachmentForm(forms.ModelForm):
+    name = forms.CharField(max_length=50)
+    file = forms.FileField()
+    date = MyDateField(localize=True, required=True)
+
+    class Meta:
+        model = Attachment
+        fields = ALL_FIELDS
+        exclude = ['prepayment']
+
+# class TravelExpenseForm(forms.ModelForm):
+
+#     approveDocument = DocumentChoiceField(queryset=Document.objects.order_by('id').all(), widget=forms.Select(
+#         attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
+
+#     expenseCategory = ExpenseCategoryChoiceField(queryset=ExpenseCategory.objects.order_by('id'), widget=forms.Select(
+#         attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
+
+#     expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), widget=forms.Select(
+#         attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
+
+#     approveDocDate = MyDateField(localize=True, required=False)
+
+#     class Meta:
+#         model = TravelExpense
+#         fields = ALL_FIELDS
+#         exclude = ['prepayment']
+#         localized_fields = ALL_FIELDS

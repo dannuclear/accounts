@@ -1,0 +1,123 @@
+<table class="table table-bordered table-sm text-center" style="font-size: 0.7em;">
+  <thead>
+    <tr>
+      <th rowspan="2" width="3%">№ п/п</th>
+      <th rowspan="1" colspan="2" width="5%">Документ, подтверждающий произведенные расходы</th>
+      <th rowspan="2" width="10%">Наименование документа</th>
+      <th rowspan="2" width="10%">Наименование расхода</th>
+      <th rowspan="2" width="10%">Номенклатура</th>
+      {% if itemType == 0 %}
+        <th rowspan="2" width="5%">Количество дней</th>
+      {% endif %}
+      <th rowspan="1" colspan="3">Сумма расхода по отчету работника</th>
+      {% if False %}
+        <th rowspan="2" width="5%">Расходы подр-я</th>
+        <th rowspan="2" width="5%">Код расхода</th>
+        <th rowspan="2" width="5%">Сумма, принятая к учету</th>
+
+        <th rowspan="1" colspan="4">
+          Дебет<br />Шифр отнесения затрат
+        </th>
+        <th rowspan="1" colspan="4">
+          Кредит<br />Код учета подотчетной суммы
+        </th>
+      {% endif %}
+      <th rowspan="2" width="2%"></th>
+    </tr>
+    <tr>
+      <th rowspan="1" width="7%">Дата</th>
+      <th rowspan="1" width="7%">Номер</th>
+      <th rowspan="1" width="7%">в валюте</th>
+      <th rowspan="1" width="7%">в руб. коп.</th>
+      <th rowspan="1" width="7%%">в т.ч. НДС</th>
+      {% if False %}
+        <th rowspan="1" width="5%">Счет/Субсчет</th>
+        <th rowspan="1" width="5%">Статья расходов</th>
+        <th rowspan="1" width="5%">Цех отнесения затрат</th>
+        <th rowspan="1" width="5%">Доп признак</th>
+
+        <th rowspan="1" width="5%">Счет/Субсчет</th>
+        <th rowspan="1" width="5%">Статья расходов</th>
+        <th rowspan="1" width="5%">№ подр-я работника</th>
+        <th rowspan="1" width="5%">Доп признак</th>
+      {% endif %}
+    </tr>
+  </thead>
+
+  <tbody class="{{items.prefix}}-container">
+    {{ items.management_form }}
+    {% for item in items %}
+      <tr class="{{items.prefix}}-form">
+        {{ item.id }}
+        <input type="hidden" name="{{ item.DELETE.html_name }}" id="{{ item.DELETE.auto_id }}" />
+        <input type="hidden" name="{{ item.itemType.html_name }}" value="{{ itemType }}" />
+        <td>
+          <h5 class="m-0">{{ forloop.counter }}</h5>
+        </td>
+        <td>
+          <input type="text" class="form-control form-control-sm datepeeker" name="{{ item.approveDocDate.html_name }}" value="{{ item.approveDocDate.value|default_if_none:'' }}" autocomplete="off" />
+        </td>
+        <td>
+          <input type="text" class="form-control form-control-sm" name="{{ item.approveDocNum.html_name }}" value="{{ item.approveDocNum.value|default_if_none:'' }}" autocomplete="off" />
+        </td>
+        <td>{{ item.approveDocument }}</td>
+        <td>{{ item.expenseCategory }}</td>
+        <td>
+          <input type="text" class="form-control form-control-sm" name="{{ item.nomenclature.html_name }}" value="{{ item.nomenclature.value|default_if_none:'' }}" autocomplete="off" />
+        </td>
+        {% if itemType == 0 %}
+          <td>
+            <input type="text" class="form-control form-control-sm" name="{{ item.daysCount.html_name }}" value="{{ item.daysCount.value|default_if_none:'' }}" autocomplete="off" />
+          </td>
+        {% endif %}
+        <td>
+          <input type="text" class="form-control form-control-sm" name="{{ item.expenseSumCurrency.html_name }}" value="{{ item.expenseSumCurrency.value|default_if_none:'' }}" autocomplete="off" />
+        </td>
+        <td>
+          <input type="text" class="form-control form-control-sm" name="{{ item.expenseSumRub.html_name }}" value="{{ item.expenseSumRub.value|default_if_none:'' }}" autocomplete="off" />
+        </td>
+        <td>
+          <input type="text" class="form-control form-control-sm" name="{{ item.expenseSumVAT.html_name }}" value="{{ item.expenseSumVAT.value|default_if_none:'' }}" autocomplete="off" />
+        </td>
+        {% if False %}
+          <td>
+            <input type="text" class="form-control form-control-sm" name="{{ item.deptExpense.html_name }}" value="{{ item.deptExpense.value|default_if_none:'' }}" autocomplete="off" />
+          </td>
+          <td>{{ item.expenseCode }}</td>
+          <td>
+            <input type="text" class="form-control form-control-sm" name="{{ item.accountingSum.html_name }}" value="{{ item.accountingSum.value|default_if_none:'' }}" autocomplete="off" />
+          </td>
+
+          <td>
+            <input type="text" class="form-control form-control-sm" name="{{ item.debitAccount.html_name }}" value="{{ item.debitAccount.value|default_if_none:'' }}" autocomplete="off" />
+          </td>
+          <td>
+            <input type="text" class="form-control form-control-sm" name="{{ item.debitExpenseItem.html_name }}" value="{{ item.debitExpenseItem.value|default_if_none:'' }}" autocomplete="off" />
+          </td>
+          <td>
+            <input type="text" class="form-control form-control-sm" name="{{ item.debitExpenseWorkshop.html_name }}" value="{{ item.debitExpenseWorkshop.value|default_if_none:'' }}" autocomplete="off" />
+          </td>
+          <td>
+            <input type="text" class="form-control form-control-sm" name="{{ item.debitExtra.html_name }}" value="{{ item.debitExtra.value|default_if_none:'' }}" autocomplete="off" />
+          </td>
+
+          <td>
+            <input type="text" class="form-control form-control-sm" name="{{ item.creditAccount.html_name }}" value="{{ item.creditAccount.value|default_if_none:'' }}" autocomplete="off" />
+          </td>
+          <td>
+            <input type="text" class="form-control form-control-sm" name="{{ item.creditExpenseItem.html_name }}" value="{{ item.creditExpenseItem.value|default_if_none:'' }}" autocomplete="off" />
+          </td>
+          <td>
+            <input type="text" class="form-control form-control-sm" name="{{ item.creditDept.html_name }}" value="{{ item.creditDept.value|default_if_none:'' }}" autocomplete="off" />
+          </td>
+          <td>
+            <input type="text" class="form-control form-control-sm" name="{{ item.creditExtra.html_name }}" value="{{ item.creditExtra.value|default_if_none:'' }}" autocomplete="off" />
+          </td>
+        {% endif %}
+        <td>
+          <button type="button" class="btn btn-sm btn-outline-danger row-delete"><i class="fa-light fa-trash"></i></button>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

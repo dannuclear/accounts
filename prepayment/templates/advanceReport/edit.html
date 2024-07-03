@@ -5,7 +5,13 @@
 {% endblock %}
 
 {% block content %}
-  <form method="post" class="container-fluid">
+  <style rel="stylesheet" type="text/css">
+    .nav-link {
+      padding: 0.1rem 0.5rem;
+    }
+  </style>
+
+  <form method="post" class="container-fluid" enctype="multipart/form-data">
     {% csrf_token %}
 
     <div class="form-row align-items-center">
@@ -19,32 +25,32 @@
     <input type="hidden" name="id" value="{{ form.id.value }}" />
 
     <div class="form-row border rounded mt-1">
-        <div class="col-xl-3 col-md-3 p-1 text-center">
-          <h4 class="m-0 border rounded">Авансовый отчет</h4>
-        </div>
+      <div class="col-xl-3 col-md-3 p-1 text-center">
+        <h4 class="m-0 border rounded">Авансовый отчет</h4>
+      </div>
 
-        <div class="col-xl-2 col-md-3 p-1 input-group input-group-sm">
-          <div class="input-group-prepend">
-            <span class="input-group-text">{{ form.reportNum.label }}</span>
-          </div>
-          <input type="text" class="mb-0 form-control form-control-sm {% if form.reportNum.errors %} is-invalid {% endif %}" name="{{ form.reportNum.name }}" value="{{ form.reportNum.value|default_if_none:'' }}"/>
+      <div class="col-xl-2 col-md-3 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">{{ form.reportNum.label }}</span>
         </div>
+        <input type="text" class="mb-0 form-control form-control-sm {% if form.reportNum.errors %} is-invalid {% endif %}" name="{{ form.reportNum.name }}" value="{{ form.reportNum.value|default_if_none:'' }}" />
+      </div>
 
-        <div class="col-xl-2 col-md-3 p-1 input-group input-group-sm">
-          <div class="input-group-prepend">
-            <span class="input-group-text">{{ form.reportDate.label }}</span>
-          </div>
-          <input type="text" class="text-center mb-0 form-control form-control-sm datepeeker {% if form.reportDate.errors %} is-invalid {% endif %}" name="{{ form.reportDate.name }}" value="{{ form.reportDate.value|default_if_none:'' }}"/>
+      <div class="col-xl-2 col-md-3 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">{{ form.reportDate.label }}</span>
         </div>
+        <input type="text" class="text-center mb-0 form-control form-control-sm datepeeker {% if form.reportDate.errors %} is-invalid {% endif %}" name="{{ form.reportDate.name }}" value="{{ form.reportDate.value|default_if_none:'' }}" />
+      </div>
 
-        <div class="col-xl-2 w-0 p-0 flex-md-shrink-1"></div>
+      <div class="col-xl-2 w-0 p-0 flex-md-shrink-1"></div>
 
-        <div class="col-xl-3 col-md-3 p-1 input-group input-group-sm">
-          <div class="input-group-prepend">
-            <span class="input-group-text {% if form.reportStatus.errors %} bg-danger {% endif %}">{{ form.reportStatus.label }}</span>
-          </div>
-          {{ form.reportStatus }}
+      <div class="col-xl-3 col-md-3 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text {% if form.reportStatus.errors %} bg-danger {% endif %}">{{ form.reportStatus.label }}</span>
         </div>
+        {{ form.reportStatus }}
+      </div>
     </div>
 
     <div class="form-row border rounded mt-1 p-1">
@@ -54,16 +60,16 @@
             <h6 class="align-middle d-inline m-0">Структурное подразделение*</h6>
           </div>
           <div class="col-3 border p-1 input-group input-group-sm">
-            <textarea id='emp-div-name' rows="1" class="text-center mb-0 form-control form-control-sm {% if form.empDivName.errors %} is-invalid {% endif %}" name="{{ form.empDivName.name }}" style="resize: none;">{{ form.empDivName.value|default_if_none:'' }}</textarea>
+            <textarea id="emp-div-name" rows="1" class="text-center mb-0 form-control form-control-sm {% if form.empDivName.errors %} is-invalid {% endif %}" name="{{ form.empDivName.name }}" style="resize: none;">{{ form.empDivName.value|default_if_none:'' }}</textarea>
             <div class="input-group-append">
-              <button id='div-search' class="btn btn-outline-secondary" type="button"><i class="fa-light fa-magnifying-glass"></i></button>
+              <button id="div-search" class="btn btn-outline-secondary" type="button"><i class="fa-light fa-magnifying-glass"></i></button>
             </div>
           </div>
           <div class="col-1 d-flex">
             <div class="row align-content-stretch">
               <div class="col-12 text-center border">код*</div>
               <div class="col-12 text-center border p-1">
-                <input id='emp-div-num' type="text" class="text-center mb-0 form-control form-control-sm p-0" value="{{ form.instance.empDivNum|default_if_none:''|stringformat:"03d" }}" readonly style='height: 20px;'/>
+                <input id="emp-div-num" type="text" class="text-center mb-0 form-control form-control-sm p-0" value="{{ form.instance.empDivNum|default_if_none:''|stringformat:'03d' }}" readonly style="height: 20px;" />
               </div>
             </div>
           </div>
@@ -72,127 +78,308 @@
             <div class="input-group-prepend">
               <span class="input-group-text">{{ form.reportAccountingNum.label }}</span>
             </div>
-            <textarea rows="1" class="text-center mb-0 form-control form-control-sm {% if form.reportAccountingNum.errors %} is-invalid {% endif %}" name="{{ form.reportAccountingNum.name }}" style="resize: none;">{{ form.reportAccountingNum.value|default_if_none:'' }}</textarea>
+            <input class="mb-0 form-control form-control-sm h-auto d-flex align-items-end justify-content-center {% if form.reportAccountingNum.errors %} is-invalid {% endif %}" name="{{ form.reportAccountingNum.name }}" value="{{ form.reportAccountingNum.value|default_if_none:'' }}" />
           </div>
         </div>
       </div>
     </div>
 
     <div class="form-row border rounded mt-1">
-        <div class="col-sm-6 col-xl-4 p-1 input-group input-group-sm">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Подотчетное лицо*</span>
-          </div>
-          <input id='emp-full-name' type="text" class="mb-0 form-control form-control-sm" value="{{ form.instance.empFullName|default_if_none:'' }}" readonly/>
+      <div class="col-sm-6 col-xl-4 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Подотчетное лицо*</span>
         </div>
+        <input id="emp-full-name" type="text" class="mb-0 form-control form-control-sm" value="{{ form.instance.empFullName|default_if_none:'' }}" readonly />
+      </div>
 
-        <div class="col-sm-6 col-xl-3 p-1 input-group input-group-sm">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Табельный номер</span>
-          </div>
-          <input id='emp-num-input' type="text" class="text-center mb-0 form-control form-control-sm" value="{{ form.instance.empNum|default_if_none:'' }}" readonly/>      
+      <div class="col-sm-6 col-xl-3 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Табельный номер</span>
         </div>
+        <input id="emp-num-input" type="text" class="text-center mb-0 form-control form-control-sm" value="{{ form.instance.empNum|default_if_none:'' }}" readonly />
+      </div>
 
-        <div class="col-sm-6 col-xl-5 p-1 input-group input-group-sm">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Должность</span>
-          </div>
-          <input id='emp-prof-name' type="text" class="mb-0 form-control form-control-sm" value="{{ form.instance.empProfName|default_if_none:'' }}" readonly/>
+      <div class="col-sm-6 col-xl-5 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Должность</span>
         </div>
+        <input id="emp-prof-name" type="text" class="mb-0 form-control form-control-sm" value="{{ form.instance.empProfName|default_if_none:'' }}" readonly />
+      </div>
 
-        <div class="col-sm-6 col-xl-4 p-1 input-group input-group-sm">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Телефон</span>
-          </div>
-          <input type="text" class="mb-0 form-control form-control-sm" value="" readonly/>
+      <div class="col-sm-6 col-xl-4 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Телефон</span>
         </div>
+        <input type="text" class="mb-0 form-control form-control-sm" value="" readonly />
+      </div>
     </div>
 
     <div class="form-row border rounded mt-1">
-        <div class="col-sm-12 p-1 input-group input-group-sm">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Назначение аванса*</span>
-          </div>
-          <input type="text" class="mb-0 form-control form-control-sm" value="{{ form.instance.prepaidDestList|default_if_none:'' }}" readonly/>
+      <div class="col-sm-12 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Назначение аванса*</span>
         </div>
+        <input type="text" class="mb-0 form-control form-control-sm" value="{{ form.instance.prepaidDestList|default_if_none:'' }}" readonly />
+      </div>
     </div>
-    
+
     <div class="form-row border rounded mt-1">
-      
-        <div class="col-3 p-1 input-group input-group-sm">
-          <div class="input-group-prepend">
-            <span class="input-group-text text-left">Идентификатор <br/>государственного<br/>контракта</span>
-          </div>
-          <span class="mb-0 form-control form-control-sm h-auto" readonly/>{{ form.instance.document.name }}</span>
+      <div class="col-sm-3 col-xl-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text text-left">Идентификатор <br />государственного<br />контракта</span>
         </div>
+        <input type="text" class="mb-0 form-control form-control-sm h-auto d-flex align-items-end justify-content-center" readonly />
+      </div>
 
-        <div class="col-2 p-1 input-group input-group-sm">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Номер</span>
-          </div>
-          <span class="mb-0 form-control form-control-sm h-auto" readonly/>{{ form.instance.docNum }}</span>
+      <div class="col-sm-2 col-xl-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Приказ</span>
         </div>
+        <span class="mb-0 form-control form-control-sm h-auto d-flex align-items-end justify-content-center" readonly>{% if form.instance.document_id == 14 %}{{ form.instance.docNum }}{% endif %}</span>
+      </div>
 
-        <div class="col-2 p-1 input-group input-group-sm">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Дата</span>
-          </div>
-          <span class="mb-0 form-control form-control-sm h-auto" readonly/>{{ form.instance.docDate }}</span>
+      <div class="col-sm-4 col-xl-3 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text text-left">Номер заявки в ЕОСДО,<br />заявления, ЭД</span>
         </div>
+        <span class="mb-0 form-control form-control-sm h-auto d-flex align-items-end justify-content-center" readonly>{% if form.instance.document_id == 5 %}{{ form.instance.docNum }}{% endif %}</span>
+      </div>
+
+      <div class="col-sm-3 col-xl-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Дата документа</span>
+        </div>
+        <span class="mb-0 form-control form-control-sm h-auto text-center d-flex align-items-end justify-content-center" readonly>{{ form.instance.docDate }}</span>
+      </div>
     </div>
 
+    <div class="form-row border rounded mt-1">
+      <div class="col-sm-3 col-xl-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text text-left" style="font-size: 0.7em;">A.I. Получен аванс подотчетным<br />лицом, руб. коп.:</span>
+        </div>
+        <input id="total-sum" type="text" class="mb-0 form-control form-control-sm h-auto {% if form.totalSum.errors %} is-invalid {% endif %}" name="{{ form.totalSum.name }}" value="{{ form.instance.totalSum|default_if_none:'' }}" readonly />
+      </div>
+
+      <div class="col-sm-2 col-xl-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text" style="font-size: 0.7em;">A.II. Израсходовано<br />всего, руб. коп.:</span>
+        </div>
+        <input id="spended-sum" type="text" class="mb-0 form-control form-control-sm h-auto {% if form.spendedSum.errors %} is-invalid {% endif %}" name="{{ form.spendedSum.name }}" value="{{ form.spendedSum.value|default_if_none:'' }}" />
+      </div>
+
+      <div class="col-sm-4 col-xl-3 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text text-left" style="font-size: 0.7em;">A.III. Остаток/перерасход по авансу,<br />полученному подотчетным лицом, руб. коп.:</span>
+        </div>
+        <input id="dif-sum" type="text" class="mb-0 form-control form-control-sm h-auto" readonly />
+      </div>
+
+      <div class="col-sm-3 col-xl-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text" style="font-size: 0.7em;">Сумма по бухгалтерской<br />справке</span>
+        </div>
+        <input type="text" class="mb-0 form-control form-control-sm h-auto {% if form.reportAccountingSum.errors %} is-invalid {% endif %}" name="{{ form.reportAccountingSum.name }}" value="{{ form.reportAccountingSum.value|default_if_none:'' }}" />
+      </div>
+    </div>
+
+    <div class="form-row border rounded mt-1 p-1">
+      <div class="w-100">
+        <ul class="nav nav-tabs w-100" id="myTab" role="tablist" style="font-size: 0.8em;">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active h-100" id="tab-1" data-toggle="tab" data-target="#tab-content-1" type="button" role="tab" aria-controls="tab-content-1" aria-selected="true">Командировочные расходы</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link h-100" id="tab-2" data-toggle="tab" data-target="#tab-content-2" type="button" role="tab" aria-controls="tab-content-2" aria-selected="false">Расходы, оплаченные организацией за услуги проезда,<br />проживания подотчетного лица и пр.услуги</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link h-100" id="tab-3" data-toggle="tab" data-target="#tab-content-3" type="button" role="tab" aria-controls="tab-content-3" aria-selected="false">Приобретение ТМЦ</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link h-100" id="tab-4" data-toggle="tab" data-target="#tab-content-4" type="button" role="tab" aria-controls="tab-content-4" aria-selected="false">Оплата работ, услуг</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link h-100" id="tab-5" data-toggle="tab" data-target="#tab-content-5" type="button" role="tab" aria-controls="tab-content-5" aria-selected="false">Представительские расходы</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link h-100" id="tab-6" data-toggle="tab" data-target="#tab-content-6" type="button" role="tab" aria-controls="tab-content-6" aria-selected="false">Оплата заказ-наряда</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link h-100" id="tab-7" data-toggle="tab" data-target="#tab-content-7" type="button" role="tab" aria-controls="tab-content-7" aria-selected="false">Приложение</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link h-100" id="tab-8" data-toggle="tab" data-target="#tab-content-8" type="button" role="tab" aria-controls="tab-content-8" aria-selected="false">Сообщение</button>
+          </li>
+        </ul>
+        <div class="tab-content border" id="tabContent">
+          <div class="tab-pane fade show active container-fluid" id="tab-content-1" role="tabpanel" aria-labelledby="tab-1">
+            <div class="row p-1">
+              <button type="button" class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ travelExpenses.prefix }}">Добавить</button>
+            </div>
+
+            <div class="row p-1">
+              {% include 'advanceReport/itemTable.html' with items=travelExpenses itemType=0 %}
+            </div>
+          </div>
+
+          <div class="tab-pane fade container-fluid" id="tab-content-2" role="tabpanel" aria-labelledby="tab-2">
+            <div class="row p-1">
+              <button type="button" class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ orgServices.prefix }}">Добавить</button>
+            </div>
+
+            <div class="row p-1">
+              {% include 'advanceReport/itemTable.html' with items=orgServices itemType=1 %}
+            </div>
+          </div>
+
+          <div class="tab-pane fade container-fluid" id="tab-content-3" role="tabpanel" aria-labelledby="tab-3">
+            <div class="row p-1">
+              <button type="button" class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ iventoryItems.prefix }}">Добавить</button>
+            </div>
+
+            <div class="row p-1">
+              {% include 'advanceReport/itemTable.html' with items=iventoryItems itemType=2 %}
+            </div>
+          </div>
+          <div class="tab-pane fade container-fluid" id="tab-content-4" role="tabpanel" aria-labelledby="tab-4">
+            <div class="row p-1">
+              <button type="button" class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ services.prefix }}">Добавить</button>
+            </div>
+
+            <div class="row p-1">
+              {% include 'advanceReport/itemTable.html' with items=services itemType=3 %}
+            </div>
+          </div>
+          <div class="tab-pane fade container-fluid" id="tab-content-5" role="tabpanel" aria-labelledby="tab-5">
+            <div class="row p-1">
+              <button type="button" class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ presentationExpenses.prefix }}">Добавить</button>
+            </div>
+
+            <div class="row p-1">
+              {% include 'advanceReport/itemTable.html' with items=presentationExpenses itemType=4 %}
+            </div>
+          </div>
+          <div class="tab-pane fade container-fluid" id="tab-content-6" role="tabpanel" aria-labelledby="tab-6">
+            <div class="row p-1">
+              <button type="button" class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ purchaseOrderExpenses.prefix }}">Добавить</button>
+            </div>
+
+            <div class="row p-1">
+              {% include 'advanceReport/itemTable.html' with items=purchaseOrderExpenses itemType=5 %}
+            </div>
+          </div>
+          <div class="tab-pane fade container-fluid" id="tab-content-7" role="tabpanel" aria-labelledby="tab-7">
+            <div class="row p-1">
+              <button type="button" class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ attachments.prefix }}">Добавить</button>
+            </div>
+
+            <div class="row p-1">
+              <table class="table table-bordered table-sm text-center">
+                <thead>
+                  <th>Наименование</th>
+                  <th width="10%">Дата прикрепления</th>
+                  <th>Просмотр</th>
+                  <th width="40%">Загрузить</th>
+                  <th width="3%"></th>
+                </thead>
+                <tbody class="{{attachments.prefix}}-container">
+                  {{ attachments.management_form }}
+                  {% for attachment in attachments %}
+                    <tr class="{{attachments.prefix}}-form">
+                      {{ attachment.id }}
+                      <input type="hidden" name="{{ attachment.DELETE.html_name }}" id="{{ attachment.DELETE.auto_id }}" />
+                      <td>
+                        <input type="text" class="form-control form-control-sm" name="{{ attachment.name.html_name }}" value="{{ attachment.name.value|default_if_none:'' }}" autocomplete="off" />
+                      </td>
+                      <td>
+                        <input type="text" class="form-control form-control-sm datepeeker" name="{{ attachment.date.html_name }}" value="{{ attachment.date.value|default_if_none:'' }}" autocomplete="off" />
+                      </td>
+                      <td>
+                        {% if attachment.file.value is not None %}
+                          <a href="{{ attachment.file.value.url }}" target="__blank" title="{{ attachment.file.value }}">Просмотр</a>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <input type="file" name="{{ attachment.file.html_name }}" class="form-control-file" />
+                      </td>
+                      <td>
+                        <button type="button" class="btn btn-sm btn-outline-danger row-delete"><i class="fa-light fa-trash"></i></button>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-pane fade container-fluid" id="tab-content-8" role="tabpanel" aria-labelledby="tab-8">
+            <div class="row">
+              <div class="col-12 p-1 input-group input-group-sm">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Примечание</span>
+                </div>
+                <textarea class="mb-0 form-control form-control-sm {% if form.reportComment.errors %} is-invalid {% endif %}" name="{{ form.reportComment.name }}" >{{ form.reportComment.value|default_if_none:'' }}</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </form>
-  
+
   <script type="text/javascript">
     $(document).ready(function () {
-      $(`.item-container`).on('click', '.delete-item', function (e) {
-        const form = $(e.currentTarget).parents('.item-form')
-        form.hide()
-        form.find("[id$='DELETE']").val(1)
-      })
-
-      $('#button-add-item').on('click', function(e){
+ 
+      $('#button-add-item').on('click', function (e) {
         addForm('item')
       })
-
-      $('#button-add-assignment').on('click', function(e){
-        addForm('purpose')
+    
+      $('.btn-add-row').on('click', function (e) {
+        const form = addForm($(e.target).data('prefix'))
+        $(form).find('.datepeeker').removeAttr('id').removeClass('hasDatepicker').datepicker()
       })
-
-      $('.purpose-container').on('click', '.purpose-delete', function(e){
-        const form = $(e.currentTarget).parents('.purpose-form')
-        form.hide()
+    
+      $('tbody').on('click', '.row-delete', function (e) {
+        const tr = $(e.currentTarget).parents('tr')
+        tr.hide()
+        tr.find("[id$='DELETE']").val(1)
       })
-
+    
       $('.datepeeker').datepicker()
-
-      $('#div-search').on('click', function(e) {
+    
+      $('#div-search').on('click', function (e) {
         const divNum = $('#emp-div-num').val()
         if (!divNum) {
           alert('Введите номер подразделения')
           return
         }
-        $.get(`/api/v1/departments/${divNum}/?format=json`, function(data) {
-          if (data){
+        $.get(`/api/v1/departments/${divNum}/?format=json`, function (data) {
+          if (data) {
             $('#emp-div-name').val(data.name)
-            
           } else {
             $('#emp-div-name').val('')
           }
-        }).fail(function(e){
+        }).fail(function (e) {
           $('#emp-div-name').val('')
         })
       })
-
+    
+      $('#spended-sum').on('change', function (e) {
+        const spended = $(this).val()
+        const received = $('#total-sum').val()
+    
+        $('#dif-sum').val(stringDif(received, spended))
+      })
+      $('#spended-sum').trigger('change')
+    
       $('#splitModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget)
         var row = button.parents('tr')
         var periodFrom = row.find('.period-from').val()
         var periodTo = row.find('.period-to').val()
-
+    
         //var periodFrom = button.data('periodFrom')
         //var periodTo = button.data('periodTo')
-
+    
         var modal = $(this)
         //modal.find('.modal-title').text('New message to ' + recipient)
         modal.find('.modal-body .period-from').val(periodFrom)

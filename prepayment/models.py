@@ -1,7 +1,8 @@
 from django.db import models
-from guide.models import ImprestAccount, Status, Document, PrepaidDest, ExpenseCode, ObtainMethod
+from guide.models import ImprestAccount, Status, Document, PrepaidDest, ExpenseCode, ObtainMethod, ExpenseCategory
 from request.models import Request
 from integration.models import WC07POrder, Prepayment as iPrepayment
+from accounts import settings
 # Create your models here.
 
 
@@ -64,6 +65,11 @@ class Prepayment(models.Model):
     reportDate = models.DateField(db_column="report_date", blank=True, null=True)
     # Номер бухгалтерской справки
     reportAccountingNum = models.CharField(db_column='report_accounting_num', max_length=50, null=True, verbose_name='Номер бухгалтерской справки')
+    # Сумма по бухгалтерской справке
+    reportAccountingSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="report_accounting_sum", blank=True, null=True)
+
+    # Примечание
+    reportComment = models.CharField(db_column='report_comment', max_length=500, null=True)
 
     class Meta:
         db_table = 'prepayment'
@@ -141,3 +147,138 @@ class PrepaymentPurpose(models.Model):
         verbose_name = 'Назначение аванса'
         verbose_name_plural = 'Назначения аванса'
         default_permissions = ()
+
+# Пункт авансового отчета, общий
+class AdvanceReportItem (models.Model):
+    id = models.AutoField(primary_key=True, blank=False)
+
+    prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.CASCADE, blank=False, null=False)
+    # Документ, подтверждающий произведенные расходы, номер
+    approveDocNum = models.CharField(db_column="approve_doc_num", max_length=20, blank=True, null=True)
+    # Документ, подтверждающий произведенные расходы, дата
+    approveDocDate = models.DateField(db_column="approve_doc_date", blank=True, null=True)
+    
+    # Документ, подтверждающий произведенные расходы, наименование
+    approveDocument = models.ForeignKey(Document, db_column='approve_document_id', on_delete=models.PROTECT, null=False)
+
+    # Наименование расхода
+    expenseCategory = models.ForeignKey(ExpenseCategory, db_column='expense_category_id', on_delete=models.PROTECT, blank=True, null=True)
+    
+    # Номенклатура
+    nomenclature = models.CharField(db_column="nomenclature", max_length=100, blank=True, null=True)
+    # Сумма расхода по отчету работника, в валюте
+    expenseSumCurrency = models.DecimalField(max_digits=10, decimal_places=2, db_column="expense_sum_currency", blank=True, null=True)
+    # Сумма расхода по отчету работника, в руб
+    expenseSumRub = models.DecimalField(max_digits=10, decimal_places=2, db_column="expense_sum_rub", blank=True, null=True)
+    # Сумма расхода по отчету работника, в т.ч. НДС
+    expenseSumVAT = models.DecimalField(max_digits=10, decimal_places=2, db_column="expense_sum_vat", blank=True, null=True)
+
+    # --- Командировочные расходы ---
+    # Количество дней
+    daysCount = models.SmallIntegerField(db_column="days_count", blank=True, null=True)
+
+    # --- Расходы, оплаченные организацией за услуги проезда, проживания подотчетного лица и пр.услуги ---
+    # Нет
+
+    # --- Приобретение ТМЦ ---
+    # Нет
+
+    # --- Оплата работ, услуг ---
+    # --- Представительские расходы ---
+    # Шифр счет-фактура
+    invoiceCode = models.CharField(db_column="invoice_code", max_length=20, blank=True, null=True)
+
+    # --- Оплата заказ-наряд ---
+    # Нет
+
+    # Тип пункта авансового отчета
+    itemType = models.SmallIntegerField(db_column="item_type", blank=False, null=False)
+
+    # # Код аналит. учета/Код в ПСО
+    # invAnalysisPSO = models.CharField(db_column="inv_analysis_pso", max_length=20, blank=True, null=True)
+    # # Код аналит. учета/№ склада
+    # invAnalysisWarehouseNum = models.CharField(db_column="inv_analysis_warehouse_num", max_length=20, blank=True, null=True)
+    # # Код аналит. учета/Шифр счет-фактуры
+    # invAnalysisInvoice = models.CharField(db_column="inv_analysis_invoice", max_length=20, blank=True, null=True)
+
+
+
+    class Meta:
+        db_table = 'advance_report_item'
+        verbose_name = 'Расход по авансовому отчету'
+        verbose_name_plural = 'Расходы по авансовому отчету'
+        default_permissions = ()
+
+# Вложение
+class Attachment (models.Model):
+    id = models.AutoField(primary_key=True, blank=False)
+
+    prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.CASCADE, blank=False, null=False)
+    # Наименование
+    name = models.CharField(db_column="name", max_length=50, blank=False, null=False)
+    # Дата прикрепления
+    date = models.DateTimeField(db_column="attachment_date", blank=False, null=False)
+    file = models.FileField ()
+
+    class Meta:
+        db_table = 'attachment'
+        verbose_name = 'Вложение'
+        verbose_name_plural = 'Вложения'
+        default_permissions = ()
+
+# Командировочные расходы
+# class TravelExpense (models.Model):
+#     id = models.AutoField(primary_key=True, blank=False)
+
+#     prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.CASCADE, blank=False, null=False)
+#     # Документ, подтверждающий произведенные расходы, номер
+#     approveDocNum = models.CharField(db_column="approve_doc_num", max_length=20, blank=True, null=True)
+#     # Документ, подтверждающий произведенные расходы, дата
+#     approveDocDate = models.DateField(db_column="approve_doc_date", blank=True, null=True)
+    
+#     # Документ, подтверждающий произведенные расходы, наименование
+#     approveDocument = models.ForeignKey(Document, db_column='approve_document_id', on_delete=models.PROTECT, null=False)
+
+#     # Наименование расхода
+#     expenseCategory = models.ForeignKey(ExpenseCategory, db_column='expense_category_id', on_delete=models.PROTECT, blank=True, null=True)
+    
+#     # Номенклатура
+#     nomenclature = models.CharField(db_column="nomenclature", max_length=100, blank=True, null=True)
+#     # Количество дней
+#     daysCount = models.SmallIntegerField(db_column="days_count", blank=True, null=True)
+#     # Сумма расхода по отчету работника, в валюте
+#     expenseSumCurrency = models.DecimalField(max_digits=10, decimal_places=2, db_column="expense_sum_currency", blank=True, null=True)
+#     # Сумма расхода по отчету работника, в руб
+#     expenseSumRub = models.DecimalField(max_digits=10, decimal_places=2, db_column="expense_sum_rub", blank=True, null=True)
+#     # Сумма расхода по отчету работника, в т.ч. НДС
+#     expenseSumVAT = models.DecimalField(max_digits=10, decimal_places=2, db_column="expense_sum_vat", blank=True, null=True)
+#     # Расходы подразделения
+#     deptExpense = models.CharField(db_column="dept_expense", max_length=200, blank=True, null=True)
+#     # Код расхода
+#     expenseCode = models.ForeignKey(ExpenseCode, db_column='expense_code_id', on_delete=models.PROTECT, blank=True, null=True)
+#     # Сумма, принятая к учету
+#     accountingSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="accounting_sum", blank=True, null=True)
+
+#     # Дебет. Счет, субсчет
+#     debitAccount = models.IntegerField(db_column='debit_account', blank=True, null=True)
+#     # Дебет. Статья расхода
+#     debitExpenseItem = models.CharField(db_column="debit_expense_item", max_length=10, blank=True, null=True)
+#     # Дебет. Цех отнесения затрат
+#     debitExpenseWorkshop = models.CharField(db_column="debit_expense_workshop", max_length=10, blank=True, null=True)
+#     # Дебет. Доп. Признак
+#     debitExtra = models.CharField(db_column="debit_extra", max_length=10, blank=True, null=True)
+
+#     # Кредит. Счет, субсчет
+#     creditAccount = models.IntegerField(db_column='credit_account', blank=True, null=True)
+#     # Кредит. Статья расхода
+#     creditExpenseItem = models.CharField(db_column="credit_expense_item", max_length=10, blank=True, null=True)
+#     # Кредит. № подразд. работника
+#     creditDept = models.CharField(db_column="credit_dept", max_length=10, blank=True, null=True)
+#     # Кредит. Доп. Признак
+#     creditExtra = models.CharField(db_column="credit_extra", max_length=10, blank=True, null=True)
+
+#     class Meta:
+#         db_table = 'prepayment_travel_expense'
+#         verbose_name = 'Командировочный расход'
+#         verbose_name_plural = 'Командировочные расходы'
+#         default_permissions = ()
