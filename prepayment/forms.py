@@ -1,6 +1,6 @@
 from django import forms
 from django.forms.models import ALL_FIELDS
-from .models import Prepayment, PrepaymentPurpose, ExpenseCode, PrepaymentItem, AdvanceReportItem, Attachment
+from .models import Prepayment, PrepaymentPurpose, ExpenseCode, PrepaymentItem, AdvanceReportItem, Attachment, AdvanceReportItemEntity
 from guide.models import ObtainMethod
 from guide.models import Status, ImprestAccount, Document, PrepaidDest, ExpenseCategory
 from integration.models import Employee, WC07POrder
@@ -169,8 +169,56 @@ class AdvanceReportItemForm(forms.ModelForm):
 
     approveDocDate = MyDateField(localize=True, required=False)
 
+    def __init__(self, *args, **kwargs):
+        self.accounting = kwargs.pop('accounting', False)
+        self.itemType = kwargs.pop('itemType', None)
+        super(AdvanceReportItemForm, self).__init__(*args, **kwargs)
+        # Добавляем набор форм бухгалтерской формы
+        if (self.accounting or self.itemType == 2) and self.itemType != 1:
+            self.entities = AdvanceReportItemEntityFormset(instance=self.instance,
+                                                           data=self.data if self.is_bound else None,
+                                                           files=self.files if self.is_bound else None,
+                                                           prefix='%s-%s' % (self.prefix, 'entity'))
+
+    def is_valid(self):
+        result = super(AdvanceReportItemForm, self).is_valid()
+
+        if self.is_bound:
+            if hasattr(self, 'entities'):
+                result = result and self.entities.is_valid()
+
+        return result
+
+    def save(self, commit=True):
+        result = super(AdvanceReportItemForm, self).save(commit=commit)
+
+        if hasattr(self, 'entities'):
+            self.entities.save()
+
+        return result
+
+    def has_changed(self):
+        result = super(AdvanceReportItemForm, self).has_changed()
+        if hasattr(self, 'entities'):
+            result = result or self.entities.has_changed()
+        return result
+
     class Meta:
         model = AdvanceReportItem
+        fields = ALL_FIELDS
+        exclude = ['prepayment']
+        localized_fields = ALL_FIELDS
+
+
+class AdvanceReportItemEntityForm(forms.ModelForm):
+
+    expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), widget=forms.Select(
+        attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label='')
+
+    whOrderDate = MyDateField(localize=True, required=False)
+
+    class Meta:
+        model = AdvanceReportItemEntity
         fields = ALL_FIELDS
         exclude = ['prepayment']
         localized_fields = ALL_FIELDS
@@ -204,3 +252,40 @@ class AttachmentForm(forms.ModelForm):
 #         fields = ALL_FIELDS
 #         exclude = ['prepayment']
 #         localized_fields = ALL_FIELDS
+
+
+AttachmentFormSet = forms.inlineformset_factory(Prepayment, Attachment, form=AttachmentForm, can_delete=True, extra=1)
+AdvanceReportItemEntityFormset = forms.inlineformset_factory(AdvanceReportItem, AdvanceReportItemEntity, extra=1, form=AdvanceReportItemEntityForm)
+
+
+# class BaseAdvanceReportItemFormset (forms.BaseInlineFormSet):
+#     def add_fields(self, form, index):
+#         super(BaseAdvanceReportItemFormset, self).add_fields(form, index)
+
+#         form.entities = AdvanceReportItemEntityFormset(instance=form.instance,
+#                                                        data=form.data if form.is_bound else None,
+#                                                        files=form.files if form.is_bound else None,
+#                                                        prefix='%s-%s' % (form.prefix, 'entity'))
+
+#     def is_valid(self):
+#         result = super(BaseAdvanceReportItemFormset, self).is_valid()
+
+#         if self.is_bound:
+#             for form in self.forms:
+#                 if hasattr(form, 'entities'):
+#                     result = result and form.entities.is_valid()
+
+#         return result
+
+#     def save(self, commit=True):
+#         result = super(BaseAdvanceReportItemFormset, self).save(commit=commit)
+
+#         for form in self.forms:
+#             if hasattr(form, 'entities'):
+#                 if not self._should_delete_form(form):
+#                     form.entities.save(commit=commit)
+
+#         return result
+
+
+ItemsFormSet = forms.inlineformset_factory(Prepayment, AdvanceReportItem, form=AdvanceReportItemForm, can_delete=True, extra=0, min_num=1)

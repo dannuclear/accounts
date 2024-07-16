@@ -9,6 +9,11 @@
     .nav-link {
       padding: 0.1rem 0.5rem;
     }
+
+    {% comment %} table.entity-table td{
+      border-top: 0;
+      border-bottom: 0;
+    } {% endcomment %}
   </style>
 
   <form method="post" class="container-fluid" enctype="multipart/form-data">
@@ -218,7 +223,7 @@
             </div>
 
             <div class="row p-1">
-              {% include 'advanceReport/itemTable.html' with items=travelExpenses itemType=0 %}
+              {% include 'advanceReport/itemTable.html' with items=travelExpenses itemType=0 accounting=True %}
             </div>
           </div>
 
@@ -238,7 +243,7 @@
             </div>
 
             <div class="row p-1">
-              {% include 'advanceReport/itemTable.html' with items=iventoryItems itemType=2 %}
+              {% include 'advanceReport/itemTable.html' with items=iventoryItems itemType=2 accounting=True  %}
             </div>
           </div>
           <div class="tab-pane fade container-fluid" id="tab-content-4" role="tabpanel" aria-labelledby="tab-4">

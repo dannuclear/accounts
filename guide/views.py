@@ -5,7 +5,7 @@ from rest_framework import viewsets
 from .forms import ExpenseCodeForm, ImprestAccountForm, ExpenseRateForm, DocumentForm
 from .models import ExpenseCode, ImprestAccount, ExpenseRate, ExpenseItem, Document, AccountingCert, Status, Department, DepartmentAccount, ObtainMethod, PrepaidDest
 from .serializers import AccountingCertSerializer, ExpenseCodeSerializer, ImprestAccountSerializer, ExpenseRateSerializer, ExpenseItemSerializer, DocumentSerializer, StatusSerializer, DepartmentSerializer, DepartmentAccountSerializer, ObtainMethodSerializer, PrepaidDestSerializer
-
+from .filters import ImprestAccountFilter
 # Create your views here.
 
 
@@ -92,21 +92,9 @@ class DepartmentAccountViewSet (viewsets.ModelViewSet):
     serializer_class = DepartmentAccountSerializer
 
 class ExpenseItemViewSet (viewsets.ModelViewSet):
-    def list(self, request, *args, **kwargs):
-        preparedQueryset = self.get_queryset()
-
-        if request.query_params.get("imprestAccount", False):
-            self.queryset = preparedQueryset.filter(itemType=request.query_params.get("imprestAccount", False))
-        queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-        # return super().list(self, request, args, kwargs)
+    def filter_queryset(self, queryset):
+        self.filter_backends = [ImprestAccountFilter, *self.filter_backends]
+        return super().filter_queryset(queryset)
 
     queryset = ExpenseItem.objects.select_related('category').order_by('id')
     serializer_class = ExpenseItemSerializer

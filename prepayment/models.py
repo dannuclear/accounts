@@ -69,7 +69,7 @@ class Prepayment(models.Model):
     reportAccountingSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="report_accounting_sum", blank=True, null=True)
 
     # Примечание
-    reportComment = models.CharField(db_column='report_comment', max_length=500, null=True)
+    reportComment = models.CharField(db_column='report_comment', max_length=500, blank=True, null=True)
 
     class Meta:
         db_table = 'prepayment'
@@ -181,7 +181,8 @@ class AdvanceReportItem (models.Model):
     # Нет
 
     # --- Приобретение ТМЦ ---
-    # Нет
+    # Сумма разницы
+    diffSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="diff_sum", blank=True, null=True)
 
     # --- Оплата работ, услуг ---
     # --- Представительские расходы ---
@@ -194,19 +195,66 @@ class AdvanceReportItem (models.Model):
     # Тип пункта авансового отчета
     itemType = models.SmallIntegerField(db_column="item_type", blank=False, null=False)
 
-    # # Код аналит. учета/Код в ПСО
-    # invAnalysisPSO = models.CharField(db_column="inv_analysis_pso", max_length=20, blank=True, null=True)
-    # # Код аналит. учета/№ склада
-    # invAnalysisWarehouseNum = models.CharField(db_column="inv_analysis_warehouse_num", max_length=20, blank=True, null=True)
-    # # Код аналит. учета/Шифр счет-фактуры
-    # invAnalysisInvoice = models.CharField(db_column="inv_analysis_invoice", max_length=20, blank=True, null=True)
-
-
-
     class Meta:
         db_table = 'advance_report_item'
         verbose_name = 'Расход по авансовому отчету'
         verbose_name_plural = 'Расходы по авансовому отчету'
+        default_permissions = ()
+
+# Проводка пункта авансового отчета
+class AdvanceReportItemEntity (models.Model):
+    id = models.AutoField(primary_key=True, blank=False)
+
+    # Расходы подразделения
+    deptExpense = models.CharField(db_column="dept_expense", max_length=200, blank=True, null=True)
+    # Код расхода
+    expenseCode = models.ForeignKey(ExpenseCode, db_column='expense_code_id', on_delete=models.PROTECT, blank=True, null=True)
+    # Сумма, принятая к учету
+    accountingSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="accounting_sum", blank=True, null=True)
+
+    # Код аналит. учета/Код в ПСО
+    invAnalysisPSO = models.CharField(db_column="inv_analysis_pso", max_length=20, blank=True, null=True)
+    # Код аналит. учета/№ склада
+    invAnalysisWarehouseNum = models.CharField(db_column="inv_analysis_warehouse_num", max_length=20, blank=True, null=True)
+    # Код аналит. учета/Шифр счет-фактуры
+    invAnalysisInvoice = models.CharField(db_column="inv_analysis_invoice", max_length=20, blank=True, null=True)
+
+    # Приходный ордер на склад/номер
+    whOrderNum = models.CharField(db_column="wh_order_num", max_length=20, blank=True, null=True)
+    # Приходный ордер на склад/дата
+    whOrderDate = models.DateTimeField(db_column="wh_order_date", blank=True, null=True)
+    # Приходный ордер на склад/Сумма
+    whOrderSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="wh_order_sum", blank=True, null=True)
+
+    # Дебет. Счет, субсчет
+    debitAccount = models.IntegerField(db_column='debit_account', blank=True, null=True)
+    # Дебет. Статья расхода
+    debitExpenseItem = models.CharField(db_column="debit_expense_item", max_length=10, blank=True, null=True)
+    # Дебет. Цех отнесения затрат
+    debitExpenseWorkshop = models.CharField(db_column="debit_expense_workshop", max_length=10, blank=True, null=True)
+    # Дебет. Доп. Признак
+    debitExtra = models.CharField(db_column="debit_extra", max_length=10, blank=True, null=True)
+    debitKAU1 = models.CharField(db_column="debit_kau_1", max_length=20, blank=True, null=True)
+    debitKAU2 = models.CharField(db_column="debit_kau_2", max_length=20, blank=True, null=True)
+
+    # Кредит. Счет, субсчет
+    creditAccount = models.IntegerField(db_column='credit_account', blank=True, null=True)
+    # Кредит. Статья расхода
+    creditExpenseItem = models.CharField(db_column="credit_expense_item", max_length=10, blank=True, null=True)
+    # Кредит. № подразд. работника
+    creditDept = models.CharField(db_column="credit_dept", max_length=10, blank=True, null=True)
+    # Кредит. Доп. Признак
+    creditExtra = models.CharField(db_column="credit_extra", max_length=10, blank=True, null=True)
+    creditKAU1 = models.CharField(db_column="credit_kau_1", max_length=20, blank=True, null=True)
+    creditKAU2 = models.CharField(db_column="credit_kau_2", max_length=20, blank=True, null=True)
+
+    # Пункт авансового отчета
+    advanceReportItem = models.ForeignKey(AdvanceReportItem, db_column='advance_report_item_id', on_delete=models.PROTECT, blank=True, null=False)
+
+    class Meta:
+        db_table = 'advance_report_item_entity'
+        verbose_name = 'Бухгалтерская проводка'
+        verbose_name_plural = 'Бухгалтерские проводки'
         default_permissions = ()
 
 # Вложение
