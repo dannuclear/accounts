@@ -9,11 +9,9 @@
     .nav-link {
       padding: 0.1rem 0.5rem;
     }
-
-    {% comment %} table.entity-table td{
-      border-top: 0;
-      border-bottom: 0;
-    } {% endcomment %}
+    .col-num-row td{
+      padding: 0;
+    }
   </style>
 
   <form method="post" class="container-fluid" enctype="multipart/form-data">
@@ -28,24 +26,27 @@
 
     {{ form.errors }}
     <input type="hidden" name="id" value="{{ form.id.value }}" />
+    <input id="mission-days" type="hidden" value="{{ form.instance.days|default_if_none:'' }}" />
+
+    <input id="action" type="hidden" name="action">
 
     <div class="form-row border rounded mt-1">
       <div class="col-xl-3 col-md-3 p-1 text-center">
-        <h4 class="m-0 border rounded">Авансовый отчет</h4>
+        <h4 class="m-0 border rounded">Авансовый отчет <a href="{% url 'prepayments' %}/{{ form.instance.id }}" title="Перейти в выданный под отчет аванс"><i class="fa-light fa-money-bill-transfer"></i></a></h4>
       </div>
 
       <div class="col-xl-2 col-md-3 p-1 input-group input-group-sm">
         <div class="input-group-prepend">
           <span class="input-group-text">{{ form.reportNum.label }}</span>
         </div>
-        <input type="text" class="mb-0 form-control form-control-sm {% if form.reportNum.errors %} is-invalid {% endif %}" name="{{ form.reportNum.name }}" value="{{ form.reportNum.value|default_if_none:'' }}" />
+        <input type="text" class="mb-0 form-control form-control-sm {% if form.reportNum.errors %} is-invalid {% endif %}" value="{{ form.instance.reportNum|default_if_none:'' }}" readonly /> {% comment %}name="{{ form.reportNum.name }}"{% endcomment %}
       </div>
 
       <div class="col-xl-2 col-md-3 p-1 input-group input-group-sm">
         <div class="input-group-prepend">
           <span class="input-group-text">{{ form.reportDate.label }}</span>
         </div>
-        <input type="text" class="text-center mb-0 form-control form-control-sm datepeeker {% if form.reportDate.errors %} is-invalid {% endif %}" name="{{ form.reportDate.name }}" value="{{ form.reportDate.value|default_if_none:'' }}" />
+        <input type="text" class="text-center mb-0 form-control form-control-sm {% if form.reportDate.errors %} is-invalid {% endif %}" value="{{ form.instance.reportDate|default_if_none:'' }}" readonly /> {% comment %}name="{{ form.reportDate.name }}"{% endcomment %}
       </div>
 
       <div class="col-xl-2 w-0 p-0 flex-md-shrink-1"></div>
@@ -115,7 +116,7 @@
         <div class="input-group-prepend">
           <span class="input-group-text">Телефон</span>
         </div>
-        <input type="text" class="mb-0 form-control form-control-sm" value="" readonly />
+        <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.phone.name }}" value="{{ form.phone.value|default_if_none:'' }}" />
       </div>
     </div>
 
@@ -148,6 +149,11 @@
           <span class="input-group-text text-left">Номер заявки в ЕОСДО,<br />заявления, ЭД</span>
         </div>
         <span class="mb-0 form-control form-control-sm h-auto d-flex align-items-end justify-content-center" readonly>{% if form.instance.document_id == 5 %}{{ form.instance.docNum }}{% endif %}</span>
+        {% if form.instance.request_id %}
+          <div class="input-group-append">
+            <a class="btn btn-outline-primary d-flex align-items-center" href="{% url 'requests' %}/{{ form.instance.request_id }}" title="Перейти в заявку"><i class="fa-light fa-file-signature"></i></a>
+          </div>
+        {% endif %}
       </div>
 
       <div class="col-sm-3 col-xl-2 p-1 input-group input-group-sm">
@@ -170,7 +176,7 @@
         <div class="input-group-prepend">
           <span class="input-group-text" style="font-size: 0.7em;">A.II. Израсходовано<br />всего, руб. коп.:</span>
         </div>
-        <input id="spended-sum" type="text" class="mb-0 form-control form-control-sm h-auto {% if form.spendedSum.errors %} is-invalid {% endif %}" name="{{ form.spendedSum.name }}" value="{{ form.spendedSum.value|default_if_none:'' }}" />
+        <input id="spended-sum" type="text" class="mb-0 form-control form-control-sm h-auto {% if form.spendedSum.errors %} is-invalid {% endif %}" value="{{ form.spendedSum.value|default_if_none:'' }}" readonly title="Расчитывается автоматически после сохранения" /> {% comment %}name="{{ form.spendedSum.name }}"{% endcomment %}
       </div>
 
       <div class="col-sm-4 col-xl-3 p-1 input-group input-group-sm">
@@ -178,6 +184,9 @@
           <span class="input-group-text text-left" style="font-size: 0.7em;">A.III. Остаток/перерасход по авансу,<br />полученному подотчетным лицом, руб. коп.:</span>
         </div>
         <input id="dif-sum" type="text" class="mb-0 form-control form-control-sm h-auto" readonly />
+        <div class="input-group-append">
+          <button id="distrib-button" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#distribModal">Распределить</button>
+        </div>
       </div>
 
       <div class="col-sm-3 col-xl-2 p-1 input-group input-group-sm">
@@ -191,14 +200,16 @@
     <div class="form-row border rounded mt-1 p-1">
       <div class="w-100">
         <ul class="nav nav-tabs w-100" id="myTab" role="tablist" style="font-size: 0.8em;">
+          {% if form.instance.imprestAccount_id != 7104 and form.instance.imprestAccount_id != 7106 %}
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active h-100" id="tab-1" data-toggle="tab" data-target="#tab-content-1" type="button" role="tab" aria-controls="tab-content-1" aria-selected="true">Командировочные расходы</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link h-100" id="tab-2" data-toggle="tab" data-target="#tab-content-2" type="button" role="tab" aria-controls="tab-content-2" aria-selected="false">Расходы, оплаченные организацией за услуги проезда,<br />проживания подотчетного лица и пр.услуги</button>
+            </li>
+          {% endif %}
           <li class="nav-item" role="presentation">
-            <button class="nav-link active h-100" id="tab-1" data-toggle="tab" data-target="#tab-content-1" type="button" role="tab" aria-controls="tab-content-1" aria-selected="true">Командировочные расходы</button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link h-100" id="tab-2" data-toggle="tab" data-target="#tab-content-2" type="button" role="tab" aria-controls="tab-content-2" aria-selected="false">Расходы, оплаченные организацией за услуги проезда,<br />проживания подотчетного лица и пр.услуги</button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link h-100" id="tab-3" data-toggle="tab" data-target="#tab-content-3" type="button" role="tab" aria-controls="tab-content-3" aria-selected="false">Приобретение ТМЦ</button>
+            <button class="nav-link h-100 {% if form.instance.imprestAccount_id == 7104 or form.instance.imprestAccount_id == 7106 %} active {% endif %}" id="tab-3" data-toggle="tab" data-target="#tab-content-3" type="button" role="tab" aria-controls="tab-content-3" aria-selected="false">Приобретение ТМЦ</button>
           </li>
           <li class="nav-item" role="presentation">
             <button class="nav-link h-100" id="tab-4" data-toggle="tab" data-target="#tab-content-4" type="button" role="tab" aria-controls="tab-content-4" aria-selected="false">Оплата работ, услуг</button>
@@ -217,38 +228,40 @@
           </li>
         </ul>
         <div class="tab-content border" id="tabContent">
-          <div class="tab-pane fade show active container-fluid" id="tab-content-1" role="tabpanel" aria-labelledby="tab-1">
+          {% if form.instance.imprestAccount_id != 7104 and form.instance.imprestAccount_id != 7106 %}
+            <div class="tab-pane fade show active container-fluid" id="tab-content-1" role="tabpanel" aria-labelledby="tab-1">
+              <div class="row p-1">
+                <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ travelExpenses.prefix }}">Добавить</button>
+              </div>
+
+              <div class="row p-1">
+                {% include 'advanceReport/itemTable.html' with items=travelExpenses itemType=0 accounting=True %}
+              </div>
+            </div>
+
+            <div class="tab-pane fade container-fluid" id="tab-content-2" role="tabpanel" aria-labelledby="tab-2">
+              <div class="row p-1">
+                <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ orgServices.prefix }}">Добавить</button>
+              </div>
+
+              <div class="row p-1">
+                {% include 'advanceReport/itemTable.html' with items=orgServices itemType=1 %}
+              </div>
+            </div>
+          {% endif %}
+
+          <div class="tab-pane fade container-fluid {% if form.instance.imprestAccount_id == 7104 or form.instance.imprestAccount_id == 7106 %} show active {% endif %}" id="tab-content-3" role="tabpanel" aria-labelledby="tab-3">
             <div class="row p-1">
-              <button type="button" class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ travelExpenses.prefix }}">Добавить</button>
+              <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ iventoryItems.prefix }}">Добавить</button>
             </div>
 
             <div class="row p-1">
-              {% include 'advanceReport/itemTable.html' with items=travelExpenses itemType=0 accounting=True %}
-            </div>
-          </div>
-
-          <div class="tab-pane fade container-fluid" id="tab-content-2" role="tabpanel" aria-labelledby="tab-2">
-            <div class="row p-1">
-              <button type="button" class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ orgServices.prefix }}">Добавить</button>
-            </div>
-
-            <div class="row p-1">
-              {% include 'advanceReport/itemTable.html' with items=orgServices itemType=1 %}
-            </div>
-          </div>
-
-          <div class="tab-pane fade container-fluid" id="tab-content-3" role="tabpanel" aria-labelledby="tab-3">
-            <div class="row p-1">
-              <button type="button" class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ iventoryItems.prefix }}">Добавить</button>
-            </div>
-
-            <div class="row p-1">
-              {% include 'advanceReport/itemTable.html' with items=iventoryItems itemType=2 accounting=True  %}
+              {% include 'advanceReport/itemTable.html' with items=iventoryItems itemType=2 accounting=True %}
             </div>
           </div>
           <div class="tab-pane fade container-fluid" id="tab-content-4" role="tabpanel" aria-labelledby="tab-4">
             <div class="row p-1">
-              <button type="button" class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ services.prefix }}">Добавить</button>
+              <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ services.prefix }}">Добавить</button>
             </div>
 
             <div class="row p-1">
@@ -257,7 +270,7 @@
           </div>
           <div class="tab-pane fade container-fluid" id="tab-content-5" role="tabpanel" aria-labelledby="tab-5">
             <div class="row p-1">
-              <button type="button" class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ presentationExpenses.prefix }}">Добавить</button>
+              <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ presentationExpenses.prefix }}">Добавить</button>
             </div>
 
             <div class="row p-1">
@@ -266,7 +279,7 @@
           </div>
           <div class="tab-pane fade container-fluid" id="tab-content-6" role="tabpanel" aria-labelledby="tab-6">
             <div class="row p-1">
-              <button type="button" class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ purchaseOrderExpenses.prefix }}">Добавить</button>
+              <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ purchaseOrderExpenses.prefix }}">Добавить</button>
             </div>
 
             <div class="row p-1">
@@ -287,10 +300,10 @@
                   <th width="40%">Загрузить</th>
                   <th width="3%"></th>
                 </thead>
-                <tbody class="{{attachments.prefix}}-container">
+                <tbody class="{{ attachments.prefix }}-container">
                   {{ attachments.management_form }}
                   {% for attachment in attachments %}
-                    <tr class="{{attachments.prefix}}-form">
+                    <tr class="{{ attachments.prefix }}-form">
                       {{ attachment.id }}
                       <input type="hidden" name="{{ attachment.DELETE.html_name }}" id="{{ attachment.DELETE.auto_id }}" />
                       <td>
@@ -322,9 +335,56 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text">Примечание</span>
                 </div>
-                <textarea class="mb-0 form-control form-control-sm {% if form.reportComment.errors %} is-invalid {% endif %}" name="{{ form.reportComment.name }}" >{{ form.reportComment.value|default_if_none:'' }}</textarea>
+                <textarea class="mb-0 form-control form-control-sm {% if form.reportComment.errors %} is-invalid {% endif %}" name="{{ form.reportComment.name }}">{{ form.reportComment.value|default_if_none:'' }}</textarea>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="distribModal" tabindex="-1" role="dialog" aria-labelledby="distribModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Распределить остаток</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+          <div class="modal-body container-fluid">
+            <div class="row p-1">
+              <div class="col-2">Остаток сумме</div>
+              <div class="col-2">
+                <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribSalary.name }}" value="{{ form.distribSalary.value|default_if_none:'' }}" />
+              </div>
+              <div class="col">Внесен в массив удержаний из зарплаты за</div>
+              <div class="col-3">
+                <input type="text" class="mb-0 form-control form-control-sm datepeeker" name="{{ form.distribSalaryDate.name }}" value="{{ form.distribSalaryDate.value|default_if_none:'' }}" />
+              </div>
+            </div>
+
+            <div class="row p-1">
+              <div class="col-2"></div>
+              <div class="col-2">
+                <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribBank.name }}" value="{{ form.distribBank.value|default_if_none:'' }}" />
+              </div>
+              <div class="col">(перерасход) перечислен на карту банка</div>
+              <div class="col-3">{{ form.distribBankMethod }}</div>
+            </div>
+
+            <div class="row p-1">
+              <div class="col-2"></div>
+              <div class="col-2">
+                <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribCarryover.name }}" value="{{ form.distribCarryover.value|default_if_none:'' }}" />
+              </div>
+              <div class="col">переходящий остаток. Номер А.О.:</div>
+              <div class="col-3">
+                <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribCarryoverReportNum.name }}" value="{{ form.distribCarryoverReportNum.value|default_if_none:'' }}" />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            {% comment %} <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button> {% endcomment %}
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Ок</button>
           </div>
         </div>
       </div>
@@ -333,18 +393,26 @@
 
   <script type="text/javascript">
     $(document).ready(function () {
- 
       $('#button-add-item').on('click', function (e) {
         addForm('item')
       })
     
-      $('.btn-add-row').on('click', function (e) {
-        const form = addForm($(e.target).data('prefix'))
-        $(form).find('.datepeeker').removeAttr('id').removeClass('hasDatepicker').datepicker()
+      window.location.hash && $(window.location.hash).tab('show');
+
+      $('.nav-tabs button').click(function (e) {
+        window.location.hash = e.target.id;
+      });
+
+      // Добавить элемент авансового отчета
+      $('.btn-add-row, .btn-add-entity-row').on('click', function (e) {
+        $('#action').val('add-' + $(e.target).data('prefix'))
+        //const form = addForm($(e.target).data('prefix'))
+        //$(form).find('.datepeeker').removeAttr('id').removeClass('hasDatepicker').datepicker()
       })
     
       $('tbody').on('click', '.row-delete', function (e) {
-        const tr = $(e.currentTarget).parents('tr')
+        const tr = $(e.currentTarget).closest('tr')
+        $('.'+tr.attr('id')).hide()
         tr.hide()
         tr.find("[id$='DELETE']").val(1)
       })
@@ -376,19 +444,13 @@
       })
       $('#spended-sum').trigger('change')
     
-      $('#splitModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget)
-        var row = button.parents('tr')
-        var periodFrom = row.find('.period-from').val()
-        var periodTo = row.find('.period-to').val()
-    
-        //var periodFrom = button.data('periodFrom')
-        //var periodTo = button.data('periodTo')
-    
-        var modal = $(this)
-        //modal.find('.modal-title').text('New message to ' + recipient)
-        modal.find('.modal-body .period-from').val(periodFrom)
-        modal.find('.modal-body .period-to').val(periodTo)
+      // Обработчик выбора наименования расхода для командировок
+      $('#tab-content-1').on('change', '[id$="expenseCategory"]', function (e) {
+        if (['38', '40'].includes(e.target.value)) {
+          const tr = $(e.target).parents('tr')
+          const daysCount = $('#mission-days').val()
+          tr.find('[name$="daysCount"]').val(daysCount)
+        }
       })
     })
   </script>

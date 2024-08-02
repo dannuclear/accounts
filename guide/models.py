@@ -127,6 +127,8 @@ class ExpenseItem(models.Model):
     schema = models.IntegerField(db_column='schema', blank=True, null=True)
     # Тип. Поидее это ImprestAccount (Код учета подотчетной суммы) но в справочнике для 7101 были и другие коды? которых нет в справочнике
     itemType = models.IntegerField(db_column='item_type', blank=True, null=True)
+    # Тип расхода: либо 0 - Статья расхода; 1 - Схемы проводок, по приобретению ТМЦ, работ, услуг
+    expenseType = models.SmallIntegerField(db_column='expense_type', blank=True, null=True)
 
     class Meta:
         db_table = 'expense_item'

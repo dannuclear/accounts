@@ -31,6 +31,8 @@ class Prepayment(models.Model):
     empDivNum = models.SmallIntegerField(db_column="emp_div_num", blank=True, null=True, verbose_name='Подразд.')
     # Подразделение наименование
     empDivName = models.CharField(db_column="emp_div_name", max_length=200, blank=True, null=True, verbose_name='Наименование')
+    # Телефон
+    phone = models.CharField(db_column="phone", max_length=200, blank=True, null=True, verbose_name='Телефон')
     # Итоговая сумма
     totalSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="total_sum", blank=False, null=True, verbose_name='Подотчетная сумма')
 
@@ -70,6 +72,21 @@ class Prepayment(models.Model):
 
     # Примечание
     reportComment = models.CharField(db_column='report_comment', max_length=500, blank=True, null=True)
+
+    # Распределение остатка. Массив удержаний из зарплаты
+    distribSalary = models.DecimalField(max_digits=10, decimal_places=2, db_column="distrib_salary", blank=True, null=True)
+    # Распределение остатка. Массив удержаний из зарплаты, за месяц, год
+    distribSalaryDate = models.DateField(db_column="distrib_salary_date", blank=True, null=True)
+
+    # Распределение остатка. На карту банка
+    distribBank = models.DecimalField(max_digits=10, decimal_places=2, db_column="distrib_bank", blank=True, null=True)
+    # Распределение остатка. На карту банка. Способ получения
+    distribBankMethod = models.ForeignKey(ObtainMethod, db_column='distrib_bank_method_id', on_delete=models.PROTECT, blank=True, null=True)
+
+    # Распределение остатка. Переходящий остаток
+    distribCarryover = models.DecimalField(max_digits=10, decimal_places=2, db_column="distrib_carryover", blank=True, null=True)
+    # Распределение остатка. Переходящий остаток
+    distribCarryoverReportNum = models.CharField(db_column='distrib_carryover_report_num', max_length=50, blank=True, null=True, verbose_name='Номер А.О.')
 
     class Meta:
         db_table = 'prepayment'
@@ -249,7 +266,7 @@ class AdvanceReportItemEntity (models.Model):
     creditKAU2 = models.CharField(db_column="credit_kau_2", max_length=20, blank=True, null=True)
 
     # Пункт авансового отчета
-    advanceReportItem = models.ForeignKey(AdvanceReportItem, db_column='advance_report_item_id', on_delete=models.PROTECT, blank=True, null=False)
+    advanceReportItem = models.ForeignKey(AdvanceReportItem, db_column='advance_report_item_id', on_delete=models.CASCADE, blank=True, null=False)
 
     class Meta:
         db_table = 'advance_report_item_entity'

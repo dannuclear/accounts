@@ -11,3 +11,12 @@ class ImprestAccountFilter(BaseFilterBackend):
     
         return queryset
 
+class ExpenseTypeFilter(BaseFilterBackend):
+
+    def filter_queryset(self, request, queryset, view):
+        expenseType = request.query_params.get("type")
+
+        if expenseType:
+            queryset = queryset.filter(expenseType=expenseType)
+    
+        return queryset

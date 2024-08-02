@@ -60,13 +60,15 @@ def editRequest(request, id):
     RequestInventoryForm = inlineformset_factory(Request, RequestInventory, can_delete=True, extra=0, min_num=1, exclude=['request'])
     if request.method == 'POST':
         form = RequestForm(request.POST, instance=prepaymentRequest)
-        inventoriesFormSet = RequestInventoryForm(request.POST, prefix='inventory', instance=prepaymentRequest)
-        if form.is_valid() and inventoriesFormSet.is_valid():
+        if prepaymentRequest.type == 0:
+            inventoriesFormSet = RequestInventoryForm(request.POST, prefix='inventory', instance=prepaymentRequest)
+        if form.is_valid() and (prepaymentRequest.type == 1 or inventoriesFormSet.is_valid()):
             form.save()
-            for inventory in inventoriesFormSet.save(commit=False):
-                inventory.save()
-            for deleted in inventoriesFormSet.deleted_forms:
-                deleted.instance.delete()
+            if prepaymentRequest.type == 0:
+                for inventory in inventoriesFormSet.save(commit=False):
+                    inventory.save()
+                for deleted in inventoriesFormSet.deleted_forms:
+                    deleted.instance.delete()
             return HttpResponseRedirect('/requests')
     if request.method == 'GET':
         form = RequestForm(instance=prepaymentRequest)

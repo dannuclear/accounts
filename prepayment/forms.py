@@ -151,9 +151,25 @@ class AdvanceReportForm (forms.ModelForm):
 
     reportAccountingSum = forms.DecimalField(localize=True, required=False)
 
+    # Распределение остатка. Массив удержаний из зарплаты
+    distribSalary = forms.DecimalField(localize=True, required=False)
+    # Распределение остатка. Массив удержаний из зарплаты, за месяц, год
+    distribSalaryDate = MyDateField(label='Месяц, год', localize=True, required=False)
+
+    # Распределение остатка. На карту банка
+    distribBank = forms.DecimalField(localize=True, required=False)
+    # Распределение остатка. На карту банка. Способ получения
+    distribBankMethod = ObtainMethodChoiceField(queryset=ObtainMethod.objects.order_by('id'), widget=forms.Select(
+        attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1em + .75rem + 2px); line-height: 1;'}), label='Способ получения', required=False, empty_label="")
+
+    # Распределение остатка. Переходящий остаток
+    distribCarryover = forms.DecimalField(localize=True, required=False)
+    # Распределение остатка. Переходящий остаток
+    # distribCarryoverReportNum = models.CharField(db_column='distrib_carryover_report_num', max_length=50, blank=True, null=True, verbose_name='Номер А.О.')
+
     class Meta:
         model = Prepayment
-        fields = ['reportStatus', 'empDivName', 'reportNum', 'reportDate', 'reportAccountingNum', 'spendedSum', 'reportAccountingSum', 'reportComment']
+        fields = ['reportStatus', 'empDivName', 'reportAccountingNum', 'spendedSum', 'reportAccountingSum', 'reportComment', 'phone', 'distribSalary', 'distribSalaryDate', 'distribBank', 'distribBankMethod', 'distribCarryover', 'distribCarryoverReportNum']
 
 
 class AdvanceReportItemForm(forms.ModelForm):
@@ -175,9 +191,10 @@ class AdvanceReportItemForm(forms.ModelForm):
         super(AdvanceReportItemForm, self).__init__(*args, **kwargs)
         # Добавляем набор форм бухгалтерской формы
         if (self.accounting or self.itemType == 2) and self.itemType != 1:
+            isBound = len([v for k,v in self.data.items() if k.startswith(self.prefix)]) if self.is_bound else self.is_bound
             self.entities = AdvanceReportItemEntityFormset(instance=self.instance,
-                                                           data=self.data if self.is_bound else None,
-                                                           files=self.files if self.is_bound else None,
+                                                           data=self.data if isBound else None,
+                                                           files=self.files if isBound else None,
                                                            prefix='%s-%s' % (self.prefix, 'entity'))
 
     def is_valid(self):
@@ -190,10 +207,15 @@ class AdvanceReportItemForm(forms.ModelForm):
         return result
 
     def save(self, commit=True):
-        result = super(AdvanceReportItemForm, self).save(commit=commit)
+        result = super(AdvanceReportItemForm, self).save(commit=True)
 
         if hasattr(self, 'entities'):
-            self.entities.save()
+            for el in self.entities.save(commit=False):
+                el.save()
+            for deletedEl in self.entities.deleted_forms:
+                if deletedEl.instance.id is not None:
+                    deletedEl.instance.delete()
+            # self.entities.save()
 
         return result
 
@@ -255,7 +277,7 @@ class AttachmentForm(forms.ModelForm):
 
 
 AttachmentFormSet = forms.inlineformset_factory(Prepayment, Attachment, form=AttachmentForm, can_delete=True, extra=1)
-AdvanceReportItemEntityFormset = forms.inlineformset_factory(AdvanceReportItem, AdvanceReportItemEntity, extra=1, form=AdvanceReportItemEntityForm)
+AdvanceReportItemEntityFormset = forms.inlineformset_factory(AdvanceReportItem, AdvanceReportItemEntity, extra=0, form=AdvanceReportItemEntityForm)
 
 
 # class BaseAdvanceReportItemFormset (forms.BaseInlineFormSet):
@@ -288,4 +310,4 @@ AdvanceReportItemEntityFormset = forms.inlineformset_factory(AdvanceReportItem, 
 #         return result
 
 
-ItemsFormSet = forms.inlineformset_factory(Prepayment, AdvanceReportItem, form=AdvanceReportItemForm, can_delete=True, extra=0, min_num=1)
+ItemsFormSet = forms.inlineformset_factory(Prepayment, AdvanceReportItem, form=AdvanceReportItemForm, can_delete=True, extra=0, min_num=0)

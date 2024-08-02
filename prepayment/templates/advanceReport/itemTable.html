@@ -1,3 +1,4 @@
+{% load prepayment_extras %}
 <table class="table table-bordered table-sm text-center" style="font-size: 0.7em;">
   <thead>
     <tr>
@@ -25,11 +26,25 @@
   </thead>
 
   <tbody class="{{ items.prefix }}-container">
+
+    <tr class="col-num-row">
+      {% if itemType == 0 or itemType == 3 or itemType == 4 %}
+        {% for n in '0000000000' %}
+          <td>{{ forloop.counter}}</td>
+        {% endfor %}
+      {% else %}
+        {% for n in '000000000' %}
+          <td>{{ forloop.counter}}</td>
+        {% endfor %}
+      {% endif %}
+      <td/>
+    </tr>
+
     {{ items.management_form }}
     {% for item in items %}
-      <tr class="{{ items.prefix }}-form">
+      <tr id="{{ item.prefix }}" class="{{ items.prefix }}-form" style="{% if item.DELETE.value %} display:none {% endif %}">
         {{ item.id }}
-        <input type="hidden" name="{{ item.DELETE.html_name }}" id="{{ item.DELETE.auto_id }}" />
+        <input type="hidden" name="{{ item.DELETE.html_name }}" id="{{ item.DELETE.auto_id }}" value="{{ item.DELETE.value|default_if_none:'' }}"/>
         <input type="hidden" name="{{ item.itemType.html_name }}" value="{{ itemType }}" />
         <td>
           <p class="text-center m-0" style="font-size: 1.4em;">{{ forloop.counter }}</p>
@@ -70,8 +85,10 @@
       </tr>
       {% if itemType != 1 %}
         {% if items.form_kwargs.accounting or itemType == 2 %}
-          <tr>
-            <td colspan="2"></td>
+          <tr class="{{ item.prefix }}" style="{% if item.DELETE.value %} display:none {% endif %}">
+            <td colspan="2" class="text-right">
+              <button class="btn btn-sm btn-outline-primary h-100 btn-add-entity-row" data-prefix="{{ item.entities.prefix }}">Добавить</button>
+            </td>
             <td colspan="9" style="background-color: burlywood;">
               {{ item.entities.management_form }}
               <table class="entity-table table table-sm text-center m-0">
@@ -96,6 +113,7 @@
                         Кредит<br />Код учета подотчетной суммы
                       </th>
                     {% endif %}
+                    <th rowspan="2" width="1%"/>
                   </tr>
                   <tr>
                     {% if itemType == 2 %}
@@ -130,91 +148,7 @@
                 </thead>
                 <tbody>
                   {% for entity in item.entities %}
-                    <tr>
-                      {{ entity.id }}
-                      {% if itemType == 2 %}
-                        <td style="width:100px">
-                          <input type="text" class="form-control form-control-sm" name="{{ entity.invAnalysisPSO.html_name }}" value="{{ entity.invAnalysisPSO.value|default_if_none:'' }}" autocomplete="off" />
-                        </td>
-                        <td>
-                          <input type="text" class="form-control form-control-sm" name="{{ entity.invAnalysisWarehouseNum.html_name }}" value="{{ entity.invAnalysisWarehouseNum.value|default_if_none:'' }}" autocomplete="off" />
-                        </td>
-                        <td>
-                          <input type="text" class="form-control form-control-sm" name="{{ entity.invAnalysisInvoice.html_name }}" value="{{ entity.invAnalysisInvoice.value|default_if_none:'' }}" autocomplete="off" />
-                        </td>
-                        <td>
-                          <input type="text" class="form-control form-control-sm" name="{{ entity.whOrderNum.html_name }}" value="{{ entity.whOrderNum.value|default_if_none:'' }}" autocomplete="off" />
-                        </td>
-                        <td>
-                          <input type="text" class="form-control form-control-sm datepeeker" name="{{ entity.whOrderDate.html_name }}" value="{{ entity.whOrderDate.value|default_if_none:'' }}" autocomplete="off" />
-                        </td>
-                        <td>
-                          <input type="text" class="form-control form-control-sm" name="{{ entity.whOrderSum.html_name }}" value="{{ entity.whOrderSum.value|default_if_none:'' }}" autocomplete="off" />
-                        </td>
-                        <td></td>
-                      {% endif %}
-
-                      {% if itemType == 0 %}
-                        <td>
-                          <input type="text" class="form-control form-control-sm" name="{{ entity.deptExpense.html_name }}" value="{{ entity.deptExpense.value|default_if_none:'' }}" autocomplete="off" />
-                        </td>
-                        <td>{{ entity.expenseCode }}</td>
-                      {% endif %}
-
-                      {% if items.form_kwargs.accounting %}
-                        <td style="width:100px">
-                          <input type="text" class="form-control form-control-sm" name="{{ entity.accountingSum.html_name }}" value="{{ entity.accountingSum.value|default_if_none:'' }}" autocomplete="off" />
-                        </td>
-
-                        <td>
-                          <input type="text" class="form-control form-control-sm" name="{{ entity.debitAccount.html_name }}" value="{{ entity.debitAccount.value|default_if_none:'' }}" autocomplete="off" />
-                        </td>
-
-                        {% if itemType == 2 or itemType == 3 or itemType == 4 %}
-                          <td>
-                            <input type="text" class="form-control form-control-sm" name="{{ entity.debitKAU1.html_name }}" value="{{ entity.debitKAU1.value|default_if_none:'' }}" autocomplete="off" />
-                          </td>
-                          <td>
-                            <input type="text" class="form-control form-control-sm" name="{{ entity.debitKAU2.html_name }}" value="{{ entity.debitKAU2.value|default_if_none:'' }}" autocomplete="off" />
-                          </td>
-                        {% else %}
-                          <td>
-                            <input type="text" class="form-control form-control-sm" name="{{ entity.debitExpenseItem.html_name }}" value="{{ entity.debitExpenseItem.value|default_if_none:'' }}" autocomplete="off" />
-                          </td>
-                          <td>
-                            <input type="text" class="form-control form-control-sm" name="{{ entity.debitExpenseWorkshop.html_name }}" value="{{ entity.debitExpenseWorkshop.value|default_if_none:'' }}" autocomplete="off" />
-                          </td>
-                        {% endif %}
-
-                        <td>
-                          <input type="text" class="form-control form-control-sm" name="{{ entity.debitExtra.html_name }}" value="{{ entity.debitExtra.value|default_if_none:'' }}" autocomplete="off" />
-                        </td>
-
-                        <td>
-                          <input type="text" class="form-control form-control-sm" name="{{ entity.creditAccount.html_name }}" value="{{ entity.creditAccount.value|default_if_none:'' }}" autocomplete="off" />
-                        </td>
-
-                        {% if itemType == 2 or itemType == 3 or itemType == 4 %}
-                          <td>
-                            <input type="text" class="form-control form-control-sm" name="{{ entity.creditKAU1.html_name }}" value="{{ entity.creditKAU1.value|default_if_none:'' }}" autocomplete="off" />
-                          </td>
-                          <td>
-                            <input type="text" class="form-control form-control-sm" name="{{ entity.creditKAU2.html_name }}" value="{{ entity.creditKAU2.value|default_if_none:'' }}" autocomplete="off" />
-                          </td>
-                        {% else %}
-                          <td>
-                            <input type="text" class="form-control form-control-sm" name="{{ entity.creditExpenseItem.html_name }}" value="{{ entity.creditExpenseItem.value|default_if_none:'' }}" autocomplete="off" />
-                          </td>
-                          <td>
-                            <input type="text" class="form-control form-control-sm" name="{{ entity.creditDept.html_name }}" value="{{ entity.creditDept.value|default_if_none:'' }}" autocomplete="off" />
-                          </td>
-                        {% endif %}
-
-                        <td>
-                          <input type="text" class="form-control form-control-sm" name="{{ entity.creditExtra.html_name }}" value="{{ entity.creditExtra.value|default_if_none:'' }}" autocomplete="off" />
-                        </td>
-                      {% endif %}
-                    </tr>
+                    {% include 'advanceReport/entityRow.html' with entity=entity itemType=itemType %}
                   {% endfor %}
                 </tbody>
               </table>
@@ -224,4 +158,13 @@
       {% endif %}
     {% endfor %}
   </tbody>
+
+  <tfoot>
+    <tr>
+      <th scope="row" colspan="{% if itemType == 0 %}7{% else %}6{% endif %}" class="text-left">Израсходовано всего:</th>
+      <td>{{ items|sumByField:"expenseSumCurrency" }}</td>
+      <td>{{ items|sumByField:"expenseSumRub" }}</td>
+      <td>{{ items|sumByField:"expenseSumVAT" }}</td>
+    </tr>
+  </tfoot>
 </table>
