@@ -34,7 +34,7 @@
 
   {% if items.form_kwargs.accounting %}
     <td style="width:100px">
-      <input type="text" class="form-control form-control-sm" name="{{ entity.accountingSum.html_name }}" value="{{ entity.accountingSum.value|default_if_none:'' }}" autocomplete="off" />
+      <input type="text" class="form-control form-control-sm accounting-sum" name="{{ entity.accountingSum.html_name }}" value="{{ entity.accountingSum.value|default_if_none:'' }}" autocomplete="off" />
     </td>
 
     <td>

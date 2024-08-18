@@ -4,11 +4,11 @@ from rest_framework import viewsets
 from .serializers import PrepaymentSerializer
 from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm, AdvanceReportForm, AdvanceReportItemForm, AttachmentForm, ItemsFormSet, AttachmentFormSet
 from datetime import datetime
-from guide.models import Status, ExpenseItem
+from guide.models import Status, ExpenseItem, ExpenseCategory
 from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
-from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func, Sum, IntegerField
+from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func, Sum, IntegerField, Q
 from django.db.models.functions import Cast, ExtractDay
 from django.db import connection
 from .filters import PeriodFilter, ImprestAccountFilter
@@ -102,31 +102,62 @@ def editAdvanceReport(request, id):
         if postCopy['action'].startswith('add-'):
             prefix = postCopy['action'].replace('add-', '')
             currentNum = int(postCopy['%s-TOTAL_FORMS' % (prefix)])
-            
-            if prefix == 'travel-expense-0-entity':
+            # Если добавляем бухгалтерскую запись по командировке
+            if prefix.startswith('travel-expense') and prefix.endswith('entity'):
+                parentPrefix = prefix.replace('-entity', '')
                 hasPurposes = False
-                expenseCategoryId = int(postCopy['travel-expense-0-expenseCategory'])
-                expenseSumCurrency = parseDecimal(postCopy['travel-expense-0-expenseSumCurrency'])
-                expenseSumRub = parseDecimal(postCopy['travel-expense-0-expenseSumRub'])
-                expenseSumVAT = parseDecimal(postCopy['travel-expense-0-expenseSumVAT'])
-                for purpose in PrepaymentPurpose.objects.filter(prepayment=prepayment):
-                    hasPurposes = True
-                    postCopy['%s-%s-deptExpense' % (prefix, currentNum)] = purpose.deptExpense
-                    postCopy['%s-%s-expenseCode' % (prefix, currentNum)] = purpose.expenseCode_id
-                    postCopy['%s-%s-debitAccount' % (prefix, currentNum)] = purpose.account
-                    postCopy['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = purpose.deptExpense
-                    if expenseCategoryId:
-                        expenseItem = ExpenseItem.objects.filter(category_id = expenseCategoryId, expenseCode_id = purpose.expenseCode_id, itemType = 7101).first()
-                        if expenseItem:
-                            postCopy['%s-%s-debitExpenseItem' % (prefix, currentNum)] = expenseItem.debitExpenseItem
+                expenseCategoryId = int(postCopy['%s-expenseCategory' % (parentPrefix)])
+                if expenseCategoryId:
+                    expenseSumCurrency = parseDecimal(postCopy['%s-expenseSumCurrency' % (parentPrefix)])
+                    expenseSumRub = parseDecimal(postCopy['%s-expenseSumRub' % (parentPrefix)])
+                    expenseSumVAT = parseDecimal(postCopy['%s-expenseSumVAT' % (parentPrefix)])
+                    expenseCategory = ExpenseCategory.objects.get(pk=expenseCategoryId)
+                    is91 = '91' in expenseCategory.name
+                    for purpose in PrepaymentPurpose.objects.filter(prepayment=prepayment):
+                        hasPurposes = True
+                        hasExpenseItems = False
+                        postCopy['%s-%s-deptExpense' % (prefix, currentNum)] = purpose.deptExpense
+                        postCopy['%s-%s-expenseCode' % (prefix, currentNum)] = purpose.expenseCode_id
+                        # Дебет/Шифр отнесения затрат/счет/субсчет
+                        postCopy['%s-%s-debitAccount' % (prefix, currentNum)] = purpose.account
+                        postCopy['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = purpose.deptExpense
+
+                        # Извлекаем статью расхода из справочника по наименованию (категории) и коду расхода
+                        q_objects = Q(Q(expenseCode_id = purpose.expenseCode_id if not is91 else 91))
+                        # Если НДС введен то ищем в справочнике статей расхода по наименованию и схемам проводок
+
+                        if expenseSumVAT > 0:
+                            q_objects.add(Q(Q(schema__isnull=False)), Q.OR)
+                        # expenseItem = ExpenseItem.objects.filter(Q(category_id = expenseCategoryId), q_objects, Q(itemType = 7101)).first()
+                        for expenseItem in ExpenseItem.objects.filter(Q(category_id = expenseCategoryId), q_objects, Q(itemType = 7101)).all():
+                            hasExpenseItems = True
+                            # Расходы подр-я
+                            postCopy['%s-%s-deptExpense' % (prefix, currentNum)] = purpose.deptExpense
+                            # Код расхода
+                            postCopy['%s-%s-expenseCode' % (prefix, currentNum)] = purpose.expenseCode_id
+                            # Дебет/Шифр отнесения затрат/счет.субсчет
+                            postCopy['%s-%s-debitAccount' % (prefix, currentNum)] = purpose.account if expenseItem.schema is None else expenseItem.debitAccount
+                            # Дебет/Шифр отнесения затрат/цех отнесения затрат
+                            postCopy['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = (purpose.deptExpense if expenseItem.schema is None else expenseItem.debitExpenseDept) if not is91 and purpose.account not in ['2000', '2302', '4410'] else purpose.deptExpenditure
+                    
+                            # Дебет/Шифр отнесения затрат/статья расходов
+                            postCopy['%s-%s-debitExpenseItem' % (prefix, currentNum)] = expenseItem.debitExpenseItem if not is91 and purpose.account not in ['2000', '2302', '4410'] else purpose.expenditure
+                            # Сумма, принятая к учету
                             postCopy['%s-%s-accountingSum' % (prefix, currentNum)] = expenseSumRub if expenseItem.accept == 'Sобщ' else expenseSumVAT if expenseItem.accept == 'Sндс' else (expenseSumRub - expenseSumVAT) if expenseItem.accept == 'Sобщ-Sндс' else ''
-                            postCopy['%s-%s-debitExtra' % (prefix, currentNum)] = expenseItem.debitExtra
+                            # Дебет/Шифр отнесения затрат/доп. признак
+                            postCopy['%s-%s-debitExtra' % (prefix, currentNum)] = expenseItem.debitExtra if not is91 and purpose.account not in ['2000', '2302', '4410'] else purpose.extra
+                            # Кредит/Счет/Субсчет
                             postCopy['%s-%s-creditAccount' % (prefix, currentNum)] = expenseItem.creditAccount
+                            # Кредит/Статья расходов
                             postCopy['%s-%s-creditExpenseItem' % (prefix, currentNum)] = expenseItem.creditExpenseItem
-                            postCopy['%s-%s-creditDept' % (prefix, currentNum)] = prepayment.empDivNum
-                            postCopy['%s-%s-creditExtra' % (prefix, currentNum)] = prepayment.empNum
-                    currentNum = currentNum + 1
-                postCopy['%s-TOTAL_FORMS' % (prefix)] = currentNum if hasPurposes else currentNum + 1
+                            # Кредит/№ подразделения работника
+                            postCopy['%s-%s-creditDept' % (prefix, currentNum)] = prepayment.empDivNum if expenseItem.schema is None else expenseItem.creditExpenseDept
+                            # Кредит/Доп.признак
+                            postCopy['%s-%s-creditExtra' % (prefix, currentNum)] = prepayment.empNum if expenseItem.schema is None else prepayment.reportNum
+                            currentNum = currentNum + 1
+                        if not hasExpenseItems:
+                            currentNum = currentNum + 1
+                    postCopy['%s-TOTAL_FORMS' % (prefix)] = currentNum if hasPurposes else currentNum + 1
             else:
                 postCopy['%s-TOTAL_FORMS' % (prefix)] = currentNum + 1
             

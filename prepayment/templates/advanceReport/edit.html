@@ -130,7 +130,7 @@
     </div>
 
     <div class="form-row border rounded mt-1">
-      <div class="col-sm-3 col-xl-2 p-1 input-group input-group-sm">
+      <div class="col-sm-3 col-xl-3 p-1 input-group input-group-sm">
         <div class="input-group-prepend">
           <span class="input-group-text text-left">Идентификатор <br />государственного<br />контракта</span>
         </div>
@@ -144,7 +144,7 @@
         <span class="mb-0 form-control form-control-sm h-auto d-flex align-items-end justify-content-center" readonly>{% if form.instance.document_id == 14 %}{{ form.instance.docNum }}{% endif %}</span>
       </div>
 
-      <div class="col-sm-4 col-xl-3 p-1 input-group input-group-sm">
+      <div class="col-sm-4 col-xl-4 p-1 input-group input-group-sm">
         <div class="input-group-prepend">
           <span class="input-group-text text-left">Номер заявки в ЕОСДО,<br />заявления, ЭД</span>
         </div>
@@ -156,7 +156,7 @@
         {% endif %}
       </div>
 
-      <div class="col-sm-3 col-xl-2 p-1 input-group input-group-sm">
+      <div class="col-sm-3 col-xl-3 p-1 input-group input-group-sm">
         <div class="input-group-prepend">
           <span class="input-group-text">Дата документа</span>
         </div>
@@ -165,7 +165,7 @@
     </div>
 
     <div class="form-row border rounded mt-1">
-      <div class="col-sm-3 col-xl-2 p-1 input-group input-group-sm">
+      <div class="col-sm-3 col-xl-3 p-1 input-group input-group-sm">
         <div class="input-group-prepend">
           <span class="input-group-text text-left" style="font-size: 0.7em;">A.I. Получен аванс подотчетным<br />лицом, руб. коп.:</span>
         </div>
@@ -179,7 +179,7 @@
         <input id="spended-sum" type="text" class="mb-0 form-control form-control-sm h-auto {% if form.spendedSum.errors %} is-invalid {% endif %}" value="{{ form.spendedSum.value|default_if_none:'' }}" readonly title="Расчитывается автоматически после сохранения" /> {% comment %}name="{{ form.spendedSum.name }}"{% endcomment %}
       </div>
 
-      <div class="col-sm-4 col-xl-3 p-1 input-group input-group-sm">
+      <div class="col-sm-4 col-xl-4 p-1 input-group input-group-sm">
         <div class="input-group-prepend">
           <span class="input-group-text text-left" style="font-size: 0.7em;">A.III. Остаток/перерасход по авансу,<br />полученному подотчетным лицом, руб. коп.:</span>
         </div>
@@ -189,7 +189,7 @@
         </div>
       </div>
 
-      <div class="col-sm-3 col-xl-2 p-1 input-group input-group-sm">
+      <div class="col-sm-3 col-xl-3 p-1 input-group input-group-sm">
         <div class="input-group-prepend">
           <span class="input-group-text" style="font-size: 0.7em;">Сумма по бухгалтерской<br />справке</span>
         </div>
@@ -391,7 +391,108 @@
     </div>
   </form>
 
+  <div class="modal fade" id="inventoryModal" tabindex="-1" role="dialog" aria-labelledby="inventoryModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title" id="exampleModalLongTitle">Способ списания стоимости ТМА</h6>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body container-fluid">
+          <div class="row p-1">
+            <div id="approve-doc" class="col-sm-8 p-1 input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text text-left">Наименование</span>
+              </div>
+            </div>
+
+            <div id="approve-doc" class="col-sm-4 p-1 input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text text-left">Дата составления</span>
+              </div>
+              <input type="text" class="form-control form-control-sm datepeeker" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="row p-1">
+            <div class="col-sm-4 p-1 input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text text-left">Номер документа</span>
+              </div>
+              <input type="text" class="form-control form-control-sm" autocomplete="off" />
+            </div>
+
+            <div id="approve-doc" class="col-sm-4 p-1 input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text text-left">Сумма по документу:</span>
+              </div>
+              <input type="text" class="form-control form-control-sm" autocomplete="off" />
+              <div class="input-group-append">
+                <span class="input-group-text text-left">руб.</span>
+              </div>
+            </div>
+
+            <div id="approve-doc" class="col-sm-4 p-1 input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text text-left">В т.ч. НДС:</span>
+              </div>
+              <input type="text" class="form-control form-control-sm" autocomplete="off" />
+              <div class="input-group-append">
+                <span class="input-group-text text-left">руб.</span>
+              </div>
+            </div>
+          </div>
+
+          {% comment %} <div class="row p-1">
+            <div class="col-2"></div>
+            <div class="col-2">
+              <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribBank.name }}" value="{{ form.distribBank.value|default_if_none:'' }}" />
+            </div>
+            <div class="col">(перерасход) перечислен на карту банка</div>
+            <div class="col-3">{{ form.distribBankMethod }}</div>
+          </div>
+
+          <div class="row p-1">
+            <div class="col-2"></div>
+            <div class="col-2">
+              <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribCarryover.name }}" value="{{ form.distribCarryover.value|default_if_none:'' }}" />
+            </div>
+            <div class="col">переходящий остаток. Номер А.О.:</div>
+            <div class="col-3">
+              <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribCarryoverReportNum.name }}" value="{{ form.distribCarryoverReportNum.value|default_if_none:'' }}" />
+            </div>
+          </div> {% endcomment %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Ок</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script type="text/javascript">
+
+    function updateTotal (tabDiv) {
+      var sum_currency = 0, sum_rub = 0, sum_vat = 0, accounting_sum = 0;
+      $(tabDiv).find('input.expense-sum, input.accounting-sum').each(function(){
+        if (this.value)
+          if (this.classList.contains("expense-sum-currency"))
+            sum_currency += parseFloat(this.value)
+          else if (this.classList.contains("expense-sum-rub"))
+            sum_rub += parseFloat(this.value)
+          else if (this.classList.contains("expense-sum-vat"))
+            sum_vat += parseFloat(this.value)
+          else if (this.classList.contains("accounting-sum"))
+            accounting_sum += parseFloat(this.value)
+      });
+      $(tabDiv).find('.expense-sum-currency-total').text(sum_currency)
+      $(tabDiv).find('.expense-sum-rub-total').text(sum_rub)
+      $(tabDiv).find('.expense-sum-vat-total').text(sum_vat)
+      $(tabDiv).find('.accounting-sum-total').text(accounting_sum)
+      $(tabDiv).find('.accounting-diff-total').text(sum_rub - accounting_sum)
+    }
+
     $(document).ready(function () {
       $('#button-add-item').on('click', function (e) {
         addForm('item')
@@ -402,6 +503,13 @@
       $('.nav-tabs button').click(function (e) {
         window.location.hash = e.target.id;
       });
+
+      // При показе таба обновляем итоги
+      $('button[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        //console.log(e.target)
+        //console.log(e.relatedTarget)
+        updateTotal($(e.target.dataset.target))
+      })
 
       // Добавить элемент авансового отчета
       $('.btn-add-row, .btn-add-entity-row').on('click', function (e) {
@@ -443,7 +551,11 @@
         $('#dif-sum').val(stringDif(received, spended))
       })
       $('#spended-sum').trigger('change')
-    
+
+      $('div.tab-pane').on('change', 'input.expense-sum, input.accounting-sum', function(e){
+        updateTotal(e.delegateTarget)
+      })
+
       // Обработчик выбора наименования расхода для командировок
       $('#tab-content-1').on('change', '[id$="expenseCategory"]', function (e) {
         if (['38', '40'].includes(e.target.value)) {
@@ -452,6 +564,15 @@
           tr.find('[name$="daysCount"]').val(daysCount)
         }
       })
+
+      $('#inventoryModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget)
+        var row = button.parents('tr')
+        var modal = $(this)
+        modal.find('#approve-doc select').remove()
+        row.find('select[id$=approveDocument]:first').clone().appendTo(modal.find('#approve-doc'))
+      })
+
     })
   </script>
 {% endblock %}

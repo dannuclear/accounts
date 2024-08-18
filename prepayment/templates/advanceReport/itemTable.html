@@ -14,6 +14,9 @@
       {% if itemType == 3 or itemType == 4 %}
         <th rowspan="2" width="5%">Шифр счет-фактура</th>
       {% endif %}
+      {% if itemType == 2 %}
+        <th rowspan="2" width="2%"></th>
+      {% endif %}
       <th rowspan="2" width="2%"></th>
     </tr>
     <tr>
@@ -66,17 +69,22 @@
           </td>
         {% endif %}
         <td>
-          <input type="text" class="form-control form-control-sm" name="{{ item.expenseSumCurrency.html_name }}" value="{{ item.expenseSumCurrency.value|default_if_none:'' }}" autocomplete="off" />
+          <input type="text" class="form-control form-control-sm expense-sum expense-sum-currency" name="{{ item.expenseSumCurrency.html_name }}" value="{{ item.expenseSumCurrency.value|default_if_none:'' }}" autocomplete="off" />
         </td>
         <td>
-          <input type="text" class="form-control form-control-sm" name="{{ item.expenseSumRub.html_name }}" value="{{ item.expenseSumRub.value|default_if_none:'' }}" autocomplete="off" />
+          <input type="text" class="form-control form-control-sm expense-sum expense-sum-rub" name="{{ item.expenseSumRub.html_name }}" value="{{ item.expenseSumRub.value|default_if_none:'' }}" autocomplete="off" />
         </td>
         <td>
-          <input type="text" class="form-control form-control-sm" name="{{ item.expenseSumVAT.html_name }}" value="{{ item.expenseSumVAT.value|default_if_none:'' }}" autocomplete="off" />
+          <input type="text" class="form-control form-control-sm expense-sum expense-sum-vat" name="{{ item.expenseSumVAT.html_name }}" value="{{ item.expenseSumVAT.value|default_if_none:'' }}" autocomplete="off" />
         </td>
         {% if itemType == 3 or itemType == 4 %}
           <td>
             <input type="text" class="form-control form-control-sm" name="{{ item.invoiceCode.html_name }}" value="{{ item.invoiceCode.value|default_if_none:'' }}" autocomplete="off" />
+          </td>
+        {% endif %}
+        {% if itemType == 2 %}
+          <td>
+            <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#inventoryModal">...</button>
           </td>
         {% endif %}
         <td>
@@ -147,6 +155,24 @@
                   </tr>
                 </thead>
                 <tbody>
+
+                  <tr class="col-num-row">
+                    {% if itemType == 0 %}
+                      {% for n in '00000000000' %}
+                        <td>{{ forloop.counter|add:10 }}</td>
+                      {% endfor %}
+                    {% elif itemType == 2 %}
+                      {% for n in '0000000000000000' %}
+                        <td>{{ forloop.counter|add:9 }}</td>
+                      {% endfor %}
+                    {% elif itemType == 3 or itemType == 4 or itemType == 5%}
+                      {% for n in '000000000' %}
+                        <td>{{ forloop.counter|add:10 }}</td>
+                      {% endfor %}
+                    {% endif %}
+                    <td/>
+                  </tr>
+
                   {% for entity in item.entities %}
                     {% include 'advanceReport/entityRow.html' with entity=entity itemType=itemType %}
                   {% endfor %}
@@ -162,9 +188,23 @@
   <tfoot>
     <tr>
       <th scope="row" colspan="{% if itemType == 0 %}7{% else %}6{% endif %}" class="text-left">Израсходовано всего:</th>
-      <td>{{ items|sumByField:"expenseSumCurrency" }}</td>
-      <td>{{ items|sumByField:"expenseSumRub" }}</td>
-      <td>{{ items|sumByField:"expenseSumVAT" }}</td>
+      {% comment %} <td class="expense-sum-currency-total">{{ items|sumByField:"expenseSumCurrency" }}</td>
+      <td class="expense-sum-rub-total">{{ items|sumByField:"expenseSumRub" }}</td>
+      <td class="expense-sum-vat-total">{{ items|sumByField:"expenseSumVAT" }}</td> {% endcomment %}
+      <td class="expense-sum-currency-total">0</td>
+      <td class="expense-sum-rub-total">0</td>
+      <td class="expense-sum-vat-total">0</td>
     </tr>
+
+    <tr>
+      <th scope="row" colspan="{% if itemType == 0 %}7{% else %}6{% endif %}" class="text-left">Сумма принятая к учету:</th>
+      <td colspan="3" class="accounting-sum-total">0</td>
+    </tr>
+
+    <tr>
+      <th scope="row" colspan="{% if itemType == 0 %}7{% else %}6{% endif %}" class="text-left">Разница между суммой расхода по отчету подотчетного лица и суммой, принятой к учету:</th>
+      <td colspan="3" class="accounting-diff-total">0</td>
+    </tr>
+
   </tfoot>
 </table>
