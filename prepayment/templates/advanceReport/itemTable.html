@@ -161,8 +161,12 @@
                       {% for n in '00000000000' %}
                         <td>{{ forloop.counter|add:10 }}</td>
                       {% endfor %}
-                    {% elif itemType == 2 %}
+                    {% elif itemType == 2 and items.form_kwargs.accounting %}
                       {% for n in '0000000000000000' %}
+                        <td>{{ forloop.counter|add:9 }}</td>
+                      {% endfor %}
+                    {% elif itemType == 2 %}
+                      {% for n in '0000000' %}
                         <td>{{ forloop.counter|add:9 }}</td>
                       {% endfor %}
                     {% elif itemType == 3 or itemType == 4 or itemType == 5%}

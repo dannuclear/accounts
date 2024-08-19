@@ -158,6 +158,40 @@ def editAdvanceReport(request, id):
                         if not hasExpenseItems:
                             currentNum = currentNum + 1
                     postCopy['%s-TOTAL_FORMS' % (prefix)] = currentNum if hasPurposes else currentNum + 1
+            elif prefix.startswith('inventory') and prefix.endswith('entity'):
+                parentPrefix = prefix.replace('-entity', '')
+                expenseCategoryId = int(postCopy['%s-expenseCategory' % (parentPrefix)])
+                hasExpenseItems = False
+                if expenseCategoryId and accounting:
+                    expenseSumCurrency = parseDecimal(postCopy['%s-expenseSumCurrency' % (parentPrefix)])
+                    expenseSumRub = parseDecimal(postCopy['%s-expenseSumRub' % (parentPrefix)])
+                    expenseSumVAT = parseDecimal(postCopy['%s-expenseSumVAT' % (parentPrefix)])
+                    expenseCategory = ExpenseCategory.objects.get(pk=expenseCategoryId)
+
+                    # Извлекаем статью расхода из справочника по наименованию (категории) и коду расхода
+                    q_objects = Q(Q(expenseCode_id__isnull = True))
+                    if expenseSumVAT > 0:
+                        q_objects.add(Q(Q(schema__isnull=False)), Q.OR)
+                    for expenseItem in ExpenseItem.objects.filter(Q(category_id = expenseCategoryId), q_objects, Q(itemType = 7104)).all():
+                        hasExpenseItems = True
+                        # Дебет/Шифр отнесения затрат/счет.субсчет
+                        postCopy['%s-%s-debitAccount' % (prefix, currentNum)] = expenseItem.debitAccount
+                        # Дебет/КАУ 1
+                        postCopy['%s-%s-debitKAU1' % (prefix, currentNum)] = expenseItem.debitKAU1
+                        # Дебет/КАУ 2
+                        postCopy['%s-%s-debitKAU2' % (prefix, currentNum)] = expenseItem.debitKAU2
+                        # Кредит/Счет/Субсчет
+                        postCopy['%s-%s-creditAccount' % (prefix, currentNum)] = expenseItem.creditAccount
+                        # Кредит/КАУ 1
+                        postCopy['%s-%s-creditKAU1' % (prefix, currentNum)] = expenseItem.creditKAU1
+                        # Кредит/КАУ 2
+                        postCopy['%s-%s-creditKAU2' % (prefix, currentNum)] = expenseItem.creditKAU2
+                        # Сумма, принятая к учету
+                        postCopy['%s-%s-accountingSum' % (prefix, currentNum)] = expenseSumRub if expenseItem.accept == 'Sобщ' else expenseSumVAT if expenseItem.accept == 'Sндс' else (expenseSumRub - expenseSumVAT) if expenseItem.accept == 'Sобщ-Sндс' else ''
+                        currentNum = currentNum + 1
+                if not hasExpenseItems:
+                    currentNum = currentNum + 1
+                postCopy['%s-TOTAL_FORMS' % (prefix)] = currentNum
             else:
                 postCopy['%s-TOTAL_FORMS' % (prefix)] = currentNum + 1
             
