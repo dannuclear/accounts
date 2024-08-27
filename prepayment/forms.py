@@ -2,8 +2,9 @@ from django import forms
 from django.forms.models import ALL_FIELDS
 from .models import Prepayment, PrepaymentPurpose, ExpenseCode, PrepaymentItem, AdvanceReportItem, Attachment, AdvanceReportItemEntity
 from guide.models import ObtainMethod
-from guide.models import Status, ImprestAccount, Document, PrepaidDest, ExpenseCategory
+from guide.models import Status, ImprestAccount, Document, PrepaidDest, ExpenseCategory, ExpenseItem
 from integration.models import Employee, WC07POrder
+from main.helpers import is_user_in_group
 
 
 class MyDateField(forms.DateField):
@@ -92,7 +93,7 @@ class PrepaymentForm (forms.ModelForm):
     class Meta:
         model = Prepayment
         fields = ALL_FIELDS
-        exclude = ['createdBy', 'createdAt', 'wc07pOrder', 'request', 'iPrepayment', 'reportAccountingNum', 'reportAccountingSum', 'reportNum', 'reportDate', 'reportComment']
+        exclude = ['createdBy', 'createdAt', 'wc07pOrder', 'request', 'iPrepayment', 'reportAccountingNum', 'reportAccountingSum', 'reportNum', 'reportDate', 'reportComment', 'accountCodes', 'approveDate', 'lockLevel', 'factDate']
 
     def __init__(self, *args, **kwargs):
         super(PrepaymentForm, self).__init__(*args, **kwargs)
@@ -167,15 +168,29 @@ class AdvanceReportForm (forms.ModelForm):
     # Распределение остатка. Переходящий остаток
     # distribCarryoverReportNum = models.CharField(db_column='distrib_carryover_report_num', max_length=50, blank=True, null=True, verbose_name='Номер А.О.')
 
+    approveDate = MyDateField(label='Дата согласован', localize=True, required=False)
+
+    factDate = MyDateField(label='Месяц, год фактов', localize=True, required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', False)
+        super(AdvanceReportForm, self).__init__(*args, **kwargs)
+        if is_user_in_group(self.user, ['Администратор', 'Подотчетное лицо с расширенным функционалом', 'Руководитель']):
+            self.fields['reportStatus'].queryset = Status.objects.order_by('id')
+        elif is_user_in_group(self.user, ['Подотчетное лицо']):
+            self.fields['reportStatus'].queryset = Status.objects.filter(pk__in=[1, 2]).order_by('id')
+        elif is_user_in_group(self.user, ['Бухгалтер']):
+            self.fields['reportStatus'].queryset = Status.objects.filter(pk__in=[3, 4, 5]).order_by('id')
+
     class Meta:
         model = Prepayment
-        fields = ['reportStatus', 'empDivName', 'reportAccountingNum', 'spendedSum', 'reportAccountingSum', 'reportComment', 'phone', 'distribSalary', 'distribSalaryDate', 'distribBank', 'distribBankMethod', 'distribCarryover', 'distribCarryoverReportNum']
+        fields = ['reportStatus', 'empDivName', 'reportAccountingNum', 'spendedSum', 'reportAccountingSum', 'reportComment', 'phone', 'distribSalary', 'distribSalaryDate', 'distribBank', 'distribBankMethod', 'distribCarryover', 'distribCarryoverReportNum', 'approveDate', 'factDate']
 
 
 class AdvanceReportItemForm(forms.ModelForm):
 
     approveDocument = DocumentChoiceField(queryset=Document.objects.order_by('id').all(), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
+        attrs={'class': 'custom-select form-control-sm approve-doc', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
 
     expenseCategory = ExpenseCategoryChoiceField(queryset=ExpenseCategory.objects.order_by('id'), widget=forms.Select(
         attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
@@ -185,17 +200,23 @@ class AdvanceReportItemForm(forms.ModelForm):
 
     approveDocDate = MyDateField(localize=True, required=False)
 
+    sypherDate = MyDateField(localize=True, required=False)
+
     def __init__(self, *args, **kwargs):
         self.accounting = kwargs.pop('accounting', False)
         self.itemType = kwargs.pop('itemType', None)
+        self.expenseItemType = kwargs.pop('expenseItemType', None)
+        self.lockLevel = kwargs.pop('lockLevel', 0)
         super(AdvanceReportItemForm, self).__init__(*args, **kwargs)
+        self.fields['expenseCategory'].queryset = ExpenseCategory.objects.filter(id__in=ExpenseItem.objects.values_list('category_id').filter(itemType=self.expenseItemType, expenseType=(0 if self.itemType in [0,1] else 1))).order_by('id')
         # Добавляем набор форм бухгалтерской формы
         if (self.accounting or self.itemType == 2) and self.itemType != 1:
             isBound = len([v for k,v in self.data.items() if k.startswith(self.prefix)]) if self.is_bound else self.is_bound
             self.entities = AdvanceReportItemEntityFormset(instance=self.instance,
                                                            data=self.data if isBound else None,
                                                            files=self.files if isBound else None,
-                                                           prefix='%s-%s' % (self.prefix, 'entity'))
+                                                           prefix='%s-%s' % (self.prefix, 'entity'),
+                                                           form_kwargs={ 'lockLevel': self.lockLevel })
 
     def is_valid(self):
         result = super(AdvanceReportItemForm, self).is_valid()
@@ -239,6 +260,10 @@ class AdvanceReportItemEntityForm(forms.ModelForm):
 
     whOrderDate = MyDateField(localize=True, required=False)
 
+    def __init__(self, *args, **kwargs):
+        self.lockLevel = kwargs.pop('lockLevel', 0)
+        super(AdvanceReportItemEntityForm, self).__init__(*args, **kwargs)
+
     class Meta:
         model = AdvanceReportItemEntity
         fields = ALL_FIELDS
@@ -276,7 +301,7 @@ class AttachmentForm(forms.ModelForm):
 #         localized_fields = ALL_FIELDS
 
 
-AttachmentFormSet = forms.inlineformset_factory(Prepayment, Attachment, form=AttachmentForm, can_delete=True, extra=1)
+AttachmentFormSet = forms.inlineformset_factory(Prepayment, Attachment, form=AttachmentForm, can_delete=True, extra=5)
 AdvanceReportItemEntityFormset = forms.inlineformset_factory(AdvanceReportItem, AdvanceReportItemEntity, extra=0, form=AdvanceReportItemEntityForm)
 
 

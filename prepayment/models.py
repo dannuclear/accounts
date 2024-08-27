@@ -45,6 +45,8 @@ class Prepayment(models.Model):
 
     # Код учета подотчетной суммы
     imprestAccount = models.ForeignKey(ImprestAccount, db_column='imprest_account_id', on_delete=models.PROTECT, blank=False, null=True)
+    # Коды учета из полей Кредит/Счет/субсчет
+    accountCodes = models.CharField(db_column='account_codes', max_length=50, null=True)
 
     createdBy = models.CharField(db_column='created_by', max_length=200)
     createdAt = models.DateTimeField(db_column='created_at')
@@ -87,6 +89,15 @@ class Prepayment(models.Model):
     distribCarryover = models.DecimalField(max_digits=10, decimal_places=2, db_column="distrib_carryover", blank=True, null=True)
     # Распределение остатка. Переходящий остаток
     distribCarryoverReportNum = models.CharField(db_column='distrib_carryover_report_num', max_length=50, blank=True, null=True, verbose_name='Номер А.О.')
+
+    # Дата согласования. Дата которой должны выгрузиться массив проводок
+    approveDate = models.DateField(db_column="approve_date", blank=True, null=True)
+
+    # Дата которой должны выгрузиться массив проводок
+    factDate = models.DateField(db_column="fact_date", blank=True, null=True)
+
+    # Уровень блокировки 0 или нет - Разблокирован, 1 - заблокирован, возможно снятие, 2 - выгружен в файл, разблокировка невозможна
+    lockLevel = models.SmallIntegerField(db_column="lock_level", blank=True, null=True)
 
     class Meta:
         db_table = 'prepayment'
@@ -200,13 +211,35 @@ class AdvanceReportItem (models.Model):
     # --- Приобретение ТМЦ ---
     # Сумма разницы
     diffSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="diff_sum", blank=True, null=True)
-
+    route = models.CharField(db_column="route", max_length=2, blank=True, null=True)
     # --- Оплата работ, услуг ---
+    service1Sum = models.DecimalField(max_digits=10, decimal_places=2, db_column="service_1_sum", blank=True, null=True)
+    service1VAT = models.DecimalField(max_digits=10, decimal_places=2, db_column="service_1_vat", blank=True, null=True)
+    service2Sum = models.DecimalField(max_digits=10, decimal_places=2, db_column="service_2_sum", blank=True, null=True)
+    service2VAT = models.DecimalField(max_digits=10, decimal_places=2, db_column="service_2_vat", blank=True, null=True)
+    # Комиссия банка
+    bankCommission = models.DecimalField(max_digits=10, decimal_places=2, db_column="bank_commission", blank=True, null=True)
+
+    account = models.CharField(db_column="account", max_length=20, blank=True, null=True)
+
+    kau1 = models.CharField(db_column="kau_1", max_length=10, blank=True, null=True)
+    kau2 = models.CharField(db_column="kau_2", max_length=10, blank=True, null=True)
+
+    extra = models.CharField(db_column="extra", max_length=20, blank=True, null=True)
     # --- Представительские расходы ---
     # Шифр счет-фактура
     invoiceCode = models.CharField(db_column="invoice_code", max_length=20, blank=True, null=True)
-
+    # Дата шифра
+    sypherDate = models.DateField(db_column="sypher_date", blank=True, null=True)
+    # Комментарий
+    comment = models.CharField(db_column="comment", max_length=100, blank=True, null=True)
     # --- Оплата заказ-наряд ---
+    oilSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="oil_sum", blank=True, null=True)
+    oilVAT = models.DecimalField(max_digits=10, decimal_places=2, db_column="oil_vat", blank=True, null=True)
+    materialSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="material_sum", blank=True, null=True)
+    materialVAT = models.DecimalField(max_digits=10, decimal_places=2, db_column="material_vat", blank=True, null=True)
+    partSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="part_sum", blank=True, null=True)
+    partVAT = models.DecimalField(max_digits=10, decimal_places=2, db_column="part_vat", blank=True, null=True)
     # Нет
 
     # Тип пункта авансового отчета

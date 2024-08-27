@@ -14,7 +14,7 @@
       {% if itemType == 3 or itemType == 4 %}
         <th rowspan="2" width="5%">Шифр счет-фактура</th>
       {% endif %}
-      {% if itemType == 2 %}
+      {% if itemType == 2 or itemType == 3 or itemType == 4 or itemType == 5 %}
         <th rowspan="2" width="2%"></th>
       {% endif %}
       <th rowspan="2" width="2%"></th>
@@ -32,11 +32,11 @@
 
     <tr class="col-num-row">
       {% if itemType == 0 or itemType == 3 or itemType == 4 %}
-        {% for n in '0000000000' %}
+        {% for i in 'x'|rjust:'10'|make_list %}
           <td>{{ forloop.counter}}</td>
         {% endfor %}
       {% else %}
-        {% for n in '000000000' %}
+        {% for i in 'x'|rjust:'9'|make_list %}
           <td>{{ forloop.counter}}</td>
         {% endfor %}
       {% endif %}
@@ -48,56 +48,119 @@
       <tr id="{{ item.prefix }}" class="{{ items.prefix }}-form" style="{% if item.DELETE.value %} display:none {% endif %}">
         {{ item.id }}
         <input type="hidden" name="{{ item.DELETE.html_name }}" id="{{ item.DELETE.auto_id }}" value="{{ item.DELETE.value|default_if_none:'' }}"/>
-        <input type="hidden" name="{{ item.itemType.html_name }}" value="{{ itemType }}" />
+        <input type="hidden" name="{{ item.itemType.html_name }}" class="item-type" value="{{ itemType }}" />
+
+        {% if itemType == 2 or itemType == 3 or itemType == 4 %}
+          <input type="hidden" name="{{ item.sypherDate.html_name }}" class="sypher-date" value="{{ item.sypherDate.value|default_if_none:'' }}" />
+          <input type="hidden" name="{{ item.comment.html_name }}" class="comment" value="{{ item.comment.value|default_if_none:'' }}" />
+          {% if itemType == 3 or itemType == 4 %}
+            {% if itemType == 3 %}
+              <input type="hidden" name="{{ item.bankCommission.html_name }}" class="bank-commission" value="{{ item.bankCommission.value|default_if_none:'' }}" />
+              <input type="hidden" name="{{ item.service1Sum.html_name }}" class="service-1-sum-rub" value="{{ item.service1Sum.value|default_if_none:'' }}" />
+              <input type="hidden" name="{{ item.service1VAT.html_name }}" class="service-1-sum-vat" value="{{ item.service1VAT.value|default_if_none:'' }}" />
+              <input type="hidden" name="{{ item.service2Sum.html_name }}" class="service-2-sum-rub" value="{{ item.service2Sum.value|default_if_none:'' }}" />
+              <input type="hidden" name="{{ item.service2VAT.html_name }}" class="service-2-sum-vat" value="{{ item.service2VAT.value|default_if_none:'' }}" />
+            {% endif %}
+            <input type="hidden" name="{{ item.account.html_name }}" class="account" value="{{ item.account.value|default_if_none:'' }}" />
+            <input type="hidden" name="{{ item.kau1.html_name }}" class="kau-1" value="{{ item.kau1.value|default_if_none:'' }}" />
+            <input type="hidden" name="{{ item.kau2.html_name }}" class="kau-2" value="{{ item.kau2.value|default_if_none:'' }}" />
+            <input type="hidden" name="{{ item.extra.html_name }}" class="extra" value="{{ item.extra.value|default_if_none:'' }}" />
+          {% endif %}
+          {% if itemType == 2 %}
+            <input type="hidden" name="{{ item.route.html_name }}" class="route" value="{{ item.route.value|default_if_none:'' }}" />
+            <input type="hidden" name="{{ item.invoiceCode.html_name }}" class="sypher-num" value="{{ item.invoiceCode.value|default_if_none:'' }}" />
+          {% endif %}
+        {% endif %}
+        {% if itemType == 5 %}
+          <input type="hidden" name="{{ item.comment.html_name }}" class="comment" value="{{ item.comment.value|default_if_none:'' }}" />
+          <input type="hidden" name="{{ item.route.html_name }}" class="route" value="{{ item.route.value|default_if_none:'' }}" />
+          <input type="hidden" name="{{ item.service1Sum.html_name }}" class="service-sum" value="{{ item.service1Sum.value|default_if_none:'' }}" />
+          <input type="hidden" name="{{ item.service1VAT.html_name }}" class="service-vat" value="{{ item.service1VAT.value|default_if_none:'' }}" />
+          <input type="hidden" name="{{ item.materialSum.html_name }}" class="material-sum" value="{{ item.materialSum.value|default_if_none:'' }}" />
+          <input type="hidden" name="{{ item.materialVAT.html_name }}" class="material-vat" value="{{ item.materialVAT.value|default_if_none:'' }}" />
+          <input type="hidden" name="{{ item.oilSum.html_name }}" class="oil-sum" value="{{ item.oilSum.value|default_if_none:'' }}" />
+          <input type="hidden" name="{{ item.oilVAT.html_name }}" class="oil-vat" value="{{ item.oilVAT.value|default_if_none:'' }}" />
+          <input type="hidden" name="{{ item.partSum.html_name }}" class="part-sum" value="{{ item.partSum.value|default_if_none:'' }}" />
+          <input type="hidden" name="{{ item.partVAT.html_name }}" class="part-vat" value="{{ item.partVAT.value|default_if_none:'' }}" />
+        {% endif %}
+
         <td>
           <p class="text-center m-0" style="font-size: 1.4em;">{{ forloop.counter }}</p>
         </td>
         <td>
-          <input type="text" class="form-control form-control-sm datepeeker" name="{{ item.approveDocDate.html_name }}" value="{{ item.approveDocDate.value|default_if_none:'' }}" autocomplete="off" />
+          <input type="text" class="form-control form-control-sm datepeeker doc-date" name="{{ item.approveDocDate.html_name }}" value="{{ item.approveDocDate.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
         </td>
         <td>
-          <input type="text" class="form-control form-control-sm" name="{{ item.approveDocNum.html_name }}" value="{{ item.approveDocNum.value|default_if_none:'' }}" autocomplete="off" />
+          <input type="text" class="form-control form-control-sm doc-num" name="{{ item.approveDocNum.html_name }}" value="{{ item.approveDocNum.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
         </td>
-        <td>{{ item.approveDocument }}</td>
-        <td>{{ item.expenseCategory }}</td>
         <td>
-          <input type="text" class="form-control form-control-sm" name="{{ item.nomenclature.html_name }}" value="{{ item.nomenclature.value|default_if_none:'' }}" autocomplete="off" />
+          {% if lockLevel %}
+            <input type="text" class="form-control form-control-sm" name="{{ item.approveDocument.html_name }}" value="{{ item.approveDocument.value|default_if_none:'' }}" autocomplete="off" readonly/>
+          {% else %}
+            {{ item.approveDocument }}
+          {% endif %}
+        </td>
+        <td>
+          {% if lockLevel %}
+            <input type="text" class="form-control form-control-sm" name="{{ item.expenseCategory.html_name }}" value="{{ item.expenseCategory.value|default_if_none:'' }}" autocomplete="off" readonly/>
+          {% else %}
+            {{ item.expenseCategory }}
+          {% endif %}
+        </td>
+        <td>
+          <input type="text" class="form-control form-control-sm" name="{{ item.nomenclature.html_name }}" value="{{ item.nomenclature.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
         </td>
         {% if itemType == 0 %}
           <td>
-            <input type="text" class="form-control form-control-sm" name="{{ item.daysCount.html_name }}" value="{{ item.daysCount.value|default_if_none:'' }}" autocomplete="off" />
+            <input type="text" class="form-control form-control-sm" name="{{ item.daysCount.html_name }}" value="{{ item.daysCount.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
           </td>
         {% endif %}
         <td>
-          <input type="text" class="form-control form-control-sm expense-sum expense-sum-currency" name="{{ item.expenseSumCurrency.html_name }}" value="{{ item.expenseSumCurrency.value|default_if_none:'' }}" autocomplete="off" />
+          <input type="text" class="form-control form-control-sm expense-sum expense-sum-currency" name="{{ item.expenseSumCurrency.html_name }}" value="{{ item.expenseSumCurrency.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
         </td>
         <td>
-          <input type="text" class="form-control form-control-sm expense-sum expense-sum-rub" name="{{ item.expenseSumRub.html_name }}" value="{{ item.expenseSumRub.value|default_if_none:'' }}" autocomplete="off" />
+          <input type="text" class="form-control form-control-sm expense-sum expense-sum-rub" name="{{ item.expenseSumRub.html_name }}" value="{{ item.expenseSumRub.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
         </td>
         <td>
-          <input type="text" class="form-control form-control-sm expense-sum expense-sum-vat" name="{{ item.expenseSumVAT.html_name }}" value="{{ item.expenseSumVAT.value|default_if_none:'' }}" autocomplete="off" />
+          <input type="text" class="form-control form-control-sm expense-sum expense-sum-vat" name="{{ item.expenseSumVAT.html_name }}" value="{{ item.expenseSumVAT.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
         </td>
         {% if itemType == 3 or itemType == 4 %}
           <td>
-            <input type="text" class="form-control form-control-sm" name="{{ item.invoiceCode.html_name }}" value="{{ item.invoiceCode.value|default_if_none:'' }}" autocomplete="off" />
+            <input type="text" class="form-control form-control-sm sypher-num" name="{{ item.invoiceCode.html_name }}" value="{{ item.invoiceCode.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
           </td>
         {% endif %}
-        {% if itemType == 2 %}
+        {% if itemType == 2 or itemType == 3 or itemType == 4 or itemType == 5 %}
           <td>
-            <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#inventoryModal">...</button>
+            {% if not lockLevel %}
+              <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#{% if itemType == 2 %}inventoryModal{% elif itemType == 3 %}serviceModal{% elif itemType == 4 %}presentationModal{% elif itemType == 5 %}purchaseOrderModal{% endif %} ">...</button>
+            {% endif %}
           </td>
         {% endif %}
         <td>
-          <button type="button" class="btn btn-sm btn-outline-danger row-delete"><i class="fa-light fa-trash"></i></button>
+          {% if not lockLevel %}
+            <button type="button" class="btn btn-sm btn-outline-danger row-delete"><i class="fa-light fa-trash"></i></button>
+          {% endif %}
         </td>
       </tr>
       {% if itemType != 1 %}
         {% if items.form_kwargs.accounting or itemType == 2 %}
-          <tr class="{{ item.prefix }}" style="{% if item.DELETE.value %} display:none {% endif %}">
+          <tr class="{{ item.prefix }}" data-parent-id="{{ item.prefix }}" style="{% if item.DELETE.value %} display:none {% endif %}">
             <td colspan="2" class="text-right">
-              <button class="btn btn-sm btn-outline-primary h-100 btn-add-entity-row" data-prefix="{{ item.entities.prefix }}">Добавить</button>
+              {% if not lockLevel %}
+
+                {% if items.form_kwargs.accounting %}
+                    {% if itemType != 2 %}
+                      <button class="btn btn-sm btn-outline-primary h-100 btn-add-entity-row" data-prefix="{{ item.entities.prefix }}">Заполнить</button>
+                    {% endif %}
+                  {% else %}
+                    {% if itemType == 2 %}
+                      <button class="btn btn-sm btn-outline-primary h-100 btn-add-entity-row" data-prefix="{{ item.entities.prefix }}">Добавить</button>
+                    {% endif %}
+                {% endif %}
+              
+                {% endif %}
             </td>
-            <td colspan="9" style="background-color: burlywood;">
+            <td colspan="10" style="background-color: burlywood;">
               {{ item.entities.management_form }}
               <table class="entity-table table table-sm text-center m-0">
                 <thead>
@@ -121,6 +184,9 @@
                         Кредит<br />Код учета подотчетной суммы
                       </th>
                     {% endif %}
+                    {% if itemType == 2 %}
+                      <th rowspan="2" width="1%"/>
+                    {% endif %}
                     <th rowspan="2" width="1%"/>
                   </tr>
                   <tr>
@@ -131,7 +197,7 @@
                       <th rowspan="1" width="5%">номер</th>
                       <th rowspan="1" width="5%">дата</th>
                       <th rowspan="1" width="5%">Сумма, в руб. коп.</th>
-                      <th rowspan="1" width="5%">E разницы</th>
+                      <th rowspan="1" width="5%">Σ разницы</th>
                     {% endif %}
                     {% if items.form_kwargs.accounting %}
                       <th rowspan="1" width="5%">Счет/Субсчет</th>
@@ -158,19 +224,19 @@
 
                   <tr class="col-num-row">
                     {% if itemType == 0 %}
-                      {% for n in '00000000000' %}
+                      {% for i in 'x'|rjust:'11'|make_list %}
                         <td>{{ forloop.counter|add:10 }}</td>
                       {% endfor %}
                     {% elif itemType == 2 and items.form_kwargs.accounting %}
-                      {% for n in '0000000000000000' %}
+                      {% for i in 'x'|rjust:'16'|make_list %}
                         <td>{{ forloop.counter|add:9 }}</td>
                       {% endfor %}
                     {% elif itemType == 2 %}
-                      {% for n in '0000000' %}
+                      {% for i in 'x'|rjust:'7'|make_list %}
                         <td>{{ forloop.counter|add:9 }}</td>
                       {% endfor %}
-                    {% elif itemType == 3 or itemType == 4 or itemType == 5%}
-                      {% for n in '000000000' %}
+                    {% elif itemType == 3 or itemType == 4 or itemType == 5 %}
+                      {% for i in 'x'|rjust:'9'|make_list %}
                         <td>{{ forloop.counter|add:10 }}</td>
                       {% endfor %}
                     {% endif %}

@@ -1,0 +1,193 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+Реестр выданных подотчетных сумм
+{% endblock %}
+
+{% block content %}
+    <style>
+        tr > th {
+            text-align: center;
+            border-bottom-width: 1px!important;
+            padding: .2rem!important;
+            font-size: 0.9em;
+        }
+    </style>
+
+<div class="alert alert-primary" role="alert" style="display: none;">
+
+</div>
+
+  <div class="modal fade" id="periodModal" tabindex="-1" role="dialog" aria-labelledby="periodModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Подтвердить проводки</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body container-fluid">
+          <div class="row p-1">
+            <div class="col-12 input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Месяц, год выгрузки</span>
+              </div>
+              <input type="text" class="mb-0 form-control form-control-sm datepeeker period-date" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+          <button type="button" form="mainForm" class="btn btn-primary ok-button">Ок</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100" style="font-size: 0.9em;">
+    <thead>
+        <tr>
+            <th rowspan="2" data-dt-order="disable" width='40px'>Месяц</th>
+            <th rowspan="2" data-dt-order="disable" width='40px'>Год</th>
+
+            <th rowspan="2" data-dt-order="disable" width='70px'>Таб. №</th>
+            <th rowspan="2" data-dt-order="disable">ФИО</th>
+            <th rowspan="2" data-dt-order="disable" width='50px'>Подр-е</th>
+
+            <th rowspan="2" data-dt-order="disable" width='50px'>№ проводки</th>
+
+            <th rowspan="1" colspan="4" data-dt-order="disable" width='60px'>Дебет</th>
+            <th rowspan="1" colspan="4" data-dt-order="disable" width='60px'>Кредит</th>
+
+            <th rowspan="2" data-dt-order="disable" width='130px'>Сумма</th>
+            <th rowspan="2" data-dt-order="disable" width='50px'>Признак подтверждения</th>
+            <th rowspan="2" data-dt-order="disable" width='70px'>Дата подтверждения</th>
+        </tr>
+        <tr>
+            <th data-dt-order="disable" width='50px'>счет/субсчет</th>
+            <th colspan="2" data-dt-order="disable" width='60px'>КАУ</th>
+            <th data-dt-order="disable" width='100px'>ДП</th>
+
+            <th data-dt-order="disable" width='50px'>счет/субсчет</th>
+            <th colspan="2" data-dt-order="disable" width='60px'>КАУ</th>
+            <th data-dt-order="disable" width='100px'>ДП</th>
+        </tr>
+        <tr>
+          {% for i in 'x'|rjust:'17'|make_list %}
+            <th style="font-size: 0.7em; padding: 0 !important;">{{ forloop.counter}}</th>
+          {% endfor %}
+        </tr>
+    </thead>
+</table>
+
+<script type="text/javascript">
+    const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ']
+
+    let urlParams = new URLSearchParams(document.location.search)
+
+    $('.datepeeker').datepicker({
+        beforeShow: function() {
+          setTimeout(function(){
+              $('.ui-datepicker').css('z-index', 99999999999999);
+          }, 0);
+        }
+    })
+
+    // Принятие проводок
+    $('#periodModal').on('click', '.ok-button', function(e){
+        var modal = $(e.delegateTarget)
+        const modalDateInput = modal.find("input.period-date")
+        if (modalDateInput.val())
+            window.open(`/accountingEntries/download?toDate=${modalDateInput.val()}`, '_blank').focus();
+      })
+
+    $(document).ready(
+        function () {
+            var requestTable = $('#request-table').DataTable(
+                {
+                    ajax: {
+                        url: '/api/v1/accountingEntries/?format=datatables',
+                        data: function (d) {
+                            let imprestAccount = urlParams.get("imprestAccount")
+                            if (imprestAccount)
+                                d.imprestAccount=imprestAccount
+                            if ($('#period-from').val())
+                                d.periodFrom=$('#period-from').val()
+                            if ($('#period-to').val())
+                                d.periodTo=$('#period-to').val()
+                        }
+                    },
+                    rowId: 'id',
+                    pagingType: 'first_last_numbers',
+                    order: [],
+                    initComplete: function(){
+                        const periodFilter = $(
+                            `<div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Период с</span>
+                                </div>
+                                <input id="period-from" class="text-center datepeeker" style="width: 100px"/>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">по</span>
+                                    <input id='period-to' class='text-center datepeeker' style='width: 100px'/>
+                                </div>
+                            </div>`)
+
+                        $("div.filters").append(periodFilter);        
+                        periodFilter.find('.datepeeker').datepicker()  
+                        periodFilter.on('change', 'input', function(e){
+                            requestTable.ajax.reload()
+                        }) 
+                    },
+                    columns: [
+                        { data: 'month', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'year', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'prepayment.empNum', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'prepayment.empFullName', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'prepayment.empDivNum', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'aeNo', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'debitAccountSubaccount', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'acplCodeAnaliticDebit1', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'acplCodeAnaliticDebit2', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'acplAddSignDebit', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'creditAccountSubaccount', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'acplCodeAnaliticCredit1', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'acplCodeAnaliticCredit2', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'acplAddSignCredit', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'aeSum', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: null, orderable: false, defaultContent: "", className: 'text-center', render: function (data, type, row, meta) {
+                                if (data.prepayment && data.prepayment.lockLevel == 1)
+                                    return '<span style="font-weight: bold;">v<span>'
+                                else if (data.prepayment && data.prepayment.lockLevel == 2)
+                                    return '<span style="color: blue; font-weight: bold;">v<span>'
+                                else 
+                                    return null
+                            }
+                        },
+                        { data: 'prepayment.approveDate', orderable: false, defaultContent: "", className: 'text-center' },
+                    ],
+                    buttons: [
+                        {
+                            text: '&nbsp;Сформировать файл выгрузки',
+                            className: 'btn btn-outline-info fa-light fa-file-export',
+                            action: function (e, dt, node, config) {
+                                $('#periodModal').modal('show')
+                                //window.location.href = '/accountingEntries/download'
+                            }
+                        },
+                        {
+                            text: '&nbsp;Выгрузить проводки',
+                            className: 'btn btn-outline-info fa-light fa-download',
+                            action: function (e, dt, node, config) {
+                                window.location.href = '/accountingEntries/download'
+                            }
+                        }
+                    ]
+                });
+
+            //$('#request-table').on('click', 'tbody td .print', function(e){
+            //    printDialog.dialog('open')
+            //})
+        }
+    );
+</script>
+{% endblock %}

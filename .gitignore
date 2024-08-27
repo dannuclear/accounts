@@ -4,3 +4,5 @@ venv
 /static
 *.pyc
 /media
+venv.zip
+fonts.7z

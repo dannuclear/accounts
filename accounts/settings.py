@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'guide',
     'request',
     'prepayment',
+    'fact',
+    'accountingEntry',
 ]
 
 MIDDLEWARE = [

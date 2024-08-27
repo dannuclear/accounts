@@ -14,21 +14,41 @@
     }
   </style>
 
-  <form method="post" class="container-fluid" enctype="multipart/form-data">
+  <form id="mainForm" method="post" class="container-fluid" enctype="multipart/form-data">
     {% csrf_token %}
 
     <div class="form-row align-items-center">
       <div class="col-12 p-1 text-right">
-        <input type="submit" class="btn btn-success btn-sm" value="Сохранить" />
+        {% if lockLevel < 2 %}
+          <input type="submit" class="btn btn-success btn-sm" value="Сохранить" />
+        {% endif %}
         <a href="{% url 'advanceReports' %}?imprestAccount={{ form.instance.imprestAccount.account }}" class="btn btn-danger btn-sm">Отмена</a>
       </div>
     </div>
 
     {{ form.errors }}
+    {{ form.non_field_errors }}
+    {% comment %} {{ travelExpenses.errors }}
+    {{ travelExpenses.non_field_errors }}
+    {{ orgServices.errors }}
+    {{ orgServices.non_field_errors }}
+    {{ iventoryItems.errors }}
+    {{ iventoryItems.non_field_errors }}
+    {{ services.errors }}
+    {{ services.non_field_errors }}
+    {{ presentationExpenses.errors }}
+    {{ presentationExpenses.non_field_errors }}
+    {{ purchaseOrderExpenses.errors }}
+    {{ purchaseOrderExpenses.non_field_errors }}
+    {{ attachments.errors }}
+    {{ attachments.non_field_errors }} {% endcomment %}
+
     <input type="hidden" name="id" value="{{ form.id.value }}" />
     <input id="mission-days" type="hidden" value="{{ form.instance.days|default_if_none:'' }}" />
 
     <input id="action" type="hidden" name="action">
+    <input type="hidden" class="approve-date" name="{{ form.approveDate.name }}" value="{{ form.approveDate.value|default_if_none:'' }}" />
+    <input type="hidden" name="lockLevel" value="{{ lockLevel|default_if_none:'0' }}" />
 
     <div class="form-row border rounded mt-1">
       <div class="col-xl-3 col-md-3 p-1 text-center">
@@ -197,6 +217,18 @@
       </div>
     </div>
 
+    {% if form.instance.reportStatus_id == 3 %}
+      <div class="form-row border rounded mt-1 p-1">
+        {% if lockLevel == 1 %}
+          <button class="btn btn-sm btn-outline-primary mr-1 unlock">Корректировка проводки</button>
+        {% endif %}
+        {% if lockLevel == 0 %}
+          <button type="button" class="btn btn-sm btn-outline-primary mr-1" data-toggle="modal" data-target="#approveModal">Подтвердить проводки</button>
+        {% endif %}
+        <button type="button" class="btn btn-sm btn-outline-primary mr-1" data-toggle="modal" data-target="">Печать авансового отчета</button>
+      </div>
+    {% endif %}
+
     <div class="form-row border rounded mt-1 p-1">
       <div class="w-100">
         <ul class="nav nav-tabs w-100" id="myTab" role="tablist" style="font-size: 0.8em;">
@@ -231,7 +263,9 @@
           {% if form.instance.imprestAccount_id != 7104 and form.instance.imprestAccount_id != 7106 %}
             <div class="tab-pane fade show active container-fluid" id="tab-content-1" role="tabpanel" aria-labelledby="tab-1">
               <div class="row p-1">
-                <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ travelExpenses.prefix }}">Добавить</button>
+                {% if not lockLevel %}
+                  <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ travelExpenses.prefix }}">Добавить</button>
+                {% endif %}
               </div>
 
               <div class="row p-1">
@@ -241,7 +275,9 @@
 
             <div class="tab-pane fade container-fluid" id="tab-content-2" role="tabpanel" aria-labelledby="tab-2">
               <div class="row p-1">
-                <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ orgServices.prefix }}">Добавить</button>
+                {% if not lockLevel %}
+                  <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ orgServices.prefix }}">Добавить</button>
+                {% endif %}
               </div>
 
               <div class="row p-1">
@@ -252,7 +288,9 @@
 
           <div class="tab-pane fade container-fluid {% if form.instance.imprestAccount_id == 7104 or form.instance.imprestAccount_id == 7106 %} show active {% endif %}" id="tab-content-3" role="tabpanel" aria-labelledby="tab-3">
             <div class="row p-1">
-              <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ iventoryItems.prefix }}">Добавить</button>
+              {% if not lockLevel %}
+                <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ iventoryItems.prefix }}">Добавить</button>
+              {% endif %}
             </div>
 
             <div class="row p-1">
@@ -261,7 +299,9 @@
           </div>
           <div class="tab-pane fade container-fluid" id="tab-content-4" role="tabpanel" aria-labelledby="tab-4">
             <div class="row p-1">
-              <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ services.prefix }}">Добавить</button>
+              {% if not lockLevel %}
+                <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ services.prefix }}">Добавить</button>
+              {% endif %}
             </div>
 
             <div class="row p-1">
@@ -270,7 +310,9 @@
           </div>
           <div class="tab-pane fade container-fluid" id="tab-content-5" role="tabpanel" aria-labelledby="tab-5">
             <div class="row p-1">
-              <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ presentationExpenses.prefix }}">Добавить</button>
+              {% if not lockLevel %}
+                <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ presentationExpenses.prefix }}">Добавить</button>
+              {% endif %}
             </div>
 
             <div class="row p-1">
@@ -279,7 +321,9 @@
           </div>
           <div class="tab-pane fade container-fluid" id="tab-content-6" role="tabpanel" aria-labelledby="tab-6">
             <div class="row p-1">
-              <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ purchaseOrderExpenses.prefix }}">Добавить</button>
+              {% if not lockLevel %}
+                <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ purchaseOrderExpenses.prefix }}">Добавить</button>
+              {% endif %}
             </div>
 
             <div class="row p-1">
@@ -288,7 +332,9 @@
           </div>
           <div class="tab-pane fade container-fluid" id="tab-content-7" role="tabpanel" aria-labelledby="tab-7">
             <div class="row p-1">
-              <button type="button" class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ attachments.prefix }}">Добавить</button>
+              {% if not lockLevel %}
+                <button type="button" class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ attachments.prefix }}">Добавить</button>
+              {% endif %}
             </div>
 
             <div class="row p-1">
@@ -307,10 +353,10 @@
                       {{ attachment.id }}
                       <input type="hidden" name="{{ attachment.DELETE.html_name }}" id="{{ attachment.DELETE.auto_id }}" />
                       <td>
-                        <input type="text" class="form-control form-control-sm" name="{{ attachment.name.html_name }}" value="{{ attachment.name.value|default_if_none:'' }}" autocomplete="off" />
+                        <input type="text" class="form-control form-control-sm file-name" name="{{ attachment.name.html_name }}" value="{{ attachment.name.value|default_if_none:'' }}" autocomplete="off" />
                       </td>
                       <td>
-                        <input type="text" class="form-control form-control-sm datepeeker" name="{{ attachment.date.html_name }}" value="{{ attachment.date.value|default_if_none:'' }}" autocomplete="off" />
+                        <input type="text" class="form-control form-control-sm datepeeker file-date" name="{{ attachment.date.html_name }}" value="{{ attachment.date.value|default_if_none:'' }}" autocomplete="off" />
                       </td>
                       <td>
                         {% if attachment.file.value is not None %}
@@ -391,94 +437,41 @@
     </div>
   </form>
 
-  <div class="modal fade" id="inventoryModal" tabindex="-1" role="dialog" aria-labelledby="inventoryModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+  <div class="modal fade" id="approveModal" tabindex="-1" role="dialog" aria-labelledby="approveModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h6 class="modal-title" id="exampleModalLongTitle">Способ списания стоимости ТМА</h6>
+          <h5 class="modal-title" id="exampleModalLongTitle">Подтвердить проводки</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         </div>
         <div class="modal-body container-fluid">
           <div class="row p-1">
-            <div id="approve-doc" class="col-sm-8 p-1 input-group input-group-sm">
+            <div class="col-12 input-group input-group-sm">
               <div class="input-group-prepend">
-                <span class="input-group-text text-left">Наименование</span>
+                <span class="input-group-text">Дата согласования</span>
               </div>
-            </div>
-
-            <div id="approve-doc" class="col-sm-4 p-1 input-group input-group-sm">
-              <div class="input-group-prepend">
-                <span class="input-group-text text-left">Дата составления</span>
-              </div>
-              <input type="text" class="form-control form-control-sm datepeeker" autocomplete="off" />
+              <input type="text" class="mb-0 form-control form-control-sm datepeeker approve-date" />
             </div>
           </div>
-
-          <div class="row p-1">
-            <div class="col-sm-4 p-1 input-group input-group-sm">
-              <div class="input-group-prepend">
-                <span class="input-group-text text-left">Номер документа</span>
-              </div>
-              <input type="text" class="form-control form-control-sm" autocomplete="off" />
-            </div>
-
-            <div class="col-sm-4 p-1 input-group input-group-sm">
-              <div class="input-group-prepend">
-                <span class="input-group-text text-left">Сумма по документу:</span>
-              </div>
-              <input type="text" class="form-control form-control-sm expense-sum-rub" autocomplete="off" />
-              <div class="input-group-append">
-                <span class="input-group-text text-left">руб.</span>
-              </div>
-            </div>
-
-            <div class="col-sm-4 p-1 input-group input-group-sm">
-              <div class="input-group-prepend">
-                <span class="input-group-text text-left">В т.ч. НДС:</span>
-              </div>
-              <input type="text" class="form-control form-control-sm expense-sum-vat" autocomplete="off" />
-              <div class="input-group-append">
-                <span class="input-group-text text-left">руб.</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="row p-1">
-            <div class="col-sm-5 p-1 input-group input-group-sm">
-              <div class="input-group-prepend">
-                <span class="input-group-text text-left">Регистрация документа в отд.089: № Шифра</span>
-              </div>
-              <input type="text" class="form-control form-control-sm" autocomplete="off" />
-            </div>
-
-            <div class="col-sm-3 p-1 input-group input-group-sm">
-              <div class="input-group-prepend">
-                <span class="input-group-text text-left">Дата шифра:</span>
-              </div>
-              <input type="text" class="form-control form-control-sm datepeeker" autocomplete="off" />
-            </div>
-          </div>
-
-          <div class="row p-1">
-            <div class="col-sm-12 p-1 input-group input-group-sm">
-              <div class="input-group-prepend">
-                <span class="input-group-text text-left">Направление:</span>
-              </div>
-              <input type="text" class="form-control form-control-sm" autocomplete="off" />
-            </div>
-          </div>
-
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-          <button id="inventory-ok" type="button" class="btn btn-primary" data-dismiss="modal">Ок</button>
+          <button type="submit" form="mainForm" class="btn btn-primary ok-button">Ок</button>
         </div>
       </div>
     </div>
   </div>
 
+  {% include 'advanceReport/inventoryModal.html' %}
+
+  {% include 'advanceReport/serviceModal.html' %}
+
+  {% include 'advanceReport/presentationModal.html' %}
+
+  {% include 'advanceReport/purchaseOrderModal.html' %}
+
   <script type="text/javascript">
-    var inventoryEditRow
+    var editRow
 
     function updateTotal (tabDiv) {
       var sum_currency = 0, sum_rub = 0, sum_vat = 0, accounting_sum = 0;
@@ -523,6 +516,11 @@
         $('#action').val('add-' + $(e.target).data('prefix'))
         //const form = addForm($(e.target).data('prefix'))
         //$(form).find('.datepeeker').removeAttr('id').removeClass('hasDatepicker').datepicker()
+      })
+
+      // Заполнить элемент авансового отчета
+      $('.btn-fill-entity-row').on('click', function (e) {
+        $('#action').val('fill-' + $(e.currentTarget).data('prefix'))
       })
     
       $('tbody').on('click', '.row-delete', function (e) {
@@ -578,49 +576,309 @@
         }
       })
 
-      $('#inventoryModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget)
-        inventoryEditRow = button.parents('tr')
+      // Обработчик отображения формы принятия проводок
+      $('#approveModal').on('show.bs.modal', function (event) {
+        var modal = $(this)
+        const modalDateInput = modal.find("input.approve-date")
+        const approveDateInput = $("form>input.approve-date")
+        modalDateInput.val(approveDateInput.val())
+      })
+      // Принятие проводок
+      $('#approveModal').on('click', '.ok-button', function(e){
+        var modal = $(e.delegateTarget)
+        const modalDateInput = modal.find("input.approve-date")
+        const approveDateInput = $("form>input.approve-date")
+        approveDateInput.val(modalDateInput.val())
+        $('#action').val('lock')
+      })
+      // Корректировка проводок
+      $('button.unlock').on('click', function (e) {
+        $('#action').val('unlock')
+      })
 
-        // Получаем поля ввода из редактируемой строки
-        var documentSelect = inventoryEditRow.find('select[id$=approveDocument]:first')
-        var expenseSumRubInput = inventoryEditRow.find('.expense-sum-rub')
-        var expenseSumVATInput = inventoryEditRow.find('.expense-sum-vat')
+      // Обработчик отображения форм редактирования
+      $('#inventoryModal, #serviceModal, #presentationModal, #purchaseOrderModal').on('show.bs.modal', function (event) {
+        // Устанавливаем ссылку на редактируемую строку
+        editRow = $(event.relatedTarget).parents('tr')
+        const itemType = editRow.find('input.item-type').val()
+
+        // Получаем общие поля ввода из редактируемой строки
+        var rowDocumentSelect = editRow.find('select.approve-doc')
+        var rowDocNumInput = editRow.find('.doc-num')
+        var rowDocDateInput = editRow.find('.doc-date')
+        var rowExpenseSumRubInput = editRow.find('.expense-sum-rub')
+        var rowExpenseSumVATInput = editRow.find('.expense-sum-vat')
+        var rowSypherNumInput = editRow.find('.sypher-num')
+        var rowSypherDateInput = editRow.find('.sypher-date')
+        var rowCommentInput = editRow.find('.comment')
 
         var modal = $(this)
         // Получаем поля ввода на модальной форме
+        var modalDocNumInput = modal.find('.doc-num')
+        var modalDocDateInput = modal.find('.doc-date')
         var modalExpenseSumRubInput = modal.find('.expense-sum-rub')
         var modalExpenseSumVATInput = modal.find('.expense-sum-vat')
-
+        var modalSypherNumInput = modal.find('.sypher-num')
+        var modalSypherDateInput = modal.find('.sypher-date')
+        var modalCommentInput = modal.find('.comment')
+        
         // Заменяем поле выбора документа
         modal.find('#approve-doc select').remove()
-        var documentSelectClone = documentSelect.clone()
+        var documentSelectClone = rowDocumentSelect.clone()
         documentSelectClone.appendTo(modal.find('#approve-doc'))
-
+        
         // Выставляем значения из редактируемой строки
-        documentSelectClone.val(documentSelect.val())
-        modalExpenseSumRubInput.val(expenseSumRubInput.val())
-        modalExpenseSumVATInput.val(expenseSumVATInput.val())
+        documentSelectClone.val(rowDocumentSelect.val())
+        modalDocNumInput.val(rowDocNumInput.val())
+        modalDocDateInput.val(rowDocDateInput.val())
+        modalExpenseSumRubInput.val(rowExpenseSumRubInput.val())
+        modalExpenseSumVATInput.val(rowExpenseSumVATInput.val())
+        modalSypherNumInput.val(rowSypherNumInput.val())
+        modalSypherDateInput.val(rowSypherDateInput.val())
+        modalCommentInput.val(rowCommentInput.val())
+
+        // Приобретение ТМЦ
+        if (itemType == 2) {
+          // Получаем специфические поля ввода из редактируемой строки
+          var rowRouteInput = editRow.find('.route')
+
+          // Получаем поля ввода на модальной форме
+          var modalRouteInput = modal.find('.route')
+
+          // Выставляем значения из редактируемой строки
+          modalRouteInput.val(rowRouteInput.val())
+        }
+        // Оплата работ, услуг, Представительские расходы
+        else if (itemType == 3 || itemType == 4) {
+          // Получаем специфические поля ввода из редактируемой строки
+          var rowAccountInput = editRow.find('.account')
+          var rowKAU1Input = editRow.find('.kau-1')
+          var rowKAU2Input = editRow.find('.kau-2')
+          var rowExtraInput = editRow.find('.extra')
+
+          // Получаем поля ввода на модальной форме
+          var modalAccountInput = modal.find('.account')
+          var modalKAU1Input = modal.find('.kau-1')
+          var modalKAU2Input = modal.find('.kau-2')
+          var modalExtraInput = modal.find('.extra')
+
+          // Выставляем значения из редактируемой строки
+          modalAccountInput.val(rowAccountInput.val())
+          modalKAU1Input.val(rowKAU1Input.val())
+          modalKAU2Input.val(rowKAU2Input.val())
+          modalExtraInput.val(rowExtraInput.val())
+
+          if (itemType == 3) {
+            // Получаем специфические поля ввода из редактируемой строки
+            var rowBankCommissionInput = editRow.find('.bank-commission')
+            var rowService1SumRubInput = editRow.find('.service-1-sum-rub')
+            var rowService1SumVATInput = editRow.find('.service-1-sum-vat')
+            var rowService2SumRubInput = editRow.find('.service-2-sum-rub')
+            var rowService2SumVATInput = editRow.find('.service-2-sum-vat')
+
+            // Получаем поля ввода на модальной форме
+            var modalBankCommissionInput = modal.find('.bank-commission')
+            var modalService1SumRubInput = modal.find('.service-1-sum-rub')
+            var modalService1SumVATInput = modal.find('.service-1-sum-vat')
+            var modalService2SumRubInput = modal.find('.service-2-sum-rub')
+            var modalService2SumVATInput = modal.find('.service-2-sum-vat')
+    
+            // Выставляем значения из редактируемой строки
+            modalBankCommissionInput.val(rowBankCommissionInput.val())
+            modalService1SumRubInput.val(rowService1SumRubInput.val())
+            modalService1SumVATInput.val(rowService1SumVATInput.val())
+            modalService2SumRubInput.val(rowService2SumRubInput.val())
+            modalService2SumVATInput.val(rowService2SumVATInput.val())
+          }
+        }
+        // Оплата заказ-наряда
+        else if (itemType == 5) {
+          // Получаем специфические поля ввода из редактируемой строки
+          var rowMaterialSumInput = editRow.find('.material-sum')
+          var rowMaterialVATInput = editRow.find('.material-vat')
+          var rowOilSumInput = editRow.find('.oil-sum')
+          var rowOilVATInput = editRow.find('.oil-vat')
+          var rowPartSumInput = editRow.find('.part-sum')
+          var rowPartVATInput = editRow.find('.part-vat')
+          var rowServiceSumInput = editRow.find('.service-sum')
+          var rowServiceVATInput = editRow.find('.service-vat')
+          var rowRouteInput = editRow.find('.route')
+
+          // Получаем поля ввода на модальной форме
+          var modalMaterialSumInput = modal.find('.material-sum')
+          var modalMaterialVATInput = modal.find('.material-vat')
+          var modalOilSumInput = modal.find('.oil-sum')
+          var modalOilVATInput = modal.find('.oil-vat')
+          var modalPartSumInput = modal.find('.part-sum')
+          var modalPartVATInput = modal.find('.part-vat')
+          var modalServiceSumInput = modal.find('.service-sum')
+          var modalServiceVATInput = modal.find('.service-vat')
+          var modalRouteInput = modal.find('.route')
+
+          // Выставляем значения из редактируемой строки
+          modalMaterialSumInput.val(rowMaterialSumInput.val())
+          modalMaterialVATInput.val(rowMaterialVATInput.val())
+          modalOilSumInput.val(rowOilSumInput.val())
+          modalOilVATInput.val(rowOilVATInput.val())
+          modalPartSumInput.val(rowPartSumInput.val())
+          modalPartVATInput.val(rowPartVATInput.val())
+          modalServiceSumInput.val(rowServiceSumInput.val())
+          modalServiceVATInput.val(rowServiceVATInput.val())
+          modalRouteInput.val(rowRouteInput.val())
+        }
       })
-      
-      // Принятие изменений из модальной формы "Приобретение ТМЦ"
-      $('#inventoryModal').on('click', '#inventory-ok', function(e){
+
+      // Принятие изменений из модальных форм
+      $('#inventoryModal, #serviceModal, #presentationModal, #purchaseOrderModal').on('click', '.ok-button', function(e){
         var modal = $(e.delegateTarget)
+        const itemType = editRow.find('input.item-type').val()
+
+        // Получаем общие поля ввода из редактируемой строки
+        var rowDocumentSelect = editRow.find('select.approve-doc')
+        var rowDocNumInput = editRow.find('.doc-num')
+        var rowDocDateInput = editRow.find('.doc-date')
+        var rowExpenseSumRubInput = editRow.find('.expense-sum-rub')
+        var rowExpenseSumVATInput = editRow.find('.expense-sum-vat')
+        var rowSypherNumInput = editRow.find('.sypher-num')
+        var rowSypherDateInput = editRow.find('.sypher-date')
+        var rowCommentInput = editRow.find('.comment')
 
         // Получаем поля ввода на модальной форме
-        var modalDocumentSelect = modal.find('select[id$=approveDocument]:first')
+        var modalDocumentSelect = modal.find('select.approve-doc')
+        var modalDocNumInput = modal.find('.doc-num')
+        var modalDocDateInput = modal.find('.doc-date')
         var modalExpenseSumRubInput = modal.find('.expense-sum-rub')
         var modalExpenseSumVATInput = modal.find('.expense-sum-vat')
-        
-        // Получаем поля ввода из редактируемой строки
-        var documentSelect = inventoryEditRow.find('select[id$=approveDocument]:first')
-        var expenseSumRubInput = inventoryEditRow.find('.expense-sum-rub')
-        var expenseSumVATInput = inventoryEditRow.find('.expense-sum-vat')
+        var modalSypherNumInput = modal.find('.sypher-num')
+        var modalSypherDateInput = modal.find('.sypher-date')
+        var modalCommentInput = modal.find('.comment')
 
-        documentSelect.val(modalDocumentSelect.val())
-        expenseSumRubInput.val(modalExpenseSumRubInput.val())
-        expenseSumVATInput.val(modalExpenseSumVATInput.val())
+        // Выставляем значения из формы в строку
+        rowDocumentSelect.val(modalDocumentSelect.val())
+        rowDocNumInput.val(modalDocNumInput.val())
+        rowDocDateInput.val(modalDocDateInput.val())
+        rowExpenseSumRubInput.val(modalExpenseSumRubInput.val())
+        rowExpenseSumVATInput.val(modalExpenseSumVATInput.val())
+        rowSypherNumInput.val(modalSypherNumInput.val())
+        rowSypherDateInput.val(modalSypherDateInput.val())
+        rowCommentInput.val(modalCommentInput.val())
+
+        // Приобретение ТМЦ
+        if (itemType == 2) {
+          // Получаем специфические поля ввода из редактируемой строки
+          var rowRouteInput = editRow.find('.route')
+
+          // Получаем поля ввода на модальной форме
+          var modalRouteInput = modal.find('.route')
+
+          // Выставляем значения из формы в строку
+          rowRouteInput.val(modalRouteInput.val())
+        }
+        // Оплата работ, услуг, Представительские расходы
+        else if (itemType == 3 || itemType == 4) {
+          // Получаем специфические поля ввода из редактируемой строки
+          var rowAccountInput = editRow.find('.account')
+          var rowKAU1Input = editRow.find('.kau-1')
+          var rowKAU2Input = editRow.find('.kau-2')
+          var rowExtraInput = editRow.find('.extra')
+
+          // Получаем поля ввода на модальной форме
+          var modalAccountInput = modal.find('.account')
+          var modalKAU1Input = modal.find('.kau-1')
+          var modalKAU2Input = modal.find('.kau-2')
+          var modalExtraInput = modal.find('.extra')
+
+          // Выставляем значения из формы в строку
+          rowAccountInput.val(modalAccountInput.val())
+          rowKAU1Input.val(modalKAU1Input.val())
+          rowKAU2Input.val(modalKAU2Input.val())
+          rowExtraInput.val(modalExtraInput.val())
+
+          if (itemType == 3) {
+            var rowBankCommissionInput = editRow.find('.bank-commission')
+            var rowService1SumRubInput = editRow.find('.service-1-sum-rub')
+            var rowService1SumVATInput = editRow.find('.service-1-sum-vat')
+            var rowService2SumRubInput = editRow.find('.service-2-sum-rub')
+            var rowService2SumVATInput = editRow.find('.service-2-sum-vat')
+
+            // Получаем поля ввода на модальной форме
+            var modalBankCommissionInput = modal.find('.bank-commission')
+            var modalService1SumRubInput = modal.find('.service-1-sum-rub')
+            var modalService1SumVATInput = modal.find('.service-1-sum-vat')
+            var modalService2SumRubInput = modal.find('.service-2-sum-rub')
+            var modalService2SumVATInput = modal.find('.service-2-sum-vat')
+    
+            // Выставляем значения из формы в строку
+            rowBankCommissionInput.val(modalBankCommissionInput.val())
+            rowService1SumRubInput.val(modalService1SumRubInput.val())
+            rowService1SumVATInput.val(modalService1SumVATInput.val())
+            rowService2SumRubInput.val(modalService2SumRubInput.val())
+            rowService2SumVATInput.val(modalService2SumVATInput.val())
+          }
+        }
+        // Оплата заказ-наряда
+        else if (itemType == 5) {
+          // Получаем специфические поля ввода из редактируемой строки
+          var rowMaterialSumInput = editRow.find('.material-sum')
+          var rowMaterialVATInput = editRow.find('.material-vat')
+          var rowOilSumInput = editRow.find('.oil-sum')
+          var rowOilVATInput = editRow.find('.oil-vat')
+          var rowPartSumInput = editRow.find('.part-sum')
+          var rowPartVATInput = editRow.find('.part-vat')
+          var rowServiceSumInput = editRow.find('.service-sum')
+          var rowServiceVATInput = editRow.find('.service-vat')
+          var rowRouteInput = editRow.find('.route')
+
+          // Получаем поля ввода на модальной форме
+          var modalMaterialSumInput = modal.find('.material-sum')
+          var modalMaterialVATInput = modal.find('.material-vat')
+          var modalOilSumInput = modal.find('.oil-sum')
+          var modalOilVATInput = modal.find('.oil-vat')
+          var modalPartSumInput = modal.find('.part-sum')
+          var modalPartVATInput = modal.find('.part-vat')
+          var modalServiceSumInput = modal.find('.service-sum')
+          var modalServiceVATInput = modal.find('.service-vat')
+          var modalRouteInput = modal.find('.route')
+
+          const materialSum = Number(modalMaterialSumInput.val().replace(',', '.'))
+          const oilSum = Number(modalOilSumInput.val().replace(',', '.'))
+          const partSum = Number(modalPartSumInput.val().replace(',', '.'))
+          const serviceSum = Number(modalServiceSumInput.val().replace(',', '.'))
+
+          const materialVAT = Number(modalMaterialVATInput.val().replace(',', '.'))
+          const oilVAT= Number(modalOilVATInput.val().replace(',', '.'))
+          const partVAT = Number(modalPartVATInput.val().replace(',', '.'))
+          const serviceVAT = Number(modalServiceVATInput.val().replace(',', '.'))
+
+          // Выставляем значения из формы в строку
+          rowMaterialSumInput.val(modalMaterialSumInput.val())
+          rowMaterialVATInput.val(modalMaterialVATInput.val())
+          rowOilSumInput.val(modalOilSumInput.val())
+          rowOilVATInput.val(modalOilVATInput.val())
+          rowPartSumInput.val(modalPartSumInput.val())
+          rowPartVATInput.val(modalPartVATInput.val())
+          rowServiceSumInput.val(modalServiceSumInput.val())
+          rowServiceVATInput.val(modalServiceVATInput.val())
+          rowRouteInput.val(modalRouteInput.val())
+
+          rowExpenseSumRubInput.val(materialSum + oilSum + partSum + serviceSum)
+          rowExpenseSumVATInput.val(materialVAT + oilVAT + partVAT + serviceVAT)
+        }
       })
     })
+
+    // Событие прикрепления файла
+    $('.form-control-file').on('change', function(e) {
+      const file = e.target.files[0]
+      if (file) {
+        const row = $(e.target).parents('tr')
+        const fileNameInput = row.find('input.file-name')
+        const fileDateInput = row.find('input.file-date')
+
+        fileNameInput.val(file.name)
+        fileDateInput.val(new Date().toLocaleDateString("ru-RU"))
+      }
+    })
+
   </script>
 {% endblock %}

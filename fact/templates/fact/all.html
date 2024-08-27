@@ -1,0 +1,93 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+Факты
+{% endblock %}
+
+{% block content %}
+    <style>
+        tr > th {
+            text-align: center;
+            border-bottom-width: 1px!important;
+            padding: .2rem!important;
+            font-size: 0.9em;
+        }
+    </style>
+
+<div class="alert alert-primary" role="alert" style="display: none;">
+
+</div>
+<table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100" style="font-size: 0.9em;"></table>
+
+<script type="text/javascript">
+    const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ']
+
+    let urlParams = new URLSearchParams(document.location.search)
+
+    $(document).ready(
+        function () {
+            var requestTable = $('#request-table').DataTable(
+                {
+                    ajax: {
+                        url: '/api/v1/facts/?format=datatables',
+                        data: function (d) {
+                            let imprestAccount = urlParams.get("imprestAccount")
+                            if (imprestAccount)
+                                d.imprestAccount=imprestAccount
+                            if ($('#to-date').val())
+                                d.toDate=$('#to-date').val()
+                        }
+                    },
+                    rowId: 'id',
+                    pagingType: 'first_last_numbers',
+                    order: [],
+                    initComplete: function(){
+                        const periodFilter = $(
+                            `<div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Дата</span>
+                                </div>
+                                <input id="to-date" class="text-center datepeeker" style="width: 100px"/>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-sm btn-outline-primary row-delete download">Скачать файл</button>
+                                </div>
+                            </div>
+                            `)
+
+                        $("div.filters").append(periodFilter);        
+                        periodFilter.find('.datepeeker').datepicker()  
+                        periodFilter.find('.download').on('click', function (e) {
+                            const toDate=periodFilter.find('#to-date').val()
+                            if (toDate)
+                                window.open(`/facts/download?toDate=${toDate}`, '_blank').focus();
+                        })
+                        periodFilter.on('change', 'input', function(e){
+                            requestTable.ajax.reload()
+                        }) 
+                    },
+                    columns: [
+                        { title: 'xv26ei_id', data: 'xv26eiId', orderable: false, defaultContent: "" },
+                        { title: 'pd_id', data: 'pdId', orderable: false },
+                        { title: 'pd_source', data: 'pdSource', orderable: false },
+                        { title: 'sum_fact', data: 'sumFact', orderable: false },
+                        { title: 'sum_delta', data: 'sumDelta', orderable: false },
+                    ],
+                    buttons: [
+                    /*
+                        {
+                            text: '&nbsp;СОЗДАТЬ НОВУЮ ПОДОТЧЕТНУЮ СУММУ',
+                            className: 'btn btn-info fa-light fa-square-plus',
+                            action: function (e, dt, node, config) {
+                                window.location.href = '/prepayments/new'
+                            }
+                        }*/
+                    ]
+                });
+
+            $('#request-table').on('click', 'tbody td .print', function(e){
+                printDialog.dialog('open')
+            })
+        }
+    );
+</script>
+{% endblock %}

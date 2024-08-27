@@ -20,6 +20,7 @@
 <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100" style="font-size: 0.9em;">
     <thead>
         <tr>
+            <th rowspan="2" data-dt-order="disable" width='30px'></th>
             <th colspan="2" data-dt-order="disable">Документ</th>
             <th colspan="3" data-dt-order="disable">Подотчетное лицо</th>
 
@@ -96,6 +97,13 @@
                         }) 
                     },
                     columns: [
+                        {
+                            data: null, orderable: false, render: function (data, type, row) {
+                                //if (data.status.id == 5)
+                                    return `<a href="/advanceReports/${data.id}/print" target="_blank" class="text-success bi bi-printer h4 m-0"'></a>`
+                                //else return ''
+                            }
+                        },
                         { data: null, orderable: false, render: function (data, type, row, meta) {
                                 if (data.wc07pOrder)
                                     return data.wc07pOrder.orderNum
@@ -114,16 +122,17 @@
                         { data: 'empNum', orderable: false },
                         { data: 'empFullName', orderable: false },
 
-                        { data: 'imprestAccount.account', orderable: false, defaultContent: "" },
+                        //{ data: 'imprestAccount.account', orderable: false, defaultContent: "" },
+                        { data: 'accountCodes', orderable: false, defaultContent: "" },
                         { data: 'prepaidDestList', orderable: false },
                         { data: null, orderable: false, defaultContent: "" },
                         { data: 'missionDestList', orderable: false, visible: (['7101', '7102', '7103', '7105', '7108'].includes(imprestAccount))},
                         { data: 'totalSum', orderable: false, className: 'text-center' },
                         { data: 'spendedSum', orderable: false, defaultContent: "", className: 'text-center' },
-                        { data: null, orderable: false, defaultContent: "" },
+                        { data: null, orderable: false, defaultContent: "", render: function (data, type, row) {return data.totalSum - data.spendedSum} },
                         { data: 'reportStatus.name', orderable: false, defaultContent: "Не установлен" },
                         { data: 'reportAccountingNum', orderable: false, defaultContent: "" },
-                        { data: null, orderable: false, defaultContent: "" },
+                        { data: 'reportDate', orderable: false, defaultContent: "" },
 
                         {
                             data: null,

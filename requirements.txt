@@ -3,3 +3,5 @@ djangorestframework==3.12.4
 djangorestframework-datatables==0.6.0
 psycopg2==2.8.6
 # django-crispy-forms==1.11.2
+reportlab==3.6.6
+xhtml2pdf==0.2.4

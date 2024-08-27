@@ -1,0 +1,421 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+  Выданный под отчет аванс
+{% endblock %}
+
+{% block content %}
+  <form method="post" class="container-fluid">
+    {% csrf_token %}
+
+    <div class="form-row align-items-center">
+      <div class="col-12 p-1 text-right">
+        <input type="submit" class="btn btn-success btn-sm" value="Сохранить" />
+        <a href="{% url 'prepayments' %}" class="btn btn-danger btn-sm">Отмена</a>
+      </div>
+    </div>
+
+    {{ form.errors }}
+    <input type="hidden" name="id" value="{{ form.id.value }}" />
+
+    <div class="col border rounded mt-1">
+      <div class="row">
+        <div class="col-2 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text {% if form.imprestAccount.errors %} is-invalid {% endif %}">{{ form.imprestAccount.label }}</span>
+          </div>
+          {{ form.imprestAccount }}
+        </div>
+
+        <div class="col-7 p-1 input-group input-group-sm"></div>
+
+        <div class="col-3 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text {% if form.status.errors %} bg-danger {% endif %}">{{ form.status.label }}</span>
+          </div>
+          {{ form.status }}
+        </div>
+      </div>
+    </div>
+
+    <div class="col border rounded mt-1">
+      <p class="h3 m-0">Документ: 
+        {% if form.instance.wc07pOrder is not None %}
+          <i class="fa-light fa-link" title="Связь с загруженным документом: ({{ form.instance.wc07pOrder.orderId }}) {{ form.instance.wc07pOrder.orderName }} № {{ form.instance.wc07pOrder.orderNum }}" style="color: #2d9efb;"></i>
+        {% endif %}
+        {% if form.instance.request is not None %}
+          <i class="fa-light fa-link" title="Загружено из заявления: ({{ form.instance.request.id }}) № {{ form.instance.request.num }} {{ form.instance.request.createDate }}" style="color: #2d9efb;"></i>
+        {% endif %}
+      </p>
+
+      <div class="row">
+        <div class="col-3 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.document.label }}</span>
+          </div>
+
+          {% comment %} {% if form.instance.wc07pOrder is not None or form.instance.request is not None%}
+            <span class="form-control form-control-sm" readonly> {{ form.instance.document.name }} </span>
+          {% else %}
+            {{ form.document }}
+          {% endif %} {% endcomment %}
+
+          {{ form.document }}
+
+        </div>
+
+        <div class="col-2 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.docNum.label }}</span>
+          </div>
+          {% comment %} {% if form.instance.wc07pOrder is not None %}
+            <span class="form-control form-control-sm bg-info" style="background-color: #c8e5ea !important;"> {{ form.instance.wc07pOrder.orderNum }} </span>
+          {% else %}
+            <input type="text" class="mb-0 form-control form-control-sm {% if form.docNum.errors %} is-invalid {% endif %}" name="{{ form.docNum.name }}" value="{{ form.docNum.value|default_if_none:'' }}" />
+          {% endif %} {% endcomment %}
+
+          <input type="text" class="mb-0 form-control form-control-sm {% if form.docNum.errors %} is-invalid {% endif %}" name="{{ form.docNum.name }}" value="{{ form.docNum.value|default_if_none:'' }}" {% if form.instance.wc07pOrder is not None or form.instance.request is not None %}disabled{% endif %}/>
+
+        </div>
+
+        <div class="col-2 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.docDate.label }}</span>
+          </div>
+          {% comment %} {% if form.instance.wc07pOrder is not None %}
+            <span class="form-control form-control-sm" style="background-color: #c8e5ea !important;"> {{ form.instance.wc07pOrder.orderDate }} </span>
+          {% else %}
+            <input type="text" class="text-center mb-0 form-control form-control-sm datepeeker {% if form.docDate.errors %} is-invalid {% endif %}" name="{{ form.docDate.name }}" value="{{ form.docDate.value|default_if_none:'' }}" />
+          {% endif %} {% endcomment %}
+
+          <input type="text" class="text-center mb-0 form-control form-control-sm datepeeker {% if form.docDate.errors %} is-invalid {% endif %}" name="{{ form.docDate.name }}" value="{{ form.docDate.value|default_if_none:'' }}" {% if form.instance.wc07pOrder is not None or form.instance.request is not None %}disabled{% endif %}/>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col border rounded mt-1">
+      <p class="h4 m-0">Раздел 1. Подотчетное лицо:</p>
+      <div class="row">
+        <div class="col-2 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.empNum.label }}</span>
+          </div>
+          {% comment %} {% if form.instance.wc07pOrder is not None %}
+            <span class="text-center form-control form-control-sm bg-info" style="background-color: #c8e5ea !important;"> {{ form.instance.wc07pOrder.empOrgNo }} </span>
+          {% else %}
+            <input id='emp-num-input' type="text" class="text-center mb-0 form-control form-control-sm {% if form.empNum.errors %} is-invalid {% endif %}" name="{{ form.empNum.name }}" value="{{ form.empNum.value|default_if_none:'' }}" />      
+            <div class="input-group-append">
+              <button id='emp-num-search' class="btn btn-outline-secondary" type="button"><i class="fa-light fa-magnifying-glass"></i></button>
+            </div>   
+          {% endif %} {% endcomment %}
+
+          <input id='emp-num-input' type="text" class="text-center mb-0 form-control form-control-sm {% if form.empNum.errors %} is-invalid {% endif %}" name="{{ form.empNum.name }}" value="{{ form.empNum.value|default_if_none:'' }}" />      
+          <div class="input-group-append">
+            <button id='emp-num-search' class="btn btn-outline-secondary" type="button"><i class="fa-light fa-magnifying-glass"></i></button>
+          </div>
+        </div>
+
+        <div class="col-2 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.empDivNum.label }}</span>
+          </div>
+          {% comment %} {% if form.instance.wc07pOrder is not None and form.instance.wc07pOrder.depName is not None %}
+            <span class="form-control form-control-sm bg-info" style="background-color: #c8e5ea !important;"> {{ form.instance.wc07pOrder.depName }} </span>
+          {% else %}
+            <input id='emp-div-num' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empDivNum.errors %} is-invalid {% endif %}" name="{{ form.empDivNum.name }}" value="{{ form.empDivNum.value|default_if_none:'' }}" />
+          {% endif %} {% endcomment %}
+
+          <input id='emp-div-num' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empDivNum.errors %} is-invalid {% endif %}" name="{{ form.empDivNum.name }}" value="{{ form.empDivNum.value|default_if_none:'' }}" />
+        </div>
+
+        <div class="col-3 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.empFullName.label }}</span>
+          </div>
+
+          {% comment %} {% if form.instance.wc07pOrder is not None and form.instance.wc07pOrder.fio is not None %}
+            <span class="form-control form-control-sm bg-info" style="background-color: #c8e5ea !important;"> {{ form.instance.wc07pOrder.fio }} </span>
+          {% else %}
+            <input id='emp-full-name' type="text" class="mb-0 form-control form-control-sm {% if form.empFullName.errors %} is-invalid {% endif %}" name="{{ form.empFullName.name }}" value="{{ form.empFullName.value|default_if_none:'' }}" />
+          {% endif %} {% endcomment %}
+
+          <input id='emp-full-name' type="text" class="mb-0 form-control form-control-sm {% if form.empFullName.errors %} is-invalid {% endif %}" name="{{ form.empFullName.name }}" value="{{ form.empFullName.value|default_if_none:'' }}" />
+        </div>
+
+        <div class="col-5 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.empProfName.label }}</span>
+          </div>
+
+          {% comment %} {% if form.instance.wc07pOrder is not None and form.instance.wc07pOrder.profName is not None %}
+            <span class="form-control form-control-sm bg-info" style="background-color: #c8e5ea !important;"> {{ form.instance.wc07pOrder.profName }} </span>
+          {% else %}
+            <input id='emp-prof-name' type="text" class="mb-0 form-control form-control-sm {% if form.empProfName.errors %} is-invalid {% endif %}" name="{{ form.empProfName.name }}" value="{{ form.empProfName.value|default_if_none:'' }}" />
+          {% endif %} {% endcomment %}
+
+          <input id='emp-prof-name' type="text" class="mb-0 form-control form-control-sm {% if form.empProfName.errors %} is-invalid {% endif %}" name="{{ form.empProfName.name }}" value="{{ form.empProfName.value|default_if_none:'' }}" />
+        </div>
+      </div>
+    </div>
+
+    <div class="col border rounded mt-1">
+      <p class="h4 m-0">Сумма аванса:</p>
+      <div class="row">
+        <div class="col-3 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.totalSum.label }}</span>
+          </div>
+          <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.totalSum.errors %} is-invalid {% endif %}" name="{{ form.totalSum.name }}" value="{{ form.totalSum.value|default_if_none:'' }}" />
+        </div>
+      </div>
+    </div>
+
+    <div class="col border rounded mt-1">
+      <p class="h4 m-0">Переходящий остаток:</p>
+      <div class="row">
+        <div class="col-2 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.carryOverSum.label }}</span>
+          </div>
+          <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.carryOverSum.errors %} is-invalid {% endif %}" name="{{ form.carryOverSum.name }}" value="{{ form.carryOverSum.value|default_if_none:'' }}" />
+        </div>
+
+        <div class="col-2 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.carryOverAdvanceReportNum.label }}</span>
+          </div>
+          <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.carryOverAdvanceReportNum.errors %} is-invalid {% endif %}" name="{{ form.carryOverAdvanceReportNum.name }}" value="{{ form.carryOverAdvanceReportNum.value|default_if_none:'' }}" />
+        </div>
+
+        <div class="col-2 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.carryOverAdvanceReportDate.label }}</span>
+          </div>
+          <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.carryOverAdvanceReportDate.errors %} is-invalid {% endif %}" name="{{ form.carryOverAdvanceReportDate.name }}" value="{{ form.carryOverAdvanceReportDate.value|default_if_none:'' }}" />
+        </div>
+      </div>
+    </div>
+
+    <div class="col border rounded mt-1 item-container">
+        <div class="row p-1">
+          <button id="button-add-item" type="button" class="btn btn-sm btn-outline-primary">Добавить</button>
+        </div>
+          
+
+        {{ items.management_form }}
+        {% for itemForm in items %}
+        <div id='{{ itemForm.prefix }}' class='item-form'>
+          {{ itemForm.id }}
+          <input type="hidden" name="{{ itemForm.DELETE.html_name }}" id="{{ itemForm.DELETE.auto_id }}">
+          <div class="row" >
+            <div class="col-1 p-1 text-center">
+              <p class="h4 m-0">Аванс: {{ itemForm.prefix|cut:"item-"|add:1 }}</p>
+            </div>
+
+            <div class="col-1 p-1 input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text">{{ itemForm.value.label }}</span>
+              </div>
+              <input type="text" class="h5 text-center mb-0 form-control form-control-sm {% if itemForm.value.errors %} is-invalid {% endif %}" name="{{ itemForm.value.html_name  }}" value="{{ itemForm.value.value|default_if_none:'' }}" />
+            </div>
+
+            <div class="col-3 p-1 input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text">{{ itemForm.obtainMethod.label }}</span>
+              </div>
+              {{ itemForm.obtainMethod }}
+            </div>
+
+            <div class="col-1 p-1 input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text">{{ itemForm.date.label }}</span>
+              </div>
+              <input type="text" class="h5 text-center mb-0 form-control form-control-sm datepeeker {% if itemForm.date.errors %} is-invalid {% endif %}" name="{{ itemForm.date.html_name  }}" value="{{ itemForm.date.value|default_if_none:'' }}" />
+            </div>
+
+            <div class="col-2 p-1">
+              <button type="button" class='btn btn-sm btn-outline-danger delete-item'><i class="fa-light fa-trash"></i></button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="col border rounded mt-1">
+      <p class="h4">Раздел 2. Сведения о назначении аванса</p>
+      <button id="button-add-assignment" type="button" class="btn btn-sm btn-outline-primary my-1">Добавить</button>
+      <table class="table table-bordered table-sm text-center" style="font-size: 0.8em;">
+        <thead>
+          <tr>
+            <th rowspan="3" width="10%">Назначение аванса</th>
+            <th rowspan="3" width="5%">Расходы подразделения</th>
+            <th rowspan="3" width="10%">Код расхода</th>
+            <th rowspan="1" colspan="4" width="20%">Шифр отнесения затрат</th>
+            <th rowspan="1" colspan="3" width="10%">Даты командирования</th>
+            <th rowspan="3" width="10%">Место командирования</th>
+            <th rowspan="3" width="10%">Цель командировки</th>
+            <th rowspan="3" width="7%">Предельный срок предоставления АО (дата)</th>
+            <th rowspan="3" width="1%"></th>
+          </tr>
+          <tr>
+            <th rowspan="2" width="5%">Счет/субсчет</th>
+            <th rowspan="1" colspan="2" width="10%">КАУ</th>
+            <th rowspan="2" width="10%">Доп. признак</th>
+            <th rowspan="2" width="7%">С</th>
+            <th rowspan="2" width="7%">По</th>
+            <th rowspan="2" width="1%%"></th>
+          </tr>
+          <tr>
+            <th rowspan="1" width="5%">Статья</th>
+            <th rowspan="1" width="5%">Подр./Статья</th>
+          </tr>
+        </thead>
+        <tbody class="purpose-container">
+        {{ purposes.management_form }}
+
+        {% for purpose in purposes %}
+          <tr class='purpose-form'>
+            {{ purpose.id }}
+            <td>
+              {{ purpose.prepaidDest }}
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.deptExpense.html_name  }}" value="{{ purpose.deptExpense.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              {{ purpose.expenseCode }}
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.account.html_name  }}" value="{{ purpose.account.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.expenditure.html_name  }}" value="{{ purpose.expenditure.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.deptExpenditure.html_name  }}" value="{{ purpose.deptExpenditure.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.extra.html_name  }}" value="{{ purpose.extra.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm datepeeker period-from" name="{{ purpose.missionFromDate.html_name  }}" value="{{ purpose.missionFromDate.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm datepeeker period-to" name="{{ purpose.missionToDate.html_name  }}" value="{{ purpose.missionToDate.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <button type="button" class="btn btn-sm btn-outline-success purpose-split" data-toggle="modal" data-target="#splitModal"><i class="fa-light fa-split"></i></button>
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.missionDest.html_name  }}" value="{{ purpose.missionDest.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.missionPurpose.html_name  }}" value="{{ purpose.missionPurpose.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm datepeeker" name="{{ purpose.reportDeadline.html_name  }}" value="{{ purpose.reportDeadline.value|default_if_none:'' }}" autocomplete="off" />
+            </td>
+            <td>
+              <button type="button" class="btn btn-sm btn-outline-danger purpose-delete"><i class="fa-light fa-trash"></i></button>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </form>
+
+  <div class="modal fade" id="splitModal" tabindex="-1" role="dialog" aria-labelledby="splitModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Разбить период</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body container-fluid">
+          <div class="row">
+            <div class="col input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text">С</span>
+              </div>
+              <input type="text" class="h5 text-center mb-0 form-control form-control-sm period-from"/>
+            </div>
+            <div class="col input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text">По</span>
+              </div>
+              <input type="text" class="h5 text-center mb-0 form-control form-control-sm period-to"/>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+          <button type="button" class="btn btn-primary">Ок</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $(`.item-container`).on('click', '.delete-item', function (e) {
+        const form = $(e.currentTarget).parents('.item-form')
+        form.hide()
+        form.find("[id$='DELETE']").val(1)
+      })
+
+      $('#button-add-item').on('click', function(e){
+        addForm('item')
+      })
+
+      $('#button-add-assignment').on('click', function(e){
+        addForm('purpose')
+      })
+
+      $('.purpose-container').on('click', '.purpose-delete', function(e){
+        const form = $(e.currentTarget).parents('.purpose-form')
+        form.hide()
+      })
+
+      $('.datepeeker').datepicker()
+
+      $('#emp-num-search').on('click', function(e) {
+        const empNum = $('#emp-num-input').val()
+        if (!empNum) {
+          alert('Введите табельный номер')
+          return
+        }
+        $.get(`/api/v1/integration/employees?empOrgNo=${empNum}`, function(data) {
+          if (data.results && data.results.length > 0){
+            const employee = data.results[0]
+
+            $('#emp-full-name').val(employee.fullName)
+            $('#emp-prof-name').val(employee.profName)
+            $('#emp-div-num').val(employee.divNo)
+            
+          } else {
+            $('#emp-full-name, #emp-prof-name, #emp-div-num').val('')
+          }
+        })
+      })
+
+      $('#splitModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget)
+        var row = button.parents('tr')
+        var periodFrom = row.find('.period-from').val()
+        var periodTo = row.find('.period-to').val()
+
+        //var periodFrom = button.data('periodFrom')
+        //var periodTo = button.data('periodTo')
+
+        var modal = $(this)
+        //modal.find('.modal-title').text('New message to ' + recipient)
+        modal.find('.modal-body .period-from').val(periodFrom)
+        modal.find('.modal-body .period-to').val(periodTo)
+      })
+    })
+  </script>
+{% endblock %}

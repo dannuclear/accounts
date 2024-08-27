@@ -1,0 +1,76 @@
+<div class="modal fade" id="purchaseOrderModal" tabindex="-1" role="dialog" aria-labelledby="purchaseOrderModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title" id="exampleModalLongTitle">Оплата заказ-наряда</h6>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body container-fluid">
+        {% include 'advanceReport/commonModal.html' with printSypher=False %}
+
+        <div class="row p-1">
+          <div class="col-sm-12 input-group input-group-sm">
+            <div class="input-group-prepend">
+              <span class="input-group-text text-left">Комментарий:</span>
+            </div>
+            <input type="text" class="form-control form-control-sm comment" autocomplete="off" />
+            <div class="input-group-append">
+              <span class="input-group-text text-left">,в т.ч:</span>
+            </div>
+          </div>
+        </div>
+
+        {% for i in 'x'|rjust:'4'|make_list %}
+          <div class="row p-1">
+            <div class="col-sm-4 font-weight-light text-right">
+              {% if forloop.counter == 1 %}
+                материалы при ремонте (ст. 122):
+              {% elif forloop.counter == 2 %}
+                масла (ст. 116)
+              {% elif forloop.counter == 3 %}
+                запчасти (ст. 118)
+              {% elif forloop.counter == 4 %}
+                услуги (ст. 157)
+              {% endif %}
+            </div>
+            <div class="col-sm-3 input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text text-left">Сумма:</span>
+              </div>
+              <input type="text"
+                class="form-control form-control-sm {% if forloop.counter == 1 %}material{% elif forloop.counter == 2 %}oil{% elif forloop.counter == 3 %}part{% elif forloop.counter == 4 %}service{% endif %}-sum"
+                autocomplete="off" />
+              <div class="input-group-append">
+                <span class="input-group-text text-left">руб.</span>
+              </div>
+            </div>
+
+            <div class="col-sm-3 input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text text-left">В т.ч. НДС:</span>
+              </div>
+              <input type="text" class="form-control form-control-sm {% if forloop.counter == 1 %}material{% elif forloop.counter == 2 %}oil{% elif forloop.counter == 3 %}part{% elif forloop.counter == 4 %}service{% endif %}-vat" autocomplete="off" />
+              <div class="input-group-append">
+                <span class="input-group-text text-left">руб.</span>
+              </div>
+            </div>
+            
+            {% if forloop.counter == 4 %}
+              <div class="col-sm-2 input-group input-group-sm">
+                <div class="input-group-prepend">
+                  <span class="input-group-text text-left">напр:</span>
+                </div>
+                <input type="text" class="form-control form-control-sm route" autocomplete="off" />
+              </div>
+            {% endif %}
+
+          </div>
+        {% endfor %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+        <button type="button" class="btn btn-primary ok-button" data-dismiss="modal">Ок</button>
+      </div>
+    </div>
+  </div>
+</div>

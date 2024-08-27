@@ -19,6 +19,8 @@ from integration.urls import integrationRouter
 from guide.urls import guideRouter
 from request.urls import requestRouter
 from prepayment.urls import prepaymentRouter
+from fact.urls import factRouter
+from accountingEntry.urls import accountingEntryRouter
 from django.conf import settings
 from django.conf.urls.static import static
 # from advance_report.urls import advanceReportRouter
@@ -30,11 +32,15 @@ urlpatterns = [
     path('', include('guide.urls')),
     path('', include('request.urls')),
     path('', include('prepayment.urls')),
+    path('', include('fact.urls')),
+    path('', include('accountingEntry.urls')),
     # path('', include('advance_report.urls')),
 
     path('api/v1/integration/', include(integrationRouter.urls)),
     path('api/v1/', include(guideRouter.urls)),
     path('api/v1/', include(requestRouter.urls)),
     path('api/v1/', include(prepaymentRouter.urls)),
+    path('api/v1/', include(factRouter.urls)),
+    path('api/v1/', include(accountingEntryRouter.urls)),
     # path('api/v1/', include(advanceReportRouter.urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
