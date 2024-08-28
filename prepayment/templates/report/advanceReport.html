@@ -2,77 +2,342 @@
 <html>
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-    <link rel="stylesheet" type="text/css" href="{% static 'main/css/bootstrap2pdf.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'main/css/bootstrap.min.css' %}" />
     <style type="text/css">
-      @page {
-        size: a4 portrait;
-        margin: 1cm;
-        @frame header_frame {
-          /* Static Frame */
-          -pdf-frame-content: header_content;
-          {% comment %} -pdf-frame-border: 1; {% endcomment %}
-          left: 50pt;
-          width: 512pt;
-          top: 40pt;
-          height: 200pt;
-        }
-        {% comment %} @frame col1_frame {
-          /* Content frame 1 */
-          -pdf-frame-content: col1_content;
-          -pdf-frame-border: 1;
-          left: 40pt;
-          width: 245pt;
-          top: 90pt;
-          height: 200pt;
-        }
-        @frame col2_frame {
-          /* Content frame 2 */
-          -pdf-frame-content: col2_content;
-          -pdf-frame-border: 1;
-          left: 323pt;
-          width: 245pt;
-          top: 90pt;
-          height: 200pt;
-        } {% endcomment %}
-      }
       @font-face {
         font-family: TimesNewRoman;
         src: url(/static/main/fonts/times.ttf);
       }
       body {
         font-family: TimesNewRoman;
-        line-height: 0;
-        font-size: 0.8em;
       }
-      .text-center {
-        text-align: center;
+      table.header-table {
+        border-collapse: separate;
+        border-spacing: 50px 2px;
       }
-      .text-left {
-        text-align: left;
-      }
+      table,
+      th,
       td {
-        padding: 0 15px;
+        border: 1px solid gainsboro;
+      }
+      th {
+        font-weight: lighter;
+      }
+      table.num-date-table td {
+        border: 1px solid black;
+        font-weight: bold;
+      }
+      table.num-date-table th {
+        font-size: 0.8em;
+        border: 1px solid black;
+      }
+      table.dept-table td {
+        border: 1px solid black;
+      }
+      table.emp-num-table td,
+      table.emp-num-table th {
+        border: 1px solid black;
+      }
+      table.expense-table th {
+        text-align: center;
+        font-size: 0.8em;
+        border: 1px solid black;
       }
     </style>
   </head>
   <body>
-    <div id="header_content" style="text-align: right;">
-        <div style="text-align: right; margin-bottom: 5;">Форма № Ф-6. Утверждена приказом от 07.07.2020г. № 05471</div>
-    
-        <table>
+    <div class="container p-4">
+      <div class="row">
+        <div class="col-12">
+          <table class="w-100 header-table">
             <tr>
-                <td class="text-center" style="border-bottom: 1px solid black;">ФГУП "Комбинат "Электрохимприбор"</td>
-                <td rowspan="2" class="text-left">
-                    <div>УТВЕРЖДАЮ<br/>отчет в сумме</div>
-                    <span>УТВЕРЖДАЮотчет в сумме</span>
-                </td>
+              <td colspan="2" class="text-right">Форма № Ф-6. Утверждена приказом от 07.07.2020г. № 05471</td>
             </tr>
-            <tr>
-                <td class="text-center" style="font-size: 0.8em;">(наименование организации)</td>
-                {% comment %} <td class="text-left">отчет в сумме</td> {% endcomment %}
-            </tr>
-        </table>
-    </div>
 
+            <tr>
+              <td class="text-center border-bottom border-dark w-50">ФГУП "Комбинат "Электрохимприбор"</td>
+              <td rowspan="2">
+                <div class="d-flex align-items-end">
+                  <div>
+                    УТВЕРЖДАЮ<br />отчет в сумме
+                  </div>
+                  <div class="border-bottom border-dark flex-grow-1">Семьсот один рубль</div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-center" style="font-size: 0.8em; line-height: 1;">(наименование организации)</td>
+            </tr>
+
+            <tr style="height: 30px;">
+              <td></td>
+              <td>
+                <div class="d-flex align-items-end">
+                  <div class="border-bottom border-dark flex-grow-1">&nbsp;</div>
+                </div>
+              </td>
+            </tr>
+
+            <tr style="height: 30px;">
+              <td rowspan="4">
+                <div class="d-flex align-items-end">
+                  <h5 class="px-3 m-0 flex-grow-1 text-right font-weight-bold">Авансовый отчет</h5>
+                  <div>
+                    <table class="num-date-table">
+                      <thead>
+                        <th class="text-center px-2">Номер</th>
+                        <th class="text-center px-2">Дата</th>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="text-center py-2">{{ report.reportNum }}</td>
+                          <td class="text-center p-2">{{ report.reportDate }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="d-flex align-items-end">
+                  <div class="border-bottom border-dark flex-grow-1">&nbsp;</div>
+                </div>
+              </td>
+            </tr>
+
+            <tr style="height: 30px;">
+              <td>
+                <div class="d-flex align-items-end">
+                  <div class="border-bottom border-dark flex-grow-1"></div>
+                  <div>&nbsp;руб.</div>
+                  <div class="border-bottom border-dark col-1"></div>
+                  <div>&nbsp;коп.</div>
+                </div>
+              </td>
+            </tr>
+
+            <tr style="height: 30px;">
+              <td>
+                <div class="d-flex align-items-end">
+                  <div class="font-weight-bold pr-1">Руководитель</div>
+                  <div class="border-bottom border-dark flex-grow-1">начальник финансового отдела</div>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="line-height: 1; font-size: 0.8em; padding-left: 230;">должность</td>
+            </tr>
+
+            <tr>
+              <td>
+                <table class="dept-table w-100" style="height: 80px;">
+                  <tbody>
+                    <tr>
+                      <td rowspan="2" class="text-center" style="width: 30%;">Структурное подразделение</td>
+                      <td rowspan="2" class="text-center">{{ report.empDivName|default_if_none:'' }}</td>
+                      <td class="text-center" style="height: 20px;">код</td>
+                    </tr>
+                    <tr>
+                      <td class="text-center font-weight-bold" style="width: 20%;">{{ report.empDivNum|default_if_none:'' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+
+              <td>
+                <table class="w-100">
+                  <tbody>
+                    <tr>
+                      <td style="width: 50%;">
+                        <table class="w-100">
+                          <tbody>
+                            <tr>
+                              <td class="border-bottom border-dark"></td>
+                            </tr>
+                            <tr>
+                              <td style="font-size: 0.8em;" class="text-center">подпись</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                      <td>
+                        <table class="w-100">
+                          <tbody>
+                            <tr>
+                              <td class="border-bottom border-dark"></td>
+                            </tr>
+                            <tr>
+                              <td style="font-size: 0.8em;" class="text-center">расшифровка подписи</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="text-center" colspan="2">«____»_____________20____г.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td colspan="2">
+                <table class="w-100">
+                  <tbody>
+                    <tr>
+                      <td style="width: 140px;" class="align-bottom">Подотчетное лицо</td>
+                      <td class="border-bottom border-dark text-center font-weight-bold align-bottom" style="font-size: 1.1em;">{{ report.empFullName }}</td>
+                      <td style="width: 140px;" class="text-center align-bottom">Табельный номер</td>
+                      <td style="width: 140px;" class="align-bottom">
+                        <table class="emp-num-table w-100">
+                          <thead>
+                            <th class="text-center" style="line-height: 12px;">код</th>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-center font-weight-bold" style="line-height: 25px;">{{ report.empNum }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td></td>
+                      <td class="text-center" style="font-size: 0.8em;">фамилия, имя, отчество</td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td colspan="2">
+                <table class="w-100">
+                  <tbody>
+                    <tr>
+                      <td class="align-bottom" style="width: 100px;">Должность</td>
+                      <td class="border-bottom border-dark text-center align-bottom">{{ report.empProfName|default_if_none:'' }}</td>
+                      <td class="text-center align-bottom" style="width: 200px;">Контактный телефон</td>
+                      <td class="border-bottom border-dark text-center align-bottom" style="width: 140px;">{{ report.phone|default_if_none:'' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td colspan="2">
+                <table class="w-100">
+                  <tbody>
+                    <tr>
+                      <td class="align-bottom" style="width: 150px;">Назначение аванса</td>
+                      <td class="border-bottom border-dark text-center align-bottom">{{ report.prepaidDestList|default_if_none:'' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td colspan="2">
+                <table class="w-100">
+                  <tbody>
+                    <tr>
+                      <td class="align-bottom" style="width: 130px;">Идентификатор государственного контракта</td>
+                      <td class="border-bottom border-dark text-center align-bottom" style="min-width: 50px;"></td>
+                      <td class="align-bottom text-center" style="width: 70px;">Приказ</td>
+                      <td class="border-bottom border-dark text-center align-bottom" style="min-width: 50px;">
+                        {% if report.document_id == 14 %}{{ report.docNum }}{% endif %}
+                      </td>
+                      <td class="align-bottom text-center" style="width: 180px;">Номер заявки в ЕОСДО</td>
+                      <td class="border-bottom border-dark text-center align-bottom" style="min-width: 50px;">
+                        {% if report.document_id == 5 %}{{ report.docNum }}{% endif %}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr style="height: 30px;">
+              <td colspan="2" class="text-center font-weight-bold align-bottom">Раздел А. Расходы, оплаченные подотчетным лицом</td>
+            </tr>
+
+            <tr style="height: 30px;">
+              <td colspan="2">
+                <table class="w-100">
+                  <tbody>
+                    <tr>
+                      <td class="text-center font-weight-bold align-bottom" style="width: 400px;">А.I. Получен аванс подотчетным лицом, в руб.коп.:</td>
+                      <td class="border border-dark text-center align-bottom" style="width: 130px;">{{ report.totalSum }}</td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td colspan="2">
+                <table class="w-100 expense-table">
+                  <thead>
+                    <tr>
+                      <th rowspan="3" style="width: 3%;">№<br/>п/п</th>
+                      <th rowspan="2" colspan="2">Документ, подтверждающий<br/>произведенные расходы</th>
+                      <th rowspan="3">Наименование<br/>документа (расхода)</th>
+
+                      <th colspan="5">Сумма расхода</th>
+                    </tr>
+                    <tr>
+
+                      <th colspan="2">по отчету работника</th>
+                      <th colspan="3">принятая к учету (в пределах норм)</th>
+                    </tr>
+                    <tr>
+                      <th style="width: 10%">дата</th>
+                      <th style="width: 10%">номер</th>
+                      <th style="width: 10%">в валюте</th>
+                      <th style="width: 10%">в руб.коп</th>
+                      <th style="width: 10%">в валюте</th>
+                      <th style="width: 10%">в руб.коп</th>
+                      <th style="width: 10%">в т.ч. НДС</th>
+                    </tr>
+                    <tr style="line-height: 12px;">
+                      <th>1</th>
+                      <th>2</th>
+                      <th>3</th>
+                      <th>4</th>
+                      <th>5</th>
+                      <th>6</th>
+                      <th>7</th>
+                      <th>8</th>
+                      <th>9</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+          </table>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

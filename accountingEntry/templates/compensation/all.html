@@ -86,6 +86,23 @@
                             table.ajax.reload()
                         }) 
                     },
+                    footerCallback: function(row, data, start, end, display) {
+                        var intVal = function(i) {
+                          return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '') * 1 :
+                            typeof i === 'number' ?
+                            i : 0;
+                        };
+              
+                        var total = 0;
+                        var api = this.api();
+              
+                        api.cells(null, 5, { page: 'current' }).nodes().each(function(n) {
+                            total += intVal($(n).text());
+                        })
+              
+                        $(api.column(5).footer()).html(total);
+                    },
                     columns: [
                         { title: 'Год', data: 'year', orderable: false, defaultContent: "", width: '50' },
                         { title: 'Месяц', data: 'month', orderable: false, defaultContent: "", width: '50' },
@@ -93,7 +110,7 @@
                         { title: 'Подразделение', data: 'prepayment.empDivNum', orderable: false, defaultContent: "", width: '100' },
                         { title: 'Табельный', data: 'prepayment.empNum', orderable: false, defaultContent: "", width: '100' },
                         { title: 'ФИО', data: 'prepayment.empFullName', orderable: false, defaultContent: "" },
-                        { title: 'Сумма', data: 'aeSum', orderable: false, defaultContent: "", width: '200' }
+                        { title: 'Сумма', data: 'aeSum', orderable: false, defaultContent: "", width: '200', className: 'sum' }
                     ],
                     buttons: [
                         {

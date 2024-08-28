@@ -44,6 +44,6 @@ class FilterTypeFilter(BaseFilterBackend):
             if compensationType:
                 queryset = queryset.filter(acplCodeAnaliticCredit=compensationType)
             else:
-                queryset = queryset.filter(acplCodeAnaliticCredit__in = ['4479', '7121', '7130', '7140'])
+                queryset = queryset.filter(acplCodeAnaliticCredit__in = ['4479', '7121', '7130', '7140', '0901'])
     
         return queryset

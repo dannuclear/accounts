@@ -1,0 +1,78 @@
+{% load static %}
+<html>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <link rel="stylesheet" type="text/css" href="{% static 'main/css/bootstrap2pdf.css' %}" />
+    <style type="text/css">
+      @page {
+        size: a4 portrait;
+        margin: 1cm;
+        @frame header_frame {
+          /* Static Frame */
+          -pdf-frame-content: header_content;
+          {% comment %} -pdf-frame-border: 1; {% endcomment %}
+          left: 50pt;
+          width: 512pt;
+          top: 40pt;
+          height: 200pt;
+        }
+        {% comment %} @frame col1_frame {
+          /* Content frame 1 */
+          -pdf-frame-content: col1_content;
+          -pdf-frame-border: 1;
+          left: 40pt;
+          width: 245pt;
+          top: 90pt;
+          height: 200pt;
+        }
+        @frame col2_frame {
+          /* Content frame 2 */
+          -pdf-frame-content: col2_content;
+          -pdf-frame-border: 1;
+          left: 323pt;
+          width: 245pt;
+          top: 90pt;
+          height: 200pt;
+        } {% endcomment %}
+      }
+      @font-face {
+        font-family: TimesNewRoman;
+        src: url(/static/main/fonts/times.ttf);
+      }
+      body {
+        font-family: TimesNewRoman;
+        line-height: 0;
+        font-size: 0.8em;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .text-left {
+        text-align: left;
+      }
+      td {
+        padding: 0 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header_content" style="text-align: right;">
+        <div style="text-align: right; margin-bottom: 5;">Форма № Ф-6. Утверждена приказом от 07.07.2020г. № 05471</div>
+    
+        <table>
+            <tr>
+                <td class="text-center" style="border-bottom: 1px solid black;">ФГУП "Комбинат "Электрохимприбор"</td>
+                <td rowspan="2" class="text-left">
+                    <div>УТВЕРЖДАЮ<br/>отчет в сумме</div>
+                    <span>УТВЕРЖДАЮотчет в сумме</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="text-center" style="font-size: 0.8em;">(наименование организации)</td>
+                {% comment %} <td class="text-left">отчет в сумме</td> {% endcomment %}
+            </tr>
+        </table>
+    </div>
+
+  </body>
+</html>

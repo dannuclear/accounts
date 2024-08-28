@@ -672,7 +672,13 @@ def pdfAdvanceReport(request, id):
     return response
 
 def htmlAdvanceReport(request, id):
-    return render(request, 'report/advanceReport.html')
+    prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')), days=Subquery(purposesSubquery.values('days'))).select_related('status').select_related(
+    'imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
+
+    context = {
+        'report': prepayment
+    }
+    return render(request, 'report/advanceReport.html', context)
 
 def inventoriesDownload(request):
     query = Prepayment.objects.select_related('status').select_related('imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment')
