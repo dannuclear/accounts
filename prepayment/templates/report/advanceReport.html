@@ -61,7 +61,7 @@
                   <div>
                     УТВЕРЖДАЮ<br />отчет в сумме
                   </div>
-                  <div class="border-bottom border-dark flex-grow-1">Семьсот один рубль</div>
+                  <div class="border-bottom border-dark flex-grow-1">{{ totalSumIntStringArray.0 }}</div>
                 </div>
               </td>
             </tr>
@@ -73,7 +73,7 @@
               <td></td>
               <td>
                 <div class="d-flex align-items-end">
-                  <div class="border-bottom border-dark flex-grow-1">&nbsp;</div>
+                  <div class="border-bottom border-dark flex-grow-1">{{ totalSumIntStringArray.1 }}&nbsp;</div>
                 </div>
               </td>
             </tr>
@@ -100,7 +100,7 @@
               </td>
               <td>
                 <div class="d-flex align-items-end">
-                  <div class="border-bottom border-dark flex-grow-1">&nbsp;</div>
+                  <div class="border-bottom border-dark flex-grow-1">{{ totalSumIntStringArray.2 }}&nbsp;</div>
                 </div>
               </td>
             </tr>
@@ -108,9 +108,9 @@
             <tr style="height: 30px;">
               <td>
                 <div class="d-flex align-items-end">
-                  <div class="border-bottom border-dark flex-grow-1"></div>
+                  <div class="border-bottom border-dark flex-grow-1">{{ totalSumIntStringArray.3 }}&nbsp;</div>
                   <div>&nbsp;руб.</div>
-                  <div class="border-bottom border-dark col-1"></div>
+                  <div class="border-bottom border-dark col-1">{{ totalSumFrac }}</div>
                   <div>&nbsp;коп.</div>
                 </div>
               </td>
@@ -319,17 +319,19 @@
                     </tr>
                   </thead>
                   <tbody>
+                    {% for ari in advanceReportItems1 %}
                     <tr>
-                      <td>1</td>
+                      <td>{{ forloop.index }}</td>
+                      <td class="text-center">{{ ari.approveDocDate|date:"SHORT_DATE_FORMAT"|default_if_none:"" }}</td>
+                      <td class="text-center">{{ ari.approveDocNum|default_if_none:"" }}</td>
+                      <td class="text-left">{{ ari.expenseCategory.name|default_if_none:"" }}</td>
                       <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td class="text-center">{{ ari.expenseSumRub|default_if_none:"" }}</td>
                       <td></td>
                       <td></td>
                       <td></td>
                     </tr>
+                    {% endfor %}
                   </tbody>
                 </table>
               </td>

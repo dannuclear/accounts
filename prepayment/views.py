@@ -18,6 +18,9 @@ from .queries import ADD_FACTS, ADD_ACCOUNTING_ENTRIES
 from numbers import Number
 from main import helpers
 import csv
+import math
+from num2words import num2words
+import textwrap
 
 from xhtml2pdf import pisa
 from django.template.loader import get_template
@@ -674,9 +677,20 @@ def pdfAdvanceReport(request, id):
 def htmlAdvanceReport(request, id):
     prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')), days=Subquery(purposesSubquery.values('days'))).select_related('status').select_related(
     'imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
-
+    totalSumInt = 0.0
+    totalSumFrac = .00
+    if prepayment.totalSum is not None:
+        (totalSumFrac, totalSumInt) = math.modf(prepayment.totalSum)
+        totalSumIntString = num2words(int(totalSumInt), lang='ru')
+        totalSumIntStringArray = textwrap.wrap(totalSumIntString, 40)
+    
+    advanceReportItems1 = AdvanceReportItem.objects.filter(prepayment_id = prepayment.id, itemType__in = [0,2,3,4,5]).select_related('approveDocument').select_related('expenseCategory').all()
     context = {
-        'report': prepayment
+        'report': prepayment,
+        'totalSumIntStringArray': totalSumIntStringArray,
+        'totalSumFrac': int(totalSumFrac * 100),
+        'advanceReportItems1': advanceReportItems1
+        
     }
     return render(request, 'report/advanceReport.html', context)
 
