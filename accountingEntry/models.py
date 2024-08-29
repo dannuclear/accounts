@@ -64,4 +64,8 @@ class AccountingEntry(models.Model):
         default_permissions = ()
         permissions = [
                 ("download_accounting_entry", "Выгрузка"),
+                ("view_accounting_entry", "Просмотр"),
+                ("edit_accounting_entry", "Редактирование"),
+                ("view_incomes_and_deductions", "Просмотр справок доходов и удержаний"),
+                ("download_incomes_and_deductions", "Выгрузка справок доходов и удержаний"),
         ]

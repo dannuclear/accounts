@@ -48,3 +48,21 @@ WHERE 	p.approve_date IS NOT NULL
 	AND entity.credit_extra IS NOT NULL 
 	AND entity.debit_extra IS NOT NULL 
 	AND p.id = %s'''
+
+GET_ADVANCE_REPORT_ITEMS_FOR_REPORT = '''
+	SELECT 
+		item.id, 
+		approve_doc_num, 
+		approve_doc_date,
+		expense_sum_currency,
+		expense_sum_rub,
+		expense_sum_vat,
+		coalesce(document.name, '') ||
+		CASE item.item_type
+			WHEN 0 THEN
+				' ' || coalesce(item.nomenclature, '')
+		ELSE '' END || ' ' || coalesce(expense_category.print_name, '') as expense_doc_name
+	FROM advance_report_item item 
+	LEFT JOIN document ON item.approve_document_id = document.id
+	LEFT JOIN expense_category ON item.expense_category_id = expense_category.id
+	WHERE item.prepayment_id = %s and item.item_type = ANY(%s)'''

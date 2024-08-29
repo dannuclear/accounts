@@ -14,7 +14,7 @@ from django.db import connection
 from .filters import PeriodFilter, ImprestAccountFilter, FilterTypeFilter
 from django.utils import formats
 from decimal import *
-from .queries import ADD_FACTS, ADD_ACCOUNTING_ENTRIES
+from .queries import ADD_FACTS, ADD_ACCOUNTING_ENTRIES, GET_ADVANCE_REPORT_ITEMS_FOR_REPORT
 from numbers import Number
 from main import helpers
 import csv
@@ -677,20 +677,53 @@ def pdfAdvanceReport(request, id):
 def htmlAdvanceReport(request, id):
     prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')), days=Subquery(purposesSubquery.values('days'))).select_related('status').select_related(
     'imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
+    
+    advanceReportItems1 = AdvanceReportItem.objects.raw(GET_ADVANCE_REPORT_ITEMS_FOR_REPORT, [prepayment.id, [0,2,3,4,5]])
+    sumCurrency1 = Decimal(0.0)
+    sumRub1 = Decimal(0.0)
+    sumVAT1 = Decimal(0.0)
+    for ae1 in advanceReportItems1:
+        sumCurrency1 = sumCurrency1 + (ae1.expenseSumCurrency if ae1.expenseSumCurrency else 0)
+        sumRub1 = sumRub1 + (ae1.expenseSumRub if ae1.expenseSumRub else 0)
+        sumVAT1 = sumVAT1 + (ae1.expenseSumVAT if ae1.expenseSumVAT else 0)
+    diffSum1 = (prepayment.totalSum if prepayment.totalSum else 0) - (sumRub1 if sumRub1 else 0)
+
+    advanceReportItems2 = AdvanceReportItem.objects.raw(GET_ADVANCE_REPORT_ITEMS_FOR_REPORT, [prepayment.id, [1]])
+    sumCurrency2 = Decimal(0.0)
+    sumRub2 = Decimal(0.0)
+    sumVAT2 = Decimal(0.0)
+    for ae2 in advanceReportItems2:
+        sumCurrency2 = sumCurrency2 + (ae2.expenseSumCurrency if ae2.expenseSumCurrency else 0)
+        sumRub2 = sumRub2 + (ae2.expenseSumRub if ae2.expenseSumRub else 0)
+        sumVAT2 = sumVAT2 + (ae2.expenseSumVAT if ae2.expenseSumVAT else 0)
+
+    balance = (diffSum1 if diffSum1 else 0) + (sumRub2 if sumRub2 else 0)
+
     totalSumInt = 0.0
     totalSumFrac = .00
-    if prepayment.totalSum is not None:
-        (totalSumFrac, totalSumInt) = math.modf(prepayment.totalSum)
+    if sumRub1 is not None:
+        (totalSumFrac, totalSumInt) = math.modf(sumRub1)
+        totalSumInt = int(totalSumInt)
+        totalSumFrac = round(totalSumFrac, 2)
         totalSumIntString = num2words(int(totalSumInt), lang='ru')
         totalSumIntStringArray = textwrap.wrap(totalSumIntString, 40)
-    
-    advanceReportItems1 = AdvanceReportItem.objects.filter(prepayment_id = prepayment.id, itemType__in = [0,2,3,4,5]).select_related('approveDocument').select_related('expenseCategory').all()
+
     context = {
         'report': prepayment,
+        'totalSumInt': totalSumInt,
         'totalSumIntStringArray': totalSumIntStringArray,
         'totalSumFrac': int(totalSumFrac * 100),
-        'advanceReportItems1': advanceReportItems1
-        
+        'advanceReportItems1': advanceReportItems1,
+        'sumCurrency1': sumCurrency1,
+        'sumRub1': sumRub1,
+        'sumVAT1': sumVAT1,
+        'diffSum1': diffSum1,
+
+        'advanceReportItems2': advanceReportItems2,
+        'sumCurrency2': sumCurrency2,
+        'sumRub2': sumRub2,
+        'sumVAT2': sumVAT2,
+        'balance': balance
     }
     return render(request, 'report/advanceReport.html', context)
 

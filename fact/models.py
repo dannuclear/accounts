@@ -29,4 +29,6 @@ class Fact(models.Model):
         default_permissions = ()
         permissions = [
                 ("download_fact", "Выгрузка"),
+                ("view_fact", "Просмотр"),
+                ("edit_fact", "Редактирование")
         ]

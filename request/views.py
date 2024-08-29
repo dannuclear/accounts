@@ -26,6 +26,12 @@ class PeriodFilter(BaseFilterBackend):
             queryset = queryset.filter(createDate__lte=datetime.strptime(periodTo, '%d.%m.%Y'))
         return queryset
 
+class UserFilter(BaseFilterBackend):
+
+    def filter_queryset(self, request, queryset, view):
+        queryset = queryset.filter(createdBy=request.user.username)
+        return queryset
+
 
 class RequestViewSet (viewsets.ModelViewSet):
     queryset = Request.objects.all().select_related('applicant').select_related(
@@ -33,8 +39,12 @@ class RequestViewSet (viewsets.ModelViewSet):
     serializer_class = RequestSerializer
 
     def filter_queryset(self, queryset):
+        self.filter_backends = [*self.filter_backends]
+
         if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
-            self.filter_backends.append(PeriodFilter)
+            self.filter_backends.insert(0, PeriodFilter)
+        if self.request.user.has_perm('request.view_owner_requests') and not self.request.user.is_superuser:
+            self.filter_backends.insert(0, UserFilter)
 
         return super().filter_queryset(queryset)
 

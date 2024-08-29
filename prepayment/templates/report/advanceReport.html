@@ -11,6 +11,31 @@
       body {
         font-family: TimesNewRoman;
       }
+
+      @media print {
+
+        @page 
+        {
+            size:  auto;   /*auto is the initial value */
+            margin: 0mm;  /* this affects the margin in the printer settings */
+        }
+
+        #printPageButton {
+            display: none;
+        }
+
+        body {
+            font-size: 12pt;
+            margin: 10mm;
+        }
+
+        body>.container {
+            width: 100% !important;
+            margin: 0px !important;
+            max-width: 100% !important;
+        }
+    }
+
       table.header-table {
         border-collapse: separate;
         border-spacing: 50px 2px;
@@ -18,7 +43,7 @@
       table,
       th,
       td {
-        border: 1px solid gainsboro;
+        /* border: 1px solid gainsboro; */
       }
       th {
         font-weight: lighter;
@@ -85,13 +110,13 @@
                   <div>
                     <table class="num-date-table">
                       <thead>
-                        <th class="text-center px-2">Номер</th>
-                        <th class="text-center px-2">Дата</th>
+                        <th class="text-center px-2" style="width: 50px;">Номер</th>
+                        <th class="text-center px-2" style="width: 120px;">Дата</th>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td class="text-center py-2">{{ report.reportNum }}</td>
-                          <td class="text-center p-2">{{ report.reportDate }}</td>
+                        <tr style="height: 35px;">
+                          <td class="text-center py-2">{{ report.reportNum|default_if_none:"" }}</td>
+                          <td class="text-center p-2">{{ report.reportDate|date:"SHORT_DATE_FORMAT"|default_if_none:"" }}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -321,22 +346,238 @@
                   <tbody>
                     {% for ari in advanceReportItems1 %}
                     <tr>
-                      <td>{{ forloop.index }}</td>
-                      <td class="text-center">{{ ari.approveDocDate|date:"SHORT_DATE_FORMAT"|default_if_none:"" }}</td>
-                      <td class="text-center">{{ ari.approveDocNum|default_if_none:"" }}</td>
-                      <td class="text-left">{{ ari.expenseCategory.name|default_if_none:"" }}</td>
-                      <td></td>
-                      <td class="text-center">{{ ari.expenseSumRub|default_if_none:"" }}</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td class="text-center border border-dark">{% if ari.expense_doc_name %} {{ forloop.counter }} {% endif %}</td>
+                      <td class="text-center border border-dark">{{ ari.approveDocDate|date:"SHORT_DATE_FORMAT"|default_if_none:"" }}</td>
+                      <td class="text-center border border-dark">{{ ari.approveDocNum|default_if_none:"" }}</td>
+                      <td class="text-left border border-dark">{{ ari.expense_doc_name|default_if_none:"" }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumCurrency|default_if_none:"" }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumRub|default_if_none:"" }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumCurrency|default_if_none:"" }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumRub|default_if_none:"" }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumVAT|default_if_none:"" }}</td>
                     </tr>
                     {% endfor %}
+                    <tr>
+                      <td class="text-left" colspan="4">А.II.  Израсходовано всего</td>
+                      <td class="text-center border border-dark">{{ sumCurrency1 }}</td>
+                      <td class="text-center border border-dark">{{ sumRub1 }}</td>
+                      <td class="text-center border border-dark">{{ sumCurrency1 }}</td>
+                      <td class="text-center border border-dark">{{ sumRub1 }}</td>
+                      <td class="text-center border border-dark">{{ sumVAT1 }}</td>
+                    </tr>
+                    <tr>
+                      <td class="text-left" colspan="7">А.III.  Оплачено подотчетным лицом сверх утвержденных норм</td>
+                      <td class="text-center border border-dark"></td>
+                      <td class="text-center border border-dark"></td>
+                    </tr>
+                    <tr>
+                      <td class="text-left" colspan="7">Остаток / перерасход по авансу, полученному подотчетным лицом, в руб.коп.</td>
+                      <td class="text-center border border-dark" colspan="7">{{ diffSum1 }}</td>
+                    </tr>
+
                   </tbody>
                 </table>
               </td>
             </tr>
 
+            <tr style="height: 30px;">
+              <td colspan="2" class="text-center font-weight-bold align-bottom">Раздел В. Расходы, оплаченные организацией за услуги проезда, проживания подотчетного лица и пр.услуги</td>
+            </tr>
+
+            <tr>
+              <td colspan="2">
+                <table class="w-100 expense-table">
+                  <thead>
+                    <tr>
+                      <th rowspan="3" style="width: 3%;">№<br/>п/п</th>
+                      <th rowspan="2" colspan="2">Документ, подтверждающий<br/>произведенные расходы</th>
+                      <th rowspan="3">Наименование<br/>документа (расхода)</th>
+
+                      <th colspan="5">Сумма расхода</th>
+                    </tr>
+                    <tr>
+
+                      <th colspan="2">по отчету работника</th>
+                      <th colspan="3">принятая к учету (в пределах норм)</th>
+                    </tr>
+                    <tr>
+                      <th style="width: 10%">дата</th>
+                      <th style="width: 10%">номер</th>
+                      <th style="width: 10%">в валюте</th>
+                      <th style="width: 10%">в руб.коп</th>
+                      <th style="width: 10%">в валюте</th>
+                      <th style="width: 10%">в руб.коп</th>
+                      <th style="width: 10%">в т.ч. НДС</th>
+                    </tr>
+                    <tr style="line-height: 12px;">
+                      <th>1</th>
+                      <th>2</th>
+                      <th>3</th>
+                      <th>4</th>
+                      <th>5</th>
+                      <th>6</th>
+                      <th>7</th>
+                      <th>8</th>
+                      <th>9</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for ari in advanceReportItems2 %}
+                    <tr>
+                      <td class="text-center border border-dark">{% if ari.expense_doc_name %} {{ forloop.counter }} {% endif %}</td>
+                      <td class="text-center border border-dark">{{ ari.approveDocDate|date:"SHORT_DATE_FORMAT"|default_if_none:"" }}</td>
+                      <td class="text-center border border-dark">{{ ari.approveDocNum|default_if_none:"" }}</td>
+                      <td class="text-left border border-dark">{{ ari.expense_doc_name|default_if_none:"" }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumCurrency|default_if_none:"" }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumRub|default_if_none:"" }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumCurrency|default_if_none:"" }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumRub|default_if_none:"" }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumVAT|default_if_none:"" }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                      <td class="text-left" colspan="4">В.II.  Израсходовано всего</td>
+                      <td class="text-center border border-dark">{{ sumCurrency2 }}</td>
+                      <td class="text-center border border-dark">{{ sumRub2 }}</td>
+                      <td class="text-center border border-dark">{{ sumCurrency2 }}</td>
+                      <td class="text-center border border-dark">{{ sumRub2 }}</td>
+                      <td class="text-center border border-dark">{{ sumVAT2 }}</td>
+                    </tr>
+                    <tr>
+                      <td class="text-left" colspan="7">В.III.  Оплачено организацией сверх утвержденных норм</td>
+                      <td class="text-center border border-dark">{{ sumRub2 }}</td>
+                      <td class="text-center border border-dark">{{ sumVAT2 }}</td>
+                    </tr>
+
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr style="height: 30px;">
+              <td colspan="2">
+                <table class="w-100">
+                  <tbody>
+                    <tr>
+                      <td class="border border-dark text-left" style="font-size: 0.8em; height: 30px;">Сумма к возмещению подотчетному лицу, в руб.коп. (А.I. - А.II.гр.8 + В.III. со снаком "+")</td>
+                      <td class="border border-dark text-center align-bottom" style="width: 130px;">{% if balance < 0 %} {{ balance }} {% endif %}</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td class="border border-dark text-left" style="font-size: 0.8em; height: 30px;">Сумма к удержанию из заработной платы подотчетного лица, в руб.коп. (А.I. - А.II.гр.8 + В.III. со снаком "-")</td>
+                      <td class="border border-dark text-center align-bottom" style="width: 130px;">{% if balance > 0 %} {{ balance }} {% endif %}</td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr style="height: 30px;">
+              <td colspan="2" class="text-left">С основанием и суммой удержания из заработной платы согласен (абз.3 ч.2 ст.137 ТК РФ)</td>
+            </tr>
+
+            <tr>
+              <td colspan="2">
+                <table class="w-50" style="margin: 0 auto;">
+                  <tbody>
+                    <tr style="height: 30px;">
+                      <td class="text-center" style="width: 130px;">Подотчетное лицо</td>
+                      <td class="border-bottom border-dark" style="width: 130px;"></td>
+                      <td style="width: 10px;"></td>
+                      <td class="border-bottom border-dark" style="width: 130px;"></td>
+                    </tr>
+                    <tr style="line-height: 12px;">
+                      <td></td>
+                      <td class="text-center" style="font-size: 0.8em;">подпись</td>
+                      <td></td>
+                      <td class="text-center" style="font-size: 0.8em;">расшифровка подписи</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr style="height: 30px;">
+              <td colspan="2">
+                <table class="w-100">
+                  <tbody>
+                    <tr style="height: 30px;">
+                      <td class="text-left" style="width: 300px;">Отчет проверен. К утверждению в сумме</td>
+                      <td colspan="8" class="border-bottom border-dark text-center align-bottom">{{ totalSumIntStringArray.0 }}&nbsp;{{ totalSumIntStringArray.1 }}</td>
+                    </tr>
+                    <tr style="height: 30px;">
+                      <td colspan="2" class="border-bottom border-dark text-left align-bottom">{{ totalSumIntStringArray.2 }}{{ totalSumIntStringArray.3 }}&nbsp;</td>
+                      <td class="text-center" style="width: 30px;">руб.</td>
+                      <td class="border-bottom border-dark text-center" style="width: 30px;">{{ totalSumFrac }}</td>
+                      <td class="text-center" style="width: 50px;">коп. (</td>
+
+                      <td class="border-bottom border-dark text-center" style="width: 100px;">{{ totalSumInt }}</td>
+                      <td class="text-center" style="width: 30px;">руб.</td>
+                      <td class="border-bottom border-dark text-center" style="width: 30px;">{{ totalSumFrac }}</td>
+                      <td class="text-center" style="width: 50px;">коп. )</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td colspan="2">
+                <table style="margin: 0 auto;">
+                  <tbody>
+                    <tr style="height: 30px;">
+                      <td class="text-left" style="width: 110px;">Остаток сумме:</td>
+                      <td class="border border-dark text-center" style="width: 100px;">{{ report.distribSalary|default_if_none:"" }}</td>
+                      <td class="text-center" style="width: 300px;">внесен в массив удержаний из зарплаты за</td>
+                      <td class="border-bottom border-dark text-center" style="width: 30px;"> {{ report.distribSalaryDate|date:"m" }}</td>
+                      <td class="text-right" style="width: 30px;">20</td>
+                      <td class="border-bottom border-dark text-left" style="width: 30px;">{{ report.distribSalaryDate|date:"y" }}</td>
+                      <td class="text-center" style="width: 10px;">г.</td>
+                    </tr>
+                    <tr>
+                      <td colspan="10"></td>
+                    </tr>
+                    <tr style="height: 30px;">
+                      <td></td>
+                      <td class="border border-dark text-center" style="width: 100px;">{{ report.distribBank|default_if_none:"" }}</td>
+                      <td class="text-center" style="width: 300px;">(перерасход) перечислен на карту банка</td>
+                      <td colspan="4" class="border-bottom border-dark text-center"></td>
+                    </tr>
+                    <tr style="height: 30px;">
+                      <td class="border-bottom border-dark text-center" colspan="10">{{ report.distribBankMethod.name }}</td>
+                    </tr>
+                    <tr style="height: 30px;">
+                      <td class="border-bottom border-dark text-center" colspan="10"></td>
+                    </tr>
+                    <tr style="height: 30px;">
+                      <td class="border-bottom border-dark text-center" colspan="10"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td colspan="2">
+                <table class="w-50" style="margin: 0 auto;">
+                  <tbody>
+                    <tr style="height: 30px;">
+                      <td class="text-center" style="width: 80px;">Бухгалтер</td>
+                      <td class="border-bottom border-dark" style="width: 130px;"></td>
+                      <td style="width: 10px;"></td>
+                      <td class="border-bottom border-dark" style="width: 130px;"></td>
+                    </tr>
+                    <tr style="line-height: 12px;">
+                      <td></td>
+                      <td class="text-center" style="font-size: 0.8em;">подпись</td>
+                      <td></td>
+                      <td class="text-center" style="font-size: 0.8em;">расшифровка подписи</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
           </table>
         </div>
       </div>

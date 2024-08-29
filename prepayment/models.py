@@ -105,8 +105,13 @@ class Prepayment(models.Model):
         verbose_name_plural = 'Авансы'
         default_permissions = ()
         permissions = [
-            ("view_prepaymentы", "Просмотр"),
+            ("view_prepayments", "Просмотр"),
             ("edit_prepayments", "Редактирование"),
+            ("print_advance_report", "Печать авансового отчета"),
+            ("view_advance_reports", "Просмотр авансовых отчетов"),
+            ("edit_advance_reports", "Редактирование авансовых отчетов"),
+            ("view_inventories", "Просмотр описей массива авансовых отчетов"),
+            ("downolad_inventories", "Выгрузка описей массива авансовых отчетов"),
         ]
 
 # Аванс пункт
