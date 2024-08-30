@@ -133,11 +133,11 @@ def processAction (postCopy, prepayment, accounting):
                     for purpose in PrepaymentPurpose.objects.filter(prepayment=prepayment):
                         hasPurposes = True
                         hasExpenseItems = False
-                        postCopy['%s-%s-deptExpense' % (prefix, currentNum)] = int(purpose.deptExpense)
+                        postCopy['%s-%s-deptExpense' % (prefix, currentNum)] = purpose.deptExpense
                         postCopy['%s-%s-expenseCode' % (prefix, currentNum)] = purpose.expenseCode_id
                         # Дебет/Шифр отнесения затрат/счет/субсчет
                         postCopy['%s-%s-debitAccount' % (prefix, currentNum)] = purpose.account
-                        postCopy['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = int(purpose.deptExpense)
+                        postCopy['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = purpose.deptExpense
 
                         # Извлекаем статью расхода из справочника по наименованию (категории) и коду расхода
                         q_objects = Q(Q(expenseCode_id = purpose.expenseCode_id if not is91 else 91))
@@ -149,13 +149,13 @@ def processAction (postCopy, prepayment, accounting):
                         for expenseItem in ExpenseItem.objects.filter(Q(category_id = expenseCategoryId), q_objects, Q(itemType = prepayment.imprestAccount_id), Q(expenseType = 0)).all():
                             hasExpenseItems = True
                             # Расходы подр-я
-                            postCopy['%s-%s-deptExpense' % (prefix, currentNum)] = int(purpose.deptExpense)
+                            postCopy['%s-%s-deptExpense' % (prefix, currentNum)] = purpose.deptExpense
                             # Код расхода
                             postCopy['%s-%s-expenseCode' % (prefix, currentNum)] = purpose.expenseCode_id
                             # Дебет/Шифр отнесения затрат/счет.субсчет
                             postCopy['%s-%s-debitAccount' % (prefix, currentNum)] = purpose.account if expenseItem.schema is None else expenseItem.debitAccount
                             # Дебет/Шифр отнесения затрат/цех отнесения затрат
-                            postCopy['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = int((purpose.deptExpense if expenseItem.schema is None else expenseItem.debitExpenseDept) if not is91 and purpose.account not in ['2000', '2302', '4410'] else purpose.deptExpenditure)
+                            postCopy['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = (purpose.deptExpense if expenseItem.schema is None else expenseItem.debitExpenseDept) if not is91 and purpose.account not in ['2000', '2302', '4410'] else purpose.deptExpenditure
                     
                             # Дебет/Шифр отнесения затрат/статья расходов
                             postCopy['%s-%s-debitExpenseItem' % (prefix, currentNum)] = expenseItem.debitExpenseItem if not is91 and purpose.account not in ['2000', '2302', '4410'] else purpose.expenditure
@@ -757,7 +757,7 @@ def htmlAdvanceReport(request, id):
     return render(request, 'report/advanceReport.html', context)
 
 def inventoriesDownload(request):
-    query = Prepayment.objects.select_related('status').select_related('imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment')
+    query = Prepayment.objects.filter(reportDate__isnull = False).select_related('status').select_related('imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment')
     
     if 'periodFrom' in request.GET and len(request.GET['periodFrom']) > 2:
         query = query.filter(reportDate__gte=datetime.strptime(request.GET['periodFrom'], '%d.%m.%Y'))
