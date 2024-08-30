@@ -1,7 +1,7 @@
 ADD_FACTS = '''INSERT INTO public.fact(xv26ei_id, pd_id, pd_source, prepayment_id, sum_delta, sum_fact)
 SELECT * FROM (SELECT 
 	CASE WHEN (entity.debit_account IN (2300, 2551, 2553, 2600, 2908, 2909, 4403, 4410)) AND 
-		(entity.debit_expense_item IN ('465', '466', '467', '468', '470', '471', '472', '473', '474', '475', '476', '477', '478', '479', '480', '481')) THEN entity.dept_expense::smallint
+		(entity.debit_expense_item IN (465, 466, 467, 468, 470, 471, 472, 473, 474, 475, 476, 477, 478, 479, 480, 481)) THEN entity.dept_expense::smallint
 	ELSE COALESCE(int_p.xv26ei_id, wc07p_order.estimate_id) END as xv26ei_id,
 	p.integration_prepayment_id,
 	1,
@@ -23,14 +23,14 @@ SELECT
 
 	SUBSTRING(LPAD(entity.debit_account::text, 4, '0'), 0, 3)::integer as acpl_account_debit, -- Дебет/счет
 	SUBSTRING(LPAD(entity.debit_account::text, 4, '0'), 3, 3)::integer as acpl_subaccount_debit, -- Дебет/субсчет
-	coalesce(entity.debit_kau_1, '') || coalesce(entity.debit_kau_2, '') as acpl_code_analitic_debit, -- Дебет/КАУ
+	LPAD(coalesce(entity.debit_kau_1::text, ''), 3, '0') || LPAD(coalesce(entity.debit_kau_2::text, ''), 3, '0') as acpl_code_analitic_debit, -- Дебет/КАУ
 	entity.debit_kau_1 as acpl_code_analitic_debit_1, -- Дебет/КАУ1
 	entity.debit_kau_2 as acpl_code_analitic_debit_2, -- Дебет/КАУ2
 	entity.debit_extra as acpl_add_sign_debit, -- Дебет/счет/ДП
 
 	SUBSTRING(LPAD(entity.credit_account::text, 4, '0'), 0, 3)::integer as acpl_account_credit, -- Кредит/счет
 	SUBSTRING(LPAD(entity.credit_account::text, 4, '0'), 3, 3)::integer as acpl_subaccount_credit, -- Кредит/субсчет
-	coalesce(entity.credit_kau_1, '') || coalesce(entity.credit_kau_2, '') as acpl_code_analitic_credit, -- Кредит/КАУ
+	LPAD(coalesce(entity.credit_kau_1::text, ''), 3, '0') || LPAD(coalesce(entity.credit_kau_2::text, ''), 3, '0') as acpl_code_analitic_credit, -- Кредит/КАУ
 	entity.credit_kau_1 as acpl_code_analitic_credit_1, -- Кредит/КАУ1
 	entity.credit_kau_2 as acpl_code_analitic_credit_2, -- Кредит/КАУ2
 	entity.credit_extra as acpl_add_sign_credit, -- Кредит/счет/ДП
@@ -73,10 +73,10 @@ GET_ACCOUNTING_CERT_ROW = '''
 		coalesce(entity.debit_account::text, '') || ' ' ||
 		CASE item.item_type
 			WHEN 0 THEN
-				coalesce(debit_expense_item, '') || ' ' || coalesce(debit_expense_workshop, '')
+				LPAD(coalesce(debit_expense_item::text, ''), 3, '0') || ' ' || coalesce(debit_expense_workshop, '')
 			WHEN 5 THEN
-				coalesce(debit_expense_item, '') || ' ' || coalesce(debit_expense_workshop, '')
-		ELSE coalesce(debit_kau_1, '') || ' ' || coalesce(debit_kau_2, '') END as debit_account,
+				LPAD(coalesce(debit_expense_item::text, ''), 3, '0') || ' ' || coalesce(debit_expense_workshop, '')
+		ELSE LPAD(coalesce(debit_kau_1::text, ''), 3, '0') || ' ' || LPAD(coalesce(debit_kau_2::text, ''), 3, '0') END as debit_account,
 		entity.debit_extra as debit_extra,
 		coalesce(entity.credit_account::text, '') || ' ' ||
 		CASE item.item_type
@@ -84,7 +84,7 @@ GET_ACCOUNTING_CERT_ROW = '''
 				coalesce(credit_expense_item, '') || ' ' || coalesce(credit_dept, '')
 			WHEN 5 THEN
 				coalesce(credit_expense_item, '') || ' ' || coalesce(credit_dept, '')
-		ELSE coalesce(credit_kau_1, '') || ' ' || coalesce(credit_kau_1, '') END as credit_account,
+		ELSE LPAD(coalesce(credit_kau_1::text, ''), 3, '0') || ' ' || LPAD(coalesce(credit_kau_1::text, ''), 3, '0') END as credit_account,
 		entity.credit_extra as credit_extra,
 		entity.accounting_sum as accounting_sum
 	FROM advance_report_item_entity entity

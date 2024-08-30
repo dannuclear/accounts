@@ -8,3 +8,7 @@ def sumByField(value, fieldName):
     return sum(filter(None, [getattr(item, fieldName) for item in value.queryset]))
     #return sum(filter(None, [item[fieldName] for item in value.cleaned_data]))
     #return sum(filter(None, [getattr(item, fieldName) for item in value.cleaned_data]))
+
+@register.filter
+def zfill(value, count):
+    return str(value if value is not None else '').zfill(count)

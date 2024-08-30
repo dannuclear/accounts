@@ -98,9 +98,9 @@ class ExpenseItem(models.Model):
     # Дебет. Счет, субсчет
     debitAccount = models.IntegerField(db_column='debit_account', blank=True, null=True)
     # Дебет. Статья расхода
-    debitExpenseItem = models.CharField(db_column="debit_expense_item", max_length=10, blank=True, null=True)
+    debitExpenseItem = models.SmallIntegerField(db_column="debit_expense_item", blank=True, null=True)
     # Дебет. Расходы подразделения
-    debitExpenseDept = models.CharField(db_column="debit_expense_dept", max_length=10, blank=True, null=True)
+    debitExpenseDept = models.SmallIntegerField(db_column="debit_expense_dept", blank=True, null=True)
     # Дебет. Доп.признак
     debitExtra = models.CharField(db_column="debit_extra", max_length=10, blank=True, null=True)
 
@@ -112,9 +112,9 @@ class ExpenseItem(models.Model):
     # Кредит. Счет, субсчет
     creditAccount = models.IntegerField(db_column='credit_account', blank=True, null=True)
     # Кредит. Статья расхода
-    creditExpenseItem = models.CharField(db_column="credit_expense_item", max_length=10, blank=True, null=True)
+    creditExpenseItem = models.SmallIntegerField(db_column="credit_expense_item", blank=True, null=True)
     # Кредит. Расходы подразделения
-    creditExpenseDept = models.CharField(db_column="credit_expense_dept", max_length=10, blank=True, null=True)
+    creditExpenseDept = models.SmallIntegerField(db_column="credit_expense_dept", blank=True, null=True)
     # Кредит. Доп.признак
     creditExtra = models.CharField(db_column="credit_extra", max_length=10, blank=True, null=True)
 

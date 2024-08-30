@@ -82,6 +82,8 @@ class PrepaymentForm (forms.ModelForm):
     # Итоговая сумма
     totalSum = forms.DecimalField(label='Подотчетная сумма', localize=True, required=True)
 
+    carryOverSum = forms.DecimalField(label='Сумма, руб.', localize=True, required=False)
+
     status = StatusChoiceField(queryset=Status.objects.order_by('id'), widget=forms.Select(
         attrs={'class': 'custom-select form-control-sm'}), label='Статус', required=False, empty_label='Не установлен')
 
@@ -130,6 +132,8 @@ class PrepaymentPurposeForm(forms.ModelForm):
     missionFromDate = MyDateField(label='Командировка с', localize=True, required=False)
 
     missionToDate = MyDateField(label='Командировка по', localize=True, required=False)
+
+    reportDeadline = MyDateField(label='Предельный срок предоставления АО (дата)', localize=True, required=False)
 
     class Meta:
         model = PrepaymentPurpose

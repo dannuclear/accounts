@@ -85,6 +85,10 @@ def editPrepayment(request, id):
         itemFormSet = PrepaymentItemFormSet(request.POST, prefix='item', instance=prepayment)
         purposeFormSet = PrepaymentPurposeFormSet(request.POST, prefix='purpose', instance=prepayment)
 
+        valid = form.is_valid()
+        valid = valid and itemFormSet.is_valid()
+        valid = valid and purposeFormSet.is_valid()
+        
         if form.is_valid() and purposeFormSet.is_valid() and itemFormSet.is_valid():
             prepayment = form.save()
             for item in itemFormSet.save(commit=False):
@@ -129,11 +133,11 @@ def processAction (postCopy, prepayment, accounting):
                     for purpose in PrepaymentPurpose.objects.filter(prepayment=prepayment):
                         hasPurposes = True
                         hasExpenseItems = False
-                        postCopy['%s-%s-deptExpense' % (prefix, currentNum)] = purpose.deptExpense
+                        postCopy['%s-%s-deptExpense' % (prefix, currentNum)] = int(purpose.deptExpense)
                         postCopy['%s-%s-expenseCode' % (prefix, currentNum)] = purpose.expenseCode_id
                         # Дебет/Шифр отнесения затрат/счет/субсчет
                         postCopy['%s-%s-debitAccount' % (prefix, currentNum)] = purpose.account
-                        postCopy['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = purpose.deptExpense
+                        postCopy['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = int(purpose.deptExpense)
 
                         # Извлекаем статью расхода из справочника по наименованию (категории) и коду расхода
                         q_objects = Q(Q(expenseCode_id = purpose.expenseCode_id if not is91 else 91))
@@ -145,13 +149,13 @@ def processAction (postCopy, prepayment, accounting):
                         for expenseItem in ExpenseItem.objects.filter(Q(category_id = expenseCategoryId), q_objects, Q(itemType = prepayment.imprestAccount_id), Q(expenseType = 0)).all():
                             hasExpenseItems = True
                             # Расходы подр-я
-                            postCopy['%s-%s-deptExpense' % (prefix, currentNum)] = purpose.deptExpense
+                            postCopy['%s-%s-deptExpense' % (prefix, currentNum)] = int(purpose.deptExpense)
                             # Код расхода
                             postCopy['%s-%s-expenseCode' % (prefix, currentNum)] = purpose.expenseCode_id
                             # Дебет/Шифр отнесения затрат/счет.субсчет
                             postCopy['%s-%s-debitAccount' % (prefix, currentNum)] = purpose.account if expenseItem.schema is None else expenseItem.debitAccount
                             # Дебет/Шифр отнесения затрат/цех отнесения затрат
-                            postCopy['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = (purpose.deptExpense if expenseItem.schema is None else expenseItem.debitExpenseDept) if not is91 and purpose.account not in ['2000', '2302', '4410'] else purpose.deptExpenditure
+                            postCopy['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = int((purpose.deptExpense if expenseItem.schema is None else expenseItem.debitExpenseDept) if not is91 and purpose.account not in ['2000', '2302', '4410'] else purpose.deptExpenditure)
                     
                             # Дебет/Шифр отнесения затрат/статья расходов
                             postCopy['%s-%s-debitExpenseItem' % (prefix, currentNum)] = expenseItem.debitExpenseItem if not is91 and purpose.account not in ['2000', '2302', '4410'] else purpose.expenditure
@@ -686,6 +690,7 @@ def htmlAccountingCert(request, id):
         startValue = AccountingCert.objects.filter(account = prepayment.imprestAccount_id).values_list('num', flat=True).first()
         nextVal = max(int(maxReportAccountingNum) if maxReportAccountingNum is not None else 0, int(startValue) if startValue is not None else 0) + 1
         Prepayment.objects.filter(pk = prepayment.id).update(reportAccountingNum = nextVal)
+        prepayment.reportAccountingNum = nextVal
 
     cursor = connection.cursor()
     cursor.execute(GET_ACCOUNTING_CERT_ROW, [prepayment.id])
