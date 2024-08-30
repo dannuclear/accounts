@@ -37,7 +37,7 @@
         {% endfor %}
       {% else %}
         {% for i in 'x'|rjust:'9'|make_list %}
-          <td>{{ forloop.counter}}</td>
+          <td>{{ forloop.counter }}</td>
         {% endfor %}
       {% endif %}
       <td/>
@@ -235,9 +235,13 @@
                       {% for i in 'x'|rjust:'7'|make_list %}
                         <td>{{ forloop.counter|add:9 }}</td>
                       {% endfor %}
-                    {% elif itemType == 3 or itemType == 4 or itemType == 5 %}
+                    {% elif itemType == 3 or itemType == 4 %}
                       {% for i in 'x'|rjust:'9'|make_list %}
                         <td>{{ forloop.counter|add:10 }}</td>
+                      {% endfor %}
+                    {% elif itemType == 5 %}
+                      {% for i in 'x'|rjust:'9'|make_list %}
+                        <td>{{ forloop.counter|add:9 }}</td>
                       {% endfor %}
                     {% endif %}
                     <td/>

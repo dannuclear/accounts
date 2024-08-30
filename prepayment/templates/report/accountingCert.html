@@ -1,0 +1,180 @@
+{% load static %}
+<html>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <link rel="stylesheet" type="text/css" href="{% static 'main/css/bootstrap.min.css' %}" />
+    <style type="text/css">
+      @font-face {
+        font-family: TimesNewRoman;
+        src: url(/static/main/fonts/times.ttf);
+      }
+      body {
+        font-family: TimesNewRoman;
+      }
+
+      @media print {
+
+        @page 
+        {
+            size:  auto;   /*auto is the initial value */
+            margin: 0mm;  /* this affects the margin in the printer settings */
+        }
+
+        #printPageButton {
+            display: none;
+        }
+
+        body {
+            font-size: 12pt;
+            margin: 10mm;
+        }
+
+        body>.container {
+            width: 100% !important;
+            margin: 0px !important;
+            max-width: 100% !important;
+        }
+    }
+
+      table.header-table {
+        border-collapse: separate;
+        border-spacing: 10px 2px;
+      }
+      table,
+      th,
+      td {
+         /* border: 1px solid gainsboro; */
+      }
+      th {
+        font-weight: lighter;
+      }
+
+      td.border-top2-bottom1, th.border-top2-bottom1 {
+        border-top: 2px solid black !important;
+        border-bottom: 1px solid black;
+      }
+
+      td.border-top1-bottom2, th.border-top1-bottom2 {
+        border-top: 1px solid black;
+        border-bottom: 2px solid black !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container p-4">
+      <div class="row">
+        <div class="col-12">
+          <table class="w-100 header-table">
+            <tr>
+              <td class="text-left" style="width: 40%;">ФГУП "Комбинат "Электрохимприбор"</td>
+              <td class="text-right">регистр бухгалтерского учета</td>
+            </tr>
+
+            <tr style="height: 30px;">
+              <td colspan="2" class="text-center font-weight-bold align-bottom"><h3>Бухгалтерская справка № {{ prepayment.reportAccountingNum|default_if_none:""}}</h3></td>
+            </tr>
+
+            <tr>
+              <td class="text-center align-bottom">
+                <table class="w-100">
+                  <tbody>
+                    <tr>
+                      <td class="text-center" style="width: 40px;">к АО</td>
+                      <td class="text-center border-bottom border-dark">{{ prepayment.reportNum|default_if_none:"" }}</td>
+                      <td class="text-center" style="width: 50px;">таб. №</td>
+                      <td class="text-center border-bottom border-dark" style="width: 90px">{{ prepayment.empNum|default_if_none:"" }}</td>
+                      <td class="text-center" style="width: 50px;">(ФИО)</td>
+                    </tr>
+                    <tr>
+                      <td class="text-center border-bottom border-dark" colspan="5">{{ prepayment.empFullName|default_if_none:" " }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+              <td class="text-center">
+                <table class="w-100">
+                  <thead>
+                    <tr style="height: 50px;">
+                      <td class="text-center border-top2-bottom1 border-right border-dark" style="width: 19%;">Работа</td>
+                      <td class="text-center border-top2-bottom1 border-right border-dark" style="width: 19%; border-top: solid 2px;">Макет</td>
+                      <td class="text-center border-top2-bottom1 border-right border-dark" style="width: 19%; border-top: solid 2px;">Предпр.</td>
+                      <td class="text-center border-top2-bottom1 border-right border-dark" style="width: 19%; border-top: solid 2px;">Отчетный месяц</td>
+                      <td class="text-center border-top2-bottom1" style="width: 24%; border-top: solid 2px;">Дата формирования</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style="height: 50px;">
+                      <td class="text-center border-top1-bottom2 border-right border-dark"></td>
+                      <td class="text-center border-top1-bottom2 border-right border-dark"></td>
+                      <td class="text-center border-top1-bottom2 border-right border-dark">{{ prepayment.empDivNum|stringformat:"03d"|default_if_none:" " }}</td>
+                      <td class="text-center border-top1-bottom2 border-right border-dark">{{ prepayment.approveDate|date:"m"|default_if_none:"" }}</td>
+                      <td class="text-center border-top1-bottom2">{{ prepayment.approveActionDate|date:"SHORT_DATE_FORMAT"|default_if_none:"" }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr style="height: 30px;">
+              <table class="w-100">
+                <thead>
+                  <tr>
+                    <th class="text-center border border-dark border-top2-bottom1" style="width: 23%;">Основной счет</th>
+                    <th rowspan="2" class="text-center border border-dark border-top2-bottom1" style="width: 17%;">Дополнит. признак</th>
+                    <th class="text-center border border-dark border-top2-bottom1" style="width: 23%;">Корреспонд.счет</th>
+                    <th rowspan="2" class="text-center border border-dark border-top2-bottom1" style="width: 17%;">Дополнит. признак</th>
+                    <th rowspan="2" class="text-center border border-dark border-top2-bottom1" style="width: 20%;">Сумма</th>
+                  </tr>
+                  <tr>
+                    <th class="text-center border border-dark">счет, субсчет, объект аналитического учета</th>
+                    <th class="text-center border border-dark">счет, субсчет, объект аналитического учета</th>
+                  </tr>
+                  <tr>
+                    <th class="border border-dark text-center" style="font-size: 0.8em;">1</th>
+                    <th class="border border-dark text-center" style="font-size: 0.8em;">2</th>
+                    <th class="border border-dark text-center" style="font-size: 0.8em;">3</th>
+                    <th class="border border-dark text-center" style="font-size: 0.8em;">4</th>
+                    <th class="border border-dark text-center" style="font-size: 0.8em;">5</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in rows %}
+                    <tr>
+                      <td class="text-center border border-dark">{{ row.0|default_if_none:" " }}</td>
+                      <td class="text-center border border-dark">{{ row.1|default_if_none:" " }}</td>
+                      <td class="text-center border border-dark">{{ row.2|default_if_none:" " }}</td>
+                      <td class="text-center border border-dark">{{ row.3|default_if_none:" " }}</td>
+                      <td class="text-center border border-dark">{{ row.4|default_if_none:" " }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </tr>
+
+            <tr>
+              <td colspan="2">
+                <table class="w-50" style="margin: 0 auto;">
+                  <tbody>
+                    <tr style="height: 30px;">
+                      <td class="text-center" style="width: 80px;">Бухгалтер</td>
+                      <td class="border-bottom border-dark" style="width: 130px;"></td>
+                      <td style="width: 10px;"></td>
+                      <td class="border-bottom border-dark" style="width: 130px;"></td>
+                    </tr>
+                    <tr style="line-height: 12px;">
+                      <td></td>
+                      <td class="text-center" style="font-size: 0.8em;">подпись</td>
+                      <td></td>
+                      <td class="text-center" style="font-size: 0.8em;">расшифровка подписи</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

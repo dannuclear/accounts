@@ -17,6 +17,7 @@
 <div class="alert alert-primary" role="alert" style="display: none;">
 
 </div>
+
 <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100" style="font-size: 0.9em;">
     <thead>
         <tr>
@@ -100,8 +101,14 @@
                         {
                             data: null, orderable: false, render: function (data, type, row) {
                                 //if (data.status.id == 5)
-                                    return `<a href="/advanceReports/${data.id}/html" target="_blank" class="text-success bi bi-printer h4 m-0"'></a>`
-                                //else return ''
+                                    //return `<a href="/advanceReports/${data.id}/html" target="_blank" class="text-success bi bi-printer h4 m-0"'></a>`
+                               return `<a class="text-success bi bi-printer h4 m-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="/advanceReports/${data.id}/html" target="_blank">Авансовый отчет</a>
+                                            <a class="dropdown-item" href="/advanceReports/${data.id}/accountingCert/html" target="_blank">Бухгалтерская справка</a>
+                                        </div>`
+                               
+                                    //else return ''
                             }
                         },
                         { data: null, orderable: false, render: function (data, type, row, meta) {

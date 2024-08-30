@@ -68,7 +68,7 @@ class Prepayment(models.Model):
     # Дата авансового отчета
     reportDate = models.DateField(db_column="report_date", blank=True, null=True)
     # Номер бухгалтерской справки
-    reportAccountingNum = models.CharField(db_column='report_accounting_num', max_length=50, null=True, verbose_name='Номер бухгалтерской справки')
+    reportAccountingNum = models.CharField(db_column='report_accounting_num', max_length=50, blank=True, null=True, verbose_name='Номер бухгалтерской справки')
     # Сумма по бухгалтерской справке
     reportAccountingSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="report_accounting_sum", blank=True, null=True)
 
@@ -92,6 +92,8 @@ class Prepayment(models.Model):
 
     # Дата согласования. Дата которой должны выгрузиться массив проводок
     approveDate = models.DateField(db_column="approve_date", blank=True, null=True)
+    # Дата когда нажата кнопка подтвердить проводки
+    approveActionDate = models.DateField(db_column="approve_action_date", blank=True, null=True)
 
     # Дата которой должны выгрузиться массив проводок
     factDate = models.DateField(db_column="fact_date", blank=True, null=True)

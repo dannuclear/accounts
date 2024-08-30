@@ -66,3 +66,27 @@ GET_ADVANCE_REPORT_ITEMS_FOR_REPORT = '''
 	LEFT JOIN document ON item.approve_document_id = document.id
 	LEFT JOIN expense_category ON item.expense_category_id = expense_category.id
 	WHERE item.prepayment_id = %s and item.item_type = ANY(%s)'''
+
+GET_ACCOUNTING_CERT_ROW = '''
+	SELECT debit_account, debit_extra, credit_account, credit_extra, sum (accounting_sum) FROM (
+	SELECT
+		coalesce(entity.debit_account::text, '') || ' ' ||
+		CASE item.item_type
+			WHEN 0 THEN
+				coalesce(debit_expense_item, '') || ' ' || coalesce(debit_expense_workshop, '')
+			WHEN 5 THEN
+				coalesce(debit_expense_item, '') || ' ' || coalesce(debit_expense_workshop, '')
+		ELSE coalesce(debit_kau_1, '') || ' ' || coalesce(debit_kau_2, '') END as debit_account,
+		entity.debit_extra as debit_extra,
+		coalesce(entity.credit_account::text, '') || ' ' ||
+		CASE item.item_type
+			WHEN 0 THEN
+				coalesce(credit_expense_item, '') || ' ' || coalesce(credit_dept, '')
+			WHEN 5 THEN
+				coalesce(credit_expense_item, '') || ' ' || coalesce(credit_dept, '')
+		ELSE coalesce(credit_kau_1, '') || ' ' || coalesce(credit_kau_1, '') END as credit_account,
+		entity.credit_extra as credit_extra,
+		entity.accounting_sum as accounting_sum
+	FROM advance_report_item_entity entity
+	INNER JOIN advance_report_item item ON item.id = entity.advance_report_item_id
+	WHERE item.prepayment_id = %s) t1 GROUP BY debit_account, debit_extra, credit_account, credit_extra'''

@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from .serializers import PrepaymentSerializer
 from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm, AdvanceReportForm, AdvanceReportItemForm, AttachmentForm, ItemsFormSet, AttachmentFormSet
 from datetime import datetime
-from guide.models import Status, ExpenseItem, ExpenseCategory
+from guide.models import Status, ExpenseItem, ExpenseCategory, AccountingCert
 from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
@@ -14,7 +14,7 @@ from django.db import connection
 from .filters import PeriodFilter, ImprestAccountFilter, FilterTypeFilter
 from django.utils import formats
 from decimal import *
-from .queries import ADD_FACTS, ADD_ACCOUNTING_ENTRIES, GET_ADVANCE_REPORT_ITEMS_FOR_REPORT
+from .queries import ADD_FACTS, ADD_ACCOUNTING_ENTRIES, GET_ADVANCE_REPORT_ITEMS_FOR_REPORT, GET_ACCOUNTING_CERT_ROW
 from numbers import Number
 from main import helpers
 import csv
@@ -554,7 +554,9 @@ def editAdvanceReport(request, id):
                 # Если статус авансового отчета "Согласован" и даты нет присваиваем
                 if prepayment.reportStatus_id == 3 and prepayment.approveDate is None:
                     prepayment.approveDate = datetime.now()
-                
+                if (prepayment.lockLevel is None or prepayment.lockLevel == 0) and lockLevel == 1:
+                    prepayment.approveActionDate = datetime.now()
+
                 prepayment.lockLevel = lockLevel
                 
                 prepayment = form.save()
@@ -673,6 +675,29 @@ def pdfAdvanceReport(request, id):
     if pisa_status.err:
        return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
+
+def htmlAccountingCert(request, id):
+    prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')), days=Subquery(purposesSubquery.values('days'))).select_related('status').select_related(
+    'imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
+    
+    # Если номер авансового отчета не присвоен
+    if prepayment.reportAccountingNum is None:
+        now = datetime.now()
+        maxReportAccountingNum = Prepayment.objects.filter(docDate__month = now.month, docDate__year = now.year).aggregate(Max('reportAccountingNum'))['reportAccountingNum__max']
+        startValue = AccountingCert.objects.filter(account = prepayment.imprestAccount_id).values_list('num', flat=True).first()
+        nextVal = max(int(maxReportAccountingNum) if maxReportAccountingNum is not None else 0, int(startValue) if startValue is not None else 0) + 1
+        Prepayment.objects.filter(pk = prepayment.id).update(reportAccountingNum = nextVal)
+
+    cursor = connection.cursor()
+    cursor.execute(GET_ACCOUNTING_CERT_ROW, [prepayment.id])
+    rows = cursor.fetchall()
+
+    context = {
+        'prepayment': prepayment,
+        'rows': rows
+    }
+    return render(request, 'report/accountingCert.html', context)
+
 
 def htmlAdvanceReport(request, id):
     prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')), days=Subquery(purposesSubquery.values('days'))).select_related('status').select_related(

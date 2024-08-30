@@ -164,7 +164,7 @@
                       <td class="text-center" style="height: 20px;">код</td>
                     </tr>
                     <tr>
-                      <td class="text-center font-weight-bold" style="width: 20%;">{{ report.empDivNum|default_if_none:'' }}</td>
+                      <td class="text-center font-weight-bold" style="width: 20%;">{{ report.empDivNum|stringformat:"03d"|default_if_none:'' }}</td>
                     </tr>
                   </tbody>
                 </table>
