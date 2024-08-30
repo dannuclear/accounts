@@ -48,6 +48,7 @@
 
     <input id="action" type="hidden" name="action">
     <input type="hidden" class="approve-date" name="{{ form.approveDate.name }}" value="{{ form.approveDate.value|default_if_none:'' }}" />
+    <input type="hidden" class="approve-action-date" name="{{ form.approveActionDate.name }}" value="{{ form.approveActionDate.value|default_if_none:'' }}" />
     <input type="hidden" name="lockLevel" value="{{ lockLevel|default_if_none:'0' }}" />
 
     <div class="form-row border rounded mt-1">

@@ -172,6 +172,8 @@ class AdvanceReportForm (forms.ModelForm):
 
     factDate = MyDateField(label='Месяц, год фактов', localize=True, required=False)
 
+    approveActionDate = MyDateField(localize=True, required=False)
+
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', False)
         super(AdvanceReportForm, self).__init__(*args, **kwargs)
@@ -184,7 +186,7 @@ class AdvanceReportForm (forms.ModelForm):
 
     class Meta:
         model = Prepayment
-        fields = ['reportStatus', 'empDivName', 'reportAccountingNum', 'spendedSum', 'reportAccountingSum', 'reportComment', 'phone', 'distribSalary', 'distribSalaryDate', 'distribBank', 'distribBankMethod', 'distribCarryover', 'distribCarryoverReportNum', 'approveDate', 'factDate']
+        fields = ['reportStatus', 'empDivName', 'reportAccountingNum', 'spendedSum', 'reportAccountingSum', 'reportComment', 'phone', 'distribSalary', 'distribSalaryDate', 'distribBank', 'distribBankMethod', 'distribCarryover', 'distribCarryoverReportNum', 'approveDate', 'factDate', 'approveActionDate']
 
 
 class AdvanceReportItemForm(forms.ModelForm):

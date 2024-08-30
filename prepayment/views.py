@@ -511,6 +511,7 @@ def editAdvanceReport(request, id):
             lockLevel = int(postCopy['lockLevel'])
         if postCopy['action']:
             if postCopy['action'] == 'lock' and lockLevel < 2:
+                postCopy['approveActionDate'] = datetime.now()
                 lockLevel = 1
             elif postCopy['action'] == 'unlock' and lockLevel < 2:
                 lockLevel = 0
@@ -554,8 +555,6 @@ def editAdvanceReport(request, id):
                 # Если статус авансового отчета "Согласован" и даты нет присваиваем
                 if prepayment.reportStatus_id == 3 and prepayment.approveDate is None:
                     prepayment.approveDate = datetime.now()
-                if (prepayment.lockLevel is None or prepayment.lockLevel == 0) and lockLevel == 1:
-                    prepayment.approveActionDate = datetime.now()
 
                 prepayment.lockLevel = lockLevel
                 
