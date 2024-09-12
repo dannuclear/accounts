@@ -378,7 +378,7 @@ def htmlAdvanceReport(request, id):
     return render(request, 'report/advanceReport.html', context)
 
 def inventoriesDownload(request):
-    query = Prepayment.objects.select_related('status').select_related('imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment')
+    query = Prepayment.objects.filter(reportDate__isnull = False).select_related('status').select_related('imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment')
     
     if 'periodFrom' in request.GET and len(request.GET['periodFrom']) > 2:
         query = query.filter(reportDate__gte=datetime.strptime(request.GET['periodFrom'], '%d.%m.%Y'))
