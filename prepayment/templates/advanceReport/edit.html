@@ -519,6 +519,11 @@
         //$(form).find('.datepeeker').removeAttr('id').removeClass('hasDatepicker').datepicker()
       })
 
+      // Удалить элемент авансового отчета
+      $('.btn-delete-row').on('click', function (e) {
+        $('#action').val('delete-' + $(e.currentTarget).data('prefix'))
+      })
+
       // Заполнить элемент авансового отчета
       $('.btn-fill-entity-row').on('click', function (e) {
         $('#action').val('fill-' + $(e.currentTarget).data('prefix'))

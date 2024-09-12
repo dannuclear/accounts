@@ -4,6 +4,5 @@ djangorestframework-datatables==0.6.0
 psycopg2==2.8.6
 # django-crispy-forms==1.11.2
 num2words==0.5.13
-reportlab==3.6.6
-# reportlab==3.5.59 для 3.5
-xhtml2pdf==0.2.4
+# reportlab==3.6.6 # 3.5.59 для python 3.5
+# xhtml2pdf==0.2.4

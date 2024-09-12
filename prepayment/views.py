@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Prepayment, PrepaymentPurpose, PrepaymentItem, AdvanceReportItem, Attachment
+from .models import Prepayment, PrepaymentPurpose, PrepaymentItem, AdvanceReportItem, Attachment, AdvanceReportItemEntity
 from rest_framework import viewsets
 from .serializers import PrepaymentSerializer
 from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm, AdvanceReportForm, AdvanceReportItemForm, AttachmentForm, ItemsFormSet, AttachmentFormSet
@@ -13,7 +13,6 @@ from django.db.models.functions import Cast, ExtractDay
 from django.db import connection
 from .filters import PeriodFilter, ImprestAccountFilter, FilterTypeFilter
 from django.utils import formats
-from decimal import *
 from .queries import ADD_FACTS, ADD_ACCOUNTING_ENTRIES, GET_ADVANCE_REPORT_ITEMS_FOR_REPORT, GET_ACCOUNTING_CERT_ROW
 from numbers import Number
 from main import helpers
@@ -21,8 +20,9 @@ import csv
 import math
 from num2words import num2words
 import textwrap
+from .action_processor import processActionNew
 
-from xhtml2pdf import pisa
+#from xhtml2pdf import pisa
 from django.template.loader import get_template
 from accounts import settings
 import os
@@ -112,392 +112,6 @@ def editPrepayment(request, id):
     }
     return render(request, 'prepayment/edit.html', context)
 
-
-def processAction (postCopy, prepayment, accounting):
-    if postCopy['action'].startswith('add-'):
-        prefix = postCopy['action'].replace('add-', '')
-        currentNum = int(postCopy['%s-TOTAL_FORMS' % (prefix)])
-        # Если добавляем бухгалтерскую запись
-        if prefix.endswith('entity'):
-            # Если добавляем бухгалтерскую запись по командировке
-            if prefix.startswith('travel-expense'):
-                parentPrefix = prefix.replace('-entity', '')
-                hasPurposes = False
-                expenseCategoryId = int(postCopy['%s-expenseCategory' % (parentPrefix)])
-                if expenseCategoryId:
-                    expenseSumCurrency = parseDecimal(postCopy['%s-expenseSumCurrency' % (parentPrefix)])
-                    expenseSumRub = parseDecimal(postCopy['%s-expenseSumRub' % (parentPrefix)])
-                    expenseSumVAT = parseDecimal(postCopy['%s-expenseSumVAT' % (parentPrefix)])
-                    expenseCategory = ExpenseCategory.objects.get(pk=expenseCategoryId)
-                    is91 = '91' in expenseCategory.name
-                    for purpose in PrepaymentPurpose.objects.filter(prepayment=prepayment):
-                        hasPurposes = True
-                        hasExpenseItems = False
-                        postCopy['%s-%s-deptExpense' % (prefix, currentNum)] = int(purpose.deptExpense)
-                        postCopy['%s-%s-expenseCode' % (prefix, currentNum)] = purpose.expenseCode_id
-                        # Дебет/Шифр отнесения затрат/счет/субсчет
-                        postCopy['%s-%s-debitAccount' % (prefix, currentNum)] = purpose.account
-                        postCopy['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = int(purpose.deptExpense)
-
-                        # Извлекаем статью расхода из справочника по наименованию (категории) и коду расхода
-                        q_objects = Q(Q(expenseCode_id = purpose.expenseCode_id if not is91 else 91))
-                        # Если НДС введен то ищем в справочнике статей расхода по наименованию и схемам проводок
-
-                        if expenseSumVAT > 0:
-                            q_objects.add(Q(Q(schema__isnull=False)), Q.OR)
-                        # expenseItem = ExpenseItem.objects.filter(Q(category_id = expenseCategoryId), q_objects, Q(itemType = 7101)).first()
-                        for expenseItem in ExpenseItem.objects.filter(Q(category_id = expenseCategoryId), q_objects, Q(itemType = prepayment.imprestAccount_id), Q(expenseType = 0)).all():
-                            hasExpenseItems = True
-                            # Расходы подр-я
-                            postCopy['%s-%s-deptExpense' % (prefix, currentNum)] = int(purpose.deptExpense)
-                            # Код расхода
-                            postCopy['%s-%s-expenseCode' % (prefix, currentNum)] = purpose.expenseCode_id
-                            # Дебет/Шифр отнесения затрат/счет.субсчет
-                            postCopy['%s-%s-debitAccount' % (prefix, currentNum)] = purpose.account if expenseItem.schema is None else expenseItem.debitAccount
-                            # Дебет/Шифр отнесения затрат/цех отнесения затрат
-                            postCopy['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = int((purpose.deptExpense if expenseItem.schema is None else expenseItem.debitExpenseDept) if not is91 and purpose.account not in ['2000', '2302', '4410'] else purpose.deptExpenditure)
-                    
-                            # Дебет/Шифр отнесения затрат/статья расходов
-                            postCopy['%s-%s-debitExpenseItem' % (prefix, currentNum)] = expenseItem.debitExpenseItem if not is91 and purpose.account not in ['2000', '2302', '4410'] else purpose.expenditure
-                            # Сумма, принятая к учету
-                            postCopy['%s-%s-accountingSum' % (prefix, currentNum)] = expenseSumRub if expenseItem.accept == 'Sобщ' else expenseSumVAT if expenseItem.accept == 'Sндс' else (expenseSumRub - expenseSumVAT) if expenseItem.accept == 'Sобщ-Sндс' else ''
-                            # Дебет/Шифр отнесения затрат/доп. признак
-                            postCopy['%s-%s-debitExtra' % (prefix, currentNum)] = expenseItem.debitExtra if not is91 and purpose.account not in ['2000', '2302', '4410'] else purpose.extra
-                            # Кредит/Счет/Субсчет
-                            postCopy['%s-%s-creditAccount' % (prefix, currentNum)] = expenseItem.creditAccount
-                            # Кредит/Статья расходов
-                            postCopy['%s-%s-creditExpenseItem' % (prefix, currentNum)] = expenseItem.creditExpenseItem
-                            # Кредит/№ подразделения работника
-                            postCopy['%s-%s-creditDept' % (prefix, currentNum)] = prepayment.empDivNum if expenseItem.schema is None else expenseItem.creditExpenseDept
-                            # Кредит/Доп.признак
-                            postCopy['%s-%s-creditExtra' % (prefix, currentNum)] = prepayment.empNum if expenseItem.schema is None else prepayment.reportNum
-                            currentNum = currentNum + 1
-                        if not hasExpenseItems:
-                            currentNum = currentNum + 1
-                    postCopy['%s-TOTAL_FORMS' % (prefix)] = currentNum if hasPurposes else currentNum + 1
-            # Если добавляем запись по оплате работ, услуг
-            if prefix.startswith('service'):
-                parentPrefix = prefix.replace('-entity', '')
-                expenseCategoryId = int(postCopy['%s-expenseCategory' % (parentPrefix)])
-                if expenseCategoryId:
-                    expenseSumCurrency = parseDecimal(postCopy['%s-expenseSumCurrency' % (parentPrefix)])
-                    expenseSumRub = parseDecimal(postCopy['%s-expenseSumRub' % (parentPrefix)])
-                    expenseSumVAT = parseDecimal(postCopy['%s-expenseSumVAT' % (parentPrefix)])
-                    bankCommission = parseDecimal(postCopy['%s-bankCommission' % (parentPrefix)])
-                    invoiceCode = postCopy['%s-invoiceCode' % (parentPrefix)]
-                    account = postCopy['%s-account' % (parentPrefix)]
-                    kau1 = postCopy['%s-kau1' % (parentPrefix)]
-                    kau2 = postCopy['%s-kau2' % (parentPrefix)]
-                    extra = postCopy['%s-extra' % (parentPrefix)]
-                    expenseCategory = ExpenseCategory.objects.get(pk=expenseCategoryId)
-
-                    hasExpenseItems = False
-
-                    # Извлекаем статью расхода из справочника по наименованию (категории) и коду расхода
-                    for expenseItem in ExpenseItem.objects.filter(category_id = expenseCategoryId, itemType = prepayment.imprestAccount_id, expenseType = 1).all():
-                        hasExpenseItems = True
-                        # Дебет/Шифр отнесения затрат/счет.субсчет
-                        if expenseItem.debitAccount is not None:
-                            postCopy['%s-%s-debitAccount' % (prefix, currentNum)] = expenseItem.debitAccount
-                        else:
-                            postCopy['%s-%s-debitAccount' % (prefix, currentNum)] = account
-
-                        evalDebitAccount = postCopy['%s-%s-debitAccount' % (prefix, currentNum)]
-
-                        # Дебет/КАУ 1
-                        if expenseItem.debitKAU1 is not None:
-                            postCopy['%s-%s-debitKAU1' % (prefix, currentNum)] = expenseItem.debitKAU1
-                        elif len(kau1) > 0:
-                            postCopy['%s-%s-debitKAU1' % (prefix, currentNum)] = kau1
-                        else:
-                            if evalDebitAccount is not None and (str(evalDebitAccount).startswith('60') or str(evalDebitAccount).startswith('19')):
-                                postCopy['%s-%s-debitKAU1' % (prefix, currentNum)] = invoiceCode[0:3]
-                    
-                        # Дебет/КАУ 2
-                        if expenseItem.debitKAU2 is not None:
-                            postCopy['%s-%s-debitKAU2' % (prefix, currentNum)] = expenseItem.debitKAU2
-                        elif len(kau2) > 0:
-                            postCopy['%s-%s-debitKAU2' % (prefix, currentNum)] = kau2
-                        else:
-                            if evalDebitAccount is not None and (str(evalDebitAccount).startswith('60') or str(evalDebitAccount).startswith('19')):
-                                postCopy['%s-%s-debitKAU2' % (prefix, currentNum)] = invoiceCode[3:] + '0'
-                        # Дебет/Шифр отнесения затрат/доп. признак
-                        if expenseItem.debitExtra is not None:
-                            postCopy['%s-%s-debitExtra' % (prefix, currentNum)] = expenseItem.debitExtra
-                        else:
-                            postCopy['%s-%s-debitExtra' % (prefix, currentNum)] = extra
-
-                        # Кредит/Счет/Субсчет
-                        postCopy['%s-%s-creditAccount' % (prefix, currentNum)] = expenseItem.creditAccount
-
-                        # Кредит/КАУ 1
-                        if expenseItem.creditKAU1 is not None:
-                            postCopy['%s-%s-creditKAU1' % (prefix, currentNum)] = expenseItem.creditKAU1
-                        else:
-                            if expenseItem.creditAccount is not None and (str(expenseItem.creditAccount).startswith('60') or str(expenseItem.creditAccount).startswith('19')):
-                                postCopy['%s-%s-creditKAU1' % (prefix, currentNum)] = invoiceCode[0:3]
-
-                        # Кредит/КАУ 2
-                        if expenseItem.creditKAU2 is not None:
-                            postCopy['%s-%s-creditKAU2' % (prefix, currentNum)] = expenseItem.creditKAU2
-                        else:
-                            if expenseItem.creditAccount is not None and str(expenseItem.creditAccount).startswith('71'):
-                                postCopy['%s-%s-creditKAU2' % (prefix, currentNum)] = prepayment.empDivNum
-                            elif expenseItem.creditAccount is not None and (str(expenseItem.creditAccount).startswith('60') or str(expenseItem.creditAccount).startswith('19')):
-                                postCopy['%s-%s-creditKAU2' % (prefix, currentNum)] = invoiceCode[3:] + '0'
-
-                        # Кредит/Доп.признак
-                        if expenseItem.creditAccount is not None and str(expenseItem.creditAccount).startswith('71'):
-                            postCopy['%s-%s-creditExtra' % (prefix, currentNum)] = prepayment.empNum
-                        # Сумма, принятая к учету
-                        postCopy['%s-%s-accountingSum' % (prefix, currentNum)] = expenseSumRub if expenseItem.accept == 'Sобщ' else expenseSumVAT if expenseItem.accept == 'Sндс' else (expenseSumRub - expenseSumVAT) if expenseItem.accept == 'Sобщ-Sндс' else bankCommission if expenseItem.accept == 'Sкомиссия' else ''
-                        currentNum = currentNum + 1
-                    if not hasExpenseItems:
-                        currentNum = currentNum + 1
-                postCopy['%s-TOTAL_FORMS' % (prefix)] = currentNum
-            # Если добавляем запись "Представительские расходы"
-            if prefix.startswith('inventory'):
-                postCopy['%s-TOTAL_FORMS' % (prefix)] = currentNum + 1
-            # Если добавляем запись "Представительские расходы"
-            if prefix.startswith('presentation'):
-                parentPrefix = prefix.replace('-entity', '')
-                expenseCategoryId = int(postCopy['%s-expenseCategory' % (parentPrefix)])
-                if expenseCategoryId:
-                    expenseSumCurrency = parseDecimal(postCopy['%s-expenseSumCurrency' % (parentPrefix)])
-                    expenseSumRub = parseDecimal(postCopy['%s-expenseSumRub' % (parentPrefix)])
-                    expenseSumVAT = parseDecimal(postCopy['%s-expenseSumVAT' % (parentPrefix)])
-                    invoiceCode = postCopy['%s-invoiceCode' % (parentPrefix)]
-                    account = postCopy['%s-account' % (parentPrefix)]
-                    kau1 = postCopy['%s-kau1' % (parentPrefix)]
-                    kau2 = postCopy['%s-kau2' % (parentPrefix)]
-                    extra = postCopy['%s-extra' % (parentPrefix)]
-                    expenseCategory = ExpenseCategory.objects.get(pk=expenseCategoryId)
-
-                    hasExpenseItems = False
-
-                    # Извлекаем статью расхода из справочника по наименованию (категории) и коду расхода
-                    for expenseItem in ExpenseItem.objects.filter(category_id = expenseCategoryId, itemType = prepayment.imprestAccount_id, expenseType = 1).all():
-                        hasExpenseItems = True
-                        # Дебет/Шифр отнесения затрат/счет.субсчет
-                        if expenseItem.debitAccount is not None:
-                            postCopy['%s-%s-debitAccount' % (prefix, currentNum)] = expenseItem.debitAccount
-                        else:
-                            postCopy['%s-%s-debitAccount' % (prefix, currentNum)] = account
-
-                        evalDebitAccount = postCopy['%s-%s-debitAccount' % (prefix, currentNum)]
-
-                        # Дебет/КАУ 1
-                        if expenseItem.debitKAU1 is not None:
-                            postCopy['%s-%s-debitKAU1' % (prefix, currentNum)] = expenseItem.debitKAU1
-                        elif len(kau1) > 0:
-                            postCopy['%s-%s-debitKAU1' % (prefix, currentNum)] = kau1
-                        else:
-                            if evalDebitAccount is not None and (str(evalDebitAccount).startswith('60') or str(evalDebitAccount).startswith('19')):
-                                postCopy['%s-%s-debitKAU1' % (prefix, currentNum)] = invoiceCode[0:3]
-                    
-                        # Дебет/КАУ 2
-                        if expenseItem.debitKAU2 is not None:
-                            postCopy['%s-%s-debitKAU2' % (prefix, currentNum)] = expenseItem.debitKAU2
-                        elif len(kau2) > 0:
-                            postCopy['%s-%s-debitKAU2' % (prefix, currentNum)] = kau2
-                        else:
-                            if evalDebitAccount is not None and (str(evalDebitAccount).startswith('60') or str(evalDebitAccount).startswith('19')):
-                                postCopy['%s-%s-debitKAU2' % (prefix, currentNum)] = invoiceCode[3:] + '0'
-                        # Дебет/Шифр отнесения затрат/доп. признак
-                        if expenseItem.debitExtra is not None:
-                            postCopy['%s-%s-debitExtra' % (prefix, currentNum)] = expenseItem.debitExtra
-                        else:
-                            postCopy['%s-%s-debitExtra' % (prefix, currentNum)] = extra
-
-                        # Кредит/Счет/Субсчет
-                        postCopy['%s-%s-creditAccount' % (prefix, currentNum)] = expenseItem.creditAccount
-
-                        # Кредит/КАУ 1
-                        if expenseItem.creditKAU1 is not None:
-                            postCopy['%s-%s-creditKAU1' % (prefix, currentNum)] = expenseItem.creditKAU1
-                        else:
-                            if expenseItem.creditAccount is not None and (str(expenseItem.creditAccount).startswith('60') or str(expenseItem.creditAccount).startswith('19')):
-                                postCopy['%s-%s-creditKAU1' % (prefix, currentNum)] = invoiceCode[0:3]
-
-                        # Кредит/КАУ 2
-                        if expenseItem.creditKAU2 is not None:
-                            postCopy['%s-%s-creditKAU2' % (prefix, currentNum)] = expenseItem.creditKAU2
-                        else:
-                            if expenseItem.creditAccount is not None and str(expenseItem.creditAccount).startswith('71'):
-                                postCopy['%s-%s-creditKAU2' % (prefix, currentNum)] = prepayment.empDivNum
-                            elif expenseItem.creditAccount is not None and (str(expenseItem.creditAccount).startswith('60') or str(expenseItem.creditAccount).startswith('19')):
-                                postCopy['%s-%s-creditKAU2' % (prefix, currentNum)] = invoiceCode[3:] + '0'
-
-                        # Кредит/Доп.признак
-                        if expenseItem.creditAccount is not None and str(expenseItem.creditAccount).startswith('71'):
-                            postCopy['%s-%s-creditExtra' % (prefix, currentNum)] = prepayment.empNum
-                        # Сумма, принятая к учету
-                        postCopy['%s-%s-accountingSum' % (prefix, currentNum)] = expenseSumRub if expenseItem.accept == 'Sобщ' else expenseSumVAT if expenseItem.accept == 'Sндс' else (expenseSumRub - expenseSumVAT) if expenseItem.accept == 'Sобщ-Sндс' else ''
-                        currentNum = currentNum + 1
-                    if not hasExpenseItems:
-                        currentNum = currentNum + 1
-                postCopy['%s-TOTAL_FORMS' % (prefix)] = currentNum
-
-            # Если добавляем запись "Оплата заказ-наряда"
-            if prefix.startswith('purchase-order'):
-                parentPrefix = prefix.replace('-entity', '')
-                expenseCategoryId = int(postCopy['%s-expenseCategory' % (parentPrefix)])
-                if expenseCategoryId:
-                    expenseSumCurrency = parseDecimal(postCopy['%s-expenseSumCurrency' % (parentPrefix)])
-                    expenseSumRub = parseDecimal(postCopy['%s-expenseSumRub' % (parentPrefix)])
-                    expenseSumVAT = parseDecimal(postCopy['%s-expenseSumVAT' % (parentPrefix)])
-                    route = postCopy['%s-route' % (parentPrefix)]
-                    expenseCategory = ExpenseCategory.objects.get(pk=expenseCategoryId)
-
-                    hasExpenseItems = False
-
-                    # Извлекаем статью расхода из справочника по наименованию (категории) и коду расхода
-                    for expenseItem in ExpenseItem.objects.filter(category_id = expenseCategoryId, itemType = prepayment.imprestAccount_id, expenseType = 1).all():
-                        hasExpenseItems = True
-                        # Дебет/Шифр отнесения затрат/счет.субсчет
-
-                        postCopy['%s-%s-debitAccount' % (prefix, currentNum)] = expenseItem.debitAccount
-
-                        # Дебет/КАУ 1
-                        postCopy['%s-%s-debitKAU1' % (prefix, currentNum)] = expenseItem.debitKAU1
-                        # Дебет/КАУ 2
-                        postCopy['%s-%s-debitKAU2' % (prefix, currentNum)] = expenseItem.debitKAU2
-                        # Дебет/Шифр отнесения затрат/доп. признак
-                        if expenseItem.debitExtra is not None:
-                            postCopy['%s-%s-debitExtra' % (prefix, currentNum)] = expenseItem.debitExtra
-                        else:
-                            postCopy['%s-%s-debitExtra' % (prefix, currentNum)] = route
-
-                        # Кредит/Счет/Субсчет
-                        postCopy['%s-%s-creditAccount' % (prefix, currentNum)] = expenseItem.creditAccount
-
-                        # Кредит/КАУ 1
-                        postCopy['%s-%s-creditKAU1' % (prefix, currentNum)] = expenseItem.creditKAU1
-
-                        # Кредит/КАУ 2
-                        if expenseItem.creditKAU2 is not None:
-                            postCopy['%s-%s-creditKAU2' % (prefix, currentNum)] = expenseItem.creditKAU2
-                        else:
-                            if expenseItem.creditAccount is not None and str(expenseItem.creditAccount).startswith('71'):
-                                postCopy['%s-%s-creditKAU2' % (prefix, currentNum)] = prepayment.empDivNum
-
-                        # Кредит/Доп.признак
-                        if expenseItem.creditAccount is not None and str(expenseItem.creditAccount).startswith('71'):
-                            postCopy['%s-%s-creditExtra' % (prefix, currentNum)] = prepayment.empNum
-                        # Сумма, принятая к учету
-                        postCopy['%s-%s-accountingSum' % (prefix, currentNum)] = expenseSumRub if expenseItem.accept == 'Sобщ' else expenseSumVAT if expenseItem.accept == 'Sндс' else (expenseSumRub - expenseSumVAT) if expenseItem.accept == 'Sобщ-Sндс' else ''
-                        currentNum = currentNum + 1
-                    if not hasExpenseItems:
-                        currentNum = currentNum + 1
-                postCopy['%s-TOTAL_FORMS' % (prefix)] = currentNum
-        else:
-            postCopy['%s-TOTAL_FORMS' % (prefix)] = currentNum + 1
-    # Если команда заполнить
-    elif postCopy['action'].startswith('fill-'):
-        # Извлекаем префикс
-        prefix = postCopy['action'].replace('fill-', '')
-        # Если заполняем раздел Приобретение ТМЦ
-        if prefix.startswith('inventory'):
-            # Если заполняем отдельную бухгалтерскую запись
-            if 'entity' in prefix:
-                # Разбиваем префикс на компоненты
-                prefixParts = prefix.split('-')
-                # Индекс текущей строки
-                currentIndex = int(prefixParts[3])
-                # Подстановочные значения текущей строки
-                entityCloneDict = {'%s-%s-%s-%s-%s' % (parts[0], parts[1], parts[2], "%s", parts[4]):value for parts, value in {tuple(key.split('-')): value for key, value in postCopy.items() if key.startswith(prefix) and not (key.endswith('-id'))}.items()}
-                # Общий префикс для набора форм
-                entityFormSetPrefix = '%s-%s-%s' % (prefixParts[0], prefixParts[1], prefixParts[2])
-                # Префикс родительской записи
-                parentPrefix = '%s-%s' % (prefixParts[0], prefixParts[1])
-                # Количество строк
-                currentNum = int(postCopy['%s-TOTAL_FORMS' % (entityFormSetPrefix)])
-                
-                expenseCategoryId = int(postCopy['%s-expenseCategory' % (parentPrefix)])
-                if expenseCategoryId and accounting:
-                    expenseSumCurrency = parseDecimal(postCopy['%s-expenseSumCurrency' % (parentPrefix)])
-                    expenseSumRub = parseDecimal(postCopy['%s-expenseSumRub' % (parentPrefix)])
-                    expenseSumVAT = parseDecimal(postCopy['%s-expenseSumVAT' % (parentPrefix)])
-                    diffSum = parseDecimal(postCopy['%s-diffSum' % (parentPrefix)])
-                    route = postCopy['%s-route' % (parentPrefix)]
-                    expenseCategory = ExpenseCategory.objects.get(pk=expenseCategoryId)
-                    hasExpenseItems = False
-
-                    # Извлекаем статью расхода из справочника по наименованию (категории) и коду расхода
-                    for expenseItem in ExpenseItem.objects.filter(category_id = expenseCategoryId, itemType = prepayment.imprestAccount_id).all():
-                        hasExpenseItems = True
-                        idx = currentIndex if currentIndex is not None else currentNum
-                        postCopy.update({ key % (idx): value for key, value in entityCloneDict.items() })
-
-                        invAnalysisPSO = postCopy['%s-entity-%s-invAnalysisPSO' % (parentPrefix, idx)]
-                        invAnalysisWarehouseNum = postCopy['%s-entity-%s-invAnalysisWarehouseNum' % (parentPrefix, idx)]
-                        invAnalysisInvoice = postCopy['%s-entity-%s-invAnalysisInvoice' % (parentPrefix, idx)]
-
-                        # Дебет/Шифр отнесения затрат/счет.субсчет
-                        postCopy['%s-%s-debitAccount' % (entityFormSetPrefix, idx)] = expenseItem.debitAccount
-                        # Дебет/КАУ 1
-                        if expenseItem.debitKAU1 is not None:
-                            postCopy['%s-%s-debitKAU1' % (entityFormSetPrefix, idx)] = expenseItem.debitKAU1
-                        else:
-                            if expenseItem.debitAccount is not None and str(expenseItem.debitAccount).startswith('60'):
-                                if len(invAnalysisPSO) > 0 and len(invAnalysisWarehouseNum) > 0 and len(invAnalysisInvoice) == 0:
-                                    postCopy['%s-%s-debitKAU1' % (entityFormSetPrefix, idx)] = invAnalysisPSO + invAnalysisWarehouseNum[0]
-                                elif len(invAnalysisPSO) == 0 and len(invAnalysisWarehouseNum) == 0 and len(invAnalysisInvoice) > 0:
-                                    postCopy['%s-%s-debitKAU1' % (entityFormSetPrefix, idx)] = invAnalysisInvoice[0:3]
-
-                        # Дебет/КАУ 2
-                        if expenseItem.debitKAU2 is not None:
-                            postCopy['%s-%s-debitKAU2' % (entityFormSetPrefix, idx)] = expenseItem.debitKAU2
-                        else:
-                            if expenseItem.debitAccount is not None and str(expenseItem.debitAccount).startswith('60'):
-                                if len(invAnalysisPSO) > 0 and len(invAnalysisWarehouseNum) > 0 and len(invAnalysisInvoice) == 0:
-                                    postCopy['%s-%s-debitKAU2' % (entityFormSetPrefix, idx)] = invAnalysisWarehouseNum[1:]  + '0'
-                                elif len(invAnalysisPSO) == 0 and len(invAnalysisWarehouseNum) == 0 and len(invAnalysisInvoice) > 0:
-                                    postCopy['%s-%s-debitKAU2' % (entityFormSetPrefix, idx)] = invAnalysisInvoice[3:] + '0'
-
-                        # Дебет/Шифр отнесения затрат/доп. признак
-                        if expenseItem.debitAccount is not None and str(expenseItem.debitAccount).startswith('23'):
-                            postCopy['%s-%s-debitExtra' % (entityFormSetPrefix, idx)] = route
-
-                        # Кредит/Счет/Субсчет
-                        postCopy['%s-%s-creditAccount' % (entityFormSetPrefix, idx)] = expenseItem.creditAccount
-                        # Кредит/КАУ 1
-                        if expenseItem.creditKAU1 is not None:
-                            postCopy['%s-%s-creditKAU1' % (entityFormSetPrefix, idx)] = expenseItem.creditKAU1
-                        else:
-                            if expenseItem.creditAccount is not None and (str(expenseItem.creditAccount).startswith('60') or str(expenseItem.creditAccount).startswith('19')):
-                                if len(invAnalysisPSO) > 0 and len(invAnalysisWarehouseNum) > 0 and len(invAnalysisInvoice) == 0:
-                                    postCopy['%s-%s-creditKAU1' % (entityFormSetPrefix, idx)] = invAnalysisPSO + invAnalysisWarehouseNum[0]
-                                elif len(invAnalysisPSO) == 0 and len(invAnalysisWarehouseNum) == 0 and len(invAnalysisInvoice) > 0:
-                                    postCopy['%s-%s-creditKAU1' % (entityFormSetPrefix, idx)] = invAnalysisInvoice[0:3]
-
-                        # Кредит/КАУ 2
-                        if expenseItem.creditKAU2 is not None:
-                            postCopy['%s-%s-creditKAU2' % (entityFormSetPrefix, idx)] = expenseItem.creditKAU2
-                        else:
-                            if expenseItem.creditAccount is not None and str(expenseItem.creditAccount).startswith('71'):
-                                postCopy['%s-%s-creditKAU2' % (entityFormSetPrefix, idx)] = prepayment.empDivNum
-                            elif expenseItem.creditAccount is not None and (str(expenseItem.creditAccount).startswith('60') or str(expenseItem.creditAccount).startswith('19')):
-                                if len(invAnalysisPSO) > 0 and len(invAnalysisWarehouseNum) > 0 and len(invAnalysisInvoice) == 0:
-                                    postCopy['%s-%s-creditKAU2' % (entityFormSetPrefix, idx)] = invAnalysisWarehouseNum[1:]  + '0'
-                                elif len(invAnalysisPSO) == 0 and len(invAnalysisWarehouseNum) == 0 and len(invAnalysisInvoice) > 0:
-                                    postCopy['%s-%s-creditKAU2' % (entityFormSetPrefix, idx)] = invAnalysisInvoice[3:] + '0'
-
-                        # Кредит/доп. признак
-                        if expenseItem.creditAccount is not None and str(expenseItem.creditAccount).startswith('71'):
-                            postCopy['%s-%s-creditExtra' % (entityFormSetPrefix, idx)] = prepayment.empNum
-
-                        # Сумма, принятая к учету
-                        postCopy['%s-%s-accountingSum' % (entityFormSetPrefix, idx)] = expenseSumRub if expenseItem.accept == 'Sобщ' else expenseSumVAT if expenseItem.accept == 'Sндс' else (expenseSumRub - expenseSumVAT) if expenseItem.accept == 'Sобщ-Sндс' else diffSum if expenseItem.accept == 'Sразн' else ''
-                        if currentIndex is not None:
-                            currentIndex = None
-                        else:
-                            currentNum = currentNum + 1          
-                postCopy['%s-TOTAL_FORMS' % (entityFormSetPrefix)] = currentNum
-        else:
-            postCopy['%s-TOTAL_FORMS' % (prefix)] = currentNum + 1
-
-
 def editAdvanceReport(request, id):
     prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')), days=Subquery(purposesSubquery.values('days'))).select_related('status').select_related(
         'imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
@@ -520,17 +134,23 @@ def editAdvanceReport(request, id):
             elif postCopy['action'] == 'unlock' and lockLevel < 2:
                 lockLevel = 0
             else:
-                processAction(postCopy, prepayment, accounting)
+                processActionNew(postCopy, prepayment, accounting)
         
-
+        entities = AdvanceReportItemEntity.objects.filter(advanceReportItem__prepayment = prepayment).select_related('advanceReportItem__expenseCategory').select_related('advanceReportItem__approveDocument').select_related('expenseCode').all()
+        entitiesDict = {}
+        itemsDict = {}
+        for entity in entities:
+            entitiesDict[entity.id] = entity
+            itemsDict[entity.advanceReportItem.id] = entity.advanceReportItem
+     
         form = AdvanceReportForm(postCopy, instance=prepayment, user=request.user)
         if prepayment.imprestAccount_id not in [7104, 7106]:
-            travelExpenses = ItemsFormSet(postCopy, prefix='travel-expense', instance=prepayment, queryset=queryset.filter(itemType=0), form_kwargs={'accounting': accounting, 'itemType': 0, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel})
-            orgServices = ItemsFormSet(postCopy, prefix='org-service', instance=prepayment, queryset=queryset.filter(itemType=1), form_kwargs={'accounting': accounting, 'itemType': 1, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel})
-        iventoryItems = ItemsFormSet(postCopy, prefix='inventory', instance=prepayment, queryset=queryset.filter(itemType=2), form_kwargs={'accounting': accounting, 'itemType': 2, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel})
-        services = ItemsFormSet(postCopy, prefix='service', instance=prepayment, queryset=queryset.filter(itemType=3), form_kwargs={'accounting': accounting, 'itemType': 3, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel})
-        presentationExpenses = ItemsFormSet(postCopy, prefix='presentation', instance=prepayment, queryset=queryset.filter(itemType=4), form_kwargs={'accounting': accounting, 'itemType': 4, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel})
-        purchaseOrderExpenses = ItemsFormSet(postCopy, prefix='purchase-order', instance=prepayment, queryset=queryset.filter(itemType=5), form_kwargs={'accounting': accounting, 'itemType': 5, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel})
+            travelExpenses = ItemsFormSet(postCopy, prefix='travel-expense', instance=prepayment, queryset=queryset.filter(itemType=0), form_kwargs={'accounting': accounting, 'itemType': 0, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'entitiesCache': entitiesDict}, cache=itemsDict)
+            orgServices = ItemsFormSet(postCopy, prefix='org-service', instance=prepayment, queryset=queryset.filter(itemType=1), form_kwargs={'accounting': accounting, 'itemType': 1, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'entitiesCache': entitiesDict}, cache=itemsDict)
+        iventoryItems = ItemsFormSet(postCopy, prefix='inventory', instance=prepayment, queryset=queryset.filter(itemType=2), form_kwargs={'accounting': accounting, 'itemType': 2, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'entitiesCache': entitiesDict}, cache=itemsDict)
+        services = ItemsFormSet(postCopy, prefix='service', instance=prepayment, queryset=queryset.filter(itemType=3), form_kwargs={'accounting': accounting, 'itemType': 3, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'entitiesCache': entitiesDict}, cache=itemsDict)
+        presentationExpenses = ItemsFormSet(postCopy, prefix='presentation', instance=prepayment, queryset=queryset.filter(itemType=4), form_kwargs={'accounting': accounting, 'itemType': 4, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'entitiesCache': entitiesDict}, cache=itemsDict)
+        purchaseOrderExpenses = ItemsFormSet(postCopy, prefix='purchase-order', instance=prepayment, queryset=queryset.filter(itemType=5), form_kwargs={'accounting': accounting, 'itemType': 5, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'entitiesCache': entitiesDict}, cache=itemsDict)
 
         attachments = AttachmentFormSet(postCopy, request.FILES, prefix='attachment', instance=prepayment)
 
@@ -658,26 +278,27 @@ def fetch_pdf_resources(uri, rel):
     return path
 
 def pdfAdvanceReport(request, id):
-    prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')), days=Subquery(purposesSubquery.values('days'))).select_related('status').select_related(
-        'imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
+    pass
+    # prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')), days=Subquery(purposesSubquery.values('days'))).select_related('status').select_related(
+    #     'imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
     
-    template_path = 'report/advanceReport.html'
-    context = {
-            'prepayment': prepayment
-        }
-    # Create a Django response object, and specify content_type as pdf
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'inline; filename="AdvanceReport.pdf"'
-    # find the template and render it.
-    template = get_template(template_path)
-    html = template.render(context)
+    # template_path = 'report/advanceReport.html'
+    # context = {
+    #         'prepayment': prepayment
+    #     }
+    # # Create a Django response object, and specify content_type as pdf
+    # response = HttpResponse(content_type='application/pdf')
+    # response['Content-Disposition'] = 'inline; filename="AdvanceReport.pdf"'
+    # # find the template and render it.
+    # template = get_template(template_path)
+    # html = template.render(context)
 
-    # create a pdf
-    pisa_status = pisa.CreatePDF(html, dest=response, link_callback=fetch_pdf_resources)
-    # if error then show some funny view
-    if pisa_status.err:
-       return HttpResponse('We had some errors <pre>' + html + '</pre>')
-    return response
+    # # create a pdf
+    # pisa_status = pisa.CreatePDF(html, dest=response, link_callback=fetch_pdf_resources)
+    # # if error then show some funny view
+    # if pisa_status.err:
+    #    return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    # return response
 
 def htmlAccountingCert(request, id):
     prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')), days=Subquery(purposesSubquery.values('days'))).select_related('status').select_related(

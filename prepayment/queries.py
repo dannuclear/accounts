@@ -73,17 +73,17 @@ GET_ACCOUNTING_CERT_ROW = '''
 		coalesce(entity.debit_account::text, '') || ' ' ||
 		CASE item.item_type
 			WHEN 0 THEN
-				LPAD(coalesce(debit_expense_item::text, ''), 3, '0') || ' ' || coalesce(debit_expense_workshop, '')
+				LPAD(coalesce(debit_expense_item::text, ''), 3, '0') || ' ' || LPAD(coalesce(debit_expense_workshop::text, ''), 3, '0')
 			WHEN 5 THEN
-				LPAD(coalesce(debit_expense_item::text, ''), 3, '0') || ' ' || coalesce(debit_expense_workshop, '')
+				LPAD(coalesce(debit_expense_item::text, ''), 3, '0') || ' ' || LPAD(coalesce(debit_expense_workshop::text, ''), 3, '0')
 		ELSE LPAD(coalesce(debit_kau_1::text, ''), 3, '0') || ' ' || LPAD(coalesce(debit_kau_2::text, ''), 3, '0') END as debit_account,
 		entity.debit_extra as debit_extra,
 		coalesce(entity.credit_account::text, '') || ' ' ||
 		CASE item.item_type
 			WHEN 0 THEN
-				coalesce(credit_expense_item, '') || ' ' || coalesce(credit_dept, '')
+				coalesce(credit_expense_item::text, '') || ' ' || coalesce(credit_dept::text, '')
 			WHEN 5 THEN
-				coalesce(credit_expense_item, '') || ' ' || coalesce(credit_dept, '')
+				coalesce(credit_expense_item::text, '') || ' ' || coalesce(credit_dept::text, '')
 		ELSE LPAD(coalesce(credit_kau_1::text, ''), 3, '0') || ' ' || LPAD(coalesce(credit_kau_1::text, ''), 3, '0') END as credit_account,
 		entity.credit_extra as credit_extra,
 		entity.accounting_sum as accounting_sum

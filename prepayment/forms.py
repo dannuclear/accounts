@@ -1,10 +1,11 @@
 from django import forms
-from django.forms.models import ALL_FIELDS
-from .models import Prepayment, PrepaymentPurpose, ExpenseCode, PrepaymentItem, AdvanceReportItem, Attachment, AdvanceReportItemEntity
+from django.forms.models import ALL_FIELDS, BaseInlineFormSet
+from .models import Prepayment, PrepaymentPurpose, ExpenseCode, PrepaymentItem, AdvanceReportItem, Attachment, AdvanceReportItemEntity, AdvanceReportInventoryItem
 from guide.models import ObtainMethod
 from guide.models import Status, ImprestAccount, Document, PrepaidDest, ExpenseCategory, ExpenseItem
 from integration.models import Employee, WC07POrder
 from main.helpers import is_user_in_group
+from distutils.util import strtobool
 
 
 class MyDateField(forms.DateField):
@@ -95,7 +96,8 @@ class PrepaymentForm (forms.ModelForm):
     class Meta:
         model = Prepayment
         fields = ALL_FIELDS
-        exclude = ['createdBy', 'createdAt', 'wc07pOrder', 'request', 'iPrepayment', 'reportAccountingNum', 'reportAccountingSum', 'reportNum', 'reportDate', 'reportComment', 'accountCodes', 'approveDate', 'lockLevel', 'factDate', 'approveActionDate']
+        exclude = ['createdBy', 'createdAt', 'wc07pOrder', 'request', 'iPrepayment', 'reportAccountingNum', 'reportAccountingSum',
+                   'reportNum', 'reportDate', 'reportComment', 'accountCodes', 'approveDate', 'lockLevel', 'factDate', 'approveActionDate']
 
     def __init__(self, *args, **kwargs):
         super(PrepaymentForm, self).__init__(*args, **kwargs)
@@ -190,7 +192,8 @@ class AdvanceReportForm (forms.ModelForm):
 
     class Meta:
         model = Prepayment
-        fields = ['reportStatus', 'empDivName', 'reportAccountingNum', 'spendedSum', 'reportAccountingSum', 'reportComment', 'phone', 'distribSalary', 'distribSalaryDate', 'distribBank', 'distribBankMethod', 'distribCarryover', 'distribCarryoverReportNum', 'approveDate', 'factDate', 'approveActionDate']
+        fields = ['reportStatus', 'empDivName', 'reportAccountingNum', 'spendedSum', 'reportAccountingSum', 'reportComment', 'phone', 'distribSalary',
+                  'distribSalaryDate', 'distribBank', 'distribBankMethod', 'distribCarryover', 'distribCarryoverReportNum', 'approveDate', 'factDate', 'approveActionDate']
 
 
 class AdvanceReportItemForm(forms.ModelForm):
@@ -213,16 +216,28 @@ class AdvanceReportItemForm(forms.ModelForm):
         self.itemType = kwargs.pop('itemType', None)
         self.expenseItemType = kwargs.pop('expenseItemType', None)
         self.lockLevel = kwargs.pop('lockLevel', 0)
+        _cache = kwargs.pop('entitiesCache', None)
         super(AdvanceReportItemForm, self).__init__(*args, **kwargs)
-        self.fields['expenseCategory'].queryset = ExpenseCategory.objects.filter(id__in=ExpenseItem.objects.values_list('category_id').filter(itemType=self.expenseItemType, expenseType=(0 if self.itemType in [0,1] else 1))).order_by('id')
+        self.fields['expenseCategory'].queryset = ExpenseCategory.objects.filter(id__in=ExpenseItem.objects.values_list(
+            'category_id').filter(itemType=self.expenseItemType, expenseType=(0 if self.itemType in [0, 1] else 1))).order_by('id')
         # Добавляем набор форм бухгалтерской формы
+        #if (self.accounting or self.itemType == 2) and self.itemType != 1:
+            
         if (self.accounting or self.itemType == 2) and self.itemType != 1:
-            isBound = len([v for k,v in self.data.items() if k.startswith(self.prefix)]) if self.is_bound else self.is_bound
-            self.entities = AdvanceReportItemEntityFormset(instance=self.instance,
-                                                           data=self.data if isBound else None,
-                                                           files=self.files if isBound else None,
-                                                           prefix='%s-%s' % (self.prefix, 'entity'),
-                                                           form_kwargs={ 'lockLevel': self.lockLevel })
+            isBound = len([v for k, v in self.data.items() if k.startswith(self.prefix)]) if self.is_bound else self.is_bound
+            if self.itemType == 2:
+                self.inventoryItems = AdvanceReportInventoryItemFormset(instance=self.instance,
+                                                            data=self.data if isBound else None,
+                                                            files=self.files if isBound else None,
+                                                            prefix='%s-%s' % (self.prefix, 'item'),
+                                                            form_kwargs={'accounting': self.accounting, 'lockLevel': self.lockLevel})
+            else:
+                self.entities = AdvanceReportItemEntityFormset(instance=self.instance,
+                                                            data=self.data if isBound else None,
+                                                            files=self.files if isBound else None,
+                                                            prefix='%s-%s' % (self.prefix, 'entity'),
+                                                            form_kwargs={'lockLevel': self.lockLevel}, cache=_cache)
+
 
     def is_valid(self):
         result = super(AdvanceReportItemForm, self).is_valid()
@@ -230,6 +245,8 @@ class AdvanceReportItemForm(forms.ModelForm):
         if self.is_bound:
             if hasattr(self, 'entities'):
                 result = result and self.entities.is_valid()
+            if hasattr(self, 'inventoryItems'):
+                result = result and self.inventoryItems.is_valid()
 
         return result
 
@@ -242,6 +259,12 @@ class AdvanceReportItemForm(forms.ModelForm):
             for deletedEl in self.entities.deleted_forms:
                 if deletedEl.instance.id is not None:
                     deletedEl.instance.delete()
+        if hasattr(self, 'inventoryItems'):
+            for el in self.inventoryItems.save(commit=False):
+                el.save()
+            for deletedEl in self.inventoryItems.deleted_forms:
+                if deletedEl.instance.id is not None:
+                    deletedEl.instance.delete()
             # self.entities.save()
 
         return result
@@ -249,13 +272,71 @@ class AdvanceReportItemForm(forms.ModelForm):
     def has_changed(self):
         result = super(AdvanceReportItemForm, self).has_changed()
         if hasattr(self, 'entities'):
-            result = result or self.entities.has_changed()
+            result = self.entities.has_changed() or result
+        if hasattr(self, 'inventoryItems'):
+            result = self.inventoryItems.has_changed() or result
         return result
 
     class Meta:
         model = AdvanceReportItem
         fields = ALL_FIELDS
         exclude = ['prepayment']
+        localized_fields = ALL_FIELDS
+
+
+
+class AdvanceReportInventoryItemForm(forms.ModelForm):
+
+    whOrderDate = MyDateField(localize=True, required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.accounting = kwargs.pop('accounting', False)
+        self.lockLevel = kwargs.pop('lockLevel', 0)
+        super(AdvanceReportInventoryItemForm, self).__init__(*args, **kwargs)
+        strValue = self.data.get('%s-DELETE' % self.prefix, 'False')
+        isDeleted = strtobool('False' if strValue == '' else strValue)
+        # Добавляем набор форм бухгалтерской формы
+        if self.accounting and not isDeleted:
+            isBound = len([v for k, v in self.data.items() if k.startswith(self.prefix)]) if self.is_bound else self.is_bound
+            self.entities = AdvanceReportInventoryItemEntityFormset(instance=self.instance,
+                                                           data=self.data if isBound else None,
+                                                           files=self.files if isBound else None,
+                                                           prefix='%s-%s' % (self.prefix, 'entity'),
+                                                           form_kwargs={'lockLevel': self.lockLevel})
+
+    def is_valid(self):
+        result = super(AdvanceReportInventoryItemForm, self).is_valid()
+
+        if self.is_bound:
+            if hasattr(self, 'entities'):
+                result = result and self.entities.is_valid()
+
+        return result
+
+    def save(self, commit=True):
+        result = super(AdvanceReportInventoryItemForm, self).save(commit=True)
+
+        if hasattr(self, 'entities'):
+            for el in self.entities.save(commit=False):
+                el.advanceReportItem_id = result.advanceReportItem_id
+                el.save()
+            for deletedEl in self.entities.deleted_forms:
+                if deletedEl.instance.id is not None:
+                    deletedEl.instance.delete()
+            # self.entities.save()
+
+        return result
+
+    def has_changed(self):
+        result = super(AdvanceReportInventoryItemForm, self).has_changed()
+        if hasattr(self, 'entities'):
+            result = result or self.entities.has_changed()
+        return result
+
+    class Meta:
+        model = AdvanceReportInventoryItem
+        fields = ALL_FIELDS
+        exclude = ['advanceReportItem']
         localized_fields = ALL_FIELDS
 
 
@@ -273,7 +354,7 @@ class AdvanceReportItemEntityForm(forms.ModelForm):
     class Meta:
         model = AdvanceReportItemEntity
         fields = ALL_FIELDS
-        exclude = ['prepayment']
+        exclude = ['advanceReportItem']
         localized_fields = ALL_FIELDS
 
 
@@ -287,28 +368,19 @@ class AttachmentForm(forms.ModelForm):
         fields = ALL_FIELDS
         exclude = ['prepayment']
 
-# class TravelExpenseForm(forms.ModelForm):
-
-#     approveDocument = DocumentChoiceField(queryset=Document.objects.order_by('id').all(), widget=forms.Select(
-#         attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
-
-#     expenseCategory = ExpenseCategoryChoiceField(queryset=ExpenseCategory.objects.order_by('id'), widget=forms.Select(
-#         attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
-
-#     expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), widget=forms.Select(
-#         attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
-
-#     approveDocDate = MyDateField(localize=True, required=False)
-
-#     class Meta:
-#         model = TravelExpense
-#         fields = ALL_FIELDS
-#         exclude = ['prepayment']
-#         localized_fields = ALL_FIELDS
+class CachedBaseInlineFormSet(BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        _cache = kwargs.pop('cache', None)
+        # if _cache is not None:
+        #     self._object_dict = _cache
+        super(CachedBaseInlineFormSet, self).__init__(*args, **kwargs)
 
 
 AttachmentFormSet = forms.inlineformset_factory(Prepayment, Attachment, form=AttachmentForm, can_delete=True, extra=5)
-AdvanceReportItemEntityFormset = forms.inlineformset_factory(AdvanceReportItem, AdvanceReportItemEntity, extra=0, form=AdvanceReportItemEntityForm)
+AdvanceReportItemEntityFormset = forms.inlineformset_factory(AdvanceReportItem, AdvanceReportItemEntity, formset=CachedBaseInlineFormSet, extra=0, form=AdvanceReportItemEntityForm)
+AdvanceReportInventoryItemEntityFormset = forms.inlineformset_factory(AdvanceReportInventoryItem, AdvanceReportItemEntity, formset=CachedBaseInlineFormSet, extra=0, form=AdvanceReportItemEntityForm)
+
+AdvanceReportInventoryItemFormset = forms.inlineformset_factory(AdvanceReportItem, AdvanceReportInventoryItem, formset=CachedBaseInlineFormSet, extra=0, form=AdvanceReportInventoryItemForm)
 
 
 # class BaseAdvanceReportItemFormset (forms.BaseInlineFormSet):
@@ -340,5 +412,4 @@ AdvanceReportItemEntityFormset = forms.inlineformset_factory(AdvanceReportItem, 
 
 #         return result
 
-
-ItemsFormSet = forms.inlineformset_factory(Prepayment, AdvanceReportItem, form=AdvanceReportItemForm, can_delete=True, extra=0, min_num=0)
+ItemsFormSet = forms.inlineformset_factory(Prepayment, AdvanceReportItem, formset=CachedBaseInlineFormSet, form=AdvanceReportItemForm, can_delete=True, extra=0, min_num=0)

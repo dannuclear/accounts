@@ -1,0 +1,90 @@
+{% load prepayment_extras %}
+<tr>
+  {{ inventoryItem.id }}
+  <input type="hidden" name="{{ inventoryItem.DELETE.html_name }}" id="{{ inventoryItem.DELETE.auto_id }}" value="{{ inventoryItem.DELETE.value|default_if_none:'' }}" />
+  {{ inventoryItem.entities.management_form }}
+  {% with rowspan=inventoryItem.entities|rowspan %}
+    
+    <td rowspan="{{ rowspan }}" class="align-middle">
+      <input type="text" class="form-control form-control-sm" name="{{ inventoryItem.invAnalysisPSO.html_name }}" value="{{ inventoryItem.invAnalysisPSO.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+    </td>
+    <td rowspan="{{ rowspan }}" class="align-middle">
+      <input type="text" class="form-control form-control-sm" name="{{ inventoryItem.invAnalysisWarehouseNum.html_name }}" value="{{ inventoryItem.invAnalysisWarehouseNum.value|default_if_none:'' }}"   autocomplete="off" {% if lockLevel %} readonly {% endif %}/>
+    </td>
+    {% if forloop.counter == 1 %}
+      <td rowspan="30" class="align-middle">
+        <input type="text" class="form-control form-control-sm sypher-num" name="{{ item.invoiceCode.html_name }}" value="{{ item.invoiceCode.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+      </td>
+    {% endif %}
+    <td rowspan="{{ rowspan }}" class="align-middle">
+      <input type="text" class="form-control form-control-sm" name="{{ inventoryItem.whOrderNum.html_name }}" value="{{ inventoryItem.whOrderNum.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+    </td>
+    <td rowspan="{{ rowspan }}" class="align-middle">
+      <input type="text" class="form-control form-control-sm datepeeker" name="{{ inventoryItem.whOrderDate.html_name }}" value="{{ inventoryItem.whOrderDate.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+    </td>
+    <td rowspan="{{ rowspan }}" class="align-middle">
+      <input type="text" class="form-control form-control-sm" name="{{ inventoryItem.whOrderSum.html_name }}" value="{{ inventoryItem.whOrderSum.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+    </td>
+    {% if forloop.counter == 1 %}
+      <td rowspan="50" class="align-middle">
+        <input type="text" class="form-control form-control-sm" name="{{ item.diffSum.html_name }}" value="{{ item.diffSum.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+      </td>
+    {% endif %}
+    <td rowspan="{{ rowspan }}" class="align-middle">
+      {% if not lockLevel %}
+        <button class="btn btn-sm btn-outline-danger btn-delete-row" data-prefix="{{ inventoryItem.prefix }}"><i class="fa-light fa-trash" ></i></button>
+      {% endif %}
+    </td>
+
+  {% endwith %}
+
+  {% if inventoryItem.accounting %}
+    {% for entity in inventoryItem.entities|forms_deleted %}
+      {{ entity.id }}
+      <input type="hidden" name="{{ entity.DELETE.html_name }}" id="{{ entity.DELETE.auto_id }}" value="{{ entity.DELETE.value|default_if_none:'' }}" />
+    {% endfor %}
+    {% for entity in inventoryItem.entities|forms_active %}
+
+      {% if forloop.counter != 1 %}
+        <tr>
+      {% endif %}
+      {{ entity.id }}
+      <input type="hidden" name="{{ entity.DELETE.html_name }}" id="{{ entity.DELETE.auto_id }}" value="{{ entity.DELETE.value|default_if_none:'' }}" />
+
+        <td style="width:100px">
+          <input type="text" class="form-control form-control-sm accounting-sum {% if entity.accountingSum.errors %} is-invalid {% endif %}" name="{{ entity.accountingSum.html_name }}" value="{{ entity.accountingSum.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %} />
+        </td>
+
+        <td>
+          <input type="text" class="form-control form-control-sm {% if entity.debitAccount.errors %} is-invalid {% endif %} {% if itemType == 3 %} service-debit-account {% endif %} " name="{{ entity.debitAccount.html_name }}" value="{{ entity.debitAccount.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+        </td>
+        <td>
+          <input type="text" class="form-control form-control-sm {% if entity.debitKAU1.errors %} is-invalid {% endif %}" name="{{ entity.debitKAU1.html_name }}" value="{{ entity.debitKAU1.value|zfill:3 }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+        </td>
+        <td>
+          <input type="text" class="form-control form-control-sm {% if entity.debitKAU2.errors %} is-invalid {% endif %}" name="{{ entity.debitKAU2.html_name }}" value="{{ entity.debitKAU2.value|zfill:3 }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+        </td>
+        <td>
+          <input type="text" class="form-control form-control-sm" name="{{ entity.debitExtra.html_name }}" value="{{ entity.debitExtra.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+        </td>
+        <td>
+          <input type="text" class="form-control form-control-sm {% if entity.creditAccount.errors %} is-invalid {% endif %}" name="{{ entity.creditAccount.html_name }}" value="{{ entity.creditAccount.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+        </td>
+        <td>
+          <input type="text" class="form-control form-control-sm {% if entity.creditKAU1.errors %} is-invalid {% endif %}" name="{{ entity.creditKAU1.html_name }}" value="{{ entity.creditKAU1.value|zfill:3 }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+        </td>
+        <td>
+          <input type="text" class="form-control form-control-sm {% if entity.creditKAU2.errors %} is-invalid {% endif %}" name="{{ entity.creditKAU2.html_name }}" value="{{ entity.creditKAU2.value|zfill:3 }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+        </td>
+        <td>
+          <input type="text" class="form-control form-control-sm" name="{{ entity.creditExtra.html_name }}" value="{{ entity.creditExtra.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+        </td>
+        <td>
+          {% if not lockLevel %}
+            <button class="btn btn-sm btn-outline-danger btn-delete-row" data-prefix="{{ entity.prefix }}"><i class="fa-light fa-trash" ></i></button>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  {% endif %}
+
