@@ -21,6 +21,7 @@ import math
 from num2words import num2words
 import textwrap
 from .action_processor import processActionNew
+from decimal import Decimal
 
 #from xhtml2pdf import pisa
 from django.template.loader import get_template
@@ -206,7 +207,7 @@ def editAdvanceReport(request, id):
                     'UPDATE prepayment SET spended_sum = (SELECT SUM(item.expense_sum_rub) FROM advance_report_item item WHERE item.prepayment_id = prepayment.id), report_accounting_sum = (SELECT SUM(entity.accounting_sum) FROM advance_report_item_entity entity INNER JOIN advance_report_item item ON item.id = entity.advance_report_item_id WHERE item.prepayment_id = prepayment.id), account_codes = (SELECT STRING_AGG(DISTINCT arie.credit_account::text, \',\') FROM advance_report_item_entity arie INNER JOIN advance_report_item ari ON ari.id = arie.advance_report_item_id WHERE arie.credit_account::text like \'71%%\' AND ari.prepayment_id = prepayment.id) WHERE id = %s', [prepayment.id])
 
                 # Если отчет согласован, заполняем ФАКТЫ и проводки
-                if prepayment.reportStatus_id == 3:
+                if prepayment.reportStatus_id == 3 and prepayment.lockLevel < 2:
                     cursor.execute('DELETE FROM fact WHERE prepayment_id = %s', [prepayment.id])
                     cursor.execute(ADD_FACTS, [prepayment.id])
 
@@ -254,18 +255,6 @@ def deletePrepayment(request, id):
     if request.method == 'GET':
         Prepayment.objects.get(id=id).delete()
     return HttpResponseRedirect('/prepayments')
-
-def parseDecimal (value):
-    if value is None or value == '':
-        return Decimal(0)
-    value = formats.sanitize_separators(value)
-    value = str(value).strip()
-    try:
-        value = Decimal(value)
-    except DecimalException:
-        raise ValidationError(self.error_messages['invalid'], code='invalid')
-    return value
-
 
 def fetch_pdf_resources(uri, rel):
 

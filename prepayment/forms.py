@@ -97,7 +97,7 @@ class PrepaymentForm (forms.ModelForm):
         model = Prepayment
         fields = ALL_FIELDS
         exclude = ['createdBy', 'createdAt', 'wc07pOrder', 'request', 'iPrepayment', 'reportAccountingNum', 'reportAccountingSum',
-                   'reportNum', 'reportDate', 'reportComment', 'accountCodes', 'approveDate', 'lockLevel', 'factDate', 'approveActionDate']
+                   'reportNum', 'reportDate', 'reportComment', 'reportStatus', 'empDivName', 'accountCodes', 'approveDate', 'lockLevel', 'factDate', 'approveActionDate']
 
     def __init__(self, *args, **kwargs):
         super(PrepaymentForm, self).__init__(*args, **kwargs)

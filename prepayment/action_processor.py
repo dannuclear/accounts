@@ -360,7 +360,7 @@ def fillInventoryEntity(data, prefix, prepayment, accounting):  # Заполня
         inventoryItemPrefix = '%s-item-%s' % (itemPrefix, i)
         if (('%s-id' % (inventoryItemPrefix)) not in data) or (data.get('%s-DELETE' % (inventoryItemPrefix), False) in ['True']):
             break
-        currentNum = getTotalForms(data, inventoryItemPrefix)
+        currentNum = getTotalForms(data, '%s-entity' % inventoryItemPrefix)
 
         if expenseCategoryId and accounting:
             expenseSumCurrency = parseDecimal(data['%s-expenseSumCurrency' % (itemPrefix)])
