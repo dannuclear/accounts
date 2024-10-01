@@ -22,7 +22,6 @@ from num2words import num2words
 import textwrap
 from .action_processor import processActionNew
 from decimal import Decimal
-
 #from xhtml2pdf import pisa
 from django.template.loader import get_template
 from accounts import settings
@@ -255,6 +254,18 @@ def deletePrepayment(request, id):
     if request.method == 'GET':
         Prepayment.objects.get(id=id).delete()
     return HttpResponseRedirect('/prepayments')
+
+def parseDecimal (value):
+    if value is None or value == '':
+        return Decimal(0)
+    value = formats.sanitize_separators(value)
+    value = str(value).strip()
+    try:
+        value = Decimal(value)
+    except DecimalException:
+        raise ValidationError(self.error_messages['invalid'], code='invalid')
+    return value
+
 
 def fetch_pdf_resources(uri, rel):
 

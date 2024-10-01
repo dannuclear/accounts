@@ -4,6 +4,12 @@ import os
 import sys
 
 
+import sys
+
+sys.path.append('/var/www/mephi-xr96p/accounts')
+sys.path.append('/var/www/mephi-xr96p/')
+sys.path.append('/var/www/mephi-xr96p/thirdparty/')
+
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'accounts.settings')
     try:

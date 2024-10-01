@@ -48,12 +48,13 @@ def prepaidDests(request):
     return render(request, 'prepaidDest/all.html')
 
 class ImprestAccountViewSet (viewsets.ModelViewSet):
-    queryset = ImprestAccount.objects.all().order_by('id')
+    #queryset = ImprestAccount.objects.all().order_by('id')
+    queryset = ImprestAccount.objects.all().order_by('account')
     serializer_class = ImprestAccountSerializer
 
 
 class ExpenseCodeViewSet (viewsets.ModelViewSet):
-    queryset = ExpenseCode.objects.all().order_by('id')
+    queryset = ExpenseCode.objects.all().order_by('code')
     serializer_class = ExpenseCodeSerializer
 
 

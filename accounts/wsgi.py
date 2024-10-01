@@ -13,8 +13,13 @@ from django.core.wsgi import get_wsgi_application
 from django.core.handlers.wsgi import WSGIRequest, WSGIHandler
 import pprint
 import django
+import sys
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'accounts.settings')
+sys.path.append('/var/www/mephi-xr96p/accounts')
+sys.path.append('/var/www/mephi-xr96p/')
+sys.path.append('/var/www/mephi-xr96p/thirdparty/')
+
 
 class LoggingMiddleware:
     def __init__(self, application):
@@ -27,7 +32,7 @@ class LoggingMiddleware:
 
         request = WSGIRequest(environ)
         try:
-            request.META['REMOTE_USER'] = 'admin'
+            #request.META['REMOTE_USER'] = 'admin'
             os.environ['KRB5CCNAME'] = request.META['KRB5CCNAME']
         except Exception as ex:
             pprint.pprint(ex)

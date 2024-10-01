@@ -63,7 +63,7 @@ class PrepaymentForm (forms.ModelForm):
     document = DocumentChoiceField(queryset=Document.objects.filter(pk__in=[5, 14, 15, 16]).order_by('id'), widget=forms.Select(
         attrs={'class': 'custom-select form-control-sm'}), label='Наименование', required=False, empty_label=None)
 
-    wc07pOrder = WC07POrderChoiceField(queryset=WC07POrder.objects.order_by('id'), widget=forms.Select(
+    wc07pOrder = WC07POrderChoiceField(queryset=WC07POrder.objects.order_by('orderId'), widget=forms.Select(
         attrs={'class': 'custom-select form-control-sm'}), label='Номер', required=False, empty_label=None)
 
     # Табельный

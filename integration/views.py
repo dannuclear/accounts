@@ -45,7 +45,8 @@ class ProtocolViewSet (viewsets.ModelViewSet):
 
 
 class EstimateViewSet (viewsets.ModelViewSet):
-    queryset = Estimate.objects.order_by('id')
+    #queryset = Estimate.objects.order_by('id')
+    queryset = Estimate.objects.order_by('xv26eiId')
     serializer_class = EstimateSerializer
 
 
@@ -62,12 +63,14 @@ class EmployeeViewSet (viewsets.ModelViewSet):
 
 
 class PrepaymentViewSet (viewsets.ModelViewSet):
-    queryset = Prepayment.objects.order_by('id')
+    #queryset = Prepayment.objects.order_by('id')
+    queryset = Prepayment.objects.order_by('pdId')
     serializer_class = PrepaymentSerializer
 
 
 class OrderViewSet (viewsets.ModelViewSet):
-    queryset = WC07POrder.objects.annotate(prepayment_id=Subquery(prepaymentModels.Prepayment.objects.filter(wc07pOrder=OuterRef("pk")).values('pk')[:1])).order_by('id')
+    #queryset = WC07POrder.objects.annotate(prepayment_id=Subquery(prepaymentModels.Prepayment.objects.filter(wc07pOrder=OuterRef("pk")).values('pk')[:1])).order_by('id')
+    queryset = WC07POrder.objects.annotate(prepayment_id=Subquery(prepaymentModels.Prepayment.objects.filter(wc07pOrder=OuterRef("pk")).values('pk')[:1])).order_by('orderId')
     serializer_class = WC07POrderSerializer
 
 

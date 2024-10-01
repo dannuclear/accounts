@@ -19,7 +19,7 @@ def settings(request):
             return HttpResponseRedirect("/settings/")
     else:
         form = SettingsForm(instance=settings)
-    return render(request, 'main/settings.html', {'form': form}, status.HTTP_200_OK)
+    return render(request, 'main/settings.html', {'form': form})
 
 def checkFolder(request):
     path = request.GET['path']
