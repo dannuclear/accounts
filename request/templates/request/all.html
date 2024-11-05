@@ -48,6 +48,9 @@
                                 d.periodFrom=$('#period-from').val()
                             if ($('#period-to').val())
                                 d.periodTo=$('#period-to').val()
+                            d.columns.push({data: 'applicant.pfnSurname', searchable: true})
+                            d.columns.push({data: 'applicant.pfnName', searchable: true})
+                            d.columns.push({data: 'applicant.pfnPatronymic', searchable: true})
                         }
                     },
                     rowId: 'id',
@@ -115,7 +118,8 @@
                         {
                             title: 'ФИО',
                             data: 'applicant.fullName',
-                            orderable: false
+                            orderable: false,
+                            searchable: false
                         },
                         {
                             title: 'Должность',

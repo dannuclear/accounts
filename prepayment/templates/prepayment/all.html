@@ -72,6 +72,7 @@
                                 d.periodFrom=$('#period-from').val()
                             if ($('#period-to').val())
                                 d.periodTo=$('#period-to').val()
+                            //console.log(d)
                         }
                     },
                     rowId: 'id',
@@ -97,18 +98,18 @@
                         }) 
                     },
                     columns: [
-                        { data: null, orderable: false, render: function (data, type, row, meta) {
+                        { data: null, orderable: false, searchable: false, render: function (data, type, row, meta) {
                                 return data.document?data.document.name:'';
                             }
                         },
-                        { data: null, orderable: false, render: function (data, type, row, meta) {
+                        { data: null, orderable: false, searchable: false, render: function (data, type, row, meta) {
                                 if (data.wc07pOrder)
                                     return data.wc07pOrder.orderNum
                                 else 
                                     return data.docNum;
                             }
                         },
-                        { data: null, orderable: false, render: function (data, type, row, meta) {
+                        { data: null, orderable: false, searchable: false, render: function (data, type, row, meta) {
                                 if (data.wc07pOrder)
                                     return data.wc07pOrder.orderDate
                                 else 
@@ -116,24 +117,25 @@
                             }
                         },
                         { data: 'empDivNum', orderable: false },
-                        { data: 'empNum', orderable: false },
-                        { data: 'empFullName', orderable: false },
+                        { data: 'empNum', orderable: false, searchable: false },
+                        { data: 'empFullName', orderable: false, searchable: false },
 
-                        { data: 'imprestAccount.account', orderable: false, defaultContent: "" },
-                        { data: 'prepaidDestList', orderable: false },
-                        { data: 'missionDestList', orderable: false },
-                        { data: 'missionFrom', orderable: false, defaultContent: "" },
-                        { data: 'missionTo', orderable: false, defaultContent: "" },
-                        { data: 'totalSum', orderable: false },
-                        { data: 'status.name', orderable: false, defaultContent: "Не установлен" },
-                        { data: null, orderable: false, defaultContent: "" },
-                        { data: null, orderable: false, defaultContent: "" },
-                        { data: null, orderable: false, defaultContent: "" },
+                        { data: 'imprestAccount.account', orderable: false, defaultContent: "", searchable: false },
+                        { data: 'prepaidDestList', orderable: false, searchable: false },
+                        { data: 'missionDestList', orderable: false, searchable: false },
+                        { data: 'missionFrom', orderable: false, defaultContent: "", searchable: false },
+                        { data: 'missionTo', orderable: false, defaultContent: "", searchable: false },
+                        { data: 'totalSum', orderable: false, searchable: false },
+                        { data: 'status.name', orderable: false, defaultContent: "Не установлен", searchable: false },
+                        { data: null, orderable: false, defaultContent: "", searchable: false },
+                        { data: null, orderable: false, defaultContent: "", searchable: false },
+                        { data: null, orderable: false, defaultContent: "", searchable: false },
 
                         {
                             data: null,
                             defaultContent: '',
-                            orderable: false,
+                            orderable: false, 
+                            searchable: false,
                             render: function (data, type, row) {
                                 return `<a href="/prepayments/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
                             }
@@ -141,7 +143,8 @@
                         {
                             data: null,
                             defaultContent: '',
-                            orderable: false,
+                            orderable: false, 
+                            searchable: false,
                             render: function (data, type, row) {
                               return `<a href="/prepayments/${data.id}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить заявку?');"></a>`
                             }
