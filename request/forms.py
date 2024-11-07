@@ -1,6 +1,6 @@
 from django import forms
 from django.forms.models import ALL_FIELDS
-from .models import Request, RequestInventory
+from .models import Request, RequestInventory, RequestInventoryItem
 from guide.models import Status, ImprestAccount, ObtainMethod
 from integration.models import Employee
 
@@ -9,21 +9,26 @@ class MyDateField(forms.DateField):
     def prepare_value(self, value):
         return self.widget.format_value(value)
 
+
 class ImprestAccountChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.account
+
 
 class ObtainMethodChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
 
+
 class ApplicantChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return '%s: %s %s %s (%s)' % (obj.empOrgNo, obj.pfnSurname, obj.pfnName, obj.pfnPatronymic, obj.profName)
 
+
 class ApplicantOrgNoChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return '%s' % (obj.empOrgNo)
+
 
 class StatusChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
@@ -64,12 +69,61 @@ class RequestForm (forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(RequestForm, self).__init__(*args, **kwargs)
 
-#class RequestInventoryForm (forms.ModelForm):
+class RequestInventoryItemForm (forms.ModelForm):
+    price = forms.DecimalField(localize=True, required=True)
     
- #   class Meta:
- #       model = RequestInventory
- #       fields = ALL_FIELDS
- #       exclude = ['request']
-  #      localized_fields = ALL_FIELDS
+    total = forms.DecimalField(localize=True, required=True)
 
-#RequestInventorySet = forms.inlineformset_factory(Request, RequestInventory, form=RequestInventoryForm, can_delete=True, extra=0, min_num=0)
+    class Meta:
+        model = RequestInventoryItem
+        fields = ALL_FIELDS
+        exclude = ['requestInventory']
+        localized_fields = ALL_FIELDS
+
+RequestInventoryItemFormset = forms.inlineformset_factory(RequestInventory, RequestInventoryItem, form=RequestInventoryItemForm, extra=0, min_num=1, can_delete=True)
+
+class RequestInventoryForm (forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(RequestInventoryForm, self).__init__(*args, **kwargs)
+
+        isBound = len([v for k, v in self.data.items() if k.startswith(self.prefix)]) if self.is_bound else self.is_bound
+        self.items = RequestInventoryItemFormset(instance=self.instance,
+                                                       data=self.data if isBound else None,
+                                                       files=self.files if isBound else None,
+                                                       prefix='%s-%s' % (self.prefix, 'item'))
+    def is_valid(self):
+        result = super(RequestInventoryForm, self).is_valid()
+
+        if self.is_bound:
+            if hasattr(self, 'items'):
+                result = result and self.items.is_valid()
+
+        return result
+
+    def save(self, commit=True):
+        result = super(RequestInventoryForm, self).save(commit=True)
+
+        if hasattr(self, 'items'):
+            for el in self.items.save(commit=False):
+                el.save()
+            for deletedEl in self.items.deleted_forms:
+                if deletedEl.instance.id is not None:
+                    deletedEl.instance.delete()
+            # self.entities.save()
+
+        return result
+
+    def has_changed(self):
+        result = super(RequestInventoryForm, self).has_changed()
+        if hasattr(self, 'items'):
+            result = result or self.items.has_changed()
+        return result
+    
+    class Meta:
+        model = RequestInventory
+        fields = ALL_FIELDS
+        exclude = ['request']
+        localized_fields = ALL_FIELDS
+
+#RequestInventoryFormSet = forms.inlineformset_factory(Request, RequestInventory, can_delete=True, extra=0, min_num=1, exclude=['request'])
+RequestInventoryFormSet = forms.inlineformset_factory(Request, RequestInventory, form=RequestInventoryForm, can_delete=True, extra=0, min_num=1)

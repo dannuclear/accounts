@@ -132,6 +132,12 @@
                 </div>
 
                 <div class="row pt-1 px-1 pb-0">
+                  <div class="col-12 p-1" style="background-color: #fff3e4;">
+                    <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ inventory.items.prefix }}">Добавить</button>
+                  </div>
+                </div>
+
+                <div class="row pt-1 px-1 pb-0">
                   <table class="table table-bordered table-sm text-center mb-0" style="font-size: 0.9em;">
                     <thead>
                       <tr>
@@ -140,27 +146,15 @@
                         <th scope="col" width="10%">Кол-во</th>
                         <th scope="col" width="10%">Цена</th>
                         <th scope="col" width="20%">Сумма, итого</th>
+                        <th scope="col" width="1%"> </th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>
-                          <input name="mzp-cell-num" type="text" class="form-control form-control-sm" autocomplete="off" />
-                        </td>
-                        <td>
-                          <input name="mzp-cell-name" type="text" class="form-control form-control-sm" autocomplete="off" />
-                        </td>
-                        <td>
-                          <input name="mzp-cell-count" type="text" class="form-control form-control-sm" autocomplete="off" />
-                        </td>
-                        <td>
-                          <input name="mzp-cell-cost" type="text" class="form-control form-control-sm" autocomplete="off" />
-                        </td>
-                        <td>
-                          <input name="mzp-cell-sum" type="text" class="form-control form-control-sm" autocomplete="off" />
-                        </td>
-                      </tr>
-                    </tbody>
+                      {{ inventory.items.management_form }}
+                      {% for item in inventory.items %}
+                        {% include 'request/inventoryItemRow.html' with item=item %}
+                      {% endfor %}
+                      </tbody>
                   </table>
                 </div>
 
@@ -230,7 +224,7 @@
       //})
     
       // Добавить аванс
-      $('.btn-add-row, .btn-add-entity-row').on('click', function (e) {
+      $('.btn-add-row').on('click', function (e) {
         $('#action').val('add-' + $(e.target).data('prefix'))
       })
 
@@ -241,6 +235,13 @@
         else form.hide()
       })
     
+      $('tbody').on('click', '.btn-delete-row', function (e) {
+        const tr = $(e.currentTarget).closest('tr')
+        $('.'+tr.attr('id')).hide()
+        tr.hide()
+        tr.find("[id$='DELETE']").val(1)
+      })
+
       $('#id_applicant')
         .select2({
           ajax: {

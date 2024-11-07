@@ -1,0 +1,25 @@
+<tr>
+  {{ item.id }}
+  <input type="hidden" name="{{ item.DELETE.html_name }}" id="{{ item.DELETE.auto_id }}" value="{{ item.DELETE.value|default_if_none:'' }}" />
+
+    <td class="align-middle">
+      <input type="text" class="form-control form-control-sm" value="{{ forloop.counter }}" autocomplete="off" disabled/>
+    </td>
+    <td>
+      <input type="text" class="form-control form-control-sm {% if item.name.errors %} is-invalid {% endif %}" name="{{ item.name.html_name }}" value="{{ item.name.value|default_if_none:'' }}" autocomplete="off" />
+    </td>
+    <td>
+      <input type="text" class="form-control form-control-sm {% if item.cnt.errors %} is-invalid {% endif %}" name="{{ item.cnt.html_name }}" value="{{ item.cnt.value|default_if_none:'' }}" autocomplete="off" />
+    </td>
+    <td>
+      <input type="text" class="form-control form-control-sm {% if item.price.errors %} is-invalid {% endif %}" name="{{ item.price.html_name }}" value="{{ item.price.value|default_if_none:'' }}" autocomplete="off" />
+    </td>
+    <td>
+      <input type="text" class="form-control form-control-sm {% if item.total.errors %} is-invalid {% endif %}" name="{{ item.total.html_name }}" value="{{ item.total.value|default_if_none:'' }}" autocomplete="off" />
+    </td>
+
+    <td class="align-middle">
+        <button type="button" class="btn btn-sm btn-outline-danger btn-delete-row" data-prefix="{{ inventoryItem.items.prefix }}"><i class="fa-light fa-trash" ></i></button>
+    </td>
+
+</tr>

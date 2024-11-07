@@ -3,7 +3,7 @@ from .models import Request, RequestInventory
 from prepayment.models import Prepayment
 from rest_framework import viewsets
 from .serializers import RequestSerializer
-from .forms import RequestForm
+from .forms import RequestForm, RequestInventoryFormSet
 from datetime import datetime
 from django.db.models import Max, OuterRef, Subquery
 from guide.models import Status, Document
@@ -68,7 +68,7 @@ def editRequest(request, id):
     else:
         prepaymentRequest = Request.objects.get(id=id)
 
-    RequestInventoryForm = inlineformset_factory(Request, RequestInventory, can_delete=True, extra=0, min_num=1, exclude=['request'])
+    #RequestInventoryForm = inlineformset_factory(Request, RequestInventory, can_delete=True, extra=0, min_num=1, exclude=['request'])
     if request.method == 'POST':
         postCopy = request.POST.copy()
         if postCopy['action']:
@@ -83,7 +83,7 @@ def editRequest(request, id):
         
         form = RequestForm(postCopy, instance=prepaymentRequest)
         if prepaymentRequest.type == 0:
-            inventoriesFormSet = RequestInventoryForm(postCopy, prefix='inventory', instance=prepaymentRequest)
+            inventoriesFormSet = RequestInventoryFormSet(postCopy, prefix='inventory', instance=prepaymentRequest)
 
         if not postCopy['action'] and form.is_valid() and (prepaymentRequest.type == 1 or inventoriesFormSet.is_valid()):
             form.save()
@@ -95,7 +95,7 @@ def editRequest(request, id):
             return HttpResponseRedirect('/requests')
     if request.method == 'GET':
         form = RequestForm(instance=prepaymentRequest)
-        inventoriesFormSet = RequestInventoryForm(prefix='inventory', instance=prepaymentRequest)
+        inventoriesFormSet = RequestInventoryFormSet(prefix='inventory', instance=prepaymentRequest)
 
         if is_user_in_group(request.user, ['Администратор', 'Подотчетное лицо с расширенным функционалом', 'Руководитель']):
             form.fields['status'].queryset = Status.objects.order_by('id')
