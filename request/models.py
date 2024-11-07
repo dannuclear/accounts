@@ -65,3 +65,23 @@ class RequestInventory(models.Model):
         verbose_name = 'МПЗ по заявлению'
         verbose_name_plural = 'МПЗ по заявлению'
         default_permissions = ()
+
+class RequestInventoryItem(models.Model):
+    id = models.AutoField(primary_key=True, blank=False)
+
+    # Ссылка на мпз
+    requestInventory = models.ForeignKey(RequestInventory, db_column='request_inventory_id', on_delete=models.PROTECT, blank=False, null=False)
+    # Наименование
+    name = models.CharField(db_column="name", blank=False, null=False, max_length=500)
+    # Количество
+    cnt = models.SmallIntegerField(db_column="cnt", blank=False, null=False)
+    # Цена
+    price = models.DecimalField(max_digits=10, decimal_places=2, db_column="price", blank=False, null=False)
+    # Сумма
+    total = models.DecimalField(max_digits=10, decimal_places=2, db_column="total", blank=False, null=False)
+
+    class Meta:
+        db_table = 'request_inventory_item'
+        verbose_name = 'элемент МПЗ по заявлению'
+        verbose_name_plural = 'элементы МПЗ по заявлению'
+        default_permissions = ()

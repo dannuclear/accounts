@@ -7,6 +7,8 @@
 {% block content %}
   <form method="post" class="container">
     {% csrf_token %}
+
+    <input id="action" type="hidden" name="action">
     <div class="form-row align-items-center">
       <div class="col-12 p-1 text-right">
         <input type="submit" class="btn btn-success btn-sm" value="Сохранить" />
@@ -40,11 +42,34 @@
     </div>
 
     <div class="row">
-      <div class="col-12 p-1 input-group input-group-sm">
+      <div class="col-3 p-1 input-group input-group-sm">
         <div class="input-group-prepend">
-          <span class="input-group-text {% if form.applicant.errors %} bg-danger {% endif %}">{{ form.applicant.label }}</span>
+          <span class="input-group-text {% if form.applicant.errors %} bg-danger {% endif %}">Табельный</span>
         </div>
         {{ form.applicant }}
+      </div>
+
+      <div class="col-6 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">ФИО</span>
+        </div>
+        <input type="text" class="h5 text-center mb-0 form-control form-control-sm applicant-fio" value="{{ form.instance.applicant.pfnSurname|add:' '|add:form.instance.applicant.pfnName|add:' '|add:form.instance.applicant.pfnPatronymic|default_if_none:'' }}" disabled />
+      </div>
+
+      <div class="col-3 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Подр.</span>
+        </div>
+        <input type="text" class="h5 text-center mb-0 form-control form-control-sm applicant-div" value="{{ form.instance.applicant.divNo|default_if_none:'' }}" disabled />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Должность</span>
+        </div>
+        <input type="text" class="h5 text-center mb-0 form-control form-control-sm applicant-prof" value="{{ form.instance.applicant.profName|default_if_none:'' }}" disabled />
       </div>
     </div>
 
@@ -72,110 +97,107 @@
     </div>
 
     {% if type == 0 %}
-    <div class="row p-1 border rounded inventory-container">
+      <div class="row p-1 border rounded inventory-container">
+        <div class="col-12 p-1" style="background-color: #fff3e4;">
+          {% comment %} <button id="add-mpz-group" type="button" class="btn btn-sm btn-success">+</button> {% endcomment %}
+          <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ inventories.prefix }}">Добавить</button>
+        </div>
 
-      <div class="col-12 p-1" style="background-color: #fff3e4;">
-        <button id="add-mpz-group" type="button" class="btn btn-sm btn-success">+</button>
-      </div>
-
-      {{ inventories.management_form }}
-      {% for inventory in inventories %}
-        <div id='{{ inventory.prefix }}' class="col-12 border rounded mt-1 inventory-form" style="background-color: #fff3e4;">
-          <input type="hidden" name="{{ inventory.DELETE.html_name }}" id="{{ inventory.DELETE.auto_id }}">
-          {{ inventory.id }}
-          <div class="row">
-            <div class="col">
-              <div class="row pt-1 px-1 pb-0">
-                <div class="col-12 p-0 input-group input-group-sm">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">Приобретение МПЗ (заявка №:</span>
+        {{ inventories.management_form }}
+        {% for inventory in inventories %}
+          <div id="{{ inventory.prefix }}" class="col-12 border rounded mt-1 inventory-form" style="background-color: #fff3e4; {% if inventory.DELETE.value %} display:none {% endif %}">
+            <input type="hidden" name="{{ inventory.DELETE.html_name }}" id="{{ inventory.DELETE.auto_id }}" value="{{ inventory.DELETE.value|default_if_none:'' }}"/>
+            {{ inventory.id }}
+            <div class="row">
+              <div class="col">
+                <div class="row pt-1 px-1 pb-0">
+                  <div class="col-12 p-0 input-group input-group-sm">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">Приобретение МПЗ (заявка №:</span>
+                    </div>
+                    <input type="text" class="h5 mb-0 form-control form-control-sm {% if inventory.requestNum.errors %} is-invalid {% endif %}" name="{{ inventory.requestNum.html_name }}" value="{{ inventory.requestNum.value|default_if_none:'' }}" autocomplete="off" />
+                    <div class="input-group-append">
+                      <span class="input-group-text">)</span>
+                    </div>
                   </div>
-                  <input type="text" class="h5 mb-0 form-control form-control-sm {% if inventory.requestNum.errors %} is-invalid {% endif %}" name="{{ inventory.requestNum.html_name }}" value="{{ inventory.requestNum.value|default_if_none:'' }}" autocomplete="off" />
-                  <div class="input-group-append">
-                    <span class="input-group-text">)</span>
+                </div>
+
+                <div class="row pt-1 px-1 pb-0">
+                  <div class="col-12 p-0 input-group input-group-sm">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">Комментарий</span>
+                    </div>
+                    <input type="text" class="h5 mb-0 form-control form-control-sm {% if inventory.comment.errors %} is-invalid {% endif %}" name="{{ inventory.comment.html_name }}" value="{{ inventory.comment.value|default_if_none:'' }}" autocomplete="off" />
+                  </div>
+                </div>
+
+                <div class="row pt-1 px-1 pb-0">
+                  <table class="table table-bordered table-sm text-center mb-0" style="font-size: 0.9em;">
+                    <thead>
+                      <tr>
+                        <th scope="col" width="10%">№ п/п</th>
+                        <th scope="col" width="50%">Наименование ТМЦ</th>
+                        <th scope="col" width="10%">Кол-во</th>
+                        <th scope="col" width="10%">Цена</th>
+                        <th scope="col" width="20%">Сумма, итого</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <input name="mzp-cell-num" type="text" class="form-control form-control-sm" autocomplete="off" />
+                        </td>
+                        <td>
+                          <input name="mzp-cell-name" type="text" class="form-control form-control-sm" autocomplete="off" />
+                        </td>
+                        <td>
+                          <input name="mzp-cell-count" type="text" class="form-control form-control-sm" autocomplete="off" />
+                        </td>
+                        <td>
+                          <input name="mzp-cell-cost" type="text" class="form-control form-control-sm" autocomplete="off" />
+                        </td>
+                        <td>
+                          <input name="mzp-cell-sum" type="text" class="form-control form-control-sm" autocomplete="off" />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="row p-1">
+                  <div class="col-12 p-0 input-group input-group-sm">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">Приложение</span>
+                    </div>
+                    <input type="text" class="h5 mb-0 form-control form-control-sm {% if inventory.attachment.errors %} is-invalid {% endif %}" name="{{ inventory.attachment.html_name }}" value="{{ inventory.attachment.value|default_if_none:'' }}" autocomplete="off" />
                   </div>
                 </div>
               </div>
-
-              <div class="row pt-1 px-1 pb-0">
-                <div class="col-12 p-0 input-group input-group-sm">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">Комментарий</span>
-                  </div>
-                  <input type="text" class="h5 mb-0 form-control form-control-sm {% if inventory.comment.errors %} is-invalid {% endif %}" name="{{ inventory.comment.html_name }}" value="{{ inventory.comment.value|default_if_none:'' }}" autocomplete="off" />
-                </div>
+              <div class="col-auto p-1 d-flex">
+                <button type="button" class="btn btn-sm btn-outline-danger delete-inventory align-self-stretch"><i class="fa-light fa-trash"></i></button>
               </div>
-
-              <div class="row pt-1 px-1 pb-0">
-                <table class="table table-bordered table-sm text-center mb-0" style="font-size: 0.9em;">
-                  <thead>
-                    <tr>
-                      <th scope="col" width="10%">№ п/п</th>
-                      <th scope="col" width="50%">Наименование ТМЦ</th>
-                      <th scope="col" width="10%">Кол-во</th>
-                      <th scope="col" width="10%">Цена</th>
-                      <th scope="col" width="20%">Сумма, итого</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <input name="mzp-cell-num" type="text" class="form-control form-control-sm" autocomplete="off" />
-                      </td>
-                      <td>
-                        <input name="mzp-cell-name" type="text" class="form-control form-control-sm" autocomplete="off" />
-                      </td>
-                      <td>
-                        <input name="mzp-cell-count" type="text" class="form-control form-control-sm" autocomplete="off" />
-                      </td>
-                      <td>
-                        <input name="mzp-cell-cost" type="text" class="form-control form-control-sm" autocomplete="off" />
-                      </td>
-                      <td>
-                        <input name="mzp-cell-sum" type="text" class="form-control form-control-sm" autocomplete="off" />
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div class="row p-1">
-                <div class="col-12 p-0 input-group input-group-sm">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">Приложение</span>
-                  </div>
-                  <input type="text" class="h5 mb-0 form-control form-control-sm {% if inventory.attachment.errors %} is-invalid {% endif %}" name="{{ inventory.attachment.html_name }}" value="{{ inventory.attachment.value|default_if_none:'' }}" autocomplete="off" />
-                </div>
-              </div>
-            </div>
-            <div class="col-auto p-1 d-flex">
-              <button type="button" class='btn btn-sm btn-outline-danger delete-inventory align-self-stretch'><i class="fa-light fa-trash"></i></button>
             </div>
           </div>
-        </div>
-      
-      {% endfor %}
-
-    </div>
-
-    <div class="row">
-      <div class="col-12 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">{{ form.servicePayment.label }}</span>
-        </div>
-        <input type="text" class="h5 mb-0 form-control form-control-sm" name="{{ form.servicePayment.name }}" value="{{ form.servicePayment.value|default_if_none:'' }}" autocomplete="off" />
+        {% endfor %}
       </div>
-    </div>
 
-    <div class="row">
-      <div class="col-12 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">{{ form.comment.label }}</span>
+      <div class="row">
+        <div class="col-12 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.servicePayment.label }}</span>
+          </div>
+          <input type="text" class="h5 mb-0 form-control form-control-sm" name="{{ form.servicePayment.name }}" value="{{ form.servicePayment.value|default_if_none:'' }}" autocomplete="off" />
         </div>
-        <textarea type="text" rows="3" class="h5 mb-0 form-control form-control-sm" name="{{ form.comment.name }}">{{ form.comment.value|default_if_none:'' }}</textarea>
       </div>
-    </div>
 
+      <div class="row">
+        <div class="col-12 p-1 input-group input-group-sm">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ form.comment.label }}</span>
+          </div>
+          <textarea type="text" rows="3" class="h5 mb-0 form-control form-control-sm" name="{{ form.comment.name }}">{{ form.comment.value|default_if_none:'' }}</textarea>
+        </div>
+      </div>
     {% endif %}
 
     <div class="row">
@@ -200,21 +222,56 @@
   <script type="text/javascript">
     $(document).ready(function () {
       $('.datepeeker').datepicker()
-
+    
       const mpzGroup = $('.mpz-group').first()
-
-      $('#add-mpz-group').on('click', function (e) {
-        addForm('inventory')
+    
+      //$('#add-mpz-group').on('click', function (e) {
+      //  addForm('inventory')
+      //})
+    
+      // Добавить аванс
+      $('.btn-add-row, .btn-add-entity-row').on('click', function (e) {
+        $('#action').val('add-' + $(e.target).data('prefix'))
       })
 
-      $('.inventory-container').on('click', '.delete-inventory', function(e) {
+      $('.inventory-container').on('click', '.delete-inventory', function (e) {
         const form = $(e.currentTarget).parents('.inventory-form')
         form.children('[id$="DELETE"]').val(1)
-        if (!form.children('[id$="id"]').val())
-          form.remove()
-        else
-          form.hide()
+        if (!form.children('[id$="id"]').val()) form.remove()
+        else form.hide()
       })
+    
+      $('#id_applicant')
+        .select2({
+          ajax: {
+            url: '/api/v1/integration/employees/?format=json',
+            dataType: 'json',
+            data: function (params) {
+              var query = {
+                empOrgNo: params.term
+              }
+              return query
+            },
+            processResults: function (data) {
+              return {
+                results: data.results.map((el) => ({ id: el.persId, text: el.empOrgNo }))
+              }
+            }
+          },
+          language: {
+            noResults: function (params) {
+              return 'Нет совпадений'
+            }
+          }
+        })
+        .on('select2:select', function (e) {
+          var data = e.params.data
+          $.get(`/api/v1/integration/employees/${e.params.data.id}?format=json`).done((response) => {
+            $('.applicant-fio').val(response.pfnSurname + ' ' + response.pfnName + ' ' + response.pfnPatronymic)
+            $('.applicant-div').val(response.divNo)
+            $('.applicant-prof').val(response.profName)
+          })
+        })
     })
   </script>
 {% endblock %}

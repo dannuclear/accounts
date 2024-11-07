@@ -11,6 +11,7 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
 from integration.models import Employee
+from prepayment.action_processor import addItem
 # Create your views here.
 
 
@@ -69,10 +70,22 @@ def editRequest(request, id):
 
     RequestInventoryForm = inlineformset_factory(Request, RequestInventory, can_delete=True, extra=0, min_num=1, exclude=['request'])
     if request.method == 'POST':
-        form = RequestForm(request.POST, instance=prepaymentRequest)
+        postCopy = request.POST.copy()
+        if postCopy['action']:
+            action = postCopy['action']
+            if action.startswith('add-'):
+                prefix = action.replace('add-', '')
+                addItem(postCopy, prefix)
+            # Обрабатываем удаление записи
+            elif action.startswith('delete-'):
+                prefix = action.replace('delete-', '')
+                postCopy['%s-DELETE' % prefix] = 'True'
+        
+        form = RequestForm(postCopy, instance=prepaymentRequest)
         if prepaymentRequest.type == 0:
-            inventoriesFormSet = RequestInventoryForm(request.POST, prefix='inventory', instance=prepaymentRequest)
-        if form.is_valid() and (prepaymentRequest.type == 1 or inventoriesFormSet.is_valid()):
+            inventoriesFormSet = RequestInventoryForm(postCopy, prefix='inventory', instance=prepaymentRequest)
+
+        if not postCopy['action'] and form.is_valid() and (prepaymentRequest.type == 1 or inventoriesFormSet.is_valid()):
             form.save()
             if prepaymentRequest.type == 0:
                 for inventory in inventoriesFormSet.save(commit=False):

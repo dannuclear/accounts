@@ -1,6 +1,6 @@
 from django import forms
 from django.forms.models import ALL_FIELDS
-from .models import Request
+from .models import Request, RequestInventory
 from guide.models import Status, ImprestAccount, ObtainMethod
 from integration.models import Employee
 
@@ -21,6 +21,10 @@ class ApplicantChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return '%s: %s %s %s (%s)' % (obj.empOrgNo, obj.pfnSurname, obj.pfnName, obj.pfnPatronymic, obj.profName)
 
+class ApplicantOrgNoChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return '%s' % (obj.empOrgNo)
+
 class StatusChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
@@ -39,7 +43,7 @@ class RequestForm (forms.ModelForm):
     status = StatusChoiceField(queryset=Status.objects.order_by('id'), widget=forms.Select(
         attrs={'class': 'custom-select form-control-sm'}), label='Статус', required=True, empty_label=None)
 
-    applicant = ApplicantChoiceField(queryset=Employee.objects.all(), widget=forms.Select(
+    applicant = ApplicantOrgNoChoiceField(queryset=Employee.objects.all(), widget=forms.Select(
         attrs={'class': 'custom-select form-control-sm'}), label='Сотрудник', required=True, empty_label='Не выбран')
 
     imprestAccount = ImprestAccountChoiceField(queryset=ImprestAccount.objects.order_by('account'), widget=forms.Select(
@@ -59,3 +63,13 @@ class RequestForm (forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(RequestForm, self).__init__(*args, **kwargs)
+
+#class RequestInventoryForm (forms.ModelForm):
+    
+ #   class Meta:
+ #       model = RequestInventory
+ #       fields = ALL_FIELDS
+ #       exclude = ['request']
+  #      localized_fields = ALL_FIELDS
+
+#RequestInventorySet = forms.inlineformset_factory(Request, RequestInventory, form=RequestInventoryForm, can_delete=True, extra=0, min_num=0)
