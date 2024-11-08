@@ -1,0 +1,246 @@
+{% load static %}
+<html>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <link rel="stylesheet" type="text/css" href="{% static 'main/css/bootstrap.min.css' %}" />
+    <style type="text/css">
+      @font-face {
+        font-family: TimesNewRoman;
+        src: url(/static/main/fonts/times.ttf);
+      }
+      body {
+        font-family: TimesNewRoman;
+      }
+      
+      @media print {
+        @page {
+          size: auto; /*auto is the initial value */
+          margin: 0mm; /* this affects the margin in the printer settings */
+        }
+      
+        #printPageButton {
+          display: none;
+        }
+      
+        body {
+          font-size: 12pt;
+          margin: 10mm;
+        }
+      
+        body > .container {
+          width: 100% !important;
+          margin: 0px !important;
+          max-width: 100% !important;
+        }
+      }
+      
+      table.header-table {
+        border-collapse: separate;
+        border-spacing: 10px 2px;
+      }
+      table,
+      th,
+      td {
+        /* border: 1px solid gainsboro;*/
+      }
+      th {
+        font-weight: lighter;
+      }
+      
+      td.border-top2-bottom1,
+      th.border-top2-bottom1 {
+        border-top: 2px solid black !important;
+        border-bottom: 1px solid black;
+      }
+      
+      td.border-top1-bottom2,
+      th.border-top1-bottom2 {
+        border-top: 1px solid black;
+        border-bottom: 2px solid black !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container p-4">
+      <div class="row">
+        <div class="col-12">
+          <table class="w-100 header-table">
+            <tr>
+              <td></td>
+              <td class="text-left" colspan="2">
+                {% if req.type == 0 %}
+                  Начальнику финансового отдела<br />Полякову А.Л.
+                {% elif req.type == 1 %}
+                  Генеральному директору<br />ФГУП «Комбинат «Электрохимприбор»
+                {% endif %}
+              </td>
+            </tr>
+
+            {% with applicant=req.applicant %}
+              <tr>
+                <td></td>
+                <td class="text-left" style="width: 40%;" colspan="2">
+                  от<br /><u>{{ applicant.profName|add:' '|add:applicant.pfnSurname|add:' '|add:applicant.pfnSurname|add:' '|add:applicant.pfnPatronymic|default_if_none:'' }}</u>
+                </td>
+              </tr>
+              <tr>
+                <td></td>
+                <td class="text-center" style="font-size: 0.8em;" colspan="2">(должность, фамилия, инициалы работника)</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td class="text-center border-bottom border-dark" style="width: 20%;">{{ applicant.divNo|default_if_none:'' }}</td>
+                <td class="text-center border-bottom border-dark">{{ applicant.empOrgNo|default_if_none:'' }}</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td class="text-center" style="font-size: 0.8em;">(подразделение)</td>
+                <td class="text-center" style="font-size: 0.8em;">(табельный номер)</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td class="text-center"></td>
+                <td class="text-center border-bottom border-dark">{{ req.applicantPhone|default_if_none:'&nbsp;' }}</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td class="text-center" style="font-size: 0.8em;"></td>
+                <td class="text-center" style="font-size: 0.8em;">(рабочий телефон)</td>
+              </tr>
+            {% endwith %}
+
+            <tr style="height: 30px;">
+              <td colspan="3" class="text-center font-weight-bold align-bottom">
+                <table class="w-100">
+                  <tbody>
+                    <tr>
+                      <td rowspan="2" class="text-right" style="width: 50%">
+                        <h3>Заявление о выдаче денег под отчет</h3>
+                      </td>
+                      <td rowspan="2" style="width: 10px"></td>
+                      <td class="border border-dark text-center" style="width: 120px;">номер</td>
+                      <td class="border border-dark text-center" style="width: 150px;">дата составления</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td class="border border-dark text-center">{{ req.num }}</td>
+                      <td class="border border-dark text-center">{{ req.createDate }}</td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td colspan="3" class="text-left align-bottom">
+                Прошу выдать мне под отчет{% if req.type == 0 %}
+
+                {% elif req.type == 1 %}
+                  аванс на приобретение ГСМ для заправки служебных автомобилей в сумме
+                {% endif %}
+                <u>{{ issuedSumIntString }} ({{ req.issuedSum|default_if_none:'' }}) руб.</u>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3" class="text-center" style="font-size: 0.8em;">(сумма в рублях прописью, в круглых скобках - цифрами)</td>
+            </tr>
+
+            {% if req.type == 0 %}
+              <tr>
+                <td colspan="3" class="text-left align-bottom">
+                  на <u>административно-хозяйственные нужды, приобретение МПЗ, оплата услуг</u>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="3" class="text-center" style="font-size: 0.8em;">(указать цель выдачи денежных средств)</td>
+              </tr>
+
+              <tr>
+                <td colspan="3" class="text-left align-bottom">Обоснование запрашиваемой суммы:</td>
+              </tr>
+              {% if req.type == 0 %}
+                {% for inventory in req.requestinventory_set.all %}
+                  <tr>
+                    <td colspan="3" class="text-left" style="font-size: 0.8em;">{{ 'заявка №:'|add:inventory.requestNum|add:' '|add:inventory.comment }}</td>
+                  </tr>
+                  {% for item in inventory.requestinventoryitem_set.all %}
+                    <tr>
+                      <td colspan="3" class="text-left" style="font-size: 0.8em;">
+                        {{ 'Наименование: '|add:item.name|default_if_none:'' }}
+                        {% with cnt=item.cnt|stringformat:'i' %}
+                          {{ 'Количество: '|add:cnt|default_if_none:'' }}
+                        {% endwith %}
+                        {% with price=item.price|stringformat:'.2f' %}
+                          {{ 'Цена: '|add:price|default_if_none:'' }}
+                        {% endwith %}
+                        {% with total=item.total|stringformat:'.2f' %}
+                          {{ 'Итого: '|add:total|default_if_none:'' }}
+                        {% endwith %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% endfor %}
+              {% endif %}
+              <tr>
+                <td colspan="3" class="text-center" style="font-size: 0.8em;">(привести обоснование с перечнем запрашиваемых МПЗ и при необходимости - расчет запрашиваемой суммы)</td>
+              </tr>
+
+              <tr>
+                <td colspan="3" class="text-left">Предполагаемая дата получения денежных средств: {{ req.receivingDate|default_if_none:'' }}</td>
+              </tr>
+
+              <tr>
+                <td colspan="3">
+                  <table class="w-100">
+                    <tbody>
+                      {% with divNo=req.applicant.divNo|stringformat:'03d'|default_if_none:'___' %}
+                        {% include 'request/signRow.html' with title='Решение начальника структурного подразделения № '|add:divNo|add:'   __________________________________' %}
+                      {% endwith %}
+                      {% include 'request/signRow.html' with title='Решение начальника финансового отдела '|add:'   __________________________________' %}
+                      <tr>
+                        <td>СОГЛАСОВАННО</td>
+                      </tr>
+                      {% include 'request/signRow.html' with title='Главный бухгалтер комбината' %}
+                      {% include 'request/signRow.html' with title='Заместитель генерального директора по логистике' %}
+                      {% include 'request/signRow.html' with title='Начальник ОМТСКО' %}
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            {% elif req.type == 1 %}
+              <tr>
+                <td colspan="3" class="text-left">
+                  путем{% if req.obtainMethod.source == 0 %}
+                  его выдачу через кассу
+                  {% else %}
+                  его перечисления на карту банка
+                  {% endif %}
+                </td>
+              </tr>
+
+              <tr>
+                <td colspan="3" class="text-left">
+                  Обязуюсь в течении 10 рабочих дней с момента получения денежных средств отчитаться за их использование и (или) вернуть неизрасходованную часть полученной суммы
+                </td>
+              </tr>
+
+              <tr>
+                <td colspan="3">
+                  <table class="w-100">
+                    <tbody>
+                      {% include 'request/signRow.html' with title='Работник' %}
+                      {% include 'request/signRow.html' with title='Руководитель ораганизации' %}
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            {% endif %}
+
+            
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

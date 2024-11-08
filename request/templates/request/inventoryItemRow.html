@@ -9,13 +9,13 @@
       <input type="text" class="form-control form-control-sm {% if item.name.errors %} is-invalid {% endif %}" name="{{ item.name.html_name }}" value="{{ item.name.value|default_if_none:'' }}" autocomplete="off" />
     </td>
     <td>
-      <input type="text" class="form-control form-control-sm {% if item.cnt.errors %} is-invalid {% endif %}" name="{{ item.cnt.html_name }}" value="{{ item.cnt.value|default_if_none:'' }}" autocomplete="off" />
+      <input type="text" class="form-control form-control-sm {% if item.cnt.errors %} is-invalid {% endif %} cnt-input" name="{{ item.cnt.html_name }}" value="{{ item.cnt.value|default_if_none:'' }}" autocomplete="off" />
     </td>
     <td>
-      <input type="text" class="form-control form-control-sm {% if item.price.errors %} is-invalid {% endif %}" name="{{ item.price.html_name }}" value="{{ item.price.value|default_if_none:'' }}" autocomplete="off" />
+      <input type="text" class="form-control form-control-sm {% if item.price.errors %} is-invalid {% endif %} price-input" name="{{ item.price.html_name }}" value="{{ item.price.value|default_if_none:'' }}" autocomplete="off" />
     </td>
     <td>
-      <input type="text" class="form-control form-control-sm {% if item.total.errors %} is-invalid {% endif %}" name="{{ item.total.html_name }}" value="{{ item.total.value|default_if_none:'' }}" autocomplete="off" />
+      <input type="text" class="form-control form-control-sm {% if item.total.errors %} is-invalid {% endif %} total-input" name="{{ item.total.html_name }}" value="{{ item.total.value|default_if_none:'' }}" autocomplete="off" readonly/>
     </td>
 
     <td class="align-middle">

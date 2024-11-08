@@ -65,11 +65,18 @@
     </div>
 
     <div class="row">
-      <div class="col-12 p-1 input-group input-group-sm">
+      <div class="col-9 p-1 input-group input-group-sm">
         <div class="input-group-prepend">
           <span class="input-group-text">Должность</span>
         </div>
         <input type="text" class="h5 text-center mb-0 form-control form-control-sm applicant-prof" value="{{ form.instance.applicant.profName|default_if_none:'' }}" disabled />
+      </div>
+
+      <div class="col-3 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Телефон</span>
+        </div>
+        <input type="text" class="h5 text-center mb-0 form-control form-control-sm" name="{{ form.applicantPhone.name }}" value="{{ form.instance.applicantPhone|default_if_none:'' }}" />
       </div>
     </div>
 
@@ -78,7 +85,7 @@
         <div class="input-group-prepend">
           <span class="input-group-text">{{ form.issuedSum.label }}</span>
         </div>
-        <input type="text" class="h5 text-center mb-0 form-control form-control-sm" name="{{ form.issuedSum.name }}" value="{{ form.issuedSum.value|default_if_none:'' }}" />
+        <input type="text" class="h5 text-center mb-0 form-control form-control-sm issued-sum" name="{{ form.issuedSum.name }}" value="{{ form.issuedSum.value|default_if_none:'' }}" />
       </div>
 
       <div class="col-4 p-1 input-group input-group-sm">
@@ -122,7 +129,7 @@
                   </div>
                 </div>
 
-                <div class="row pt-1 px-1 pb-0">
+                <div class="row pt-1 px-1 pb-1">
                   <div class="col-12 p-0 input-group input-group-sm">
                     <div class="input-group-prepend">
                       <span class="input-group-text">Комментарий</span>
@@ -131,14 +138,14 @@
                   </div>
                 </div>
 
-                <div class="row pt-1 px-1 pb-0">
-                  <div class="col-12 p-1" style="background-color: #fff3e4;">
+                <div class="row pt-1 px-1 pb-0" style="background-color: #a2b4d0;">
+                  <div class="col-12 p-1">
                     <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ inventory.items.prefix }}">Добавить</button>
                   </div>
                 </div>
 
-                <div class="row pt-1 px-1 pb-0">
-                  <table class="table table-bordered table-sm text-center mb-0" style="font-size: 0.9em;">
+                <div class="row pt-1 px-1 pb-0" style="background-color: #a2b4d0">
+                  <table class="table table-bordered table-sm text-center mb-0 mb-1" style="font-size: 0.9em;">
                     <thead>
                       <tr>
                         <th scope="col" width="10%">№ п/п</th>
@@ -215,6 +222,8 @@
 
   <script type="text/javascript">
     $(document).ready(function () {
+      const issuedSumInput = $('.issued-sum')
+
       $('.datepeeker').datepicker()
     
       const mpzGroup = $('.mpz-group').first()
@@ -222,6 +231,34 @@
       //$('#add-mpz-group').on('click', function (e) {
       //  addForm('inventory')
       //})
+
+      $('.cnt-input, .price-input').on('change', function(e) {
+        const tr = $(e.currentTarget).closest('tr')
+        const cntInput = tr.find('.cnt-input')
+        const priceInput = tr.find('.price-input')
+        const totalInput = tr.find('.total-input')
+
+        const cntValue = parseFloat(cntInput.val()) || 0; // Default to 0 if NaN
+        const priceValue = parseFloat(priceInput.val()) || 0;
+
+        // Calculate the total
+        const total = cntValue * priceValue;
+        totalInput.val(total.toFixed(2));
+
+        updateIssuedSum();
+      })
+
+      function updateIssuedSum () {
+        let totalSum = 0;
+
+        // Iterate through all total-input fields and sum their values
+        $('.total-input:visible').each(function() {
+          totalSum += parseFloat($(this).val()) || 0; // Default to 0 if NaN
+        });
+  
+        // Update the issued sum input
+        issuedSumInput.val(totalSum.toFixed(2));
+      }
     
       // Добавить аванс
       $('.btn-add-row').on('click', function (e) {
@@ -233,6 +270,7 @@
         form.children('[id$="DELETE"]').val(1)
         if (!form.children('[id$="id"]').val()) form.remove()
         else form.hide()
+        updateIssuedSum()
       })
     
       $('tbody').on('click', '.btn-delete-row', function (e) {
@@ -240,6 +278,7 @@
         $('.'+tr.attr('id')).hide()
         tr.hide()
         tr.find("[id$='DELETE']").val(1)
+        updateIssuedSum()
       })
 
       $('#id_applicant')

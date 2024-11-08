@@ -70,7 +70,7 @@ class RequestInventoryItem(models.Model):
     id = models.AutoField(primary_key=True, blank=False)
 
     # Ссылка на мпз
-    requestInventory = models.ForeignKey(RequestInventory, db_column='request_inventory_id', on_delete=models.PROTECT, blank=False, null=False)
+    requestInventory = models.ForeignKey(RequestInventory, db_column='request_inventory_id', on_delete=models.CASCADE, blank=False, null=False)
     # Наименование
     name = models.CharField(db_column="name", blank=False, null=False, max_length=500)
     # Количество

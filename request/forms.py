@@ -3,6 +3,7 @@ from django.forms.models import ALL_FIELDS
 from .models import Request, RequestInventory, RequestInventoryItem
 from guide.models import Status, ImprestAccount, ObtainMethod
 from integration.models import Employee
+from main.helpers import is_user_in_group
 
 
 class MyDateField(forms.DateField):
@@ -67,7 +68,16 @@ class RequestForm (forms.ModelForm):
         exclude = ['createdBy', 'createdAt', 'type']
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', False)
         super(RequestForm, self).__init__(*args, **kwargs)
+        if is_user_in_group(self.user, ['Администратор']):
+            self.fields['status'].queryset = Status.objects.order_by('id')
+        elif is_user_in_group(self.user, ['Подотчетное лицо', 'Подотчетное лицо с расширенным функционалом', 'Руководитель']):
+            self.fields['status'].queryset = Status.objects.filter(pk__in=[2]).order_by('id')
+        elif is_user_in_group(self.user, ['Бухгалтер']):
+            self.fields['status'].queryset = Status.objects.filter(pk__in=[3, 4, 5]).order_by('id')
+        else:
+            self.fields['status'].queryset = Status.objects.filter(pk__in=[2]).order_by('id')
 
 class RequestInventoryItemForm (forms.ModelForm):
     price = forms.DecimalField(localize=True, required=True)

@@ -84,8 +84,7 @@
                             searchable: false,
                             render: function (data, type, row) {
                                 if (data.status.id == 5)
-                                    return `<a class="text-success bi bi-printer h4 m-0 print" data-id='${data.id}'></a>`
-                                    //return `<a href="/requests/${data.id}/report" target="_blank" class="text-success bi bi-printer h4 m-0 print"></a>`
+                                    return `<a href="/requests/${data.id}/html" class="text-success bi bi-printer h4 m-0" target="_blank"></a>`
                                 else return ''
                             }
                         },
@@ -151,7 +150,7 @@
                         },
                         {
                             title: 'Описание покупок',
-                            data: 'comment',
+                            data: 'comments',
                             orderable: false
                         },
                         {

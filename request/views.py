@@ -1,17 +1,19 @@
 from django.shortcuts import render
-from .models import Request, RequestInventory
+from .models import Request, RequestInventory, RequestInventoryItem
 from prepayment.models import Prepayment
 from rest_framework import viewsets
 from .serializers import RequestSerializer
 from .forms import RequestForm, RequestInventoryFormSet
 from datetime import datetime
-from django.db.models import Max, OuterRef, Subquery
+from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func, Sum, IntegerField, Q
 from guide.models import Status, Document
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
 from integration.models import Employee
 from prepayment.action_processor import addItem
+import math
+from num2words import num2words
 # Create your views here.
 
 
@@ -33,10 +35,12 @@ class UserFilter(BaseFilterBackend):
         queryset = queryset.filter(createdBy=request.user.username)
         return queryset
 
+requestInventoryItemSubquery = RequestInventoryItem.objects.annotate(itemNames=Func('name', function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')")).filter(requestInventory=OuterRef("pk"))
+requestInventorySubquery = RequestInventory.objects.annotate(itemNames=Func(Subquery(requestInventoryItemSubquery.values('itemNames')), function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')"), comments=Func('comment', function='string_agg', template="%(function)s(%(expressions)s, ', ')")).filter(request=OuterRef("pk"))
 
 class RequestViewSet (viewsets.ModelViewSet):
     queryset = Request.objects.all().select_related('applicant').select_related(
-        'status').select_related('imprestAccount').select_related('obtainMethod').annotate(prepayment_id=Subquery(Prepayment.objects.filter(request=OuterRef("pk")).values('pk')[:1])).order_by('-id')
+        'status').select_related('imprestAccount').select_related('obtainMethod').annotate(itemNames=Subquery(requestInventorySubquery.values('itemNames')),comments=Subquery(requestInventorySubquery.values('comments')), prepayment_id=Subquery(Prepayment.objects.filter(request=OuterRef("pk")).values('pk')[:1])).order_by('-id')
     serializer_class = RequestSerializer
 
     def filter_queryset(self, queryset):
@@ -64,7 +68,7 @@ def editRequest(request, id):
         prepaymentRequest.createDate = datetime.now()
         prepaymentRequest.type = int(request.GET['type'])
         prepaymentRequest.status_id = 2
-        prepaymentRequest.imprestAccount_id = 7101
+        prepaymentRequest.imprestAccount_id = 7101 if prepaymentRequest.type == 0 else 7103
     else:
         prepaymentRequest = Request.objects.get(id=id)
 
@@ -81,7 +85,7 @@ def editRequest(request, id):
                 prefix = action.replace('delete-', '')
                 postCopy['%s-DELETE' % prefix] = 'True'
         
-        form = RequestForm(postCopy, instance=prepaymentRequest)
+        form = RequestForm(postCopy, instance=prepaymentRequest, user=request.user)
         if prepaymentRequest.type == 0:
             inventoriesFormSet = RequestInventoryFormSet(postCopy, prefix='inventory', instance=prepaymentRequest)
 
@@ -94,19 +98,12 @@ def editRequest(request, id):
                     deleted.instance.delete()
             return HttpResponseRedirect('/requests')
     if request.method == 'GET':
-        form = RequestForm(instance=prepaymentRequest)
+        form = RequestForm(instance=prepaymentRequest, user=request.user)
         inventoriesFormSet = RequestInventoryFormSet(prefix='inventory', instance=prepaymentRequest)
-
-        if is_user_in_group(request.user, ['Администратор', 'Подотчетное лицо с расширенным функционалом', 'Руководитель']):
-            form.fields['status'].queryset = Status.objects.order_by('id')
-        elif is_user_in_group(request.user, ['Подотчетное лицо']):
-            form.fields['status'].queryset = Status.objects.filter(pk__in=[1, 2]).order_by('id')
-        elif is_user_in_group(request.user, ['Бухгалтер']):
-            form.fields['status'].queryset = Status.objects.filter(pk__in=[3, 4, 5]).order_by('id')
 
     context = {
         'form': form,
-        'inventories': inventoriesFormSet,
+        'inventories': inventoriesFormSet if 'inventoriesFormSet' in vars() else None,
         'title': 'Заявление',
         'type': prepaymentRequest.type
     }
@@ -147,3 +144,21 @@ def createPrepayment(request, id):
     prep.save()
 
     return HttpResponse('Выданный под отчет аванс создан')
+
+def htmlReport(request, id):
+    req  = Request.objects.filter(pk=id).select_related('applicant').select_related('imprestAccount').get()
+
+    for inv in req.requestinventory_set.all():
+        for item in inv.requestinventoryitem_set.all():
+            print (item.id)
+
+    (issuedSumFrac, issuedSumInt) = math.modf(req.issuedSum)
+    issuedSumInt = int(issuedSumInt)
+    issuedSumFrac = round(issuedSumFrac, 2)
+    issuedSumIntString = num2words(int(issuedSumInt), lang='ru')
+    #issuedSumIntStringArray = textwrap.wrap(issuedSumIntString, 40)
+    context = {
+        'req': req,
+        'issuedSumIntString': issuedSumIntString,
+    }
+    return render(request, 'request/report.html', context)
