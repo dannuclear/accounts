@@ -28,6 +28,8 @@ class Request(models.Model):
 
     createdBy = models.CharField(db_column='created_by', max_length=200)
     createdAt = models.DateTimeField(db_column='created_at')
+    createdByFullName = models.CharField(db_column='created_by_fullname', max_length=200, null=True)
+    updatedByAccountant = models.CharField(db_column='updated_by_accountant', max_length=200, null=True)
 
     status = models.ForeignKey(Status, db_column='status_id', on_delete=models.PROTECT, blank=False, null=False)
 

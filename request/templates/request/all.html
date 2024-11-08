@@ -83,7 +83,7 @@
                             orderable: false,
                             searchable: false,
                             render: function (data, type, row) {
-                                if (data.status.id == 5)
+                                if (data.status.id == 3)
                                     return `<a href="/requests/${data.id}/html" class="text-success bi bi-printer h4 m-0" target="_blank"></a>`
                                 else return ''
                             }
@@ -159,6 +159,16 @@
                             orderable: false,
                             width: '7rem',
                             className: 'text-center'
+                        },
+                        {
+                            title: 'Создал/Согласовал',
+                            data: null,
+                            orderable: false,
+                            width: '7rem',
+                            className: 'text-center',
+                            render: function (data, type, row, meta) {
+                                return `<small>${data.createdByFullName || ''}/${data.updatedByAccountant || ''}</small>`;
+                            },
                         },
                         {
                             title: '',

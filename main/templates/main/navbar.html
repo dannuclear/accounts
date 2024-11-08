@@ -8,7 +8,7 @@
                 <a class="nav-link" href="#">Домой <span class="sr-only">(current)</span></a>
             </li>     -->
 
-      {% if perms.request.view_request %}
+      {% if perms.request.view_requests %}
         <li class="nav-item dropdown active">
           <a class="nav-link" href="{% url 'requests' %}"><i class="fa-light fa-file-signature"></i>&nbsp;Заявления на аванс</a>
         </li>

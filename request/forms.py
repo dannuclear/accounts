@@ -65,7 +65,7 @@ class RequestForm (forms.ModelForm):
     class Meta:
         model = Request
         fields = ALL_FIELDS
-        exclude = ['createdBy', 'createdAt', 'type']
+        exclude = ['createdBy', 'createdAt', 'type', 'createdByFullName', 'updatedByAccountant']
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', False)
@@ -75,7 +75,7 @@ class RequestForm (forms.ModelForm):
         elif is_user_in_group(self.user, ['Подотчетное лицо', 'Подотчетное лицо с расширенным функционалом', 'Руководитель']):
             self.fields['status'].queryset = Status.objects.filter(pk__in=[2]).order_by('id')
         elif is_user_in_group(self.user, ['Бухгалтер']):
-            self.fields['status'].queryset = Status.objects.filter(pk__in=[3, 4, 5]).order_by('id')
+            self.fields['status'].queryset = Status.objects.filter(pk__in=[3, 4]).order_by('id')
         else:
             self.fields['status'].queryset = Status.objects.filter(pk__in=[2]).order_by('id')
 

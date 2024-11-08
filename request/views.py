@@ -59,11 +59,13 @@ def requests(request):
 
 
 def editRequest(request, id):
+    userFullName = ('%s %s' % (request.user.last_name, request.user.first_name)).strip()
     if id == 'new':
         prepaymentRequest = Request()
         maxNum = Request.objects.aggregate(Max('num'))['num__max'] or 39999
         prepaymentRequest.num = maxNum + 1
         prepaymentRequest.createdBy = request.user.username
+        prepaymentRequest.createdByFullName = userFullName if userFullName else request.user.username
         prepaymentRequest.createdAt = datetime.now()
         prepaymentRequest.createDate = datetime.now()
         prepaymentRequest.type = int(request.GET['type'])
@@ -90,6 +92,9 @@ def editRequest(request, id):
             inventoriesFormSet = RequestInventoryFormSet(postCopy, prefix='inventory', instance=prepaymentRequest)
 
         if not postCopy['action'] and form.is_valid() and (prepaymentRequest.type == 1 or inventoriesFormSet.is_valid()):
+            if prepaymentRequest.status.id == 3:
+                prepaymentRequest.updatedByAccountant = userFullName if userFullName else request.user.username
+
             form.save()
             if prepaymentRequest.type == 0:
                 for inventory in inventoriesFormSet.save(commit=False):

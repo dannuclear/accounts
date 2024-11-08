@@ -73,6 +73,8 @@
                             if ($('#period-to').val())
                                 d.periodTo=$('#period-to').val()
                             //console.log(d)
+                            d.columns.push({data: 'wc07pOrder.orderNum', searchable: true})
+                            d.columns.push({data: 'docNum', searchable: true})
                         }
                     },
                     rowId: 'id',
@@ -150,14 +152,14 @@
                             }
                          }
                     ],
-                    buttons: [/*
+                    buttons: [
                         {
                             text: '&nbsp;СОЗДАТЬ НОВУЮ ПОДОТЧЕТНУЮ СУММУ',
                             className: 'btn btn-info fa-light fa-square-plus',
                             action: function (e, dt, node, config) {
                                 window.location.href = '/prepayments/new'
                             }
-                        }*/
+                        }
                     ]
                 });
 

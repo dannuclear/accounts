@@ -154,4 +154,12 @@ def createPrepaymentFromOrder(request, id):
     prep.empProfName = order.profName
     prep.save()
 
+    purpose = prepaymentModels.PrepaymentPurpose()
+    purpose.prepayment = prep
+    purpose.missionDest = order.distName
+    purpose.missionFromDate = order.missionBegin
+    purpose.missionToDate = order.missionEnd
+    purpose.missionPurpose = order.missionPurpose
+    purpose.save()
+
     return HttpResponse('Выданный под отчет аванс создан')
