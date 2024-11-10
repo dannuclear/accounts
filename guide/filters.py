@@ -20,3 +20,13 @@ class ExpenseTypeFilter(BaseFilterBackend):
             queryset = queryset.filter(expenseType=expenseType)
     
         return queryset
+
+class DepartmentFilter(BaseFilterBackend):
+
+    def filter_queryset(self, request, queryset, view):
+        departmentId = request.query_params.get("departmentId")
+
+        if departmentId:
+            queryset = queryset.filter(department__id=departmentId)
+    
+        return queryset

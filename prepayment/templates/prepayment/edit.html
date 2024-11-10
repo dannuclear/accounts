@@ -214,7 +214,7 @@
               <p class="h4 m-0">Аванс: {{ itemForm.prefix|cut:"item-"|add:1 }}</p>
             </div>
 
-            <div class="col-1 p-1 input-group input-group-sm">
+            <div class="col-2 p-1 input-group input-group-sm">
               <div class="input-group-prepend">
                 <span class="input-group-text">{{ itemForm.value.label }}</span>
               </div>
@@ -228,7 +228,7 @@
               {{ itemForm.obtainMethod }}
             </div>
 
-            <div class="col-1 p-1 input-group input-group-sm">
+            <div class="col-2 p-1 input-group input-group-sm">
               <div class="input-group-prepend">
                 <span class="input-group-text">{{ itemForm.date.label }}</span>
               </div>
@@ -282,13 +282,13 @@
               {{ purpose.prepaidDest }}
             </td>
             <td>
-              <input type="text" class="form-control form-control-sm" name="{{ purpose.deptExpense.html_name  }}" value="{{ purpose.deptExpense.value|default_if_none:'' }}" autocomplete="off" />
+              <input type="text" class="form-control form-control-sm dept-exp" name="{{ purpose.deptExpense.html_name  }}" value="{{ purpose.deptExpense.value|default_if_none:'' }}" autocomplete="off" />
             </td>
             <td>
               {{ purpose.expenseCode }}
             </td>
             <td>
-              <input type="text" class="form-control form-control-sm" name="{{ purpose.account.html_name  }}" value="{{ purpose.account.value|default_if_none:'' }}" autocomplete="off" />
+              <input type="text" class="form-control form-control-sm purpose-account" name="{{ purpose.account.html_name  }}" value="{{ purpose.account.value|default_if_none:'' }}" autocomplete="off" />
             </td>
             <td>
               <input type="text" class="form-control form-control-sm" name="{{ purpose.expenditure.html_name  }}" value="{{ purpose.expenditure.value|default_if_none:'' }}" autocomplete="off" />
@@ -366,6 +366,17 @@
         const form = $(e.currentTarget).parents('.item-form')
         form.hide()
         form.find("[id$='DELETE']").val(1)
+      })
+
+      $('.purpose-container').on('change', '.dept-exp', function(e){
+        const deptExpenseInput = e.currentTarget
+        const tr = $(deptExpenseInput).closest('tr')
+        const accountInput = tr.find('.purpose-account')
+        if (deptExpenseInput.value)
+          $.get(`/api/v1/departmentAccounts?format=json&departmentId=${deptExpenseInput.value}`).done((response) => {
+            if (response.results && response.results.length > 0)
+            accountInput.val(response.results[0].account)
+          })        
       })
 
       $('#button-add-item').on('click', function(e){

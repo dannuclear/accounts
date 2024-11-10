@@ -14,7 +14,7 @@ from .serializers import EstimateSerializer, EmployeeSerializer, PrepaymentSeria
 from .helper import FileType
 from django.db.models import OuterRef, Subquery
 from prepayment import models as prepaymentModels
-from guide.models import Document
+from guide.models import Document, Department, DepartmentAccount
 from datetime import datetime
 # Create your views here.
 
@@ -152,7 +152,17 @@ def createPrepaymentFromOrder(request, id):
     prep.empDivNum = order.depName
     prep.empFullName = order.fio
     prep.empProfName = order.profName
+    prep.imprestAccount_id = 7101
     prep.save()
+
+    intPrep = Prepayment.objects.filter(xv26eiId=order.estimateId).first()
+    if intPrep is not None:
+        prepItem = prepaymentModels.PrepaymentItem()
+        prepItem.prepayment = prep
+        prepItem.value = intPrep.sum
+        prepItem.date = intPrep.orderDate
+        prepItem.save()
+    
 
     purpose = prepaymentModels.PrepaymentPurpose()
     purpose.prepayment = prep
@@ -160,6 +170,13 @@ def createPrepaymentFromOrder(request, id):
     purpose.missionFromDate = order.missionBegin
     purpose.missionToDate = order.missionEnd
     purpose.missionPurpose = order.missionPurpose
+    intEstimate = Estimate.objects.filter(xv26eiId=order.estimateId).first()
+    if intEstimate is not None:
+        purpose.deptExpense = intEstimate.xv26eihName
+        department = DepartmentAccount.objects.filter(department__id=purpose.deptExpense).select_related('department').first()
+        if department is not None:
+            purpose.account = department.account
+            purpose.extra = department.extra
     purpose.save()
 
     return HttpResponse('Выданный под отчет аванс создан')
