@@ -1,12 +1,12 @@
 from django.shortcuts import render
 from .models import Request, RequestInventory, RequestInventoryItem
-from prepayment.models import Prepayment
+from prepayment.models import Prepayment, PrepaymentPurpose
 from rest_framework import viewsets
 from .serializers import RequestSerializer
 from .forms import RequestForm, RequestInventoryFormSet
 from datetime import datetime
 from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func, Sum, IntegerField, Q
-from guide.models import Status, Document
+from guide.models import Status, Document, PrepaidDest
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
@@ -147,6 +147,11 @@ def createPrepayment(request, id):
     prep.status = status
     prep.reportStatus = status
     prep.save()
+
+    purpose = PrepaymentPurpose()
+    purpose.prepayment = prep
+    purpose.prepaidDest_id = 2
+    purpose.save()
 
     return HttpResponse('Выданный под отчет аванс создан')
 

@@ -29,12 +29,12 @@ import os
 from django.contrib.staticfiles import finders
 
 # Create your views here.
-purposesSubquery = PrepaymentPurpose.objects.select_related('prepaidDest').annotate(missionFrom=Func('missionFromDate', function='min'), missionTo=Func('missionToDate', function='max'), days=Cast(ExtractDay(Func('missionToDate', function='max') - Func('missionFromDate', function='min')) + 1, output_field=IntegerField()), missionDestList=Func(
+purposesSubquery = PrepaymentPurpose.objects.select_related('prepaidDest').annotate(missionFrom=Func('missionFromDate', function='min'), deadline=Func('reportDeadline', function='min'), missionTo=Func('missionToDate', function='max'), days=Cast(ExtractDay(Func('missionToDate', function='max') - Func('missionFromDate', function='min')) + 1, output_field=IntegerField()), missionDestList=Func(
     'missionDest', function='string_agg', template="%(function)s(%(expressions)s, ', ')"), prepaidDestList=Func('prepaidDest__name', function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')")).filter(prepayment=OuterRef("pk"))
 
 
 class PrepaymentViewSet (viewsets.ModelViewSet):
-    queryset = Prepayment.objects.all().annotate(missionFrom=Subquery(purposesSubquery.values('missionFrom')), missionTo=Subquery(purposesSubquery.values('missionTo')), missionDestList=Subquery(purposesSubquery.values('missionDestList')),
+    queryset = Prepayment.objects.all().annotate(missionFrom=Subquery(purposesSubquery.values('missionFrom')), reportDeadline=Subquery(purposesSubquery.values('deadline')), missionTo=Subquery(purposesSubquery.values('missionTo')), missionDestList=Subquery(purposesSubquery.values('missionDestList')),
                                                  prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList'))).select_related('status').select_related('imprestAccount').select_related('document').select_related('wc07pOrder').select_related('reportStatus').order_by('-id')
     serializer_class = PrepaymentSerializer
 
