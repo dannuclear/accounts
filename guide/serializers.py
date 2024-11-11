@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ImprestAccount, ExpenseCode, ExpenseRate, ExpenseItem, ExpenseCategory, Document, AccountingCert, Status, Department, DepartmentAccount, ObtainMethod, PrepaidDest
+from .models import ImprestAccount, ExpenseCode, ExpenseRate, RefundExpense, ExpenseItem, ExpenseCategory, Document, AccountingCert, Status, Department, DepartmentAccount, ObtainMethod, PrepaidDest
 
 
 class ImprestAccountSerializer (serializers.ModelSerializer):
@@ -60,6 +60,12 @@ class AccountingCertSerializer (serializers.ModelSerializer):
 class StatusSerializer (serializers.ModelSerializer):
     class Meta:
         model = Status
+        fields = serializers.ALL_FIELDS
+        datatables_always_serialize = ('id')
+
+class RefundExpenseSerializer (serializers.ModelSerializer):
+    class Meta:
+        model = RefundExpense
         fields = serializers.ALL_FIELDS
         datatables_always_serialize = ('id')
 

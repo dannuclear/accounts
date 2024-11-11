@@ -3,8 +3,8 @@ from django.shortcuts import render
 from rest_framework import viewsets
 
 from .forms import ExpenseCodeForm, ImprestAccountForm, ExpenseRateForm, DocumentForm
-from .models import ExpenseCode, ImprestAccount, ExpenseRate, ExpenseItem, Document, AccountingCert, Status, Department, DepartmentAccount, ObtainMethod, PrepaidDest
-from .serializers import AccountingCertSerializer, ExpenseCodeSerializer, ImprestAccountSerializer, ExpenseRateSerializer, ExpenseItemSerializer, DocumentSerializer, StatusSerializer, DepartmentSerializer, DepartmentAccountSerializer, ObtainMethodSerializer, PrepaidDestSerializer
+from .models import ExpenseCode, ImprestAccount, ExpenseRate, ExpenseItem, Document, AccountingCert, Status, Department, DepartmentAccount, ObtainMethod, PrepaidDest, RefundExpense
+from .serializers import AccountingCertSerializer, ExpenseCodeSerializer, ImprestAccountSerializer, ExpenseRateSerializer, ExpenseItemSerializer, DocumentSerializer, StatusSerializer, DepartmentSerializer, DepartmentAccountSerializer, ObtainMethodSerializer, PrepaidDestSerializer, RefundExpenseSerializer
 from .filters import ImprestAccountFilter, ExpenseTypeFilter, DepartmentFilter
 # Create your views here.
 
@@ -19,6 +19,9 @@ def expenseCodes(request):
 
 def expenseRates(request):
     return render(request, 'expenseRate/all.html')
+
+def refundExpenses(request):
+    return render(request, 'refundExpense/all.html')
 
 
 def expenseItems(request):
@@ -104,6 +107,9 @@ class ExpenseItemViewSet (viewsets.ModelViewSet):
     queryset = ExpenseItem.objects.select_related('category').order_by('id')
     serializer_class = ExpenseItemSerializer
 
+class RefundExpenseViewSet (viewsets.ModelViewSet):
+    queryset = RefundExpense.objects.all().order_by('id')
+    serializer_class = RefundExpenseSerializer
 
 def editExpenseCode(request, id):
     expenseCode = ExpenseCode() if id == 'new' else ExpenseCode.objects.get(code=id)

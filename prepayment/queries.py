@@ -24,15 +24,15 @@ SELECT
 	SUBSTRING(LPAD(entity.debit_account::text, 4, '0'), 0, 3)::integer as acpl_account_debit, -- Дебет/счет
 	SUBSTRING(LPAD(entity.debit_account::text, 4, '0'), 3, 3)::integer as acpl_subaccount_debit, -- Дебет/субсчет
 	LPAD(coalesce(entity.debit_kau_1::text, ''), 3, '0') || LPAD(coalesce(entity.debit_kau_2::text, ''), 3, '0') as acpl_code_analitic_debit, -- Дебет/КАУ
-	entity.debit_kau_1 as acpl_code_analitic_debit_1, -- Дебет/КАУ1
-	entity.debit_kau_2 as acpl_code_analitic_debit_2, -- Дебет/КАУ2
+	LPAD(entity.debit_kau_1::text, 3, '0') as acpl_code_analitic_debit_1, -- Дебет/КАУ1
+	LPAD(entity.debit_kau_2::text, 3, '0') as acpl_code_analitic_debit_2, -- Дебет/КАУ2
 	entity.debit_extra as acpl_add_sign_debit, -- Дебет/счет/ДП
 
 	SUBSTRING(LPAD(entity.credit_account::text, 4, '0'), 0, 3)::integer as acpl_account_credit, -- Кредит/счет
 	SUBSTRING(LPAD(entity.credit_account::text, 4, '0'), 3, 3)::integer as acpl_subaccount_credit, -- Кредит/субсчет
 	LPAD(coalesce(entity.credit_kau_1::text, ''), 3, '0') || LPAD(coalesce(entity.credit_kau_2::text, ''), 3, '0') as acpl_code_analitic_credit, -- Кредит/КАУ
-	entity.credit_kau_1 as acpl_code_analitic_credit_1, -- Кредит/КАУ1
-	entity.credit_kau_2 as acpl_code_analitic_credit_2, -- Кредит/КАУ2
+	LPAD(entity.credit_kau_1::text, 3, '0') as acpl_code_analitic_credit_1, -- Кредит/КАУ1
+	LPAD(entity.credit_kau_2::text, 3, '0') as acpl_code_analitic_credit_2, -- Кредит/КАУ2
 	entity.credit_extra as acpl_add_sign_credit, -- Кредит/счет/ДП
 	entity.accounting_sum as ae_sum, -- Сумма
 	p.id

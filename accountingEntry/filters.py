@@ -1,6 +1,8 @@
 from rest_framework.filters import BaseFilterBackend
 from datetime import datetime
-
+from guide.models import RefundExpense
+from django.db.models import Subquery, IntegerField
+from django.db.models.functions import Cast
 
 class ToDateFilter(BaseFilterBackend):
 
@@ -41,9 +43,6 @@ class FilterTypeFilter(BaseFilterBackend):
         # Возмещаемые расходы, подлежащие включению в совокупный доход работника» (по видам оплат 4479, 7121, 7130, 7140) 
         if filterType == '1':
             compensationType = request.query_params.get("compensationType")
-            if compensationType:
-                queryset = queryset.filter(acplCodeAnaliticCredit=compensationType)
-            else:
-                queryset = queryset.filter(acplCodeAnaliticCredit__in = ['4479', '7121', '7130', '7140', '0901'])
-    
+            queryset = queryset.filter(acplCodeAnaliticCredit1__in=Subquery(RefundExpense.objects.filter(payKind__in=([compensationType] if compensationType else ['4479', '7121', '7130', '7140', '0901'])).values('code')))
+           
         return queryset

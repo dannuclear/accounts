@@ -234,9 +234,11 @@
                 </li>
               {% endif %}
 
+              {% if perms.guide.view_refund_expenses or perms.guide.edit_refund_expenses %}
               <li>
-                <a class="dropdown-item" href="">Возмещаемые расходы для включения в совокупный доход работника</a>
+                <a class="dropdown-item" href="{% url 'refundExpenses' %}"><i class="fa-light fa-circle-nodes"></i>&nbsp;Возмещаемые расходы для включения в совокупный доход работника</a>
               </li>
+              {% endif %}
 
               {% if perms.guide.view_accounting_cert or perms.guide.edit_accounting_cert %}
                 <li>
