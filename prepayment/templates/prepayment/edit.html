@@ -75,7 +75,7 @@
             <input type="text" class="mb-0 form-control form-control-sm {% if form.docNum.errors %} is-invalid {% endif %}" name="{{ form.docNum.name }}" value="{{ form.docNum.value|default_if_none:'' }}" />
           {% endif %} {% endcomment %}
 
-          <input type="text" class="mb-0 form-control form-control-sm {% if form.docNum.errors %} is-invalid {% endif %}" name="{{ form.docNum.name }}" value="{{ form.docNum.value|default_if_none:'' }}" {% if form.instance.wc07pOrder is not None or form.instance.request is not None %}disabled{% endif %}/>
+          <input type="text" class="mb-0 form-control form-control-sm {% if form.docNum.errors %} is-invalid {% endif %}" name="{{ form.docNum.name }}" value="{{ form.docNum.value|default_if_none:'' }}" {% if form.docNum.field.disabled %}disabled{% endif %}/>
 
         </div>
 
@@ -89,7 +89,7 @@
             <input type="text" class="text-center mb-0 form-control form-control-sm datepeeker {% if form.docDate.errors %} is-invalid {% endif %}" name="{{ form.docDate.name }}" value="{{ form.docDate.value|default_if_none:'' }}" />
           {% endif %} {% endcomment %}
 
-          <input type="text" class="text-center mb-0 form-control form-control-sm datepeeker {% if form.docDate.errors %} is-invalid {% endif %}" name="{{ form.docDate.name }}" value="{{ form.docDate.value|default_if_none:'' }}" {% if form.instance.wc07pOrder is not None or form.instance.request is not None %}disabled{% endif %}/>
+          <input type="text" class="text-center mb-0 form-control form-control-sm datepeeker {% if form.docDate.errors %} is-invalid {% endif %}" name="{{ form.docDate.name }}" value="{{ form.docDate.value|default_if_none:'' }}" {% if form.docDate.field.disabled %}disabled{% endif %}/>
 
         </div>
       </div>
@@ -249,6 +249,7 @@
       <table class="table table-bordered table-sm text-center" style="font-size: 0.8em;">
         <thead>
           <tr>
+            <th rowspan="3" width="1%"></th>
             <th rowspan="3" width="10%">Назначение аванса</th>
             <th rowspan="3" width="5%">Расходы подразделения</th>
             <th rowspan="3" width="10%">Код расхода</th>
@@ -278,6 +279,9 @@
         {% for purpose in purposes %}
           <tr class='purpose-form'>
             {{ purpose.id }}
+            <td>
+              <button type="button" class="btn btn-sm btn-outline-primary clone"><i class="fa-light fa-copy"></i></button>
+            </td>
             <td>
               {{ purpose.prepaidDest }}
             </td>
@@ -328,6 +332,7 @@
   </form>
 
   <div class="modal fade" id="splitModal" tabindex="-1" role="dialog" aria-labelledby="splitModalTitle" aria-hidden="true">
+    <input id="base-row" type="hidden" disabled>
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -338,6 +343,11 @@
         </div>
         <div class="modal-body container-fluid">
           <div class="row">
+            <div class="col">
+              <button type="button" class="btn btn-primary btn-sm period-add">+</button>
+            </div>
+          </div>
+          <div class="row period-row pt-1">
             <div class="col input-group input-group-sm">
               <div class="input-group-prepend">
                 <span class="input-group-text">С</span>
@@ -350,11 +360,14 @@
               </div>
               <input type="text" class="h5 text-center mb-0 form-control form-control-sm period-to"/>
             </div>
+            <div class="col-2">
+              <button type="button" class="btn btn-sm btn-outline-danger period-delete"><i class="fa-light fa-trash"></i></button>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-          <button type="button" class="btn btn-primary">Ок</button>
+          <button type="button" class="btn btn-primary ok-button" data-dismiss="modal">Ок</button>
         </div>
       </div>
     </div>
@@ -417,6 +430,9 @@
       $('#splitModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget)
         var row = button.parents('tr')
+        $('.purpose-form').removeClass('edited')
+        row.addClass('edited')
+        
         var periodFrom = row.find('.period-from').val()
         var periodTo = row.find('.period-to').val()
 
@@ -424,10 +440,67 @@
         //var periodTo = button.data('periodTo')
 
         var modal = $(this)
-        //modal.find('.modal-title').text('New message to ' + recipient)
         modal.find('.modal-body .period-from').val(periodFrom)
         modal.find('.modal-body .period-to').val(periodTo)
       })
+
+      $('#splitModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget)
+        var row = button.parents('tr')
+        $('.purpose-form').removeClass('edited')
+        row.addClass('edited')
+        
+        var periodFrom = row.find('.period-from').val()
+        var periodTo = row.find('.period-to').val()
+
+        //var periodFrom = button.data('periodFrom')
+        //var periodTo = button.data('periodTo')
+
+        var modal = $(this)
+        modal.find('.modal-body .period-from').val(periodFrom)
+        modal.find('.modal-body .period-to').val(periodTo)
+      })
+
+      $('#splitModal').on('click', '.period-add', function (event) {
+        const modal = $(event.delegateTarget)
+        const body = modal.find('.modal-body')
+
+        const firstRow = modal.find('div.period-row').first()
+        body.append(firstRow.clone())
+      })
+
+      $('#splitModal').on('click', '.period-delete', function (event) {
+        const row = $(event.target).parents('div.row')
+        row.remove()
+      })
+
+      $('.purpose-form').on('click', '.clone', function (event) {
+        const row = $(event.target).parents('tr.purpose-form')
+        addForm('purpose', row)
+      })
+
+      // Принятие изменений из модальных форм
+      $('#splitModal').on('click', '.ok-button', function(e){
+        var modal = $(e.delegateTarget)
+        const editedRow = $('.purpose-form.edited')
+        const container = $('.purpose-container')
+        modal.find('.modal-body>div.period-row').each(function(idx, el){
+          const row = $(el)
+          if (idx == 0){
+            editedRow.find('.period-from').val(row.find('.period-from').val())
+            editedRow.find('.period-to').val(row.find('.period-to').val())
+          }
+          else {
+            const newEditedRow = $(addForm('purpose'))
+            newEditedRow.find('.period-from').val(row.find('.period-from').val())
+            newEditedRow.find('.period-to').val(row.find('.period-to').val())
+            container.append(newEditedRow)
+          }
+        })
+
+        $('#id_purpose-TOTAL_FORMS').val($('.purpose-form').length)
+      })
+
     })
   </script>
 {% endblock %}

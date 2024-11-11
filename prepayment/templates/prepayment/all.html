@@ -12,6 +12,13 @@
             padding: .2rem!important;
             font-size: 0.9em;
         }
+
+        .table-warning {
+            background-color: #f2c464;
+        }
+        td {
+            line-height: 1;
+        }
     </style>
 
 <div class="alert alert-primary" role="alert" style="display: none;">
@@ -35,6 +42,7 @@
             <th rowspan="2" data-dt-order="disable">Шифр отнесения затрат</th>
             <th rowspan="2" data-dt-order="disable">Дата принятия на учет АО</th>
             <th rowspan="2" data-dt-order="disable">Срок АО</th>
+            <th rowspan="2" data-dt-order="disable">Создатель/Исполнитель</th>
 
             <th rowspan="2" data-dt-order="disable" width='30px'></th>
             <th rowspan="2" data-dt-order="disable" width='30px'></th>
@@ -82,6 +90,16 @@
                     rowId: 'id',
                     pagingType: 'first_last_numbers',
                     order: [],
+                    rowCallback: function(row, data) {
+                        const deadline = new parseDate(data.deadline);
+                        if (!deadline) return;
+                        const today = new Date();
+                        const twoDaysFromNow = new Date(today);
+                        twoDaysFromNow.setDate(today.getDate() - 2);
+                        if (deadline >= twoDaysFromNow && deadline <= today) {
+                            $(row).addClass('table-warning');
+                        }
+                    },
                     initComplete: function(){
                         const periodFilter = $(
                             `<div class="input-group input-group-sm">
@@ -131,11 +149,20 @@
                         { data: 'missionTo', orderable: false, defaultContent: "", searchable: false },
                         { data: 'totalSum', orderable: false, searchable: false },
                         { data: 'status.name', orderable: false, defaultContent: "Не установлен", searchable: false },
+                        { data: 'reportAccountingNum', orderable: false, defaultContent: "", searchable: false },
                         { data: null, orderable: false, defaultContent: "", searchable: false },
-                        { data: null, orderable: false, defaultContent: "", searchable: false },
-                        { data: null, orderable: false, defaultContent: "", searchable: false },
-                        { data: 'reportDeadline', orderable: false, defaultContent: "", searchable: false },
-
+                        { data: 'reportDate', orderable: false, defaultContent: "", searchable: false },
+                        { data: 'deadline', orderable: false, defaultContent: "", searchable: false },
+                        {
+                            data: null,
+                            orderable: false,
+                            width: '1rem',
+                            className: 'text-center',
+                            searchable: false,
+                            render: function (data, type, row, meta) {
+                                return `<small style="font-size:0.8em;">${data.createdBy || ''}/${data.updatedByAccountant || ''}</small>`;
+                            },
+                        },
                         {
                             data: null,
                             defaultContent: '',

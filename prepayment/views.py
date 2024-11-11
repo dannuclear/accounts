@@ -3,12 +3,12 @@ from .models import Prepayment, PrepaymentPurpose, PrepaymentItem, AdvanceReport
 from rest_framework import viewsets
 from .serializers import PrepaymentSerializer
 from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm, AdvanceReportForm, AdvanceReportItemForm, AttachmentForm, ItemsFormSet, AttachmentFormSet
-from datetime import datetime
-from guide.models import Status, ExpenseItem, ExpenseCategory, AccountingCert
+from datetime import datetime, timedelta
+from guide.models import Status, ExpenseItem, ExpenseCategory, AccountingCert, Department
 from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
-from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func, Sum, IntegerField, Q
+from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func, Sum, IntegerField, Q, Case, When, DateField, Value, F
 from django.db.models.functions import Cast, ExtractDay
 from django.db import connection
 from .filters import PeriodFilter, ImprestAccountFilter, FilterTypeFilter
@@ -27,15 +27,30 @@ from django.template.loader import get_template
 from accounts import settings
 import os
 from django.contrib.staticfiles import finders
+from main.helpers import is_user_in_group
 
 # Create your views here.
-purposesSubquery = PrepaymentPurpose.objects.select_related('prepaidDest').annotate(missionFrom=Func('missionFromDate', function='min'), deadline=Func('reportDeadline', function='min'), missionTo=Func('missionToDate', function='max'), days=Cast(ExtractDay(Func('missionToDate', function='max') - Func('missionFromDate', function='min')) + 1, output_field=IntegerField()), missionDestList=Func(
-    'missionDest', function='string_agg', template="%(function)s(%(expressions)s, ', ')"), prepaidDestList=Func('prepaidDest__name', function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')")).filter(prepayment=OuterRef("pk"))
+purposesSubquery = PrepaymentPurpose.objects.select_related('prepaidDest').annotate(
+    missionFrom=Func('missionFromDate', function='min'), 
+    missionTo=Func('missionToDate', function='max'), 
+    days=Cast(ExtractDay(Func('missionToDate', function='max') - Func('missionFromDate', function='min')) + 1, output_field=IntegerField()), 
+    missionDestList=Func('missionDest', function='string_agg', template="%(function)s(%(expressions)s, ', ')"), 
+    prepaidDestList=Func('prepaidDest__name', function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')")).filter(prepayment=OuterRef("pk"))
 
 
 class PrepaymentViewSet (viewsets.ModelViewSet):
-    queryset = Prepayment.objects.all().annotate(missionFrom=Subquery(purposesSubquery.values('missionFrom')), reportDeadline=Subquery(purposesSubquery.values('deadline')), missionTo=Subquery(purposesSubquery.values('missionTo')), missionDestList=Subquery(purposesSubquery.values('missionDestList')),
-                                                 prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList'))).select_related('status').select_related('imprestAccount').select_related('document').select_related('wc07pOrder').select_related('reportStatus').order_by('-id')
+    queryset = Prepayment.objects.all().annotate(
+        missionFrom=Subquery(purposesSubquery.values('missionFrom')), 
+        missionTo=Subquery(purposesSubquery.values('missionTo')), 
+        missionDestList=Subquery(purposesSubquery.values('missionDestList')),
+        prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')),
+        deadline=Case(
+            When(wc07pOrder__isnull=False, then=F('wc07pOrder__missionEnd') + 3),
+            When(request__isnull=False, then=F('request__receivingDate') + 13),
+            default=Value(None),
+            output_field=DateField()
+        )).select_related('status').select_related('imprestAccount').select_related('document').select_related('wc07pOrder').select_related('reportStatus').order_by('-id')
+    
     serializer_class = PrepaymentSerializer
 
     def filter_queryset(self, queryset):
@@ -69,9 +84,11 @@ def deductions(request):
 
 
 def editPrepayment(request, id):
+    userFullName = ('%s %s' % (request.user.last_name, request.user.first_name)).strip()
     if id == 'new':
         prepayment = Prepayment()
         prepayment.createdBy = request.user.username
+        prepayment.createdByFullName = userFullName if userFullName else request.user.username
         prepayment.createdAt = datetime.now()
         prepayment.imprestAccount_id = 7101
     else:
@@ -81,7 +98,7 @@ def editPrepayment(request, id):
     PrepaymentItemFormSet = inlineformset_factory(Prepayment, PrepaymentItem, form=PrepaymentItemForm, can_delete=True, extra=0, min_num=1)
     PrepaymentPurposeFormSet = inlineformset_factory(Prepayment, PrepaymentPurpose, form=PrepaymentPurposeForm, can_delete=True, extra=0, min_num=1)
     if request.method == 'POST':
-        form = PrepaymentForm(request.POST, instance=prepayment)
+        form = PrepaymentForm(request.POST, instance=prepayment, user=request.user)
         itemFormSet = PrepaymentItemFormSet(request.POST, prefix='item', instance=prepayment)
         purposeFormSet = PrepaymentPurposeFormSet(request.POST, prefix='purpose', instance=prepayment)
 
@@ -90,6 +107,9 @@ def editPrepayment(request, id):
         valid = valid and purposeFormSet.is_valid()
         
         if form.is_valid() and purposeFormSet.is_valid() and itemFormSet.is_valid():
+            if is_user_in_group(request.user, ['Бухгалтер']):
+                prepayment.updatedByAccountant = userFullName if userFullName else request.user.username
+
             prepayment = form.save()
             for item in itemFormSet.save(commit=False):
                 item.save()
@@ -100,7 +120,7 @@ def editPrepayment(request, id):
                 purpose.save()
             return HttpResponseRedirect('/prepayments')
     if request.method == 'GET':
-        form = PrepaymentForm(instance=prepayment)
+        form = PrepaymentForm(instance=prepayment, user=request.user)
         itemFormSet = PrepaymentItemFormSet(prefix='item', instance=prepayment)
         purposeFormSet = PrepaymentPurposeFormSet(prefix='purpose', instance=prepayment)
 
@@ -175,10 +195,13 @@ def editAdvanceReport(request, id):
                     prepayment.reportNum = 1 if maxNumDict['reportNum__max'] is None else maxNumDict['reportNum__max'] + 1
                 # Если статус авансового отчета "Удтвержден" и даты нет присваиваем
                 if prepayment.reportStatus_id == 5 and prepayment.reportDate is None:
+                    prepayment.status_id = 5
                     prepayment.reportDate = datetime.now()
                 # Если статус авансового отчета "Согласован" и даты нет присваиваем
-                if prepayment.reportStatus_id == 3 and prepayment.approveDate is None:
-                    prepayment.approveDate = datetime.now()
+                if prepayment.reportStatus_id == 3:
+                    prepayment.status_id = 3
+                    if prepayment.approveDate is None:
+                        prepayment.approveDate = datetime.now()
 
                 prepayment.lockLevel = lockLevel
                 
@@ -216,6 +239,10 @@ def editAdvanceReport(request, id):
                 return HttpResponseRedirect('/advanceReports?imprestAccount=%s' % (prepayment.imprestAccount_id))
 
     if request.method == 'GET':
+        if not prepayment.empDivName and prepayment.empDivNum:
+            dept = Department.objects.filter(id='%03d' % (prepayment.empDivNum)).first()
+            if dept:
+                prepayment.empDivName = dept.name
         form = AdvanceReportForm(instance=prepayment, user=request.user)
         if prepayment.imprestAccount_id not in [7104, 7106]:
             travelExpenses = ItemsFormSet(prefix='travel-expense', instance=prepayment, queryset=queryset.filter(itemType=0), form_kwargs={'accounting': accounting, 'itemType': 0, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel })

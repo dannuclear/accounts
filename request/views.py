@@ -14,6 +14,7 @@ from integration.models import Employee
 from prepayment.action_processor import addItem
 import math
 from num2words import num2words
+from main.helpers import is_user_in_group
 # Create your views here.
 
 
@@ -92,7 +93,7 @@ def editRequest(request, id):
             inventoriesFormSet = RequestInventoryFormSet(postCopy, prefix='inventory', instance=prepaymentRequest)
 
         if not postCopy['action'] and form.is_valid() and (prepaymentRequest.type == 1 or inventoriesFormSet.is_valid()):
-            if prepaymentRequest.status.id == 3:
+            if is_user_in_group(request.user, ['Бухгалтер']):
                 prepaymentRequest.updatedByAccountant = userFullName if userFullName else request.user.username
 
             form.save()

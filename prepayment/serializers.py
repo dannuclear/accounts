@@ -17,7 +17,7 @@ class PrepaymentSerializer (serializers.ModelSerializer):
 
     missionTo= serializers.DateField()
 
-    reportDeadline= serializers.DateField()
+    deadline= serializers.DateField()
 
     missionDestList = serializers.CharField()
 
@@ -28,4 +28,4 @@ class PrepaymentSerializer (serializers.ModelSerializer):
     class Meta:
         model = Prepayment
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id', 'document', 'wc07pOrder', 'docNum', 'docDate', 'missionFrom', 'missionTo', 'missionDestList', 'prepaidDestList', 'reportDeadline')
+        datatables_always_serialize = ('id', 'document', 'wc07pOrder', 'docNum', 'docDate', 'missionFrom', 'missionTo', 'missionDestList', 'prepaidDestList', 'deadline', 'createdByFullName', 'updatedByAccountant', 'createdBy')

@@ -86,7 +86,7 @@ class PrepaymentForm (forms.ModelForm):
     carryOverSum = forms.DecimalField(label='Сумма, руб.', localize=True, required=False)
 
     status = StatusChoiceField(queryset=Status.objects.order_by('id'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Статус', required=False, empty_label='Не установлен')
+        attrs={'class': 'custom-select form-control-sm'}), label='Статус', required=True, empty_label=None)
 
     imprestAccount = ImprestAccountChoiceField(queryset=ImprestAccount.objects.order_by('account'), widget=forms.Select(
         attrs={'class': 'custom-select form-control-sm'}), label='Код учета', required=True, empty_label='Не указан')
@@ -97,14 +97,24 @@ class PrepaymentForm (forms.ModelForm):
         model = Prepayment
         fields = ALL_FIELDS
         exclude = ['createdBy', 'createdAt', 'wc07pOrder', 'request', 'iPrepayment', 'reportAccountingNum', 'reportAccountingSum',
-                   'reportNum', 'reportDate', 'reportComment', 'reportStatus', 'empDivName', 'accountCodes', 'approveDate', 'lockLevel', 'factDate', 'approveActionDate']
+                   'reportNum', 'reportDate', 'reportComment', 'reportStatus', 'empDivName', 'accountCodes', 'approveDate', 'lockLevel', 'factDate', 'approveActionDate', 'createdByFullName', 'updatedByAccountant', 'contractIdentifier']
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super(PrepaymentForm, self).__init__(*args, **kwargs)
-        if self.instance.wc07pOrder is not None or self.instance.request is not None or self.instance.iPrepayment is not None:
+        if not is_user_in_group(self.user, ['Администратор']) and (self.instance.wc07pOrder is not None or self.instance.request is not None or self.instance.iPrepayment is not None):
             self.fields['document'].disabled = True
             self.fields['docNum'].disabled = True
             self.fields['docDate'].disabled = True
+
+        if is_user_in_group(self.user, ['Администратор']):
+            self.fields['status'].queryset = Status.objects.filter(pk__in=[1, 3, 5]).order_by('id')
+        elif is_user_in_group(self.user, ['Подотчетное лицо', 'Подотчетное лицо с расширенным функционалом', 'Руководитель']):
+            self.fields['status'].queryset = Status.objects.filter(pk__in=[1]).order_by('id')
+        elif is_user_in_group(self.user, ['Бухгалтер']):
+            self.fields['status'].queryset = Status.objects.filter(pk__in=[3, 5]).order_by('id')
+        else:
+            self.fields['status'].queryset = Status.objects.filter(pk__in=[1]).order_by('id')
 
 
 class PrepaymentItemForm(forms.ModelForm):
@@ -193,7 +203,8 @@ class AdvanceReportForm (forms.ModelForm):
     class Meta:
         model = Prepayment
         fields = ['reportStatus', 'empDivName', 'reportAccountingNum', 'spendedSum', 'reportAccountingSum', 'reportComment', 'phone', 'distribSalary',
-                  'distribSalaryDate', 'distribBank', 'distribBankMethod', 'distribCarryover', 'distribCarryoverReportNum', 'approveDate', 'factDate', 'approveActionDate']
+                  'distribSalaryDate', 'distribBank', 'distribBankMethod', 'distribCarryover', 'distribCarryoverReportNum', 'approveDate', 'factDate', 'approveActionDate', 'contractIdentifier']
+        exclude = ['createdByFullName', 'updatedByAccountant']
 
 
 class AdvanceReportItemForm(forms.ModelForm):

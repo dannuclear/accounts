@@ -69,6 +69,8 @@
                                 d.periodFrom=$('#period-from').val()
                             if ($('#period-to').val())
                                 d.periodTo=$('#period-to').val()
+                            d.columns.push({data: 'wc07pOrder.orderNum', searchable: true})
+                            d.columns.push({data: 'docNum', searchable: true})
                         }
                     },
                     rowId: 'id',
@@ -131,20 +133,21 @@
 
                         //{ data: 'imprestAccount.account', orderable: false, defaultContent: "" },
                         { data: 'accountCodes', orderable: false, defaultContent: "" },
-                        { data: 'prepaidDestList', orderable: false },
-                        { data: null, orderable: false, defaultContent: "" },
-                        { data: 'missionDestList', orderable: false, visible: (['7101', '7102', '7103', '7105', '7108'].includes(imprestAccount))},
-                        { data: 'totalSum', orderable: false, className: 'text-center' },
-                        { data: 'spendedSum', orderable: false, defaultContent: "", className: 'text-center' },
-                        { data: null, orderable: false, defaultContent: "", render: function (data, type, row) {return data.totalSum - data.spendedSum} },
-                        { data: 'reportStatus.name', orderable: false, defaultContent: "Не установлен" },
-                        { data: 'reportAccountingNum', orderable: false, defaultContent: "" },
-                        { data: 'reportDate', orderable: false, defaultContent: "" },
+                        { data: 'prepaidDestList', orderable: false, searchable: false },
+                        { data: null, orderable: false, defaultContent: "", searchable: false },
+                        { data: 'missionDestList', orderable: false, searchable: false, visible: (['7101', '7102', '7103', '7105', '7108'].includes(imprestAccount))},
+                        { data: 'totalSum', orderable: false, className: 'text-center', searchable: false },
+                        { data: 'spendedSum', orderable: false, defaultContent: "", className: 'text-center', searchable: false },
+                        { data: null, orderable: false, defaultContent: "", searchable: false, render: function (data, type, row) {return data.totalSum - data.spendedSum} },
+                        { data: 'reportStatus.name', orderable: false, defaultContent: "Не установлен", searchable: false },
+                        { data: 'reportAccountingNum', orderable: false, defaultContent: "", searchable: false },
+                        { data: 'reportDate', orderable: false, defaultContent: "", searchable: false },
 
                         {
                             data: null,
                             defaultContent: '',
-                            orderable: false,
+                            orderable: false, 
+                            searchable: false,
                             render: function (data, type, row) {
                                 return `<a href="/advanceReports/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
                             }

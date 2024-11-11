@@ -155,7 +155,7 @@
         <div class="input-group-prepend">
           <span class="input-group-text text-left">Идентификатор <br />государственного<br />контракта</span>
         </div>
-        <input type="text" class="mb-0 form-control form-control-sm h-auto d-flex align-items-end justify-content-center" readonly />
+        <input type="text" class="mb-0 form-control form-control-sm h-auto d-flex align-items-end justify-content-center" name="{{ form.contractIdentifier.name }}" value="{{ form.contractIdentifier.value|default_if_none:'' }}" />
       </div>
 
       <div class="col-sm-2 col-xl-2 p-1 input-group input-group-sm">
@@ -575,9 +575,20 @@
 
       // Обработчик выбора наименования расхода для командировок
       $('#tab-content-1').on('change', '[id$="expenseCategory"]', function (e) {
+        const selectElement = e.target
+        const selectedText = selectElement.options[selectElement.selectedIndex].text
         if (['38', '40'].includes(e.target.value)) {
           const tr = $(e.target).parents('tr')
           const daysCount = $('#mission-days').val()
+          if (daysCount && selectedText) {
+            $.get(`/api/v1/expenseRates/?format=json&name=${selectedText}`).done((response) => {
+              if (response.results != null && response.results.length > 0)
+                response.results.forEach(function(el){
+                  if (el.name == selectedText)
+                    tr.find('[name$="expenseSumRub"]').val(daysCount * el.value)
+                })
+            })
+          }
           tr.find('[name$="daysCount"]').val(daysCount)
         }
       })
@@ -886,5 +897,7 @@
       }
     })
 
+    var activeTab = document.querySelector('.tab-pane.show.active')
+    updateTotal(activeTab)
   </script>
 {% endblock %}

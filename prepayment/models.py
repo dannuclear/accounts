@@ -36,6 +36,9 @@ class Prepayment(models.Model):
     # Итоговая сумма
     totalSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="total_sum", blank=False, null=True, verbose_name='Подотчетная сумма')
 
+    # Идентификатор гос контракта
+    contractIdentifier = models.CharField(db_column="contract_identifier", max_length=50, blank=True, null=True, verbose_name='Идентификатор гос контракта')
+
     # Переходящий остаток сумма
     carryOverSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="carry_over_sum", blank=True, null=True, verbose_name='Сумма, руб.')
     # Переходящий остаток авансовый отчет номер
@@ -50,6 +53,8 @@ class Prepayment(models.Model):
 
     createdBy = models.CharField(db_column='created_by', max_length=200)
     createdAt = models.DateTimeField(db_column='created_at')
+    createdByFullName = models.CharField(db_column='created_by_fullname', max_length=200, null=True)
+    updatedByAccountant = models.CharField(db_column='updated_by_accountant', max_length=200, null=True)
 
     status = models.ForeignKey(Status, db_column='status_id', on_delete=models.PROTECT, blank=True, null=True, related_name='status')
 

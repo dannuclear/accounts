@@ -256,3 +256,25 @@ class PrepaidDest(models.Model):
             ("view_prepaid_dest", "Просмотр"),
             ("edit_prepaid_dest", "Редактирование")
         ]
+
+# Возмещаемые расходы
+class RefundExpense(models.Model):
+    id = models.AutoField(primary_key=True, blank=False)
+    # Вид оплаты в ТС УП 
+    payKind = models.IntegerField(db_column="pay_kind", blank=False, null=False)
+    # Код наименования расхода
+    codeName = models.CharField(db_column="code_name", blank=False, null=False, max_length=10)
+    # Наименование расхода
+    name = models.CharField(db_column="name", blank=False, null=False, max_length=200)
+    # Кредит / Код учета подотчетной суммы / Статья расхода
+    code = models.CharField(db_column="code", blank=False, null=False, max_length=10)
+
+    class Meta:
+        db_table = 'refund_expense'
+        verbose_name = 'Возмещаемые расходы'
+        verbose_name_plural = 'Возмещаемые расходы'
+        default_permissions = ()
+        permissions = [
+            ("view_refund_expenses", "Просмотр"),
+            ("edit_refund_expenses", "Редактирование")
+        ]
