@@ -12,6 +12,9 @@
             padding: .2rem!important;
             font-size: 0.9em;
         }
+        td {
+            line-height: 1;
+        }
     </style>
 
 <div class="alert alert-primary" role="alert" style="display: none;">
@@ -36,6 +39,7 @@
             <th rowspan="2" data-dt-order="disable" width="130px">Статус</th>
             <th rowspan="2" data-dt-order="disable">Бухгалтерская справка</th>
             <th rowspan="2" data-dt-order="disable">Дата принятия на учет АО</th>
+            <th rowspan="2" data-dt-order="disable">Создатель/Исполнитель</th>
 
             <th rowspan="2" data-dt-order="disable" width="30px"></th>
         </tr>
@@ -127,7 +131,10 @@
                                     return data.docDate;
                             }
                         },
-                        { data: 'empDivNum', orderable: false },
+                        { data: 'empDivNum', orderable: false, render: function (data, type, row) {
+                                return String(data).padStart(3, '0');
+                            }  
+                        },
                         { data: 'empNum', orderable: false },
                         { data: 'empFullName', orderable: false },
 
@@ -136,13 +143,22 @@
                         { data: 'prepaidDestList', orderable: false, searchable: false },
                         { data: null, orderable: false, defaultContent: "", searchable: false },
                         { data: 'missionDestList', orderable: false, searchable: false, visible: (['7101', '7102', '7103', '7105', '7108'].includes(imprestAccount))},
-                        { data: 'totalSum', orderable: false, className: 'text-center', searchable: false },
-                        { data: 'spendedSum', orderable: false, defaultContent: "", className: 'text-center', searchable: false },
-                        { data: null, orderable: false, defaultContent: "", searchable: false, render: function (data, type, row) {return data.totalSum - data.spendedSum} },
+                        { data: 'totalSum', orderable: false, className: 'text-right', searchable: false },
+                        { data: 'spendedSum', orderable: false, defaultContent: "", className: 'text-right', searchable: false },
+                        { data: null, orderable: false, className: 'text-right', defaultContent: "", searchable: false, render: function (data, type, row) {return ((data.totalSum || 0.0) - (data.spendedSum || 0.0)).toFixed(2)} },
                         { data: 'reportStatus.name', orderable: false, defaultContent: "Не установлен", searchable: false },
                         { data: 'reportAccountingNum', orderable: false, defaultContent: "", searchable: false },
                         { data: 'reportDate', orderable: false, defaultContent: "", searchable: false },
-
+                        {
+                            data: null,
+                            orderable: false,
+                            width: '1rem',
+                            className: 'text-center',
+                            searchable: false,
+                            render: function (data, type, row, meta) {
+                                return `<small style="font-size:0.8em;">${data.createdBy || ''}/${data.updatedByAccountant || ''}</small>`;
+                            },
+                        },
                         {
                             data: null,
                             defaultContent: '',

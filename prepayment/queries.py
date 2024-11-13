@@ -46,7 +46,8 @@ WHERE 	p.approve_date IS NOT NULL
 	AND entity.credit_kau_1 IS NOT NULL 
 	AND entity.credit_kau_2 IS NOT NULL 
 	AND entity.credit_extra IS NOT NULL 
-	AND entity.debit_extra IS NOT NULL 
+	AND entity.debit_extra IS NOT NULL
+	AND entity.accounting_sum > 0
 	AND p.id = %s'''
 
 GET_ADVANCE_REPORT_ITEMS_FOR_REPORT = '''
@@ -70,7 +71,7 @@ GET_ADVANCE_REPORT_ITEMS_FOR_REPORT = '''
 GET_ACCOUNTING_CERT_ROW = '''
 	SELECT debit_account, debit_extra, credit_account, credit_extra, sum (accounting_sum) FROM (
 	SELECT
-		coalesce(entity.debit_account::text, '') || ' ' ||
+		LPAD(coalesce(entity.debit_account::text, ''), 4, '0') || ' ' ||
 		CASE item.item_type
 			WHEN 0 THEN
 				LPAD(coalesce(debit_expense_item::text, ''), 3, '0') || ' ' || LPAD(coalesce(debit_expense_workshop::text, ''), 3, '0')
@@ -78,15 +79,15 @@ GET_ACCOUNTING_CERT_ROW = '''
 				LPAD(coalesce(debit_expense_item::text, ''), 3, '0') || ' ' || LPAD(coalesce(debit_expense_workshop::text, ''), 3, '0')
 		ELSE LPAD(coalesce(debit_kau_1::text, ''), 3, '0') || ' ' || LPAD(coalesce(debit_kau_2::text, ''), 3, '0') END as debit_account,
 		entity.debit_extra as debit_extra,
-		coalesce(entity.credit_account::text, '') || ' ' ||
+		LPAD(coalesce(entity.credit_account::text, ''), 4, '0') || ' ' ||
 		CASE item.item_type
 			WHEN 0 THEN
-				coalesce(credit_expense_item::text, '') || ' ' || coalesce(credit_dept::text, '')
+				LPAD(coalesce(credit_expense_item::text, ''), 3, '0') || ' ' || LPAD(coalesce(credit_dept::text, ''), 3, '0')
 			WHEN 5 THEN
-				coalesce(credit_expense_item::text, '') || ' ' || coalesce(credit_dept::text, '')
+				LPAD(coalesce(credit_expense_item::text, ''), 3, '0') || ' ' || LPAD(coalesce(credit_dept::text, ''), 3, '0')
 		ELSE LPAD(coalesce(credit_kau_1::text, ''), 3, '0') || ' ' || LPAD(coalesce(credit_kau_1::text, ''), 3, '0') END as credit_account,
 		entity.credit_extra as credit_extra,
 		entity.accounting_sum as accounting_sum
 	FROM advance_report_item_entity entity
 	INNER JOIN advance_report_item item ON item.id = entity.advance_report_item_id
-	WHERE item.prepayment_id = %s) t1 GROUP BY debit_account, debit_extra, credit_account, credit_extra'''
+	WHERE item.prepayment_id = %s AND entity.accounting_sum > 0) t1 GROUP BY debit_account, debit_extra, credit_account, credit_extra'''

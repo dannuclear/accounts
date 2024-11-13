@@ -88,70 +88,85 @@
           },
           {
             data: 'expenseCode',
-            orderable: false
+            orderable: false,
+            searchable: false
           },
           {
             data: 'accept',
-            orderable: false
+            orderable: false,
+            searchable: false
           },
           {
             data: 'debitAccount',
-            orderable: false
+            orderable: false,
+            searchable: false
           },
           {
             data: 'debitKAU1',
-            orderable: false
+            orderable: false,
+            searchable: false
           },
           {
             data: 'debitKAU2',
-            orderable: false
+            orderable: false,
+            searchable: false
           },
           {
             data: 'debitExpenseItem',
-            orderable: false
+            orderable: false,
+            searchable: false
           },
           {
             data: 'debitExpenseDept',
-            orderable: false
+            orderable: false,
+            searchable: false
           },
           {
             data: 'debitExtra',
-            orderable: false
+            orderable: false,
+            searchable: false
           },
-
 
           {
             data: 'creditAccount',
-            orderable: false
+            orderable: false,
+            searchable: false
           },
           {
             data: 'creditKAU1',
-            orderable: false
+            orderable: false,
+            searchable: false
           },
           {
             data: 'creditKAU2',
-            orderable: false
+            orderable: false,
+            searchable: false
           },
           {
             data: 'creditExpenseItem',
-            orderable: false
+            orderable: false,
+            searchable: false
           },
           {
             data: 'creditExpenseDept',
-            orderable: false
+            orderable: false,
+            searchable: false
           },
           {
             data: 'creditExtra',
-            orderable: false
+            orderable: false,
+            searchable: false
           },
 
           {
             data: 'schema',
-            orderable: false
+            orderable: false,
+            searchable: false
           },
           {
             data: 'category.printName',
-            orderable: false
+            orderable: false,
+            searchable: false
           },
 
           {
@@ -160,6 +175,7 @@
             width: '1%',
             defaultContent: '',
             orderable: false,
+            searchable: false,
             render: function (data, type, row) {
                 return `<a href="/expenseItems/${data.code}" class="text-info bi bi-pencil h4 m-0"></a>`
             }
@@ -170,6 +186,7 @@
             width: '1%',
             defaultContent: '',
             orderable: false,
+            searchable: false,
             render: function (data, type, row) {
               return `<a href="/expenseItems/${data.code}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить код расхода?');"></a>`
             }

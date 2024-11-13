@@ -374,7 +374,7 @@ def htmlAdvanceReport(request, id):
         sumRub2 = sumRub2 + (ae2.expenseSumRub if ae2.expenseSumRub else 0)
         sumVAT2 = sumVAT2 + (ae2.expenseSumVAT if ae2.expenseSumVAT else 0)
 
-    balance = (diffSum1 if diffSum1 else 0) + (sumRub2 if sumRub2 else 0)
+    balance = (diffSum1 if diffSum1 else 0) - (sumRub2 if sumRub2 else 0)
 
     totalSumInt = 0.0
     totalSumFrac = .00

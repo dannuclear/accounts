@@ -252,6 +252,9 @@ class AdvanceReportItem (models.Model):
     materialVAT = models.DecimalField(max_digits=10, decimal_places=2, db_column="material_vat", blank=True, null=True)
     partSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="part_sum", blank=True, null=True)
     partVAT = models.DecimalField(max_digits=10, decimal_places=2, db_column="part_vat", blank=True, null=True)
+    
+    poType = models.SmallIntegerField(db_column="po_type", blank=True, null=True)
+    poGroup = models.SmallIntegerField(db_column="po_group", blank=True, null=True)
     # Нет
 
     # Тип пункта авансового отчета

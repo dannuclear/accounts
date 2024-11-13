@@ -4,7 +4,7 @@
 
   <input type="hidden" name="{{ entity.DELETE.html_name }}" id="{{ entity.DELETE.auto_id }}" value="{{ entity.DELETE.value|default_if_none:'' }}" />
 
-  {% if itemType == 2 %}
+  {% comment %} {% if itemType == 2 %}
     <td style="width:100px">
       <input type="text" class="form-control form-control-sm" name="{{ entity.invAnalysisPSO.html_name }}" value="{{ entity.invAnalysisPSO.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
     </td>
@@ -28,7 +28,7 @@
         <input type="text" class="form-control form-control-sm expense-sum expense-sum-vat" name="{{ item.diffSum.html_name }}" value="{{ item.diffSum.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
       </td>
     {% endif %}
-  {% endif %}
+  {% endif %} {% endcomment %}
 
   {% if itemType == 0 %}
     <td>
@@ -97,13 +97,13 @@
     </td>
   {% endif %}
 
-  {% if itemType == 2 %}
+  {% comment %} {% if itemType == 2 %}
     <td>
       {% if not lockLevel and items.form_kwargs.accounting %}
         <button class="btn btn-sm btn-outline-success btn-fill-entity-row" data-prefix="{{ entity.prefix }}"><i class="fa-light fa-caret-right"></i></button>
       {% endif %}
     </td>
-  {% endif %}
+  {% endif %} {% endcomment %}
 
   <td>
     {% if not lockLevel %}

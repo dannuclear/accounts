@@ -15,6 +15,11 @@ def zfill(value, count):
     return str(value if value is not None else '').zfill(count)
 
 @register.filter
+def zfillIfNotNone(value, count):
+    if value is not None and value != '':
+        return str(value).zfill(count)
+
+@register.filter
 def rowspan(value):
     counter = 0
     for form in value:

@@ -138,7 +138,10 @@
                                     return data.docDate;
                             }
                         },
-                        { data: 'empDivNum', orderable: false },
+                        { data: 'empDivNum', orderable: false, render: function (data, type, row) {
+                                return String(data).padStart(3, '0');
+                            }  
+                        },
                         { data: 'empNum', orderable: false },
                         { data: 'empFullName', orderable: false },
 
@@ -147,7 +150,7 @@
                         { data: 'missionDestList', orderable: false, searchable: false },
                         { data: 'missionFrom', orderable: false, defaultContent: "", searchable: false },
                         { data: 'missionTo', orderable: false, defaultContent: "", searchable: false },
-                        { data: 'totalSum', orderable: false, searchable: false },
+                        { data: 'totalSum', orderable: false, searchable: false, className: 'text-right' },
                         { data: 'status.name', orderable: false, defaultContent: "Не установлен", searchable: false },
                         { data: 'reportAccountingNum', orderable: false, defaultContent: "", searchable: false },
                         { data: null, orderable: false, defaultContent: "", searchable: false },

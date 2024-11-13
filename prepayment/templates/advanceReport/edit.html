@@ -463,7 +463,7 @@
     </div>
   </div>
 
-  {% include 'advanceReport/inventoryModal.html' %}
+  {% comment %} {% include 'advanceReport/inventoryModal.html' %} {% endcomment %}
 
   {% include 'advanceReport/serviceModal.html' %}
 
@@ -614,7 +614,7 @@
       })
 
       // Обработчик отображения форм редактирования
-      $('#inventoryModal, #serviceModal, #presentationModal, #purchaseOrderModal').on('show.bs.modal', function (event) {
+      $('.inventoryModal, #serviceModal, #presentationModal, #purchaseOrderModal').on('show.bs.modal', function (event) {
         // Устанавливаем ссылку на редактируемую строку
         editRow = $(event.relatedTarget).parents('tr')
         const itemType = editRow.find('input.item-type').val()
@@ -648,8 +648,10 @@
         documentSelectClone.val(rowDocumentSelect.val())
         modalDocNumInput.val(rowDocNumInput.val())
         modalDocDateInput.val(rowDocDateInput.val())
+
         modalExpenseSumRubInput.val(rowExpenseSumRubInput.val())
         modalExpenseSumVATInput.val(rowExpenseSumVATInput.val())
+
         modalSypherNumInput.val(rowSypherNumInput.val())
         modalSypherDateInput.val(rowSypherDateInput.val())
         modalCommentInput.val(rowCommentInput.val())
@@ -732,6 +734,21 @@
           var modalServiceVATInput = modal.find('.service-vat')
           var modalRouteInput = modal.find('.route')
 
+          const materialSum = parseFloat(rowMaterialSumInput.val().replace(/,/g, '.')) || 0
+          const oilSum = parseFloat(rowOilSumInput.val().replace(/,/g, '.')) || 0
+          const partSum = parseFloat(rowPartSumInput.val().replace(/,/g, '.')) || 0
+          const serviceSum = parseFloat(rowServiceSumInput.val().replace(/,/g, '.')) || 0
+
+          const materialVAT = parseFloat(rowMaterialVATInput.val().replace(/,/g, '.')) || 0
+          const oilVAT = parseFloat(rowOilVATInput.val().replace(/,/g, '.')) || 0
+          const partVAT = parseFloat(rowPartVATInput.val().replace(/,/g, '.')) || 0
+          const serviceVAT = parseFloat(rowServiceVATInput.val().replace(/,/g, '.')) || 0
+
+          if (materialSum > 0 || oilSum > 0 || partSum > 0 || serviceSum > 0){
+            modalExpenseSumRubInput.val((materialSum + oilSum + partSum + serviceSum).toFixed(2))
+            modalExpenseSumVATInput.val((materialVAT + oilVAT + partVAT + serviceVAT).toFixed(2))
+          }
+
           // Выставляем значения из редактируемой строки
           modalMaterialSumInput.val(rowMaterialSumInput.val())
           modalMaterialVATInput.val(rowMaterialVATInput.val())
@@ -746,7 +763,7 @@
       })
 
       // Принятие изменений из модальных форм
-      $('#inventoryModal, #serviceModal, #presentationModal, #purchaseOrderModal').on('click', '.ok-button', function(e){
+      $('.inventoryModal, #serviceModal, #presentationModal, #purchaseOrderModal').on('click', '.ok-button', function(e){
         var modal = $(e.delegateTarget)
         const itemType = editRow.find('input.item-type').val()
 
@@ -774,8 +791,10 @@
         rowDocumentSelect.val(modalDocumentSelect.val())
         rowDocNumInput.val(modalDocNumInput.val())
         rowDocDateInput.val(modalDocDateInput.val())
+
         rowExpenseSumRubInput.val(modalExpenseSumRubInput.val())
         rowExpenseSumVATInput.val(modalExpenseSumVATInput.val())
+
         rowSypherNumInput.val(modalSypherNumInput.val())
         rowSypherDateInput.val(modalSypherDateInput.val())
         rowCommentInput.val(modalCommentInput.val())
@@ -825,6 +844,17 @@
             var modalService2SumRubInput = modal.find('.service-2-sum-rub')
             var modalService2SumVATInput = modal.find('.service-2-sum-vat')
     
+          
+            const sum1 = parseFloat(modalService1SumRubInput.val().replace(/,/g, '.')) || 0
+            const sum2 = parseFloat(modalService2SumRubInput.val().replace(/,/g, '.')) || 0
+            const total = parseFloat(modalExpenseSumRubInput.val().replace(/,/g, '.')) || 0
+
+            if ((total !== sum1 + sum2) && (sum1 > 0 || sum2 > 0)) {
+              alert('Неправильно разделена общая сумма по документу!');
+              e.stopImmediatePropagation();
+              return
+            }
+            
             // Выставляем значения из формы в строку
             rowBankCommissionInput.val(modalBankCommissionInput.val())
             rowService1SumRubInput.val(modalService1SumRubInput.val())
@@ -857,15 +887,24 @@
           var modalServiceVATInput = modal.find('.service-vat')
           var modalRouteInput = modal.find('.route')
 
-          const materialSum = Number(modalMaterialSumInput.val().replace(',', '.'))
-          const oilSum = Number(modalOilSumInput.val().replace(',', '.'))
-          const partSum = Number(modalPartSumInput.val().replace(',', '.'))
-          const serviceSum = Number(modalServiceSumInput.val().replace(',', '.'))
+          const materialSum = parseFloat(modalMaterialSumInput.val().replace(/,/g, '.')) || 0
+          const oilSum = parseFloat(modalOilSumInput.val().replace(/,/g, '.')) || 0
+          const partSum = parseFloat(modalPartSumInput.val().replace(/,/g, '.')) || 0
+          const serviceSum = parseFloat(modalServiceSumInput.val().replace(/,/g, '.')) || 0
 
-          const materialVAT = Number(modalMaterialVATInput.val().replace(',', '.'))
-          const oilVAT= Number(modalOilVATInput.val().replace(',', '.'))
-          const partVAT = Number(modalPartVATInput.val().replace(',', '.'))
-          const serviceVAT = Number(modalServiceVATInput.val().replace(',', '.'))
+          const materialVAT = parseFloat(modalMaterialVATInput.val().replace(/,/g, '.')) || 0
+          const oilVAT= parseFloat(modalOilVATInput.val().replace(/,/g, '.')) || 0
+          const partVAT = parseFloat(modalPartVATInput.val().replace(/,/g, '.')) || 0
+          const serviceVAT = parseFloat(modalServiceVATInput.val().replace(/,/g, '.')) || 0
+
+          const total = parseFloat(modalExpenseSumRubInput.val().replace(/,/g, '.')) || 0
+
+          if ((total.toFixed(2) !== (materialSum + oilSum + partSum + serviceSum).toFixed(2)) && 
+          (modalMaterialSumInput.val() || modalOilSumInput.val() || modalPartSumInput.val() || modalServiceSumInput.val())) {
+            alert('Неправильно разделена общая сумма по документу!');
+            e.stopImmediatePropagation();
+            return
+          }
 
           // Выставляем значения из формы в строку
           rowMaterialSumInput.val(modalMaterialSumInput.val())
@@ -878,8 +917,13 @@
           rowServiceVATInput.val(modalServiceVATInput.val())
           rowRouteInput.val(modalRouteInput.val())
 
-          rowExpenseSumRubInput.val(materialSum + oilSum + partSum + serviceSum)
-          rowExpenseSumVATInput.val(materialVAT + oilVAT + partVAT + serviceVAT)
+          //rowExpenseSumRubInput.val((materialSum + oilSum + partSum + serviceSum).toFixed(2))
+          //rowExpenseSumVATInput.val((materialSum + oilSum + partSum + serviceSum).toFixed(2))
+
+          if (materialSum > 0 || oilSum > 0 || partSum > 0 || serviceSum > 0){
+            $('#action').val('split-' + editRow.attr('id'))
+            $('form').submit()
+          }
         }
       })
     })

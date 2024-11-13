@@ -242,7 +242,7 @@ class AdvanceReportItemForm(forms.ModelForm):
                                                             files=self.files if isBound else None,
                                                             prefix='%s-%s' % (self.prefix, 'item'),
                                                             form_kwargs={'accounting': self.accounting, 'lockLevel': self.lockLevel})
-            else:
+            if self.accounting:
                 self.entities = AdvanceReportItemEntityFormset(instance=self.instance,
                                                             data=self.data if isBound else None,
                                                             files=self.files if isBound else None,
@@ -304,16 +304,16 @@ class AdvanceReportInventoryItemForm(forms.ModelForm):
         self.accounting = kwargs.pop('accounting', False)
         self.lockLevel = kwargs.pop('lockLevel', 0)
         super(AdvanceReportInventoryItemForm, self).__init__(*args, **kwargs)
-        strValue = self.data.get('%s-DELETE' % self.prefix, 'False')
-        isDeleted = strtobool('False' if strValue == '' else strValue)
+        # strValue = self.data.get('%s-DELETE' % self.prefix, 'False')
+        # isDeleted = strtobool('False' if strValue == '' else strValue)
         # Добавляем набор форм бухгалтерской формы
-        if self.accounting and not isDeleted:
-            isBound = len([v for k, v in self.data.items() if k.startswith(self.prefix)]) if self.is_bound else self.is_bound
-            self.entities = AdvanceReportInventoryItemEntityFormset(instance=self.instance,
-                                                           data=self.data if isBound else None,
-                                                           files=self.files if isBound else None,
-                                                           prefix='%s-%s' % (self.prefix, 'entity'),
-                                                           form_kwargs={'lockLevel': self.lockLevel})
+        # if self.accounting and not isDeleted:
+        #     isBound = len([v for k, v in self.data.items() if k.startswith(self.prefix)]) if self.is_bound else self.is_bound
+        #     self.entities = AdvanceReportInventoryItemEntityFormset(instance=self.instance,
+        #                                                    data=self.data if isBound else None,
+        #                                                    files=self.files if isBound else None,
+        #                                                    prefix='%s-%s' % (self.prefix, 'entity'),
+        #                                                    form_kwargs={'lockLevel': self.lockLevel})
 
     def is_valid(self):
         result = super(AdvanceReportInventoryItemForm, self).is_valid()

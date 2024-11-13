@@ -34,7 +34,7 @@ def processActionNew(data, prepayment, accounting):
                 fillPurchaseOrderEntity(data, prefix, prepayment)
             # Если добавляем запись "Приобретение ТМЦ"
             elif prefix.startswith('inventory'):
-                fillInventoryEntity(data, prefix, prepayment, accounting)
+                fillInventoryEntity2(data, prefix, prepayment, accounting)
         # Если добавляем item
         else:
             addItem(data, prefix)
@@ -42,7 +42,9 @@ def processActionNew(data, prepayment, accounting):
     elif action.startswith('delete-'):
         prefix = action.replace('delete-', '')
         data['%s-DELETE' % prefix] = 'True'
-
+    elif action.startswith('split-'):
+        prefix = action.replace('split-', '')
+        splitPurchaseOrder(data, prefix, prepayment, accounting)
 
 def addItem(data, prefix):
     totalForms = getTotalForms(data, prefix)
@@ -72,6 +74,110 @@ def parseDecimal(value):
 
 def getExpenseCategoryId(data, prefix):
     return int(data['%s-expenseCategory' % (prefix)])
+
+def splitPurchaseOrder (data, prefix, prepayment, accounting):
+    itemPrefix = prefix
+    formPrefix = 'purchase-order'
+    currentNum = getTotalForms(data, formPrefix)
+
+    service1Sum = parseDecimal(data['%s-service1Sum' % (itemPrefix)])
+    materialSum = parseDecimal(data['%s-materialSum' % (itemPrefix)])
+    oilSum = parseDecimal(data['%s-oilSum' % (itemPrefix)])
+    partSum = parseDecimal(data['%s-partSum' % (itemPrefix)])
+    service1VAT = parseDecimal(data['%s-service1VAT' % (itemPrefix)])
+    materialVAT = parseDecimal(data['%s-materialVAT' % (itemPrefix)])
+    oilVAT = parseDecimal(data['%s-oilVAT' % (itemPrefix)])
+    partVAT = parseDecimal(data['%s-partVAT' % (itemPrefix)])
+
+    poType = data['%s-poType' % (itemPrefix)]
+    poGroup = data['%s-poGroup' % (itemPrefix)]
+
+    if not poGroup and (oilSum > 0 or service1Sum > 0 or materialSum > 0 or partSum > 0):
+        createPurchaseOrderItem(data, itemPrefix, itemPrefix, str(currentNum), 0)
+        data['%s-expenseSumRub' % itemPrefix] = service1Sum
+        data['%s-expenseSumVAT' % itemPrefix] = service1VAT
+
+        for i in range(3):
+            if [materialSum, oilSum, partSum][i] > 0:
+                curPrefix = '%s-%s' % (formPrefix, str(currentNum))
+                createPurchaseOrderItem(data, curPrefix, itemPrefix, str(currentNum), i + 1)
+                data['%s-expenseSumRub' % curPrefix] = [materialSum, oilSum, partSum][i]
+                data['%s-expenseSumVAT' % curPrefix] = [materialVAT, oilVAT, partVAT][i]
+
+            currentNum = currentNum + 1
+    elif oilSum > 0 or service1Sum > 0 or materialSum > 0 or partSum > 0:
+        (servicePrefix, materialPrefix, oilPrefix, partPrefix) = checkPurchaseOrderItem(data, formPrefix, poGroup)
+        if not servicePrefix and service1Sum > 0:
+            servicePrefix = '%s-%s' % (formPrefix, str(currentNum))
+            createPurchaseOrderItem(data, servicePrefix, itemPrefix, str(currentNum), 0)
+            currentNum = currentNum + 1
+        if not materialPrefix and materialSum > 0:
+            materialPrefix = '%s-%s' % (formPrefix, str(currentNum))
+            createPurchaseOrderItem(data, materialPrefix, itemPrefix, str(currentNum), 1)
+            currentNum = currentNum + 1
+        if not oilPrefix and oilSum > 0:
+            oilPrefix = '%s-%s' % (formPrefix, str(currentNum))
+            createPurchaseOrderItem(data, oilPrefix, itemPrefix, str(currentNum), 2)
+            currentNum = currentNum + 1
+        if not partPrefix and partSum > 0:
+            partPrefix = '%s-%s' % (formPrefix, str(currentNum))
+            createPurchaseOrderItem(data, partPrefix, itemPrefix, str(currentNum), 3)
+            currentNum = currentNum + 1
+        data['%s-expenseSumRub' % servicePrefix] = service1Sum
+        data['%s-expenseSumRub' % materialPrefix] = materialSum
+        data['%s-expenseSumRub' % oilPrefix] = oilSum
+        data['%s-expenseSumRub' % partPrefix] = partSum
+
+        data['%s-expenseSumVAT' % servicePrefix] = service1VAT
+        data['%s-expenseSumVAT' % materialPrefix] = materialVAT
+        data['%s-expenseSumVAT' % oilPrefix] = oilVAT
+        data['%s-expenseSumVAT' % partPrefix] = partVAT
+        
+    setTotalForms(data, formPrefix, currentNum)
+
+def createPurchaseOrderItem(data, prefix, sourcePrefix, poGroup, poType):
+    data['%s-poGroup' % (prefix)] = poGroup
+    data['%s-poType' % (prefix)] = poType
+    if prefix != sourcePrefix:
+        updatePurchaseOrderItem(data, sourcePrefix, prefix)
+
+def checkPurchaseOrderItem(data, prefix, poGroup):
+    if not poGroup:
+        return (None, None, None, None)
+    serviceUpdated = None
+    materialUpdated = None
+    oilUpdated = None
+    partUpdated = None
+    for i in range(100):
+        curPrefix = '%s-%s' % (prefix, i)
+        poTypeKey = '%s-%s-poType' % (prefix, i)
+        poGroupKey = '%s-%s-poGroup' % (prefix, i)
+
+        if data.get(poGroupKey, None) == poGroup:
+            if data.get(poTypeKey, None) == '0': # Если это услуга в группе
+                serviceUpdated = curPrefix
+            elif data.get(poTypeKey, None) == '1': # Если это материалы в группе
+                materialUpdated = curPrefix
+            elif data.get(poTypeKey, None) == '2': # Если это масла в группе
+                oilUpdated = curPrefix
+            elif data.get(poTypeKey, None) == '3': # Если это запчасти в группе
+                partUpdated = curPrefix
+    return (serviceUpdated, materialUpdated, oilUpdated, partUpdated)
+
+def updatePurchaseOrderItem(data, sourcePrefix, destPrefix):
+    data[('%s-itemType' % destPrefix)] = data.get('%s-itemType' % sourcePrefix, None)
+    data['%s-comment' % destPrefix] = data.get('%s-comment' % sourcePrefix, None)
+    data['%s-route' % destPrefix] = data.get('%s-route' % sourcePrefix, None)
+    data['%s-service1Sum' % destPrefix] = data.get('%s-service1Sum' % sourcePrefix, None)
+    data['%s-service1VAT' % destPrefix] = data.get('%s-service1VAT' % sourcePrefix, None)
+    data['%s-materialSum' % destPrefix] = data.get('%s-materialSum' % sourcePrefix, None)
+    data['%s-materialVAT' % destPrefix] = data.get('%s-materialVAT' % sourcePrefix, None)
+    data['%s-oilSum' % destPrefix] = data.get('%s-oilSum' % sourcePrefix, None)
+    data['%s-oilVAT' % destPrefix] = data.get('%s-oilVAT' % sourcePrefix, None)
+    data['%s-partSum' % destPrefix] = data.get('%s-partSum' % sourcePrefix, None)
+    data['%s-partVAT' % destPrefix] = data.get('%s-partVAT' % sourcePrefix, None)
+    data['%s-poGroup' % destPrefix] = data.get('%s-poGroup' % sourcePrefix, None)
+
 
 
 def fillTravelExpenseEntity(data, prefix, prepayment):  # Заполняем бухгалтерские записи по командировке
@@ -352,6 +458,7 @@ def fillPurchaseOrderEntity(data, prefix, prepayment):  # Заполняем б�
     setTotalForms(data, prefix, currentNum)
 
 
+
 def fillInventoryEntity(data, prefix, prepayment, accounting):  # Заполняем бухгалтерские записи по разделу "Приобретение ТМЦ"
     itemPrefix = prefix.replace('-item-entity', '')
     expenseCategoryId = getExpenseCategoryId(data, itemPrefix)
@@ -441,4 +548,96 @@ def fillInventoryEntity(data, prefix, prepayment, accounting):  # Заполня
                 data['%s-accountingSum' % (entityPrefix)] = expenseSumRub if expenseItem.accept == 'Sобщ' else expenseSumVAT if expenseItem.accept == 'Sндс' else (expenseSumRub - expenseSumVAT) if expenseItem.accept == 'Sобщ-Sндс' else diffSum if expenseItem.accept == 'Sразн' else ''
                 currentNum = currentNum + 1
             setTotalForms(data, '%s-entity' % inventoryItemPrefix, currentNum)
+        i = i + 1
+
+
+def fillInventoryEntity2(data, prefix, prepayment, accounting):  # Заполняем бухгалтерские записи по разделу "Приобретение ТМЦ"
+    itemPrefix = prefix.replace('-entity', '')
+    expenseCategoryId = getExpenseCategoryId(data, itemPrefix)
+    i = 0
+    while True:
+        inventoryItemPrefix = '%s-item-%s' % (itemPrefix, i)
+        if (('%s-id' % (inventoryItemPrefix)) not in data) or (data.get('%s-DELETE' % (inventoryItemPrefix), False) in ['True']):
+            break
+        currentNum = getTotalForms(data, '%s-entity' % itemPrefix)
+
+        if expenseCategoryId and accounting:
+            expenseSumCurrency = parseDecimal(data['%s-expenseSumCurrency' % (itemPrefix)])
+            expenseSumRub = parseDecimal(data['%s-expenseSumRub' % (itemPrefix)])
+            expenseSumVAT = parseDecimal(data['%s-expenseSumVAT' % (itemPrefix)])
+            diffSum = parseDecimal(data['%s-diffSum' % (itemPrefix)])
+            route = data['%s-route' % (itemPrefix)]
+
+            # Шифр счет фактуры
+            invAnalysisInvoice = data['%s-invoiceCode' % (itemPrefix)]
+
+            expenseCategory = ExpenseCategory.objects.get(pk=expenseCategoryId)
+            hasExpenseItems = False
+
+            # Извлекаем статью расхода из справочника по наименованию (категории) и коду расхода
+            for expenseItem in ExpenseItem.objects.filter(category_id=expenseCategoryId, itemType=prepayment.imprestAccount_id).all():
+                entityPrefix = '%s-entity-%s' % (itemPrefix, currentNum)
+                hasExpenseItems = True
+
+                invAnalysisPSO = data['%s-invAnalysisPSO' % (inventoryItemPrefix)]
+                invAnalysisWarehouseNum = data['%s-invAnalysisWarehouseNum' % (inventoryItemPrefix)]
+
+                # Дебет/Шифр отнесения затрат/счет.субсчет
+                data['%s-debitAccount' % (entityPrefix)] = expenseItem.debitAccount
+                # Дебет/КАУ 1
+                if expenseItem.debitKAU1 is not None:
+                    data['%s-debitKAU1' % (entityPrefix)] = expenseItem.debitKAU1
+                else:
+                    if expenseItem.debitAccount is not None and str(expenseItem.debitAccount).startswith('60'):
+                        if len(invAnalysisPSO) > 0 and len(invAnalysisWarehouseNum) > 0 and len(invAnalysisInvoice) == 0:
+                            data['%s-debitKAU1' % (entityPrefix)] = invAnalysisPSO + invAnalysisWarehouseNum[0]
+                        elif len(invAnalysisPSO) == 0 and len(invAnalysisWarehouseNum) == 0 and len(invAnalysisInvoice) > 0:
+                            data['%s-debitKAU1' % (entityPrefix)] = invAnalysisInvoice[0:3]
+
+                # Дебет/КАУ 2
+                if expenseItem.debitKAU2 is not None:
+                    data['%s-debitKAU2' % (entityPrefix)] = expenseItem.debitKAU2
+                else:
+                    if expenseItem.debitAccount is not None and str(expenseItem.debitAccount).startswith('60'):
+                        if len(invAnalysisPSO) > 0 and len(invAnalysisWarehouseNum) > 0 and len(invAnalysisInvoice) == 0:
+                            data['%s-debitKAU2' % (entityPrefix)] = invAnalysisWarehouseNum[1:] + '0'
+                        elif len(invAnalysisPSO) == 0 and len(invAnalysisWarehouseNum) == 0 and len(invAnalysisInvoice) > 0:
+                            data['%s-debitKAU2' % (entityPrefix)] = invAnalysisInvoice[3:] + '0'
+
+                # Дебет/Шифр отнесения затрат/доп. признак
+                if expenseItem.debitAccount is not None and str(expenseItem.debitAccount).startswith('23'):
+                    data['%s-debitExtra' % (entityPrefix)] = route
+
+                # Кредит/Счет/Субсчет
+                data['%s-creditAccount' % (entityPrefix)] = expenseItem.creditAccount
+                # Кредит/КАУ 1
+                if expenseItem.creditKAU1 is not None:
+                    data['%s-creditKAU1' % (entityPrefix)] = expenseItem.creditKAU1
+                else:
+                    if expenseItem.creditAccount is not None and (str(expenseItem.creditAccount).startswith('60') or str(expenseItem.creditAccount).startswith('19')):
+                        if len(invAnalysisPSO) > 0 and len(invAnalysisWarehouseNum) > 0 and len(invAnalysisInvoice) == 0:
+                            data['%s-creditKAU1' % (entityPrefix)] = invAnalysisPSO + invAnalysisWarehouseNum[0]
+                        elif len(invAnalysisPSO) == 0 and len(invAnalysisWarehouseNum) == 0 and len(invAnalysisInvoice) > 0:
+                            data['%s-creditKAU1' % (entityPrefix)] = invAnalysisInvoice[0:3]
+
+                # Кредит/КАУ 2
+                if expenseItem.creditKAU2 is not None:
+                    data['%s-creditKAU2' % (entityPrefix)] = expenseItem.creditKAU2
+                else:
+                    if expenseItem.creditAccount is not None and str(expenseItem.creditAccount).startswith('71'):
+                        data['%s-creditKAU2' % (entityPrefix)] = prepayment.empDivNum
+                    elif expenseItem.creditAccount is not None and (str(expenseItem.creditAccount).startswith('60') or str(expenseItem.creditAccount).startswith('19')):
+                        if len(invAnalysisPSO) > 0 and len(invAnalysisWarehouseNum) > 0 and len(invAnalysisInvoice) == 0:
+                            data['%s-creditKAU2' % (entityPrefix)] = invAnalysisWarehouseNum[1:] + '0'
+                        elif len(invAnalysisPSO) == 0 and len(invAnalysisWarehouseNum) == 0 and len(invAnalysisInvoice) > 0:
+                            data['%s-creditKAU2' % (entityPrefix)] = invAnalysisInvoice[3:] + '0'
+
+                # Кредит/доп. признак
+                if expenseItem.creditAccount is not None and str(expenseItem.creditAccount).startswith('71'):
+                    data['%s-creditExtra' % (entityPrefix)] = prepayment.empNum
+
+                # Сумма, принятая к учету
+                data['%s-accountingSum' % (entityPrefix)] = expenseSumRub if expenseItem.accept == 'Sобщ' else expenseSumVAT if expenseItem.accept == 'Sндс' else (expenseSumRub - expenseSumVAT) if expenseItem.accept == 'Sобщ-Sндс' else diffSum if expenseItem.accept == 'Sразн' else ''
+                currentNum = currentNum + 1
+            setTotalForms(data, '%s-entity' % itemPrefix, currentNum)
         i = i + 1

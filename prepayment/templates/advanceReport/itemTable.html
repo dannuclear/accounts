@@ -45,7 +45,21 @@
 
     {{ items.management_form }}
     {% for item in items %}
+
+      {% if itemType == 2 %}
+        {% include 'advanceReport/inventoryModal2.html' with itemType=itemType item=item lockLevel=lockLevel %}
+      {% endif %}
+
       <tr id="{{ item.prefix }}" class="{{ items.prefix }}-form" style="{% if item.DELETE.value %} display:none {% endif %}">
+        {% if itemType == 2 %}
+          {{ item.inventoryItems.management_form }}
+
+          {% for inventoryItem in item.inventoryItems|forms_deleted %}
+            {{ inventoryItem.id }}
+            <input type="hidden" name="{{ inventoryItem.DELETE.html_name }}" id="{{ inventoryItem.DELETE.auto_id }}" value="{{ inventoryItem.DELETE.value|default_if_none:'' }}" />
+          {% endfor %}
+        {% endif %}
+
         {{ item.id }}
         <input type="hidden" name="{{ item.DELETE.html_name }}" id="{{ item.DELETE.auto_id }}" value="{{ item.DELETE.value|default_if_none:'' }}"/>
         <input type="hidden" name="{{ item.itemType.html_name }}" class="item-type" value="{{ itemType }}" />
@@ -68,10 +82,13 @@
           {% endif %}
           {% if itemType == 2 %}
             <input type="hidden" name="{{ item.route.html_name }}" class="route" value="{{ item.route.value|default_if_none:'' }}" />
-            <input type="hidden" name="{{ item.invoiceCode.html_name }}" class="sypher-num" value="{{ item.invoiceCode.value|default_if_none:'' }}" />
+            <input type="hidden" name="{{ item.invoiceCode.html_name }}" class="sypher-num" value="{{ item.invoiceCode.value|zfillIfNotNone:5|default_if_none:'' }}" />
           {% endif %}
         {% endif %}
         {% if itemType == 5 %}
+          <input type="hidden" name="{{ item.poType.html_name }}" class="poType" value="{{ item.poType.value|default_if_none:'' }}" />
+          <input type="hidden" name="{{ item.poGroup.html_name }}" class="poGroup" value="{{ item.poGroup.value|default_if_none:'' }}" />
+
           <input type="hidden" name="{{ item.comment.html_name }}" class="comment" value="{{ item.comment.value|default_if_none:'' }}" />
           <input type="hidden" name="{{ item.route.html_name }}" class="route" value="{{ item.route.value|default_if_none:'' }}" />
           <input type="hidden" name="{{ item.service1Sum.html_name }}" class="service-sum" value="{{ item.service1Sum.value|default_if_none:'' }}" />
@@ -126,13 +143,13 @@
         </td>
         {% if itemType == 3 or itemType == 4 %}
           <td>
-            <input type="text" class="form-control form-control-sm sypher-num" name="{{ item.invoiceCode.html_name }}" value="{{ item.invoiceCode.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+            <input type="text" class="form-control form-control-sm sypher-num" name="{{ item.invoiceCode.html_name }}" value="{{ item.invoiceCode.value|zfillIfNotNone:5|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
           </td>
         {% endif %}
         {% if itemType == 2 or itemType == 3 or itemType == 4 or itemType == 5 %}
           <td>
             {% if not lockLevel %}
-              <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#{% if itemType == 2 %}inventoryModal{% elif itemType == 3 %}serviceModal{% elif itemType == 4 %}presentationModal{% elif itemType == 5 %}purchaseOrderModal{% endif %} ">...</button>
+              <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#{% if itemType == 2 %}{{ item.prefix }}-modal{% elif itemType == 3 %}serviceModal{% elif itemType == 4 %}presentationModal{% elif itemType == 5 %}purchaseOrderModal{% endif %} ">...</button>
             {% endif %}
           </td>
         {% endif %}
@@ -143,41 +160,41 @@
         </td>
       </tr>
       {% if itemType != 1 %}
-        {% if items.form_kwargs.accounting or itemType == 2 %}
+         {% if items.form_kwargs.accounting %} {% comment %} or itemType == 2 {% endcomment %}
           <tr class="{{ item.prefix }}" data-parent-id="{{ item.prefix }}" style="{% if item.DELETE.value %} display:none {% endif %}">
             <td colspan="2" class="text-right">
               {% if not lockLevel %}
 
                 {% if items.form_kwargs.accounting %}
-                  {% if itemType != 2 %}
+                  {% comment %} {% if itemType != 2 %} {% endcomment %}
                     <button class="btn btn-sm btn-outline-primary h-100 btn-add-entity-row" data-prefix="{{ item.entities.prefix }}">Заполнить</button>
-                  {% endif %}
-                  {% if itemType == 2 %}
-                    <button class="btn btn-sm btn-outline-primary h-100 btn-add-entity-row" data-prefix="{{ item.inventoryItems.prefix }}-entity">Заполнить</button>
-                  {% endif %}
+                  {% comment %} {% endif %} {% endcomment %}
+                  {% comment %} {% if itemType == 2 %} {% endcomment %}
+                    {% comment %} <button class="btn btn-sm btn-outline-primary h-100 btn-add-entity-row" data-prefix="{{ item.inventoryItems.prefix }}-entity">Заполнить</button> {% endcomment %}
+                  {% comment %} {% endif %} {% endcomment %}
                 {% else %}
-                  {% if itemType == 2 %}
+                  {% comment %} {% if itemType == 2 %}
                     <button class="btn btn-sm btn-outline-primary h-100 btn-add-entity-row" data-prefix="{{ item.inventoryItems.prefix }}">Добавить</button>
-                  {% endif %}
+                  {% endif %} {% endcomment %}
                 {% endif %}
               
                 {% endif %}
             </td>
             <td colspan="10" style="background-color: burlywood;">
               
-              {% if itemType == 2 %}
+              {% comment %} {% if itemType == 2 %}
                 {{ item.inventoryItems.management_form }}
-              {% else %}
+              {% else %} {% endcomment %}
                 {{ item.entities.management_form }}
-              {% endif %}
+              {% comment %} {% endif %} {% endcomment %}
 
 
-              {% if itemType == 2 %}
+              {% comment %} {% if itemType == 2 %}
                 {% for inventoryItem in item.inventoryItems|forms_deleted %}
                       {{ inventoryItem.id }}
                       <input type="hidden" name="{{ inventoryItem.DELETE.html_name }}" id="{{ inventoryItem.DELETE.auto_id }}" value="{{ inventoryItem.DELETE.value|default_if_none:'' }}" />
                 {% endfor %}
-              {% endif %}
+              {% endif %} {% endcomment %}
 
               <table class="entity-table table table-sm text-center m-0">
                 <thead>
@@ -187,11 +204,11 @@
                       <th rowspan="2" width="5%">Код расхода</th>
                     {% endif %}
 
-                    {% if itemType == 2 %}
+                    {% comment %} {% if itemType == 2 %}
                       <th rowspan="1" colspan="3" width="5%">Код аналит. учета</th>
                       <th rowspan="1" colspan="4" width="5%">Приходный ордер на склад</th>
                       <th rowspan="2" width="1%"></th>
-                    {% endif %}
+                    {% endif %} {% endcomment %}
 
                     {% if items.form_kwargs.accounting %}
                       <th rowspan="2" width="6%">Сумма, принятая к учету</th>
@@ -205,7 +222,7 @@
                     {% endif %}
                   </tr>
                   <tr>
-                    {% if itemType == 2 %}
+                    {% comment %} {% if itemType == 2 %}
                       <th rowspan="1" width="4%">Код в ПСО</th>
                       <th rowspan="1" width="4%">№ склада</th>
                       <th rowspan="1" width="4%">шифр счет-фактуры</th>
@@ -213,7 +230,7 @@
                       <th rowspan="1" width="6%">дата</th>
                       <th rowspan="1" width="5%">Сумма, в руб. коп.</th>
                       <th rowspan="1" width="5%">Σ разницы</th>
-                    {% endif %}
+                    {% endif %} {% endcomment %}
                     {% if items.form_kwargs.accounting %}
                       <th rowspan="1" width="4%">Счет/Субсчет</th>
                       {% if itemType == 2 or itemType == 3 or itemType == 4 %}
@@ -243,13 +260,13 @@
                         <td>{{ forloop.counter|add:10 }}</td>
                       {% endfor %}
                     {% elif itemType == 2 and items.form_kwargs.accounting %}
-                      {% for i in 'x'|rjust:'7'|make_list %}
-                        <td>{{ forloop.counter|add:9 }}</td>
-                      {% endfor %}
-                      <td></td>
                       {% for i in 'x'|rjust:'9'|make_list %}
-                        <td>{{ forloop.counter|add:16 }}</td>
+                        <td>{{ forloop.counter|add:9 }}</td> {% comment %} 9 {% endcomment %}
                       {% endfor %}
+                      {% comment %} <td></td> {% endcomment %}
+                      {% comment %} {% for i in 'x'|rjust:'9'|make_list %}
+                        <td>{{ forloop.counter|add:16 }}</td>
+                      {% endfor %} {% endcomment %}
                     {% elif itemType == 2 %}
                       {% for i in 'x'|rjust:'7'|make_list %}
                         <td>{{ forloop.counter|add:9 }}</td>
@@ -266,15 +283,15 @@
                     <td/>
                   </tr>
 
-                  {% if itemType == 2 %}
+                  {% comment %} {% if itemType == 2 %}
                     {% for inventoryItem in item.inventoryItems|forms_active %}
                       {% include 'advanceReport/inventoryItemRow.html' with inventoryItem=inventoryItem formCount=item.inventoryItems|rowspan %}
                     {% endfor %}
-                  {% else %}
+                  {% else %} {% endcomment %}
                     {% for entity in item.entities %}
                       {% include 'advanceReport/entityRow.html' with entity=entity itemType=itemType %}
                     {% endfor %}
-                  {% endif %}
+                  {% comment %} {% endif %} {% endcomment %}
 
 
                 </tbody>
