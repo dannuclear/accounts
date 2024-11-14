@@ -117,7 +117,7 @@ def load(type):
         return HttpResponseBadRequest('Настройки не сделаны')
     fileTemplate = settings.estimateItemFileTemplate if type == FileType.ESTIMATE else settings.employeeFileTemplate if type == FileType.EMPLOYEE else settings.prepaymentFileTemplate if type == FileType.PREPAYMENT else settings.orderFileTemplate if type == FileType.WC07P_ORDER else None
     datePart, suffixPart = fileTemplate.split('_', maxsplit=1)
-    files = glob.glob(settings.inputDir + '\*_' + suffixPart)
+    files = glob.glob(settings.inputDir + '/*_' + suffixPart)
     if len(files) > 0:
         files.sort()
         try:
