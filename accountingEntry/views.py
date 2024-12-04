@@ -6,6 +6,7 @@ from .filters import PeriodFilter, FilterTypeFilter
 from datetime import datetime
 from django.http import HttpResponse, HttpResponseRedirect
 from prepayment.models import Prepayment
+from django.db.models import Q, Sum
 import csv
 # Create your views here.
 
@@ -30,6 +31,33 @@ def all(request):
 
 def compensations(request):
     return render(request, 'compensation/all.html')
+
+def parameterizedReport(request):
+    return render(request, 'report/parameterizedReport.html')
+
+def parameterizedReportShow(request):
+    filterKwargs = {}
+    excludeKwargs = {}
+    for i in range (0, 100):
+        param = request.GET.get('param_%d' % i, None)
+        condition = request.GET.get('condition_%d' % i, None)
+        valueFist = request.GET.get('value_first_%d' % i, None)
+        if param and condition and valueFist:
+            if condition == 'ne':
+                excludeKwargs['%s__%s' % (param, 'exact')] = valueFist
+            else:
+                filterKwargs['%s__%s' % (param, condition)] = valueFist
+
+    queryset = AccountingEntry.objects.select_related('prepayment').filter(**filterKwargs).exclude(**excludeKwargs)
+    yearGroups = queryset.values('aePeriod__year').annotate(yearSum=Sum('aeSum'))
+    for yearGroup in yearGroups:
+        monthGroups = queryset.filter(aePeriod__year=yearGroup['aePeriod__year']).values('aePeriod__month').annotate(monthSum=Sum('aeSum'))
+        for monthGroup in monthGroups:
+            entries = queryset.filter(aePeriod__year=yearGroup['aePeriod__year'], aePeriod__month=monthGroup['aePeriod__month'])
+            monthGroup['entries'] = entries
+        yearGroup['monthGroups'] = monthGroups
+
+    return render(request, 'report/report.html', {'yearGroups': yearGroups})
 
 
 def download(request):

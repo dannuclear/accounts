@@ -1,0 +1,56 @@
+<div class="row pl-2 condition-row">
+    <div class="col-4 input-group input-group-sm p-1">
+        <div class="input-group-prepend">
+            <label class="input-group-text">Параметр</label>
+        </div>
+
+        <select name="param_0" class="form-control custom-select param-select" aria-label="Default select example">
+        <option value="aePeriod__year">год</option>
+        <option value="aePeriod__month">месяц</option>
+        <option value="prepayment__docNum">№ документа</option>
+        <option value="prepayment__docDate">дата документа</option>
+        <option value="prepayment__empNum">табельный номер</option>                 
+        <option value="prepayment__empFullName">ФИО</option>
+        <option value="prepayment__empDivNum">подразделение</option>
+        <option value="">расходы подразделения</option>
+        <option value="acplAccountDebit">Дебет / счет</option>
+        <option value="acplSubaccountDebit">Дебет / субсчет</option>
+        <option value="acplCodeAnaliticDebit1">Дебет / КАУ / статья</option>
+        <option value="acplCodeAnaliticDebit2">Дебет / КАУ / подразделение</option>
+        <option value="acplAddSignDebit">Дебет / дополнительный признак</option>
+        <option value="acplAccountCredit">Кредит / счет</option>
+        <option value="acplSubaccountCredit">Кредит / субсчет</option>
+        <option value="acplCodeAnaliticCredit1">Кредит / КАУ / статья</option>
+        <option value="acplCodeAnaliticCredit2">Кредит / КАУ / подразделение</option>
+        <option value="acplAddSignCredit">Кредит / дополнительный признак</option>
+        <option value="">Назначение аванса</option>
+        <option value="">Место назначения</option>
+        <option value="">Цель командировки</option>
+        <option value="aeSum">Сумма расхода</option>
+        </select>
+    </div>
+
+    <div class="col-4 input-group input-group-sm p-1">
+        <div class="input-group-prepend">
+            <label class="input-group-text">Условие</label>
+        </div>
+
+        <select name="condition_0" class="form-control custom-select condition-select" aria-label="Default select example">
+        <option value="exact">равно</option>
+        <option value="ne">не равно</option>
+        <option value="gt">больше</option>
+        <option value="lt">меньше</option>
+        <option value="gte">больше или равно</option>
+        <option value="lte">меньше или равно</option>
+        <option value="period">период</option>
+        </select>
+    </div>
+
+    <div class="col-2 p-1">
+        <input name="value_first_0" type="text" class="value-first-input w-100">
+    </div>
+
+    <div class="col p-1">
+        <button class="btn btn-sm btn-outline-danger condition-delete"><i class="fa-light fa-trash"></i></button>
+    </div>
+</div>

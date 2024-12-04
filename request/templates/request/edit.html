@@ -1,4 +1,5 @@
 {% extends 'main/base.html' %}
+{% load prepayment_extras %}
 
 {% block title %}
   Заявление на аванс
@@ -60,7 +61,7 @@
         <div class="input-group-prepend">
           <span class="input-group-text">Подр.</span>
         </div>
-        <input type="text" class="h5 text-center mb-0 form-control form-control-sm applicant-div" value="{{ form.instance.applicant.divNo|default_if_none:'' }}" disabled />
+        <input type="text" class="h5 text-center mb-0 form-control form-control-sm applicant-div" value="{{ form.instance.applicant.divNo|zfill:3|default_if_none:'' }}" disabled />
       </div>
     </div>
 

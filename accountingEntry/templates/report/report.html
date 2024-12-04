@@ -1,0 +1,154 @@
+{% load static %}
+{% load prepayment_extras %}
+
+<html>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <link rel="stylesheet" type="text/css" href="{% static 'main/css/bootstrap.min.css' %}" />
+    <style type="text/css">
+      @font-face {
+        font-family: TimesNewRoman;
+        src: url(/static/main/fonts/times.ttf);
+      }
+      body {
+        font-family: TimesNewRoman;
+      }
+
+      @media print {
+
+        @page 
+        {
+            size:  auto;   /*auto is the initial value */
+            margin: 0mm;  /* this affects the margin in the printer settings */
+        }
+
+        #printPageButton {
+            display: none;
+        }
+
+        body {
+            font-size: 12pt;
+            margin: 10mm;
+        }
+
+        body>.container {
+            width: 100% !important;
+            margin: 0px !important;
+            max-width: 100% !important;
+        }
+    }
+
+      table.header-table {
+        border-collapse: separate;
+        border-spacing: 10px 2px;
+      }
+      table,
+      th,
+      td {
+          border: 1px solid gainsboro; 
+      }
+      th {
+        font-weight: lighter;
+      }
+
+      td.border-top2-bottom1, th.border-top2-bottom1 {
+        border-top: 2px solid black !important;
+        border-bottom: 1px solid black;
+      }
+
+      td.border-top1-bottom2, th.border-top1-bottom2 {
+        border-top: 1px solid black;
+        border-bottom: 2px solid black !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container p-4">
+      <div class="row">
+        <div class="col-12">
+          <table class="w-100 header-table">
+            <tr>
+              <td class="text-left">ФГУП "Комбинат "Электрохимприбор"</td>
+            </tr>
+            <tr>
+                <td class="text-center">АСУЖ.XV261C12</td>
+            </tr>
+
+            <tr style="height: 30px;">
+              <td class="text-center font-weight-bold align-bottom"><h3>Справка о расходах, отнесенных на балансовый счет(с указанием цели командировки)</h3></td>
+            </tr>
+
+            <tr style="height: 30px;">
+              <table class="w-100">
+                <thead>
+                  <tr>
+                    <th rowspan="2" class="text-center border border-dark border-top2-bottom1" style="width: 23%;">ФИО</th>
+                    <th colspan="2" class="text-center border border-dark border-top2-bottom1" style="width: 17%;">дебет</th>
+                    <th colspan="2" class="text-center border border-dark border-top2-bottom1" style="width: 23%;">кредит</th>
+                    <th rowspan="2" class="text-center border border-dark border-top2-bottom1" style="width: 20%;">Сумма расходов в руб.</th>
+                  </tr>
+                  <tr>
+                    <th class="text-center border border-dark">осн. счет</th>
+                    <th class="text-center border border-dark">доп. признак</th>
+                    <th class="text-center border border-dark">корр. счет</th>
+                    <th class="text-center border border-dark">доп. признак</th>
+                  </tr>
+                  <tr>
+                    <th class="border border-dark text-center" style="font-size: 0.8em;">1</th>
+                    <th class="border border-dark text-center" style="font-size: 0.8em;">2</th>
+                    <th class="border border-dark text-center" style="font-size: 0.8em;">3</th>
+                    <th class="border border-dark text-center" style="font-size: 0.8em;">4</th>
+                    <th class="border border-dark text-center" style="font-size: 0.8em;">5</th>
+                    <th class="border border-dark text-center" style="font-size: 0.8em;">6</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for yearGroup in yearGroups %}
+                    {% for monthGroup in yearGroup.monthGroups %}
+                        <tr>
+                            <td colspan="6" class="text-left h4">{{ monthGroup.aePeriod__month|month_name|default_if_none:" " }} {{ yearGroup.aePeriod__year|default_if_none:" "}} года</td>
+                        </tr>
+                        <tr>
+                            <td colspan="6" class="text-left h4">цель командировки</td>
+                        </tr>
+                        <tr>
+                            <td colspan="1" class="text-left h5">проводка №</td>
+                            <td colspan="5" class="text-left h5">документ №</td>
+                        </tr>
+                        <tr>
+                            <td colspan="6" class="text-left h6">место назначения:</td>
+                        </tr>
+                        {% for entry in monthGroup.entries %}
+                            <tr>
+                                <td class="text-center "></td>
+                                <td class="text-center ">{{ entry.acplAccountDebit|zfill:2}}{{entry.acplSubaccountDebit|zfill:2 }} {{ entry.acplCodeAnaliticDebit1|zfill:3}} {{ entry.acplCodeAnaliticDebit2|zfill:3}}</td>
+                                <td class="text-center ">{{ entry.acplAddSignDebit|default_if_none:" " }}</td>
+                                <td class="text-center ">{{ entry.acplAccountCredit|zfill:2}}{{entry.acplSubaccountCredit|zfill:2 }} {{ entry.acplCodeAnaliticCredit1|zfill:3}} {{ entry.acplCodeAnaliticCredit2|zfill:3}}</td>
+                                <td class="text-center ">{{ entry.acplAddSignCredit|default_if_none:" " }}</td>
+                                <td class="text-right ">{{ entry.aeSum|default_if_none:" " }}</td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td colspan="5" class="text-left h6">итого по проводке №:</td>
+                            <td colspan="1" class="text-right h6">{{ monthGroup.monthSum }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="text-left h6">итого за {{ monthGroup.aePeriod__month|month_name|default_if_none:" " }} {{ yearGroup.aePeriod__year|default_if_none:" "}} года</td>
+                            <td colspan="1" class="text-right h6">{{ monthGroup.monthSum }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="5" class="text-left h6">итого за {{ yearGroup.aePeriod__year|default_if_none:" "}} год</td>
+                        <td colspan="1" class="text-right h6">{{ yearGroup.yearSum }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </tr>
+
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

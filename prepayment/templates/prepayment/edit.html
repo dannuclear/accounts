@@ -1,4 +1,5 @@
 {% extends 'main/base.html' %}
+{% load prepayment_extras %}
 
 {% block title %}
   Выданный под отчет аванс
@@ -127,7 +128,7 @@
             <input id='emp-div-num' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empDivNum.errors %} is-invalid {% endif %}" name="{{ form.empDivNum.name }}" value="{{ form.empDivNum.value|default_if_none:'' }}" />
           {% endif %} {% endcomment %}
 
-          <input id='emp-div-num' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empDivNum.errors %} is-invalid {% endif %}" name="{{ form.empDivNum.name }}" value="{{ form.empDivNum.value|default_if_none:'' }}" />
+          <input id='emp-div-num' type="text" class="h5 text-center mb-0 form-control form-control-sm {% if form.empDivNum.errors %} is-invalid {% endif %}" name="{{ form.empDivNum.name }}" value="{{ form.empDivNum.value|zfill:3|default_if_none:'' }}" />
         </div>
 
         <div class="col-3 p-1 input-group input-group-sm">

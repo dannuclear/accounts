@@ -16,7 +16,7 @@ INNER JOIN advance_report_item_entity entity ON entity.advance_report_item_id = 
 
 ADD_ACCOUNTING_ENTRIES = '''
 INSERT INTO public.accounting_entry(ae_period, ae_no, acpl_account_debit, acpl_subaccount_debit, acpl_code_analitic_debit, acpl_code_analitic_debit_1, acpl_code_analitic_debit_2, acpl_add_sign_debit,  
-					acpl_account_credit, acpl_subaccount_credit, acpl_code_analitic_credit, acpl_code_analitic_credit_1, acpl_code_analitic_credit_2, acpl_add_sign_credit, ae_sum, prepayment_id)
+					acpl_account_credit, acpl_subaccount_credit, acpl_code_analitic_credit, acpl_code_analitic_credit_1, acpl_code_analitic_credit_2, acpl_add_sign_credit, ae_sum, prepayment_id, advance_report_item_entity_id)
 SELECT 
 	p.approve_date as ae_period,
 	p.report_accounting_num::integer as ae_no, -- Номер бухгалтерской справки
@@ -35,7 +35,8 @@ SELECT
 	LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.credit_dept::text ELSE entity.credit_kau_2::text END, ''), 3, '0') as acpl_code_analitic_credit_2, -- Кредит/КАУ2
 	entity.credit_extra as acpl_add_sign_credit, -- Кредит/счет/ДП
 	entity.accounting_sum as ae_sum, -- Сумма
-	p.id
+	p.id,
+	entity.id
 FROM prepayment p
 INNER JOIN advance_report_item item ON item.prepayment_id = p.id
 INNER JOIN advance_report_item_entity entity ON entity.advance_report_item_id = item.id 

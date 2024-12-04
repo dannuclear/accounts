@@ -42,3 +42,9 @@ def sorted_by_deleted (value):
 def is_form_deleted (form):
     isDeletedString = form.data.get('%s-DELETE' % form.prefix, 'False')
     return strtobool('False' if isDeletedString == '' else isDeletedString)
+
+months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь']
+@register.filter
+def month_name(month_number):
+    month_number = int(month_number)
+    return months[month_number-1]

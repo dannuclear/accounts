@@ -9,6 +9,9 @@ urlpatterns = [
     path('accountingEntries', views.all, name='accountingEntries'),
     path('accountingEntries/download', views.download, name='accountingEntriesDownload'),
 
+    path('parameterizedReport', views.parameterizedReport, name='parameterizedReport'),
+    path('parameterizedReport/show', views.parameterizedReportShow, name='parameterizedReportShow'),
+
     path('compensations', views.compensations, name='compensations'),
     path('compensations/download', views.compensationsDownload, name='compensationsDownload'),
     # path('accountingEntries/<id>', views.editAccountingEntry, name='editAccountingEntry'),

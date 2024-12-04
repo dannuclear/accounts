@@ -1,5 +1,5 @@
 from django.db import models
-from prepayment.models import Prepayment
+from prepayment.models import Prepayment, AdvanceReportItemEntity
 
 # Create your models here.
 
@@ -56,6 +56,8 @@ class AccountingEntry(models.Model):
     # ae_sum	VARCHAR(20)	numeric(19,2)	да	сумма, руб.	разделитель целой и дробной части — точка, дробная часть 2 знака, допустимы только цифры и [.]
     # Сумма (столбец 15)
     aeSum = models.DecimalField(max_digits=19, decimal_places=2, db_column="ae_sum", blank=False, null=False)
+
+    advanceReportItemEntity = models.ForeignKey(AdvanceReportItemEntity, db_column='advance_report_item_entity_id', on_delete=models.PROTECT, blank=True, null=True)
 
     class Meta:
         db_table = 'accounting_entry'
