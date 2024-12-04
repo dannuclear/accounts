@@ -152,6 +152,9 @@ def editAdvanceReport(request, id):
                 postCopy['approveActionDate'] = datetime.now()
                 lockLevel = 1
             elif postCopy['action'] == 'unlock' and lockLevel < 2:
+                # Удаляем проводки при нажатии кнопки корректировка проводки
+                cr = connection.cursor()
+                cr.execute('DELETE FROM accounting_entry WHERE prepayment_id = %s', [prepayment.id])
                 lockLevel = 0
             else:
                 processActionNew(postCopy, prepayment, accounting)
@@ -226,7 +229,7 @@ def editAdvanceReport(request, id):
                 # Подсчитываем суммы Израсходовано всего, в руб. коп
                 cursor = connection.cursor()
                 cursor.execute(
-                    'UPDATE prepayment SET spended_sum = (SELECT SUM(item.expense_sum_rub) FROM advance_report_item item WHERE item.prepayment_id = prepayment.id), report_accounting_sum = (SELECT SUM(entity.accounting_sum) FROM advance_report_item_entity entity INNER JOIN advance_report_item item ON item.id = entity.advance_report_item_id WHERE item.prepayment_id = prepayment.id), account_codes = (SELECT STRING_AGG(DISTINCT arie.credit_account::text, \',\') FROM advance_report_item_entity arie INNER JOIN advance_report_item ari ON ari.id = arie.advance_report_item_id WHERE arie.credit_account::text like \'71%%\' AND ari.prepayment_id = prepayment.id) WHERE id = %s', [prepayment.id])
+                    'UPDATE prepayment SET spended_sum = (SELECT SUM(item.expense_sum_rub) FROM advance_report_item item WHERE item.prepayment_id = prepayment.id AND item.item_type != 1), report_accounting_sum = (SELECT SUM(entity.accounting_sum) FROM advance_report_item_entity entity INNER JOIN advance_report_item item ON item.id = entity.advance_report_item_id WHERE item.prepayment_id = prepayment.id), account_codes = (SELECT STRING_AGG(DISTINCT arie.credit_account::text, \',\') FROM advance_report_item_entity arie INNER JOIN advance_report_item ari ON ari.id = arie.advance_report_item_id WHERE arie.credit_account::text like \'71%%\' AND ari.prepayment_id = prepayment.id) WHERE id = %s', [prepayment.id])
 
                 # Если отчет согласован, заполняем ФАКТЫ и проводки
                 if prepayment.reportStatus_id == 3 and prepayment.lockLevel < 2:
@@ -374,7 +377,8 @@ def htmlAdvanceReport(request, id):
         sumRub2 = sumRub2 + (ae2.expenseSumRub if ae2.expenseSumRub else 0)
         sumVAT2 = sumVAT2 + (ae2.expenseSumVAT if ae2.expenseSumVAT else 0)
 
-    balance = (diffSum1 if diffSum1 else 0) - (sumRub2 if sumRub2 else 0)
+    # Встреча 3.12.2024, раздел BIII всегда 0, а значит от не вычитается из баланса
+    balance = (diffSum1 if diffSum1 else 0) # - (sumRub2 if sumRub2 else 0) 
 
     totalSumInt = 0.0
     totalSumFrac = .00

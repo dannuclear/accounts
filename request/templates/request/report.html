@@ -1,3 +1,4 @@
+{% load prepayment_extras %}
 {% load static %}
 <html>
   <head>
@@ -89,7 +90,7 @@
               </tr>
               <tr>
                 <td></td>
-                <td class="text-center border-bottom border-dark" style="width: 20%;">{{ applicant.divNo|default_if_none:'' }}</td>
+                <td class="text-center border-bottom border-dark" style="width: 20%;">{{ applicant.divNo|zfill:3|default_if_none:'' }}</td>
                 <td class="text-center border-bottom border-dark">{{ applicant.empOrgNo|default_if_none:'' }}</td>
               </tr>
               <tr>
@@ -187,13 +188,12 @@
               </tr>
 
               <tr>
-                <td colspan="3" class="text-left">Предполагаемая дата получения денежных средств: {{ req.receivingDate|default_if_none:'' }}</td>
-              </tr>
-
-              <tr>
                 <td colspan="3">
                   <table class="w-100">
                     <tbody>
+                      {% with receivingDate=req.receivingDate|date:"d.m.Y"|default_if_none:'' %}
+                        {% include 'request/signRow.html' with signUnder='(подпись подотчетного лица)' showDate='n' title='Предполагаемая дата получения денежных средств: '|add:receivingDate %}
+                      {% endwith %}
                       {% with divNo=req.applicant.divNo|stringformat:'03d'|default_if_none:'___' %}
                         {% include 'request/signRow.html' with title='Решение начальника структурного подразделения № '|add:divNo|add:'   __________________________________' %}
                       {% endwith %}

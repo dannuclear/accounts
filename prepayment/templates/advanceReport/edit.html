@@ -485,7 +485,8 @@
           else if (this.classList.contains("expense-sum-vat"))
             sum_vat += parseFloat(this.value)
           else if (this.classList.contains("accounting-sum"))
-            accounting_sum += parseFloat(this.value)
+            if ($(this).closest('tr').find('input[name$="creditAccount"][value^="71"]').length)
+              accounting_sum += parseFloat(this.value)
       });
       $(tabDiv).find('.expense-sum-currency-total').text(sum_currency)
       $(tabDiv).find('.expense-sum-rub-total').text(sum_rub)

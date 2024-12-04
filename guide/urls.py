@@ -30,7 +30,9 @@ urlpatterns = [
     path('expenseRates/<id>/delete', views.deleteExpenseRate, name='deleteExpenseRate'),
 
     path('expenseItems', views.expenseItems, name='expenseItems'),
-
+    path('expenseItems/<id>', views.editExpenseItem, name='editExpenseItem'),
+    path('expenseItems/<id>/delete', views.deleteExpenseItem, name='deleteExpenseItem'),
+    
     path('documents', views.documents, name='documents'),
     path('documents/<id>', views.editDocument, name='editDocument'),
     path('documents/<id>/delete', views.deleteDocument, name='deleteDocument'),
@@ -38,6 +40,7 @@ urlpatterns = [
     path('accountingCerts', views.accountingCerts, name='accountingCerts'),
 
     path('statuses', views.statuses, name='statuses'),
+    path('statuses/<id>', views.editStatus, name='editStatus'),
 
     path('departments', views.departments, name='departments'),
 

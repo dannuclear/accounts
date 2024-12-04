@@ -1,0 +1,154 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+  Статья расходов
+{% endblock %}
+
+{% block content %}
+  <form method="post" class="container-fluid">
+    {% csrf_token %}
+
+    <div class="form-row align-items-center">
+      <div class="col-12 p-1 text-right">
+        <input type="submit" class="btn btn-success btn-sm" value="Сохранить" />
+        <input onclick="history.back()" class="btn btn-danger btn-sm" value="Отмена" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-9 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text {% if form.category.errors %} bg-danger {% endif %}">Наименование</span>
+        </div>
+        {{ form.category }}
+      </div>
+
+      <div class="col-3 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text {% if form.expenseCode.errors %} bg-danger {% endif %}">{{ form.expenseCode.label }}</span>
+        </div>
+        {{ form.expenseCode }}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Принято к учету</span>
+        </div>
+        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.accept.name }}" value="{{ form.accept.value|default_if_none:'' }}" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Дебет. Счет, субсчет</span>
+        </div>
+        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.debitAccount.name }}" value="{{ form.debitAccount.value|default_if_none:'' }}" />
+      </div>
+
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Дебет. Статья расхода</span>
+        </div>
+        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.debitExpenseItem.name }}" value="{{ form.debitExpenseItem.value|default_if_none:'' }}" />
+      </div>
+
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Дебет. Расходы подразделения</span>
+        </div>
+        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.debitExpenseDept.name }}" value="{{ form.debitExpenseDept.value|default_if_none:'' }}" />
+      </div>
+
+      <div class="col-1 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Дебет. КАУ_1</span>
+        </div>
+        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.debitKAU1.name }}" value="{{ form.debitKAU1.value|default_if_none:'' }}" />
+      </div>
+
+      <div class="col-1 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Дебет. КАУ_2</span>
+        </div>
+        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.debitKAU2.name }}" value="{{ form.debitKAU2.value|default_if_none:'' }}" />
+      </div>
+
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Дебет. Доп.признак</span>
+        </div>
+        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.debitExtra.name }}" value="{{ form.debitExtra.value|default_if_none:'' }}" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Кредит. Счет, субсчет</span>
+        </div>
+        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.creditAccount.name }}" value="{{ form.creditAccount.value|default_if_none:'' }}" />
+      </div>
+
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Кредит. Статья расхода</span>
+        </div>
+        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.creditExpenseItem.name }}" value="{{ form.creditExpenseItem.value|default_if_none:'' }}" />
+      </div>
+
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Кредит. Расходы подразделения</span>
+        </div>
+        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.creditExpenseDept.name }}" value="{{ form.creditExpenseDept.value|default_if_none:'' }}" />
+      </div>
+
+      <div class="col-1 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Кредит. КАУ_1</span>
+        </div>
+        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.creditKAU1.name }}" value="{{ form.creditKAU1.value|default_if_none:'' }}" />
+      </div>
+
+      <div class="col-1 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Кредит. КАУ_2</span>
+        </div>
+        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.creditKAU2.name }}" value="{{ form.creditKAU2.value|default_if_none:'' }}" />
+      </div>
+
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Кредит. Доп.признак</span>
+        </div>
+        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.creditExtra.name }}" value="{{ form.creditExtra.value|default_if_none:'' }}" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Схема проводок</span>
+        </div>
+        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.schema.name }}" value="{{ form.schema.value|default_if_none:'' }}" />
+      </div>
+
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Код учета подотчетной суммы</span>
+        </div>
+        {{ form.itemType }}
+      </div>
+
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Тип расхода</span>
+        </div>
+        {{ form.expenseType }}
+      </div>
+    </div>
+  </form>
+{% endblock %}

@@ -1,6 +1,6 @@
 from django import forms
 from django.forms.models import ALL_FIELDS
-from .models import ExpenseCode, ImprestAccount, ExpenseRate, Document
+from .models import ExpenseCode, ImprestAccount, ExpenseRate, Document, ExpenseItem, ExpenseCategory, Status
 
 class ExpenseCodeForm (forms.ModelForm):
     code = forms.CharField(label='Код', required=True)
@@ -40,4 +40,48 @@ class DocumentForm (forms.ModelForm):
    
     class Meta:
         model = Document
+        fields = ALL_FIELDS
+
+class ExpenseCategoryChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.name
+
+class ExpenseCodeChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return '(%s) %s' % (obj.code, obj.name)
+
+class ImprestAccountChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.account
+
+class ExpenseItemForm (forms.ModelForm):
+    category = ExpenseCategoryChoiceField(queryset=ExpenseCategory.objects.order_by('pk'), widget=forms.Select(
+        attrs={'class': 'custom-select form-control-sm'}), label='Категории расходов', required=False, empty_label='Не установлен')
+
+    expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('pk'), widget=forms.Select(
+        attrs={'class': 'custom-select form-control-sm'}), label='Код расхода', required=False, empty_label='Не установлен')
+
+    itemType = forms.ChoiceField(choices=[
+        ('7101', '7101'),
+        ('7102', '7102'),
+        ('7103', '7103'),
+        ('7104', '7104'),
+        ('7105', '7105'),
+        ('7106', '7106'),
+        ('7108', '7108'),
+    ], label="Код учета", widget=forms.Select(attrs={'class': 'custom-select form-control-sm'}))
+
+    expenseType = forms.ChoiceField(choices=[
+        ('0', 'Статья расхода'),
+        ('1', 'Схемы проводок, по приобретению ТМЦ, работ, услуг'),
+    ], label="Тип расхода", widget=forms.Select(attrs={'class': 'custom-select form-control-sm'}))
+
+    class Meta:
+        model = ExpenseItem
+        fields = ALL_FIELDS
+
+class StatusForm (forms.ModelForm):
+
+    class Meta:
+        model = Status
         fields = ALL_FIELDS

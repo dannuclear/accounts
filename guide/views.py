@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from rest_framework import viewsets
 
-from .forms import ExpenseCodeForm, ImprestAccountForm, ExpenseRateForm, DocumentForm
+from .forms import ExpenseCodeForm, ImprestAccountForm, ExpenseRateForm, DocumentForm, ExpenseItemForm, StatusForm
 from .models import ExpenseCode, ImprestAccount, ExpenseRate, ExpenseItem, Document, AccountingCert, Status, Department, DepartmentAccount, ObtainMethod, PrepaidDest, RefundExpense
 from .serializers import AccountingCertSerializer, ExpenseCodeSerializer, ImprestAccountSerializer, ExpenseRateSerializer, ExpenseItemSerializer, DocumentSerializer, StatusSerializer, DepartmentSerializer, DepartmentAccountSerializer, ObtainMethodSerializer, PrepaidDestSerializer, RefundExpenseSerializer
 from .filters import ImprestAccountFilter, ExpenseTypeFilter, DepartmentFilter
@@ -123,6 +123,36 @@ def editExpenseCode(request, id):
         form = ExpenseCodeForm(instance=expenseCode)
     return render(request, 'common/guide_common_edit_page.html', {'form': form, 'title': 'Коды расходов'})
 
+def editStatus(request, id):
+    status = Status() if id == 'new' else Status.objects.get(pk=id)
+
+    if request.method == 'POST':
+        form = StatusForm(request.POST, instance=status)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/statuses')
+    if request.method == 'GET':
+        form = StatusForm(instance=status)
+    return render(request, 'status/edit.html', {'form': form, 'title': 'Статус'})
+
+def editExpenseItem(request, id):
+    expenseItem = ExpenseItem() if id == 'new' else ExpenseItem.objects.get(pk=id)
+
+    if request.method == 'POST':
+        form = ExpenseItemForm(request.POST, instance=expenseItem)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/expenseItems?imprestAccount=%s&type=%s' % (expenseItem.itemType, expenseItem.expenseType))
+    if request.method == 'GET':
+        form = ExpenseItemForm(instance=expenseItem)
+    return render(request, 'expenseItem/edit.html', {'form': form, 'title': 'Коды расходов'})
+
+def deleteExpenseItem(request, id):
+    expenseItem = ExpenseItem.objects.get(pk=id)
+    redirect = HttpResponseRedirect('/expenseItems?imprestAccount=%s&type=%s' % (expenseItem.itemType, expenseItem.expenseType))
+    if request.method == 'GET':
+        expenseItem.delete()
+    return redirect
 
 def deleteExpenseCode(request, id):
     if request.method == 'GET':
@@ -179,7 +209,7 @@ def editDocument(request, id):
             return HttpResponseRedirect('/documents')
     if request.method == 'GET':
         form = DocumentForm(instance=document)
-    return render(request, 'common/guide_common_edit_page.html', {'form': form, 'title': 'Документы'})
+    return render(request, 'document/edit.html', {'form': form, 'title': 'Документы'})
 
 def deleteDocument(request, id):
     if request.method == 'GET':

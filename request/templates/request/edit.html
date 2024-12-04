@@ -238,8 +238,8 @@
         const priceInput = tr.find('.price-input')
         const totalInput = tr.find('.total-input')
 
-        const cntValue = parseFloat(cntInput.val()) || 0; // Default to 0 if NaN
-        const priceValue = parseFloat(priceInput.val()) || 0;
+        const cntValue = parseFloat(cntInput.val().replace(/,/g, '.')) || 0; // Default to 0 if NaN
+        const priceValue = parseFloat(priceInput.val().replace(/,/g, '.')) || 0;
 
         // Calculate the total
         const total = cntValue * priceValue;

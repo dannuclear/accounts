@@ -23,16 +23,16 @@ SELECT
 
 	SUBSTRING(LPAD(entity.debit_account::text, 4, '0'), 0, 3)::integer as acpl_account_debit, -- Дебет/счет
 	SUBSTRING(LPAD(entity.debit_account::text, 4, '0'), 3, 3)::integer as acpl_subaccount_debit, -- Дебет/субсчет
-	LPAD(coalesce(entity.debit_kau_1::text, ''), 3, '0') || LPAD(coalesce(entity.debit_kau_2::text, ''), 3, '0') as acpl_code_analitic_debit, -- Дебет/КАУ
-	LPAD(entity.debit_kau_1::text, 3, '0') as acpl_code_analitic_debit_1, -- Дебет/КАУ1
-	LPAD(entity.debit_kau_2::text, 3, '0') as acpl_code_analitic_debit_2, -- Дебет/КАУ2
+	LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.debit_expense_item::text ELSE entity.debit_kau_1::text END, ''), 3, '0') || LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.debit_expense_workshop::text ELSE entity.debit_kau_2::text END, ''), 3, '0') as acpl_code_analitic_debit, -- Дебет/КАУ
+	LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.debit_expense_item::text ELSE entity.debit_kau_1::text END, ''), 3, '0') as acpl_code_analitic_debit_1, -- Дебет/КАУ1
+	LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.debit_expense_workshop::text ELSE entity.debit_kau_2::text END, ''), 3, '0') as acpl_code_analitic_debit_2, -- Дебет/КАУ2
 	entity.debit_extra as acpl_add_sign_debit, -- Дебет/счет/ДП
 
 	SUBSTRING(LPAD(entity.credit_account::text, 4, '0'), 0, 3)::integer as acpl_account_credit, -- Кредит/счет
 	SUBSTRING(LPAD(entity.credit_account::text, 4, '0'), 3, 3)::integer as acpl_subaccount_credit, -- Кредит/субсчет
-	LPAD(coalesce(entity.credit_kau_1::text, ''), 3, '0') || LPAD(coalesce(entity.credit_kau_2::text, ''), 3, '0') as acpl_code_analitic_credit, -- Кредит/КАУ
-	LPAD(entity.credit_kau_1::text, 3, '0') as acpl_code_analitic_credit_1, -- Кредит/КАУ1
-	LPAD(entity.credit_kau_2::text, 3, '0') as acpl_code_analitic_credit_2, -- Кредит/КАУ2
+	LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.credit_expense_item::text ELSE entity.credit_kau_1::text END, ''), 3, '0') || LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.credit_dept::text ELSE entity.credit_kau_2::text END, ''), 3, '0') as acpl_code_analitic_credit, -- Кредит/КАУ
+	LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.credit_expense_item::text ELSE entity.credit_kau_1::text END, ''), 3, '0') as acpl_code_analitic_credit_1, -- Кредит/КАУ1
+	LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.credit_dept::text ELSE entity.credit_kau_2::text END, ''), 3, '0') as acpl_code_analitic_credit_2, -- Кредит/КАУ2
 	entity.credit_extra as acpl_add_sign_credit, -- Кредит/счет/ДП
 	entity.accounting_sum as ae_sum, -- Сумма
 	p.id
@@ -41,10 +41,10 @@ INNER JOIN advance_report_item item ON item.prepayment_id = p.id
 INNER JOIN advance_report_item_entity entity ON entity.advance_report_item_id = item.id 
 WHERE 	p.approve_date IS NOT NULL 
 	AND p.report_accounting_num IS NOT NULL 
-	AND entity.debit_kau_1 IS NOT NULL 
-	AND entity.debit_kau_2 IS NOT NULL 
-	AND entity.credit_kau_1 IS NOT NULL 
-	AND entity.credit_kau_2 IS NOT NULL 
+	AND CASE item.item_type WHEN 0 THEN entity.debit_expense_item::text ELSE entity.debit_kau_1::text END IS NOT NULL 
+	AND CASE item.item_type WHEN 0 THEN entity.debit_expense_workshop::text ELSE entity.debit_kau_2::text END IS NOT NULL 
+	AND CASE item.item_type WHEN 0 THEN entity.credit_expense_item::text ELSE entity.credit_kau_1::text END IS NOT NULL 
+	AND CASE item.item_type WHEN 0 THEN entity.credit_dept::text ELSE entity.credit_kau_2::text END IS NOT NULL 
 	AND entity.credit_extra IS NOT NULL 
 	AND entity.debit_extra IS NOT NULL
 	AND entity.accounting_sum > 0
@@ -85,9 +85,11 @@ GET_ACCOUNTING_CERT_ROW = '''
 				LPAD(coalesce(credit_expense_item::text, ''), 3, '0') || ' ' || LPAD(coalesce(credit_dept::text, ''), 3, '0')
 			WHEN 5 THEN
 				LPAD(coalesce(credit_expense_item::text, ''), 3, '0') || ' ' || LPAD(coalesce(credit_dept::text, ''), 3, '0')
-		ELSE LPAD(coalesce(credit_kau_1::text, ''), 3, '0') || ' ' || LPAD(coalesce(credit_kau_1::text, ''), 3, '0') END as credit_account,
+		ELSE LPAD(coalesce(credit_kau_1::text, ''), 3, '0') || ' ' || LPAD(coalesce(credit_kau_2::text, ''), 3, '0') END as credit_account,
 		entity.credit_extra as credit_extra,
-		entity.accounting_sum as accounting_sum
+		entity.accounting_sum as accounting_sum,
+		item.item_type as item_type,
+		item.id as item_id
 	FROM advance_report_item_entity entity
 	INNER JOIN advance_report_item item ON item.id = entity.advance_report_item_id
-	WHERE item.prepayment_id = %s AND entity.accounting_sum > 0) t1 GROUP BY debit_account, debit_extra, credit_account, credit_extra'''
+	WHERE item.prepayment_id = %s AND entity.accounting_sum > 0) t1 GROUP BY debit_account, debit_extra, credit_account, credit_extra ORDER BY MIN(item_type) asc, MIN(item_id) asc'''

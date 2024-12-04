@@ -445,8 +445,10 @@
                     </tr>
                     <tr>
                       <td class="text-left" colspan="7">В.III.  Оплачено организацией сверх утвержденных норм</td>
-                      <td class="text-center border border-dark">{{ sumRub2 }}</td>
-                      <td class="text-center border border-dark">{{ sumVAT2 }}</td>
+                      {% comment %} Было {{ sumRub2 }}, должно быть всегда 0, на встрече 3 декабря 2024 {% endcomment %}
+                      <td class="text-center border border-dark">0</td>
+                      {% comment %} Было {{ sumVAT2 }}, должно быть всегда 0, на встрече 3 декабря 2024 {% endcomment %}
+                      <td class="text-center border border-dark">0</td>
                     </tr>
 
                   </tbody>

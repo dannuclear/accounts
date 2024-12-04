@@ -177,7 +177,7 @@
             orderable: false,
             searchable: false,
             render: function (data, type, row) {
-                return `<a href="/expenseItems/${data.code}" class="text-info bi bi-pencil h4 m-0"></a>`
+                return `<a href="/expenseItems/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
             }
           },
           {
@@ -188,7 +188,7 @@
             orderable: false,
             searchable: false,
             render: function (data, type, row) {
-              return `<a href="/expenseItems/${data.code}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить код расхода?');"></a>`
+              return `<a href="/expenseItems/${data.id}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить код расхода?');"></a>`
             }
           }
         ],

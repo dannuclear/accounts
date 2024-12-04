@@ -77,6 +77,13 @@
           {% endfor %}
         </tr>
     </thead>
+    <tfoot>
+        <tr>
+            <th colspan="14" class="text-left">Итого:</th>
+            <th></th>
+            <th colspan="2"></th>
+        </tr>
+    </tfoot>
 </table>
 
 <script type="text/javascript">
@@ -114,6 +121,10 @@
                                 d.periodFrom=$('#period-from').val()
                             if ($('#period-to').val())
                                 d.periodTo=$('#period-to').val()
+                            d.columns.push({data: 'acplAccountDebit', searchable: true})
+                            d.columns.push({data: 'acplSubaccountDebit', searchable: true})
+                            d.columns.push({data: 'acplAccountCredit', searchable: true})
+                            d.columns.push({data: 'acplSubaccountCredit', searchable: true})
                         }
                     },
                     rowId: 'id',
@@ -138,23 +149,40 @@
                             requestTable.ajax.reload()
                         }) 
                     },
+                    footerCallback: function(row, data, start, end, display) {
+                        var intVal = function(i) {
+                          return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '') * 1 :
+                            typeof i === 'number' ?
+                            i : 0;
+                        };
+              
+                        var total = 0;
+                        var api = this.api();
+              
+                        api.cells(null, 14, { page: 'current' }).nodes().each(function(n) {
+                            total += intVal($(n).text());
+                        })
+              
+                        $(api.column(14).footer()).html(total);
+                    },
                     columns: [
-                        { data: 'month', orderable: false, defaultContent: "", className: 'text-center' },
-                        { data: 'year', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'month', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'year', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
                         { data: 'prepayment.empNum', orderable: false, defaultContent: "", className: 'text-center' },
                         { data: 'prepayment.empFullName', orderable: false, defaultContent: "", className: 'text-center' },
                         { data: 'prepayment.empDivNum', orderable: false, defaultContent: "", className: 'text-center' },
                         { data: 'aeNo', orderable: false, defaultContent: "", className: 'text-center' },
-                        { data: 'debitAccountSubaccount', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'debitAccountSubaccount', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
                         { data: 'acplCodeAnaliticDebit1', orderable: false, defaultContent: "", className: 'text-center' },
                         { data: 'acplCodeAnaliticDebit2', orderable: false, defaultContent: "", className: 'text-center' },
                         { data: 'acplAddSignDebit', orderable: false, defaultContent: "", className: 'text-center' },
-                        { data: 'creditAccountSubaccount', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'creditAccountSubaccount', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
                         { data: 'acplCodeAnaliticCredit1', orderable: false, defaultContent: "", className: 'text-center' },
                         { data: 'acplCodeAnaliticCredit2', orderable: false, defaultContent: "", className: 'text-center' },
                         { data: 'acplAddSignCredit', orderable: false, defaultContent: "", className: 'text-center' },
                         { data: 'aeSum', orderable: false, defaultContent: "", className: 'text-center' },
-                        { data: null, orderable: false, defaultContent: "", className: 'text-center', render: function (data, type, row, meta) {
+                        { data: null, orderable: false, searchable: false, defaultContent: "", className: 'text-center', render: function (data, type, row, meta) {
                                 if (data.prepayment && data.prepayment.lockLevel == 1)
                                     return '<span style="font-weight: bold;">v<span>'
                                 else if (data.prepayment && data.prepayment.lockLevel == 2)
@@ -163,7 +191,7 @@
                                     return null
                             }
                         },
-                        { data: 'prepayment.approveActionDate', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'prepayment.approveActionDate', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
                     ],
                     buttons: [
                         {
