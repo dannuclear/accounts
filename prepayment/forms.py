@@ -93,6 +93,8 @@ class PrepaymentForm (forms.ModelForm):
 
     comment = forms.CharField(label='Приложения', required=False)
 
+    carryOverAdvanceReportDate = MyDateField(label='Дата', localize=True, required=False)
+
     class Meta:
         model = Prepayment
         fields = ALL_FIELDS
