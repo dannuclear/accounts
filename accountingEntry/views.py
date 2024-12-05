@@ -35,6 +35,9 @@ def compensations(request):
 def parameterizedReport(request):
     return render(request, 'report/parameterizedReport.html')
 
+def ixdReport(request):
+    return render(request, 'report/ixdReport.html')
+
 def parameterizedReportShow(request):
     filterKwargs = {}
     excludeKwargs = {}

@@ -12,6 +12,8 @@ urlpatterns = [
     path('parameterizedReport', views.parameterizedReport, name='parameterizedReport'),
     path('parameterizedReport/show', views.parameterizedReportShow, name='parameterizedReportShow'),
 
+    path('ixdReport', views.ixdReport, name='ixdReport'),
+
     path('compensations', views.compensations, name='compensations'),
     path('compensations/download', views.compensationsDownload, name='compensationsDownload'),
     # path('accountingEntries/<id>', views.editAccountingEntry, name='editAccountingEntry'),
