@@ -1,4 +1,5 @@
 {% load static %}
+{% load prepayment_extras %}
 <html>
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
@@ -135,7 +136,7 @@
                 <div class="d-flex align-items-end">
                   <div class="border-bottom border-dark flex-grow-1">{{ totalSumIntStringArray.3 }}&nbsp;</div>
                   <div>&nbsp;руб.</div>
-                  <div class="border-bottom border-dark col-1">{{ totalSumFrac }}</div>
+                  <div class="border-bottom border-dark col-1">{{ totalSumFrac|zfill:2 }}</div>
                   <div>&nbsp;коп.</div>
                 </div>
               </td>
@@ -462,12 +463,12 @@
                   <tbody>
                     <tr>
                       <td class="border border-dark text-left" style="font-size: 0.8em; height: 30px;">Сумма к возмещению подотчетному лицу, в руб.коп. (А.I. - А.II.гр.8 + В.III. со снаком "+")</td>
-                      <td class="border border-dark text-center align-bottom" style="width: 130px;">{% if balance < 0 %} {{ balance }} {% endif %}</td>
+                      <td class="border border-dark text-center align-bottom" style="width: 130px;">{% if balance < 0 %} {{ balance|change_sign }} {% endif %}</td>
                       <td></td>
                     </tr>
                     <tr>
                       <td class="border border-dark text-left" style="font-size: 0.8em; height: 30px;">Сумма к удержанию из заработной платы подотчетного лица, в руб.коп. (А.I. - А.II.гр.8 + В.III. со снаком "-")</td>
-                      <td class="border border-dark text-center align-bottom" style="width: 130px;">{% if balance > 0 %} {{ balance }} {% endif %}</td>
+                      <td class="border border-dark text-center align-bottom" style="width: 130px;">{% if balance > 0 %} {{ balance|change_sign }} {% endif %}</td>
                       <td></td>
                     </tr>
                   </tbody>
@@ -516,7 +517,7 @@
 
                       <td class="border-bottom border-dark text-center" style="width: 100px;">{{ totalSumInt }}</td>
                       <td class="text-center" style="width: 30px;">руб.</td>
-                      <td class="border-bottom border-dark text-center" style="width: 30px;">{{ totalSumFrac }}</td>
+                      <td class="border-bottom border-dark text-center" style="width: 30px;">{{ totalSumFrac|zfill:2 }}</td>
                       <td class="text-center" style="width: 50px;">коп. )</td>
                     </tr>
                   </tbody>

@@ -48,3 +48,9 @@ months = ['Январь','Февраль','Март','Апрель','Май','И
 def month_name(month_number):
     month_number = int(month_number)
     return months[month_number-1]
+
+@register.filter
+def change_sign(value):
+    if value is None:
+        return
+    return value * -1

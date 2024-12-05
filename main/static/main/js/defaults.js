@@ -50,7 +50,7 @@ function stringDif (val1, val2) {
 	let valNum2 = Number(val2.replace(',','.').replace(' ',''))
 	if (Number.isNaN(valNum1) || Number.isNaN(valNum2))
 		return null
-	return valNum1 - valNum2
+	return (valNum1 - valNum2).toFixed(2)
 }
 
 function parseDate(dateString) {

@@ -473,7 +473,8 @@
 
   <script type="text/javascript">
     var editRow
-
+    const format = $.fn.dataTable.render.number(' ', ',', 2).display
+    
     function updateTotal (tabDiv) {
       var sum_currency = 0, sum_rub = 0, sum_vat = 0, accounting_sum = 0;
       $(tabDiv).find('input.expense-sum, input.accounting-sum').each(function(){
@@ -488,11 +489,11 @@
             if ($(this).closest('tr').find('input[name$="creditAccount"][value^="71"]').length)
               accounting_sum += parseFloat(this.value)
       });
-      $(tabDiv).find('.expense-sum-currency-total').text(sum_currency)
-      $(tabDiv).find('.expense-sum-rub-total').text(sum_rub)
-      $(tabDiv).find('.expense-sum-vat-total').text(sum_vat)
-      $(tabDiv).find('.accounting-sum-total').text(accounting_sum)
-      $(tabDiv).find('.accounting-diff-total').text(sum_rub - accounting_sum)
+      $(tabDiv).find('.expense-sum-currency-total').text(format(sum_currency))
+      $(tabDiv).find('.expense-sum-rub-total').text(format(sum_rub))
+      $(tabDiv).find('.expense-sum-vat-total').text(format(sum_vat))
+      $(tabDiv).find('.accounting-sum-total').text(format(accounting_sum))
+      $(tabDiv).find('.accounting-diff-total').text(format(sum_rub - accounting_sum))
     }
 
     $(document).ready(function () {

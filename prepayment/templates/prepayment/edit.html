@@ -299,7 +299,7 @@
               <input type="text" class="form-control form-control-sm" name="{{ purpose.expenditure.html_name  }}" value="{{ purpose.expenditure.value|default_if_none:'' }}" autocomplete="off" />
             </td>
             <td>
-              <input type="text" class="form-control form-control-sm" name="{{ purpose.deptExpenditure.html_name  }}" value="{{ purpose.deptExpenditure.value|default_if_none:'' }}" autocomplete="off" />
+              <input type="text" class="form-control form-control-sm" name="{{ purpose.deptExpenditure.html_name  }}" value="{{ purpose.deptExpenditure.value|zfillIfNotNone:3|default_if_none:'' }}" autocomplete="off" />
             </td>
             <td>
               <input type="text" class="form-control form-control-sm" name="{{ purpose.extra.html_name  }}" value="{{ purpose.extra.value|default_if_none:'' }}" autocomplete="off" />

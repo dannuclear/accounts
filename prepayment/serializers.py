@@ -3,6 +3,7 @@ from .models import Prepayment
 from integration.serializers import EmployeeSerializer, WC07POrderSerializer
 from guide.serializers import StatusSerializer, ImprestAccountSerializer, DocumentSerializer
 from django.utils.formats import number_format
+from decimal import Decimal
 
 class PrepaymentSerializer (serializers.ModelSerializer):
     status = StatusSerializer(read_only=True, many=False)
@@ -25,6 +26,10 @@ class PrepaymentSerializer (serializers.ModelSerializer):
     
     reportStatus = StatusSerializer(read_only=True, many=False)
 
+    diffSum = serializers.SerializerMethodField()
+
+    def get_diffSum(self, obj):
+        return (obj.totalSum if obj.totalSum is not None else Decimal(0.0)) - (obj.spendedSum if obj.spendedSum is not None else Decimal(0.0))
     # spendedSum = serializers.SerializerMethodField('spendedSum_localize')
 
     # def spendedSum_localize(self, obj):
