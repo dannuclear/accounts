@@ -25,10 +25,10 @@ class AccountingEntrySerializer (serializers.ModelSerializer):
         return obj.aePeriod.year
 
     def get_debitAccountSubaccount(self, obj):
-        return '%s%s' % (obj.acplAccountDebit, obj.acplSubaccountDebit)
+        return '%02d%02d' % (obj.acplAccountDebit, obj.acplSubaccountDebit)
 
     def get_creditAccountSubaccount(self, obj):
-        return '%s%s' % (obj.acplAccountCredit, obj.acplSubaccountCredit)
+        return '%02d%02d' % (obj.acplAccountCredit, obj.acplSubaccountCredit)
 
     class Meta:
         model = AccountingEntry
