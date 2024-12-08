@@ -344,6 +344,10 @@ class AdvanceReportItemEntity (models.Model):
     # Пункт списания ТМЦ (если есть)
     advanceReportInventoryItem = models.ForeignKey(AdvanceReportInventoryItem, db_column='advance_report_inventory_item_id', on_delete=models.CASCADE, blank=True, null=True)
 
+    isStorno = models.SmallIntegerField(db_column="is_storno", blank=True, null=True)
+
+    # Дата подтверждения
+    approveDate = models.DateField(db_column="approve_date", blank=True, null=True)
     class Meta:
         db_table = 'advance_report_item_entity'
         verbose_name = 'Бухгалтерская проводка'

@@ -5,6 +5,7 @@ from decimal import Decimal, DecimalException
 from django.utils import formats
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+import re
 
 
 class ActionProcessor:
@@ -45,6 +46,9 @@ def processActionNew(data, prepayment, accounting):
     elif action.startswith('split-'):
         prefix = action.replace('split-', '')
         splitPurchaseOrder(data, prefix, prepayment, accounting)
+    elif action.startswith('storno-'):
+        prefix = action.replace('storno-', '')
+        stornoEntity(data, prefix, prepayment, accounting)
 
 def addItem(data, prefix):
     totalForms = getTotalForms(data, prefix)
@@ -74,6 +78,25 @@ def parseDecimal(value):
 
 def getExpenseCategoryId(data, prefix):
     return int(data['%s-expenseCategory' % (prefix)])
+
+def stornoEntity(data, prefix, prepayment, accounting):  # Сторнировать бухгалтерские записи
+    formsetPrefix = re.sub(r'entity-\d+', 'entity', prefix)
+    currentNum = getTotalForms(data, formsetPrefix)
+
+    for key in list(data.keys()):
+        if key.startswith(prefix) and not key.endswith('id'):
+            newKey = re.sub(r'entity-\d+', 'entity-%d' % (currentNum), key)
+            if key.endswith('accountingSum'):
+                data[newKey] = parseDecimal(data[key]) * -1
+            else:
+                data[newKey] = data[key]
+            newKey = re.sub(r'entity-\d+', 'entity-%d' % (currentNum + 1), key)
+            data[newKey] = data[key]
+    data['%s-%s-isStorno' % (formsetPrefix, currentNum)] = '1'
+    data['%s-%s-isStorno' % (formsetPrefix, currentNum + 1)] = '1'
+    currentNum = currentNum + 2
+    setTotalForms(data, formsetPrefix, currentNum)
+
 
 def splitPurchaseOrder (data, prefix, prepayment, accounting):
     itemPrefix = prefix

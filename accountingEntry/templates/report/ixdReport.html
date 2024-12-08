@@ -24,8 +24,35 @@
 <div class="alert alert-primary" role="alert" style="display: none;">
 
 </div>
-<table id="ixd-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100" style="font-size: 0.9em;">
-
+<div class="input-group input-group-sm">
+    <div class="input-group-prepend">
+        <span class="input-group-text">Период с</span>
+    </div>
+    <input id="period-from" class="text-center datepeeker" value="{{ periodFrom }}" style="width: 100px"/>
+    <div class="input-group-append">
+        <span class="input-group-text">по</span>
+        <input id='period-to' class='text-center datepeeker' value="{{ periodTo }}"  style='width: 100px'/>
+    </div>
+</div>
+<table id="ixd-table" class="table table-sm table-bordered table-hover dtr-inline w-100 mt-1" style="font-size: 0.9em;">
+    <thead>
+        <tr>
+            <th>Код расхода</th>
+            <th>Сумма руб.</th>
+            <th>Количество, чел.</th>
+            <th>Количество, дней</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for expenseCode in expenseCodes %}
+            <tr>
+                <td>{{ expenseCode.id|default_if_none:"" }}</td>
+                <td>{{ expenseCode.sm |default_if_none:""}}</td>
+                <td>{{ expenseCode.cnt|default_if_none:"" }}</td>
+                <td>{{ expenseCode.days|default_if_none:"" }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
 </table>
 
 <script type="text/javascript">
@@ -35,6 +62,13 @@
 
     $(document).ready(
         function () {
+            $('.datepeeker').datepicker() 
+            $('#period-from, #period-to').on('change', function(e) {
+                const periodFromValue = $('#period-from').val()
+                const periodToValue = $('#period-to').val()
+                window.location=window.location.href.split('?')[0] + "?periodFrom=" + periodFromValue + "&periodTo=" + periodToValue
+            })
+            /*
             var ixdTable = $('#ixd-table').DataTable(
                 {
                     ajax: {
@@ -93,16 +127,16 @@
                             width: '5rem'
                         }                              
                     ],
-                    buttons: [/*
+                    buttons: [
                         {
                             text: '&nbsp;СОЗДАТЬ НОВУЮ ПОДОТЧЕТНУЮ СУММУ',
                             className: 'btn btn-info fa-light fa-square-plus',
                             action: function (e, dt, node, config) {
                                 window.location.href = '/prepayments/new'
                             }
-                        }*/
+                        }
                     ]
-                });
+                });*/
         }
     );
 </script>

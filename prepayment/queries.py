@@ -18,7 +18,7 @@ ADD_ACCOUNTING_ENTRIES = '''
 INSERT INTO public.accounting_entry(ae_period, ae_no, acpl_account_debit, acpl_subaccount_debit, acpl_code_analitic_debit, acpl_code_analitic_debit_1, acpl_code_analitic_debit_2, acpl_add_sign_debit,  
 					acpl_account_credit, acpl_subaccount_credit, acpl_code_analitic_credit, acpl_code_analitic_credit_1, acpl_code_analitic_credit_2, acpl_add_sign_credit, ae_sum, prepayment_id, advance_report_item_entity_id)
 SELECT 
-	p.approve_date as ae_period,
+	CASE WHEN entity.is_storno = 1 THEN entity.approve_date ELSE p.approve_date END as ae_period,
 	p.report_accounting_num::integer as ae_no, -- Номер бухгалтерской справки
 
 	SUBSTRING(LPAD(entity.debit_account::text, 4, '0'), 0, 3)::integer as acpl_account_debit, -- Дебет/счет
@@ -48,7 +48,7 @@ WHERE 	p.approve_date IS NOT NULL
 	AND CASE item.item_type WHEN 0 THEN entity.credit_dept::text ELSE entity.credit_kau_2::text END IS NOT NULL 
 	--AND entity.credit_extra IS NOT NULL 
 	--AND entity.debit_extra IS NOT NULL
-	AND entity.accounting_sum > 0
+	--AND entity.accounting_sum > 0
 	AND p.id = %s'''
 
 GET_ADVANCE_REPORT_ITEMS_FOR_REPORT = '''

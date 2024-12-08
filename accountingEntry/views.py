@@ -7,6 +7,7 @@ from datetime import datetime
 from django.http import HttpResponse, HttpResponseRedirect
 from prepayment.models import Prepayment
 from django.db.models import Q, Sum
+from .queries import GET_EXPENSE_CODES_REPORT
 import csv
 # Create your views here.
 
@@ -36,7 +37,23 @@ def parameterizedReport(request):
     return render(request, 'report/parameterizedReport.html')
 
 def ixdReport(request):
-    return render(request, 'report/ixdReport.html')
+    try:
+        periodFrom = datetime.strptime(request.GET.get('periodFrom', ''), "%d.%m.%Y")
+    except ValueError:
+        periodFrom = None
+
+    try:
+        periodTo = datetime.strptime(request.GET.get('periodTo', ''), "%d.%m.%Y")
+    except ValueError:
+        periodTo = None
+
+    expenseCodes = AccountingEntry.objects.raw(GET_EXPENSE_CODES_REPORT, [periodFrom, periodTo])
+    ctx = {
+        'periodFrom': request.GET.get('periodFrom', ''),
+        'periodTo': request.GET.get('periodTo', ''),
+        'expenseCodes': expenseCodes
+    }
+    return render(request, 'report/ixdReport.html', ctx)
 
 def parameterizedReportShow(request):
     filterKwargs = {}

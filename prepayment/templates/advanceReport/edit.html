@@ -463,6 +463,31 @@
     </div>
   </div>
 
+  <div class="modal fade" id="entityApproveModal" tabindex="-1" role="dialog" aria-labelledby="entityApproveModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="entityApproveModalTitle">Подтвердить проводки</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body container-fluid">
+          <div class="row p-1">
+            <div class="col-12 input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Дата согласования</span>
+              </div>
+              <input type="text" class="mb-0 form-control form-control-sm datepeeker approve-date" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+          <button type="button" form="mainForm" class="btn btn-primary ok-button" data-dismiss="modal">Ок</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   {% comment %} {% include 'advanceReport/inventoryModal.html' %} {% endcomment %}
 
   {% include 'advanceReport/serviceModal.html' %}
@@ -530,6 +555,11 @@
       $('.btn-fill-entity-row').on('click', function (e) {
         $('#action').val('fill-' + $(e.currentTarget).data('prefix'))
       })
+
+       // Сторнировать
+      $('.row-storno').on('click', function (e) {
+        $('#action').val('storno-' + $(e.currentTarget).data('prefix'))
+      })
     
       $('tbody').on('click', '.row-delete', function (e) {
         const tr = $(e.currentTarget).closest('tr')
@@ -595,6 +625,25 @@
         }
       })
 
+     // Обработчик отображения формы принятия проводки
+     $('#entityApproveModal').on('show.bs.modal', function (event) {
+        // Устанавливаем ссылку на редактируемую строку
+        editRow = $(event.relatedTarget).closest('tr')
+        var modal = $(this)
+        const modalDateInput = modal.find("input.approve-date")
+        const approveDateInput = editRow.find("input.entity-approve-date")
+        modalDateInput.val(approveDateInput.val())
+      })
+
+      // Принятие проводки
+      $('#entityApproveModal').on('click', '.ok-button', function(e){
+        var modal = $(e.delegateTarget)
+        const modalDateInput = modal.find("input.approve-date")
+        const approveDateInput = editRow.find("input.entity-approve-date")
+        //console.log(editRow)
+        approveDateInput.val(modalDateInput.val())
+      })
+
       // Обработчик отображения формы принятия проводок
       $('#approveModal').on('show.bs.modal', function (event) {
         var modal = $(this)
@@ -618,7 +667,7 @@
       // Обработчик отображения форм редактирования
       $('.inventoryModal, #serviceModal, #presentationModal, #purchaseOrderModal').on('show.bs.modal', function (event) {
         // Устанавливаем ссылку на редактируемую строку
-        editRow = $(event.relatedTarget).parents('tr')
+        editRow = $(event.relatedTarget).closest('tr')
         const itemType = editRow.find('input.item-type').val()
 
         // Получаем общие поля ввода из редактируемой строки
@@ -934,7 +983,7 @@
     $('.form-control-file').on('change', function(e) {
       const file = e.target.files[0]
       if (file) {
-        const row = $(e.target).parents('tr')
+        const row = $(e.target).closest('tr')
         const fileNameInput = row.find('input.file-name')
         const fileDateInput = row.find('input.file-date')
 

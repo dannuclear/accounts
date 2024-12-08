@@ -217,8 +217,8 @@ class AdvanceReportItemForm(forms.ModelForm):
     expenseCategory = ExpenseCategoryChoiceField(queryset=ExpenseCategory.objects.order_by('id'), widget=forms.Select(
         attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
 
-    expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
+    # expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), widget=forms.Select(
+    #     attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
 
     approveDocDate = MyDateField(localize=True, required=False)
 
@@ -231,6 +231,14 @@ class AdvanceReportItemForm(forms.ModelForm):
         self.lockLevel = kwargs.pop('lockLevel', 0)
         _cache = kwargs.pop('entitiesCache', None)
         super(AdvanceReportItemForm, self).__init__(*args, **kwargs)
+        if self.lockLevel:
+            self.fields['expenseCategory'].widget.attrs['disabled'] = 'True'
+            self.fields['approveDocument'].widget.attrs['disabled'] = 'True'
+            # self.fields['expenseCode'].widget.attrs['disabled'] = 'True'
+            #self.fields['expenseCategory'].disabled = True
+            #self.fields['approveDocument'].disabled = True
+            #self.fields['expenseCode'].disabled = True
+
         self.fields['expenseCategory'].queryset = ExpenseCategory.objects.filter(id__in=ExpenseItem.objects.values_list(
             'category_id').filter(itemType=self.expenseItemType, expenseType=(0 if self.itemType in [0, 1] else 1))).order_by('id')
         # Добавляем набор форм бухгалтерской формы
@@ -360,9 +368,13 @@ class AdvanceReportItemEntityForm(forms.ModelForm):
 
     whOrderDate = MyDateField(localize=True, required=False)
 
+    approveDate = MyDateField(localize=True, required=False)
+
     def __init__(self, *args, **kwargs):
         self.lockLevel = kwargs.pop('lockLevel', 0)
         super(AdvanceReportItemEntityForm, self).__init__(*args, **kwargs)
+        # if self.lockLevel and not self.instance.isStorno == 1:
+        #     self.fields['expenseCode'].disabled = True
 
     class Meta:
         model = AdvanceReportItemEntity

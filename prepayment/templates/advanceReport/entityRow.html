@@ -1,7 +1,9 @@
 {% load prepayment_extras %}
-<tr style="{% if entity.DELETE.value %} display:none {% endif %}">
+<tr style="{% if entity.DELETE.value %} display:none {% endif %} {% if entity.isStorno.value %} background-color: {% if entity.accountingSum.value|stringformat:"s"|slice:":1" == "-" %}indianred{% else %}cadetblue{% endif %}{% endif %}">
   {{ entity.id }}
-
+  
+  <input type="hidden" name="{{ entity.isStorno.html_name }}" id="{{ entity.isStorno.auto_id }}" value="{{ entity.isStorno.value|default_if_none:'' }}" />
+  <input type="hidden" name="{{ entity.approveDate.html_name }}" id="{{ entity.approveDate.auto_id }}" value="{{ entity.approveDate.value|default_if_none:'' }}" class="entity-approve-date"/>
   <input type="hidden" name="{{ entity.DELETE.html_name }}" id="{{ entity.DELETE.auto_id }}" value="{{ entity.DELETE.value|default_if_none:'' }}" />
 
   {% comment %} {% if itemType == 2 %}
@@ -32,10 +34,10 @@
 
   {% if itemType == 0 %}
     <td>
-      <input type="text" class="form-control form-control-sm" name="{{ entity.deptExpense.html_name }}" value="{{ entity.deptExpense.value|zfill:3 }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+      <input type="text" class="form-control form-control-sm" name="{{ entity.deptExpense.html_name }}" value="{{ entity.deptExpense.value|zfill:3 }}" autocomplete="off" {% if lockLevel and not entity.isStorno.value %}readonly{% endif %}/>
     </td>
     <td>
-      {% if lockLevel %}
+      {% if lockLevel and not entity.isStorno.value %}
         <input type="text" class="form-control form-control-sm" name="{{ entity.expenseCode.html_name }}" value="{{ entity.expenseCode.value|default_if_none:'' }}" autocomplete="off" readonly/>
       {% else %}
         {{ entity.expenseCode }}
@@ -45,55 +47,55 @@
 
   {% if items.form_kwargs.accounting %}
     <td style="width:100px">
-      <input type="text" class="form-control form-control-sm accounting-sum {% if entity.accountingSum.errors %} is-invalid {% endif %}" name="{{ entity.accountingSum.html_name }}" value="{{ entity.accountingSum.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %} />
+      <input type="text" class="form-control form-control-sm accounting-sum {% if entity.accountingSum.errors %} is-invalid {% endif %}" name="{{ entity.accountingSum.html_name }}" value="{{ entity.accountingSum.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel and not entity.isStorno.value %}readonly{% endif %} />
     </td>
 
     <td>
-      <input type="text" class="form-control form-control-sm {% if entity.debitAccount.errors %} is-invalid {% endif %} {% if itemType == 3 %} service-debit-account {% endif %} " name="{{ entity.debitAccount.html_name }}" value="{{ entity.debitAccount.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
-    </td>
-
-    {% if itemType == 2 or itemType == 3 or itemType == 4 %}
-      <td>
-        <input type="text" class="form-control form-control-sm {% if entity.debitKAU1.errors %} is-invalid {% endif %}" name="{{ entity.debitKAU1.html_name }}" value="{{ entity.debitKAU1.value|zfill:3 }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
-      </td>
-      <td>
-        <input type="text" class="form-control form-control-sm {% if entity.debitKAU2.errors %} is-invalid {% endif %}" name="{{ entity.debitKAU2.html_name }}" value="{{ entity.debitKAU2.value|zfill:3 }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
-      </td>
-    {% else %}
-      <td>
-        <input type="text" class="form-control form-control-sm {% if entity.debitExpenseItem.errors %} is-invalid {% endif %}" name="{{ entity.debitExpenseItem.html_name }}" value="{{ entity.debitExpenseItem.value|zfill:3 }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
-      </td>
-      <td>
-        <input type="text" class="form-control form-control-sm {% if entity.debitExpenseWorkshop.errors %} is-invalid {% endif %}" name="{{ entity.debitExpenseWorkshop.html_name }}" value="{{ entity.debitExpenseWorkshop.value|zfill:3 }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
-      </td>
-    {% endif %}
-
-    <td>
-      <input type="text" class="form-control form-control-sm" name="{{ entity.debitExtra.html_name }}" value="{{ entity.debitExtra.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
-    </td>
-
-    <td>
-      <input type="text" class="form-control form-control-sm {% if entity.creditAccount.errors %} is-invalid {% endif %}" name="{{ entity.creditAccount.html_name }}" value="{{ entity.creditAccount.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+      <input type="text" class="form-control form-control-sm {% if entity.debitAccount.errors %} is-invalid {% endif %} {% if itemType == 3 %} service-debit-account {% endif %} " name="{{ entity.debitAccount.html_name }}" value="{{ entity.debitAccount.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel and not entity.isStorno.value %}readonly{% endif %}/>
     </td>
 
     {% if itemType == 2 or itemType == 3 or itemType == 4 %}
       <td>
-        <input type="text" class="form-control form-control-sm {% if entity.creditKAU1.errors %} is-invalid {% endif %}" name="{{ entity.creditKAU1.html_name }}" value="{{ entity.creditKAU1.value|zfill:3 }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+        <input type="text" class="form-control form-control-sm {% if entity.debitKAU1.errors %} is-invalid {% endif %}" name="{{ entity.debitKAU1.html_name }}" value="{{ entity.debitKAU1.value|zfill:3 }}" autocomplete="off" {% if lockLevel and not entity.isStorno.value %}readonly{% endif %}/>
       </td>
       <td>
-        <input type="text" class="form-control form-control-sm {% if entity.creditKAU2.errors %} is-invalid {% endif %}" name="{{ entity.creditKAU2.html_name }}" value="{{ entity.creditKAU2.value|zfill:3 }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+        <input type="text" class="form-control form-control-sm {% if entity.debitKAU2.errors %} is-invalid {% endif %}" name="{{ entity.debitKAU2.html_name }}" value="{{ entity.debitKAU2.value|zfill:3 }}" autocomplete="off" {% if lockLevel and not entity.isStorno.value %}readonly{% endif %}/>
       </td>
     {% else %}
       <td>
-        <input type="text" class="form-control form-control-sm" name="{{ entity.creditExpenseItem.html_name }}" value="{{ entity.creditExpenseItem.value|zfill:3 }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+        <input type="text" class="form-control form-control-sm {% if entity.debitExpenseItem.errors %} is-invalid {% endif %}" name="{{ entity.debitExpenseItem.html_name }}" value="{{ entity.debitExpenseItem.value|zfill:3 }}" autocomplete="off" {% if lockLevel and not entity.isStorno.value %}readonly{% endif %}/>
       </td>
       <td>
-        <input type="text" class="form-control form-control-sm" name="{{ entity.creditDept.html_name }}" value="{{ entity.creditDept.value|zfill:3 }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+        <input type="text" class="form-control form-control-sm {% if entity.debitExpenseWorkshop.errors %} is-invalid {% endif %}" name="{{ entity.debitExpenseWorkshop.html_name }}" value="{{ entity.debitExpenseWorkshop.value|zfill:3 }}" autocomplete="off" {% if lockLevel and not entity.isStorno.value %}readonly{% endif %}/>
       </td>
     {% endif %}
 
     <td>
-      <input type="text" class="form-control form-control-sm" name="{{ entity.creditExtra.html_name }}" value="{{ entity.creditExtra.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+      <input type="text" class="form-control form-control-sm" name="{{ entity.debitExtra.html_name }}" value="{{ entity.debitExtra.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel and not entity.isStorno.value %}readonly{% endif %}/>
+    </td>
+
+    <td>
+      <input type="text" class="form-control form-control-sm {% if entity.creditAccount.errors %} is-invalid {% endif %}" name="{{ entity.creditAccount.html_name }}" value="{{ entity.creditAccount.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel and not entity.isStorno.value %}readonly{% endif %}/>
+    </td>
+
+    {% if itemType == 2 or itemType == 3 or itemType == 4 %}
+      <td>
+        <input type="text" class="form-control form-control-sm {% if entity.creditKAU1.errors %} is-invalid {% endif %}" name="{{ entity.creditKAU1.html_name }}" value="{{ entity.creditKAU1.value|zfill:3 }}" autocomplete="off" {% if lockLevel and not entity.isStorno.value %}readonly{% endif %}/>
+      </td>
+      <td>
+        <input type="text" class="form-control form-control-sm {% if entity.creditKAU2.errors %} is-invalid {% endif %}" name="{{ entity.creditKAU2.html_name }}" value="{{ entity.creditKAU2.value|zfill:3 }}" autocomplete="off" {% if lockLevel and not entity.isStorno.value %}readonly{% endif %}/>
+      </td>
+    {% else %}
+      <td>
+        <input type="text" class="form-control form-control-sm" name="{{ entity.creditExpenseItem.html_name }}" value="{{ entity.creditExpenseItem.value|zfill:3 }}" autocomplete="off" {% if lockLevel and not entity.isStorno.value %}readonly{% endif %}/>
+      </td>
+      <td>
+        <input type="text" class="form-control form-control-sm" name="{{ entity.creditDept.html_name }}" value="{{ entity.creditDept.value|zfill:3 }}" autocomplete="off" {% if lockLevel and not entity.isStorno.value %}readonly{% endif %}/>
+      </td>
+    {% endif %}
+
+    <td>
+      <input type="text" class="form-control form-control-sm" name="{{ entity.creditExtra.html_name }}" value="{{ entity.creditExtra.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel and not entity.isStorno.value %}readonly{% endif %}/>
     </td>
   {% endif %}
 
@@ -108,6 +110,12 @@
   <td>
     {% if not lockLevel %}
       <button type="button" class="btn btn-sm btn-outline-danger row-delete"><i class="fa-light fa-trash" ></i></button>
+      {% else %}
+        {% if not entity.isStorno.value %}
+          <button class="btn btn-sm btn-outline-danger row-storno" data-prefix="{{ entity.prefix }}">СТОРНО</button>
+          {% else %}
+          <button type="button" class="btn btn-sm btn-outline-danger" data-prefix="{{ entity.prefix }}" data-toggle="modal" data-target="#entityApproveModal">ПОДТВ</button>
+        {% endif %}
     {% endif %}
   </td>
 </tr>
