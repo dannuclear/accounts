@@ -23,16 +23,16 @@ SELECT
 
 	SUBSTRING(LPAD(entity.debit_account::text, 4, '0'), 0, 3)::integer as acpl_account_debit, -- Дебет/счет
 	SUBSTRING(LPAD(entity.debit_account::text, 4, '0'), 3, 3)::integer as acpl_subaccount_debit, -- Дебет/субсчет
-	LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.debit_expense_item::text ELSE entity.debit_kau_1::text END, ''), 3, '0') || LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.debit_expense_workshop::text ELSE entity.debit_kau_2::text END, ''), 3, '0') as acpl_code_analitic_debit, -- Дебет/КАУ
-	LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.debit_expense_item::text ELSE entity.debit_kau_1::text END, ''), 3, '0') as acpl_code_analitic_debit_1, -- Дебет/КАУ1
-	LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.debit_expense_workshop::text ELSE entity.debit_kau_2::text END, ''), 3, '0') as acpl_code_analitic_debit_2, -- Дебет/КАУ2
+	LPAD(coalesce(CASE WHEN item.item_type IN (0, 5) THEN entity.debit_expense_item::text ELSE entity.debit_kau_1::text END, ''), 3, '0') || LPAD(coalesce(CASE WHEN item.item_type IN (0, 5) THEN entity.debit_expense_workshop::text ELSE entity.debit_kau_2::text END, ''), 3, '0') as acpl_code_analitic_debit, -- Дебет/КАУ
+	LPAD(coalesce(CASE WHEN item.item_type IN (0, 5) THEN entity.debit_expense_item::text ELSE entity.debit_kau_1::text END, ''), 3, '0') as acpl_code_analitic_debit_1, -- Дебет/КАУ1
+	LPAD(coalesce(CASE WHEN item.item_type IN (0, 5) THEN entity.debit_expense_workshop::text ELSE entity.debit_kau_2::text END, ''), 3, '0') as acpl_code_analitic_debit_2, -- Дебет/КАУ2
 	LPAD(coalesce(entity.debit_extra, ''), 5, '0') as acpl_add_sign_debit, -- Дебет/счет/ДП
 
 	SUBSTRING(LPAD(entity.credit_account::text, 4, '0'), 0, 3)::integer as acpl_account_credit, -- Кредит/счет
 	SUBSTRING(LPAD(entity.credit_account::text, 4, '0'), 3, 3)::integer as acpl_subaccount_credit, -- Кредит/субсчет
-	LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.credit_expense_item::text ELSE entity.credit_kau_1::text END, ''), 3, '0') || LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.credit_dept::text ELSE entity.credit_kau_2::text END, ''), 3, '0') as acpl_code_analitic_credit, -- Кредит/КАУ
-	LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.credit_expense_item::text ELSE entity.credit_kau_1::text END, ''), 3, '0') as acpl_code_analitic_credit_1, -- Кредит/КАУ1
-	LPAD(coalesce(CASE item.item_type WHEN 0 THEN entity.credit_dept::text ELSE entity.credit_kau_2::text END, ''), 3, '0') as acpl_code_analitic_credit_2, -- Кредит/КАУ2
+	LPAD(coalesce(CASE WHEN item.item_type IN (0, 5) THEN entity.credit_expense_item::text ELSE entity.credit_kau_1::text END, ''), 3, '0') || LPAD(coalesce(CASE WHEN item.item_type IN (0, 5) THEN entity.credit_dept::text ELSE entity.credit_kau_2::text END, ''), 3, '0') as acpl_code_analitic_credit, -- Кредит/КАУ
+	LPAD(coalesce(CASE WHEN item.item_type IN (0, 5) THEN entity.credit_expense_item::text ELSE entity.credit_kau_1::text END, ''), 3, '0') as acpl_code_analitic_credit_1, -- Кредит/КАУ1
+	LPAD(coalesce(CASE WHEN item.item_type IN (0, 5) THEN entity.credit_dept::text ELSE entity.credit_kau_2::text END, ''), 3, '0') as acpl_code_analitic_credit_2, -- Кредит/КАУ2
 	LPAD(coalesce(entity.credit_extra, ''), 5, '0') as acpl_add_sign_credit, -- Кредит/счет/ДП
 	entity.accounting_sum as ae_sum, -- Сумма
 	p.id,
@@ -42,10 +42,10 @@ INNER JOIN advance_report_item item ON item.prepayment_id = p.id
 INNER JOIN advance_report_item_entity entity ON entity.advance_report_item_id = item.id 
 WHERE 	p.approve_date IS NOT NULL 
 	AND p.report_accounting_num IS NOT NULL 
-	AND CASE item.item_type WHEN 0 THEN entity.debit_expense_item::text ELSE entity.debit_kau_1::text END IS NOT NULL 
-	AND CASE item.item_type WHEN 0 THEN entity.debit_expense_workshop::text ELSE entity.debit_kau_2::text END IS NOT NULL 
-	AND CASE item.item_type WHEN 0 THEN entity.credit_expense_item::text ELSE entity.credit_kau_1::text END IS NOT NULL 
-	AND CASE item.item_type WHEN 0 THEN entity.credit_dept::text ELSE entity.credit_kau_2::text END IS NOT NULL 
+	AND CASE WHEN item.item_type IN (0, 5) THEN entity.debit_expense_item::text ELSE entity.debit_kau_1::text END IS NOT NULL 
+	AND CASE WHEN item.item_type IN (0, 5) THEN entity.debit_expense_workshop::text ELSE entity.debit_kau_2::text END IS NOT NULL 
+	AND CASE WHEN item.item_type IN (0, 5) THEN entity.credit_expense_item::text ELSE entity.credit_kau_1::text END IS NOT NULL 
+	AND CASE WHEN item.item_type IN (0, 5) THEN entity.credit_dept::text ELSE entity.credit_kau_2::text END IS NOT NULL 
 	--AND entity.credit_extra IS NOT NULL 
 	--AND entity.debit_extra IS NOT NULL
 	--AND entity.accounting_sum > 0
