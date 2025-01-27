@@ -12,7 +12,7 @@
     <div class="form-row align-items-center">
       <div class="col-12 p-1 text-right">
         <input type="submit" class="btn btn-success btn-sm" value="Сохранить" />
-        <input onclick="window.location = '/documents'" class="btn btn-danger btn-sm" value="Отмена" />
+        <a href="{% url 'departments' %}" class="btn btn-danger btn-sm">Отмена</a>
       </div>
     </div>
 
@@ -24,6 +24,5 @@
         <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.name.name }}" value="{{ form.name.value|default_if_none:'' }}" />
       </div>
     </div>
-
   </form>
 {% endblock %}

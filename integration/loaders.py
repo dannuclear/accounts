@@ -18,7 +18,7 @@ wc07pOrderFields = ['orderName', 'orderId', 'orderNum', 'orderDate', 'empOrgNo',
 
 def load(path, type):
     with open(path, encoding="utf-8", mode='r') as file:
-        dialect = csv.Sniffer().sniff(file.read(1024))
+        dialect = csv.Sniffer().sniff(file.read(2048))
         dialect.delimiter = '\t'
         file.seek(0)
         fields = estimateFields if type == FileType.ESTIMATE else employeeFields if type == FileType.EMPLOYEE else prepaymentFields if type == FileType.PREPAYMENT else wc07pOrderFields if type == FileType.WC07P_ORDER else None

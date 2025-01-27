@@ -1,0 +1,45 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+  Наименование категории расхода
+{% endblock %}
+
+{% block content %}
+  <form method="post" class="container-fluid">
+    {% csrf_token %}
+    <input type="hidden" name="{{ form.id.name }}" value="{{ form.id.value|default_if_none:'' }}" />
+
+    <div class="form-row align-items-center">
+      <div class="col-12 p-1 text-right">
+        <input type="submit" class="btn btn-success btn-sm" value="Сохранить" />
+        <input onclick="window.location = '/expenseCategories'" class="btn btn-danger btn-sm" value="Отмена" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Номер</span>
+        </div>
+        <input type="text" class="mb-0 form-control form-control-sm {% if form.num.errors %} is-invalid {% endif %}" name="{{ form.num.name }}" value="{{ form.num.value|default_if_none:'' }}" />
+      </div>
+
+      <div class="col-10 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Наименование</span>
+        </div>
+        <input type="text" class="mb-0 form-control form-control-sm {% if form.name.errors %} is-invalid {% endif %}" name="{{ form.name.name }}" value="{{ form.name.value|default_if_none:'' }}" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Наименование для печати</span>
+        </div>
+        <input type="text" class="mb-0 form-control form-control-sm {% if form.printName.errors %} is-invalid {% endif %}" name="{{ form.printName.name }}" value="{{ form.printName.value|default_if_none:'' }}" />
+      </div>
+    </div>
+
+  </form>
+{% endblock %}

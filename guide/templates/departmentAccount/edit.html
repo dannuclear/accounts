@@ -1,0 +1,41 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+  Счет подразделения
+{% endblock %}
+
+{% block content %}
+  <form method="post" class="container-fluid">
+    {% csrf_token %}
+    <input type="hidden" name="{{ form.id.name }}" value="{{ form.id.value|default_if_none:'' }}" />
+
+    <div class="form-row align-items-center">
+      <div class="col-12 p-1 text-right">
+        <input type="submit" class="btn btn-success btn-sm" value="Сохранить" />
+        <a href="{% url 'departmentAccounts' %}" class="btn btn-danger btn-sm">Отмена</a>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text {% if form.category.errors %} bg-danger {% endif %}">Подразделение</span>
+        </div>
+        {{ form.department }}
+      </div>
+
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Счет</span>
+        </div>
+        <input type="text" class="mb-0 form-control form-control-sm {% if form.account.errors %} is-invalid {% endif %}" name="{{ form.account.name }}" value="{{ form.account.value|default_if_none:'' }}" />
+      </div>
+      <div class="col-2 p-1 input-group input-group-sm">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Доп. Признак</span>
+        </div>
+        <input type="text" class="mb-0 form-control form-control-sm {% if form.extra.errors %} is-invalid {% endif %}" name="{{ form.extra.name }}" value="{{ form.extra.value|default_if_none:'' }}" />
+      </div>
+    </div>
+  </form>
+{% endblock %}

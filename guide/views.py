@@ -2,9 +2,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from rest_framework import viewsets
 
-from .forms import ExpenseCodeForm, ImprestAccountForm, ExpenseRateForm, DocumentForm, ExpenseItemForm, StatusForm
-from .models import ExpenseCode, ImprestAccount, ExpenseRate, ExpenseItem, Document, AccountingCert, Status, Department, DepartmentAccount, ObtainMethod, PrepaidDest, RefundExpense
-from .serializers import AccountingCertSerializer, ExpenseCodeSerializer, ImprestAccountSerializer, ExpenseRateSerializer, ExpenseItemSerializer, DocumentSerializer, StatusSerializer, DepartmentSerializer, DepartmentAccountSerializer, ObtainMethodSerializer, PrepaidDestSerializer, RefundExpenseSerializer
+from .forms import ExpenseCodeForm, ImprestAccountForm, ExpenseRateForm, DocumentForm, ExpenseItemForm, StatusForm, ExpenseCategoryForm, DepartmentForm, DepartmentAccountForm, RefundExpenseForm, AccountingCertForm, ObtainMethodForm
+from .models import ExpenseCode, ImprestAccount, ExpenseRate, ExpenseItem, Document, AccountingCert, Status, Department, DepartmentAccount, ObtainMethod, PrepaidDest, RefundExpense, ExpenseCategory
+from .serializers import AccountingCertSerializer, ExpenseCodeSerializer, ImprestAccountSerializer, ExpenseRateSerializer, ExpenseItemSerializer, DocumentSerializer, StatusSerializer, DepartmentSerializer, DepartmentAccountSerializer, ObtainMethodSerializer, PrepaidDestSerializer, RefundExpenseSerializer, ExpenseCategorySerializer
 from .filters import ImprestAccountFilter, ExpenseTypeFilter, DepartmentFilter
 # Create your views here.
 
@@ -27,6 +27,11 @@ def refundExpenses(request):
 def expenseItems(request):
     imprestAccounts = ImprestAccount.objects.all()
     return render(request, 'expenseItem/all.html', {'imprestAccounts': imprestAccounts})
+
+
+def expenseCategories(request):
+    expenseCategory = ExpenseCategory.objects.all()
+    return render(request, 'expenseCategory/all.html', {'expenseCategory': expenseCategory})
 
 
 def documents(request):
@@ -83,6 +88,10 @@ class DepartmentViewSet (viewsets.ModelViewSet):
     queryset = Department.objects.all().order_by('id')
     serializer_class = DepartmentSerializer
 
+class ExpenseCategoryViewSet (viewsets.ModelViewSet):
+    queryset = ExpenseCategory.objects.all().order_by('id')
+    serializer_class = ExpenseCategorySerializer
+
 class ObtainMethodViewSet (viewsets.ModelViewSet):
     queryset = ObtainMethod.objects.all().order_by('id')
     serializer_class = ObtainMethodSerializer
@@ -123,6 +132,30 @@ def editExpenseCode(request, id):
         form = ExpenseCodeForm(instance=expenseCode)
     return render(request, 'common/guide_common_edit_page.html', {'form': form, 'title': 'Коды расходов'})
 
+def editDepartment(request, id):
+    department = Department() if id == 'new' else Department.objects.get(pk=id)
+
+    if request.method == 'POST':
+        form = DepartmentForm(request.POST, instance=department)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/departments')
+    if request.method == 'GET':
+        form = DepartmentForm(instance=department)
+    return render(request, 'department/edit.html', {'form': form, 'title': 'Подразделение'})
+
+def editDepartmentAccount(request, id):
+    departmentAccount = DepartmentAccount() if id == 'new' else DepartmentAccount.objects.get(pk=id)
+
+    if request.method == 'POST':
+        form = DepartmentAccountForm(request.POST, instance=departmentAccount)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/departmentAccounts')
+    if request.method == 'GET':
+        form = DepartmentAccountForm(instance=departmentAccount)
+    return render(request, 'departmentAccount/edit.html', {'form': form, 'title': 'Подразделение'})
+
 def editStatus(request, id):
     status = Status() if id == 'new' else Status.objects.get(pk=id)
 
@@ -154,10 +187,88 @@ def deleteExpenseItem(request, id):
         expenseItem.delete()
     return redirect
 
+def editObtainMethod(request, id):
+    obtainMethod = ObtainMethod() if id == 'new' else ObtainMethod.objects.get(pk=id)
+
+    if request.method == 'POST':
+        form = ObtainMethodForm(request.POST, instance=obtainMethod)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/obtainMethods')
+    if request.method == 'GET':
+        form = ObtainMethodForm(instance=obtainMethod)
+    return render(request, 'common/guide_common_edit_page.html', {'form': form, 'title': 'Способ получения'})
+
+def deleteObtainMethod(request, id):
+    ObtainMethod.objects.get(pk=id).delete()
+    return HttpResponseRedirect('/obtainMethods')
+
+
+def editExpenseCategory(request, id):
+    expenseCategory = ExpenseCategory() if id == 'new' else ExpenseCategory.objects.get(pk=id)
+
+    if request.method == 'POST':
+        form = ExpenseCategoryForm(request.POST, instance=expenseCategory)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/expenseCategories')
+    if request.method == 'GET':
+        form = ExpenseCategoryForm(instance=expenseCategory)
+    return render(request, 'expenseCategory/edit.html', {'form': form, 'title': 'Наименования кодов расхода'})
+
+def editRefundExpense(request, id):
+    refundExpense = RefundExpense() if id == 'new' else RefundExpense.objects.get(pk=id)
+
+    if request.method == 'POST':
+        form = RefundExpenseForm(request.POST, instance=refundExpense)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/refundExpenses')
+    if request.method == 'GET':
+        form = RefundExpenseForm(instance=refundExpense)
+    return render(request, 'common/guide_common_edit_page.html', {'form': form, 'title': 'Возмещаемые расходы для включения в совокупный доход'})
+
+def deleteRefundExpense(request, id):
+    if request.method == 'GET':
+        RefundExpense.objects.get(pk=id).delete()
+    return HttpResponseRedirect('/refundExpenses')
+
+def editAccountingCert(request, id):
+    accountingCert = AccountingCert() if id == 'new' else AccountingCert.objects.get(pk=id)
+
+    if request.method == 'POST':
+        form = AccountingCertForm(request.POST, instance=accountingCert)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/accountingCerts')
+    if request.method == 'GET':
+        form = AccountingCertForm(instance=accountingCert)
+    return render(request, 'common/guide_common_edit_page.html', {'form': form, 'title': 'Бухгалтерская справка'})
+
+def deleteAccountingCert(request, id):
+    if request.method == 'GET':
+        AccountingCert.objects.get(pk=id).delete()
+    return HttpResponseRedirect('/accountingCerts')
+
+def deleteExpenseCategory(request, id):
+    if request.method == 'GET':
+        ExpenseCategory.objects.get(pk=id).delete()
+    return HttpResponseRedirect('/expenseCategories')
+
+def deleteDepartmentAccount(request, id):
+    if request.method == 'GET':
+        DepartmentAccount.objects.get(pk=id).delete()
+    return HttpResponseRedirect('/departmentAccounts')
+
 def deleteExpenseCode(request, id):
     if request.method == 'GET':
         ExpenseCode.objects.get(code=id).delete()
     return HttpResponseRedirect('/expenseCodes')
+
+def deleteDepartment(request, id):
+    if request.method == 'GET':
+        Department.objects.get(pk=id).delete()
+    return HttpResponseRedirect('/departments')
 
 
 def editImprestAccount(request, id):

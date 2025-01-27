@@ -47,10 +47,10 @@ class ExpenseRate(models.Model):
     id = models.AutoField(primary_key=True, blank=False)
     # Наименование
     name = models.CharField(
-        db_column="name", max_length=500, blank=False, null=False)
+        db_column="name", max_length=500, blank=False, null=False, verbose_name='Наименование')
     # Сумма
     value = models.DecimalField(
-        max_digits=8, decimal_places=2, db_column="value", blank=False, null=False)
+        max_digits=8, decimal_places=2, db_column="value", blank=False, null=False, verbose_name='Сумма')
 
     class Meta:
         db_table = 'expense_rate'
@@ -143,7 +143,7 @@ class ExpenseItem(models.Model):
 
 # Документ
 class Document (models.Model):
-    id = models.IntegerField(primary_key=True, blank=False)
+    id = models.AutoField(primary_key=True, blank=False)
     name = models.CharField(db_column="name", max_length=100, blank=True, null=True)
 
     class Meta:
@@ -159,8 +159,8 @@ class Document (models.Model):
 
 # Бухгалтерская справка
 class AccountingCert(models.Model):
-    account = models.IntegerField(primary_key=True, blank=False)
-    num = models.CharField(db_column="num", max_length=10, blank=False, null=False)
+    account = models.IntegerField(primary_key=True, blank=False, verbose_name="Счет")
+    num = models.CharField(db_column="num", max_length=10, blank=False, null=False, verbose_name="Номер")
 
     class Meta:
         db_table = 'accounting_cert'
@@ -176,7 +176,7 @@ class AccountingCert(models.Model):
 #Статус
 class Status(models.Model):
     id = models.IntegerField(primary_key=True, blank=False)
-    name = models.CharField(db_column="name", max_length=50, blank=False, null=False)
+    name = models.CharField(db_column="name", max_length=50, blank=False, null=False, verbose_name="Наименование")
 
     def __str__(self):
         return self.name
@@ -228,9 +228,9 @@ class DepartmentAccount(models.Model):
 # Способ получения
 class ObtainMethod(models.Model):
     id = models.AutoField(primary_key=True, blank=False)
-    name = models.CharField(db_column="name", blank=False, null=False, max_length=50)
-    source = models.SmallIntegerField(db_column="source", blank=True, null=True)
-    bik = models.IntegerField(db_column="bik", blank=True, null=True)
+    name = models.CharField(db_column="name", blank=False, null=False, max_length=50, verbose_name="Наименование")
+    source = models.SmallIntegerField(db_column="source", blank=True, null=True, verbose_name="Источник")
+    bik = models.IntegerField(db_column="bik", blank=True, null=True, verbose_name="БИК")
 
     class Meta:
         db_table = 'obtain_method'
@@ -261,13 +261,13 @@ class PrepaidDest(models.Model):
 class RefundExpense(models.Model):
     id = models.AutoField(primary_key=True, blank=False)
     # Вид оплаты в ТС УП 
-    payKind = models.IntegerField(db_column="pay_kind", blank=False, null=False)
+    payKind = models.IntegerField(db_column="pay_kind", blank=False, null=False, verbose_name="Вид оплаты в ТС УП")
     # Код наименования расхода
-    codeName = models.CharField(db_column="code_name", blank=False, null=False, max_length=10)
+    codeName = models.CharField(db_column="code_name", blank=False, null=False, max_length=10, verbose_name="Код наименования расхода")
     # Наименование расхода
-    name = models.CharField(db_column="name", blank=False, null=False, max_length=200)
+    name = models.CharField(db_column="name", blank=False, null=False, max_length=200, verbose_name="Наименование расхода")
     # Кредит / Код учета подотчетной суммы / Статья расхода
-    code = models.CharField(db_column="code", blank=False, null=False, max_length=10)
+    code = models.CharField(db_column="code", blank=False, null=False, max_length=10, verbose_name="Кредит / Код учета подотчетной суммы / Статья расхода")
 
     class Meta:
         db_table = 'refund_expense'
