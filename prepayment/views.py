@@ -20,7 +20,7 @@ import csv
 import math
 from num2words import num2words
 import textwrap
-from .action_processor import processActionNew
+from .action_processor import processActionNew, addItem
 from decimal import Decimal
 #from xhtml2pdf import pisa
 from django.template.loader import get_template
@@ -35,7 +35,9 @@ purposesSubquery = PrepaymentPurpose.objects.select_related('prepaidDest').annot
     missionTo=Func('missionToDate', function='max'), 
     days=Cast(ExtractDay(Func('missionToDate', function='max') - Func('missionFromDate', function='min')) + 1, output_field=IntegerField()), 
     missionDestList=Func('missionDest', function='string_agg', template="%(function)s(%(expressions)s, ', ')"), 
-    prepaidDestList=Func('prepaidDest__name', function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')")).filter(prepayment=OuterRef("pk"))
+    prepaidDestList=Func('prepaidDest__name', function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')"),
+    accountList=Func('account', function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')")
+    ).filter(prepayment=OuterRef("pk"))
 
 
 class PrepaymentViewSet (viewsets.ModelViewSet):
@@ -44,6 +46,7 @@ class PrepaymentViewSet (viewsets.ModelViewSet):
         missionTo=Subquery(purposesSubquery.values('missionTo')), 
         missionDestList=Subquery(purposesSubquery.values('missionDestList')),
         prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')),
+        accountList=Subquery(purposesSubquery.values('accountList')),
         deadline=Case(
             When(wc07pOrder__isnull=False, then=F('wc07pOrder__missionEnd') + 3),
             When(request__isnull=False, then=F('request__receivingDate') + 13),
@@ -70,7 +73,8 @@ class PrepaymentViewSet (viewsets.ModelViewSet):
 
 
 def prepayments(request):
-    return render(request, 'prepayment/all.html')
+    isAdminOrAccountant = is_user_in_group(request.user, ['Администратор', 'Бухгалтер'])
+    return render(request, 'prepayment/all.html', {'isAdminOrAccountant': isAdminOrAccountant})
 
 
 def advanceReports(request):
@@ -98,15 +102,26 @@ def editPrepayment(request, id):
     PrepaymentItemFormSet = inlineformset_factory(Prepayment, PrepaymentItem, form=PrepaymentItemForm, can_delete=True, extra=0, min_num=1)
     PrepaymentPurposeFormSet = inlineformset_factory(Prepayment, PrepaymentPurpose, form=PrepaymentPurposeForm, can_delete=True, extra=0, min_num=1)
     if request.method == 'POST':
-        form = PrepaymentForm(request.POST, instance=prepayment, user=request.user)
-        itemFormSet = PrepaymentItemFormSet(request.POST, prefix='item', instance=prepayment)
-        purposeFormSet = PrepaymentPurposeFormSet(request.POST, prefix='purpose', instance=prepayment)
+        postCopy = request.POST.copy()
+        if postCopy['action']:
+            action = postCopy['action']
+            if action.startswith('add-'):
+                prefix = action.replace('add-', '')
+                addItem(postCopy, prefix)
+            # Обрабатываем удаление записи
+            elif action.startswith('delete-'):
+                prefix = action.replace('delete-', '')
+                postCopy['%s-DELETE' % prefix] = 'True'
 
-        valid = form.is_valid()
-        valid = valid and itemFormSet.is_valid()
-        valid = valid and purposeFormSet.is_valid()
+        form = PrepaymentForm(postCopy, instance=prepayment, user=request.user)
+        itemFormSet = PrepaymentItemFormSet(postCopy, prefix='item', instance=prepayment)
+        purposeFormSet = PrepaymentPurposeFormSet(postCopy, prefix='purpose', instance=prepayment)
+
+        #valid = form.is_valid()
+        #valid = valid and itemFormSet.is_valid()
+        #valid = valid and purposeFormSet.is_valid()
         
-        if form.is_valid() and purposeFormSet.is_valid() and itemFormSet.is_valid():
+        if not postCopy['action'] and form.is_valid() and purposeFormSet.is_valid() and itemFormSet.is_valid():
             if is_user_in_group(request.user, ['Бухгалтер']):
                 prepayment.updatedByAccountant = userFullName if userFullName else request.user.username
 

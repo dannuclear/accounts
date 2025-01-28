@@ -101,7 +101,8 @@ def editRequest(request, id):
                 for inventory in inventoriesFormSet.save(commit=False):
                     inventory.save()
                 for deleted in inventoriesFormSet.deleted_forms:
-                    deleted.instance.delete()
+                    if deleted.instance.id is not None:
+                        deleted.instance.delete()
             return HttpResponseRedirect('/requests')
     if request.method == 'GET':
         form = RequestForm(instance=prepaymentRequest, user=request.user)
@@ -115,6 +116,10 @@ def editRequest(request, id):
     }
     return render(request, 'request/edit.html', context)
 
+def deleteRequest(request, id):
+    RequestInventory.objects.get(request=id).delete()
+    Request.objects.get(pk=id).delete()
+    return HttpResponseRedirect('/requests')
 
 def is_user_in_group(user, groups):
     return user.groups.filter(name__in=groups).exists()

@@ -176,7 +176,7 @@
                 </div>
               </div>
               <div class="col-auto p-1 d-flex">
-                <button type="button" class="btn btn-sm btn-outline-danger delete-inventory align-self-stretch"><i class="fa-light fa-trash"></i></button>
+                <button class="btn btn-sm btn-outline-danger delete-inventory align-self-stretch" data-prefix="{{ inventory.prefix }}"><i class="fa-light fa-trash"></i></button>
               </div>
             </div>
           </div>
@@ -266,13 +266,18 @@
         $('#action').val('add-' + $(e.target).data('prefix'))
       })
 
+      // Удалить аванс
+      $('.delete-inventory').on('click', function (e) {
+        $('#action').val('delete-' + $(e.target).data('prefix'))
+      })
+/*
       $('.inventory-container').on('click', '.delete-inventory', function (e) {
         const form = $(e.currentTarget).parents('.inventory-form')
         form.children('[id$="DELETE"]').val(1)
         if (!form.children('[id$="id"]').val()) form.remove()
         else form.hide()
         updateIssuedSum()
-      })
+      })*/
     
       $('tbody').on('click', '.btn-delete-row', function (e) {
         const tr = $(e.currentTarget).closest('tr')
@@ -313,6 +318,8 @@
             $('.applicant-prof').val(response.profName)
           })
         })
+
+        updateIssuedSum();
     })
   </script>
 {% endblock %}

@@ -1,5 +1,8 @@
 var csrftoken = Cookies.get('csrftoken');
 
+dayjs.locale('ru')
+dayjs.extend(window.dayjs_plugin_customParseFormat);
+
 const defaultLang = {
 	info: 'Страница _PAGE_ из _PAGES_',
 	lengthMenu: 'На странице _MENU_',
@@ -36,7 +39,7 @@ $.extend(true, $.fn.dataTable.defaults, {
 	pagingType: 'first_last_numbers',
 	dom: '<"row"<"toolbar col-sm-12 col-md-4"B><"filters col-sm-12 col-md-4"><"col-sm-12 col-md-4"fb>>'
 		+ '<"row"<"col-sm-12"tr>>'
-		+ '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-2"l><"col-sm-12 col-md-5"p>>'
+		+ '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-4"l><"col-sm-12 col-md-3"p>>'
 });
 
 $.datepicker.setDefaults( $.datepicker.regional[ "ru" ] )

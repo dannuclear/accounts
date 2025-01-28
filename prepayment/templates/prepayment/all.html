@@ -20,7 +20,7 @@
             line-height: 1;
         }
     </style>
-
+<input type="hidden" id="isAdminOrAccountant" value="{{ isAdminOrAccountant }}"/>
 <div class="alert alert-primary" role="alert" style="display: none;">
 
 </div>
@@ -67,6 +67,7 @@
     const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ']
 
     let urlParams = new URLSearchParams(document.location.search)
+    const isAdminOrAccountant = $('#isAdminOrAccountant').val() == 'True'
 
     $(document).ready(
         function () {
@@ -84,12 +85,14 @@
                                 d.periodTo=$('#period-to').val()
                             //console.log(d)
                             d.columns.push({data: 'wc07pOrder.orderNum', searchable: true})
+                            d.columns.push({data: 'imprestAccount.account', searchable: true})
                             d.columns.push({data: 'docNum', searchable: true})
                         }
                     },
                     rowId: 'id',
                     pagingType: 'first_last_numbers',
                     order: [],
+                    fixedHeader: true,
                     rowCallback: function(row, data) {
                         const deadline = new parseDate(data.deadline);
                         if (!deadline) return;
@@ -153,7 +156,7 @@
                         { data: 'totalSum', orderable: false, searchable: false, className: 'text-right text-nowrap', render: $.fn.dataTable.render.number( ' ', ',', 2 )  },
                         { data: 'status.name', orderable: false, defaultContent: "Не установлен", searchable: false },
                         { data: 'reportAccountingNum', orderable: false, defaultContent: "", searchable: false },
-                        { data: null, orderable: false, defaultContent: "", searchable: false },
+                        { data: 'accountList', orderable: false, defaultContent: "", searchable: false },
                         { data: 'reportDate', orderable: false, defaultContent: "", searchable: false },
                         { data: 'deadline', orderable: false, defaultContent: "", searchable: false },
                         {
@@ -172,7 +175,9 @@
                             orderable: false, 
                             searchable: false,
                             render: function (data, type, row) {
-                                return `<a href="/prepayments/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
+                                if (isAdminOrAccountant || data.status == null || data.status.id < 3)
+                                    return `<a href="/prepayments/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
+                                return ''
                             }
                         },
                         {
@@ -181,7 +186,9 @@
                             orderable: false, 
                             searchable: false,
                             render: function (data, type, row) {
-                              return `<a href="/prepayments/${data.id}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить заявку?');"></a>`
+                                if (isAdminOrAccountant || data.status == null || data.status.id < 3)
+                                    return `<a href="/prepayments/${data.id}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить заявку?');"></a>`
+                                return ''
                             }
                          }
                     ],

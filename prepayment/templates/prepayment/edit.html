@@ -8,7 +8,7 @@
 {% block content %}
   <form method="post" class="container-fluid">
     {% csrf_token %}
-
+    <input id="action" type="hidden" name="action">
     <div class="form-row align-items-center">
       <div class="col-12 p-1 text-right">
         <input type="submit" class="btn btn-success btn-sm" value="Сохранить" />
@@ -201,15 +201,15 @@
 
     <div class="col border rounded mt-1 item-container">
         <div class="row p-1">
-          <button id="button-add-item" type="button" class="btn btn-sm btn-outline-primary">Добавить</button>
+          <button id="button-add-item" class="btn btn-sm btn-outline-primary" data-prefix="{{ items.prefix }}">Добавить</button>
         </div>
           
 
         {{ items.management_form }}
         {% for itemForm in items %}
-        <div id='{{ itemForm.prefix }}' class='item-form'>
+        <div id='{{ itemForm.prefix }}' class='item-form' style="{% if itemForm.DELETE.value %} display:none {% endif %}">
           {{ itemForm.id }}
-          <input type="hidden" name="{{ itemForm.DELETE.html_name }}" id="{{ itemForm.DELETE.auto_id }}">
+          <input type="hidden" name="{{ itemForm.DELETE.html_name }}" id="{{ itemForm.DELETE.auto_id }}" value="{{ itemForm.DELETE.value|default_if_none:'' }}">
           <div class="row" >
             <div class="col-1 p-1 text-center">
               <p class="h4 m-0">Аванс: {{ itemForm.prefix|cut:"item-"|add:1 }}</p>
@@ -237,7 +237,7 @@
             </div>
 
             <div class="col-2 p-1">
-              <button type="button" class='btn btn-sm btn-outline-danger delete-item'><i class="fa-light fa-trash"></i></button>
+              <button class='btn btn-sm btn-outline-danger delete-item' data-prefix="{{ itemForm.prefix }}"><i class="fa-light fa-trash"></i></button>
             </div>
           </div>
         </div>
@@ -348,7 +348,17 @@
               <button type="button" class="btn btn-primary btn-sm period-add">+</button>
             </div>
           </div>
+
           <div class="row period-row pt-1">
+            <div class="col-12 input-group input-group-sm pb-1">
+              <input type="text" class="h5 text-center mb-0 form-control form-control-sm period-from" readonly/>
+            </div>
+            <div class="col-12 input-group input-group-sm">
+              <input type="text" class="h5 text-center mb-0 form-control form-control-sm period-to" readonly/>
+            </div>
+          </div>
+
+          {% comment %} <div class="row period-row pt-1">
             <div class="col input-group input-group-sm">
               <div class="input-group-prepend">
                 <span class="input-group-text">С</span>
@@ -364,11 +374,12 @@
             <div class="col-2">
               <button type="button" class="btn btn-sm btn-outline-danger period-delete"><i class="fa-light fa-trash"></i></button>
             </div>
-          </div>
+          </div> {% endcomment %}
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-          <button type="button" class="btn btn-primary ok-button" data-dismiss="modal">Ок</button>
+          <button type="button" class="btn btn-primary ok-button">Ок</button>
         </div>
       </div>
     </div>
@@ -376,11 +387,14 @@
   
   <script type="text/javascript">
     $(document).ready(function () {
+      /*
       $(`.item-container`).on('click', '.delete-item', function (e) {
         const form = $(e.currentTarget).parents('.item-form')
         form.hide()
         form.find("[id$='DELETE']").val(1)
-      })
+      })*/
+
+
 
       $('.purpose-container').on('change', '.dept-exp', function(e){
         const deptExpenseInput = e.currentTarget
@@ -394,7 +408,12 @@
       })
 
       $('#button-add-item').on('click', function(e){
-        addForm('item')
+        $('#action').val('add-' + $(e.currentTarget).data('prefix'))
+        //addForm('item')
+      })
+
+      $('.delete-item').on('click', function (e) {
+        $('#action').val('delete-' + $(e.currentTarget).data('prefix'))
       })
 
       $('#button-add-assignment').on('click', function(e){
@@ -430,7 +449,7 @@
 
       $('#splitModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget)
-        var row = button.parents('tr')
+        var row = button.closest('tr')
         $('.purpose-form').removeClass('edited')
         row.addClass('edited')
         
@@ -443,23 +462,7 @@
         var modal = $(this)
         modal.find('.modal-body .period-from').val(periodFrom)
         modal.find('.modal-body .period-to').val(periodTo)
-      })
-
-      $('#splitModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget)
-        var row = button.parents('tr')
-        $('.purpose-form').removeClass('edited')
-        row.addClass('edited')
-        
-        var periodFrom = row.find('.period-from').val()
-        var periodTo = row.find('.period-to').val()
-
-        //var periodFrom = button.data('periodFrom')
-        //var periodTo = button.data('periodTo')
-
-        var modal = $(this)
-        modal.find('.modal-body .period-from').val(periodFrom)
-        modal.find('.modal-body .period-to').val(periodTo)
+        modal.find('.period-part-group').remove()
       })
 
       $('#splitModal').on('click', '.period-add', function (event) {
@@ -467,11 +470,27 @@
         const body = modal.find('.modal-body')
 
         const firstRow = modal.find('div.period-row').first()
-        body.append(firstRow.clone())
+        const periodFromInput = firstRow.find('.input-group').last()
+        const af = periodFromInput.before(`
+            <div class="col-12 input-group input-group-sm pb-1 period-part-group">
+              <input type="text" class="h5 text-center mb-0 form-control form-control-sm period-part datepeeker"/>
+              <div class="input-group-append">
+                <button type="button" class="btn btn-sm btn-outline-danger period-delete"><i class="fa-light fa-trash"></i></button>
+              </div>
+            </div>`)
+        $('.period-part.datepeeker').datepicker({
+          beforeShow: function() {
+            setTimeout(function(){
+                $('.ui-datepicker').css('z-index', 9999999);
+            }, 0);
+          }
+        })
+        //console.log(af)
+        //body.append(firstRow.clone())
       })
 
       $('#splitModal').on('click', '.period-delete', function (event) {
-        const row = $(event.target).parents('div.row')
+        const row = $(event.target).parents('div.input-group')
         row.remove()
       })
 
@@ -484,7 +503,57 @@
       $('#splitModal').on('click', '.ok-button', function(e){
         var modal = $(e.delegateTarget)
         const editedRow = $('.purpose-form.edited')
+
+        //var periodFrom = dayjs(editedRow.find('.period-from').val(), 'DD.MM.YYYY')
+        //var periodTo = dayjs(editedRow.find('.period-to').val(), 'DD.MM.YYYY')
+        //console.log(periodFrom)
+        //console.log(periodTo)
+
         const container = $('.purpose-container')
+/*
+        editedRow.find('.period-from').val(row.find('.period-from').val())
+        editedRow.find('.period-to').val(row.find('.period-to').val())
+*/
+        const periods = []
+        const periodsRow = modal.find('div.period-row').first()
+        const firstPeriodInput = periodsRow.find('.input-group>input').first()
+        const lastPeriodInput = periodsRow.find('.input-group>input').last()
+        const firstValue = dayjs(firstPeriodInput.val(), 'DD.MM.YYYY', true)
+        const lastValue = dayjs(lastPeriodInput.val(), 'DD.MM.YYYY', true)
+
+        periods.push(firstValue)
+        let isValid = true;
+        modal.find('.modal-body>.period-row>.input-group>.period-part').each(function(idx, el) {
+          $(el).removeClass('is-invalid')
+          const periodPart = dayjs(el.value, 'DD.MM.YYYY', true)
+          if (!periodPart.isValid() || periodPart.isBefore(firstValue) || periodPart.isAfter(lastValue)) {
+            $(el).addClass('is-invalid')
+            isValid = false
+          } else {
+            periods.push(dayjs(el.value, 'DD.MM.YYYY', true))
+          }
+        })
+        periods.push(lastValue)
+        if (!isValid)
+          return;
+
+        if (periods.length > 2){
+          let prev;
+          periods.forEach(function(el, idx) {
+            if (idx === 1) {
+              editedRow.find('.period-from').val(prev.format('DD.MM.YYYY'))
+              editedRow.find('.period-to').val(el.format('DD.MM.YYYY'))
+            }  else if (idx > 1) {
+              const newEditedRow = $(addForm('purpose'))
+              newEditedRow.find('.period-from').val(prev.add(1, 'day').format('DD.MM.YYYY'))
+              newEditedRow.find('.period-to').val(el.format('DD.MM.YYYY'))
+              container.append(newEditedRow)
+            }
+
+            prev = el;
+          })
+        }
+        /*
         modal.find('.modal-body>div.period-row').each(function(idx, el){
           const row = $(el)
           if (idx == 0){
@@ -497,9 +566,9 @@
             newEditedRow.find('.period-to').val(row.find('.period-to').val())
             container.append(newEditedRow)
           }
-        })
-
+        })*/
         $('#id_purpose-TOTAL_FORMS').val($('.purpose-form').length)
+        modal.modal('hide')
       })
 
     })
