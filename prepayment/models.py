@@ -194,7 +194,7 @@ class AdvanceReportItem (models.Model):
 
     prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.CASCADE, blank=False, null=False)
     # Документ, подтверждающий произведенные расходы, номер
-    approveDocNum = models.CharField(db_column="approve_doc_num", max_length=20, blank=True, null=True)
+    approveDocNum = models.CharField(db_column="approve_doc_num", max_length=30, blank=True, null=True)
     # Документ, подтверждающий произведенные расходы, дата
     approveDocDate = models.DateField(db_column="approve_doc_date", blank=True, null=True)
     

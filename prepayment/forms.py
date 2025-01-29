@@ -205,7 +205,7 @@ class AdvanceReportForm (forms.ModelForm):
     class Meta:
         model = Prepayment
         fields = ['reportStatus', 'empDivName', 'reportAccountingNum', 'spendedSum', 'reportAccountingSum', 'reportComment', 'phone', 'distribSalary',
-                  'distribSalaryDate', 'distribBank', 'distribBankMethod', 'distribCarryover', 'distribCarryoverReportNum', 'approveDate', 'factDate', 'approveActionDate', 'contractIdentifier']
+                  'distribSalaryDate', 'distribBank', 'distribBankMethod', 'distribCarryover', 'distribCarryoverReportNum', 'approveDate', 'factDate', 'approveActionDate', 'contractIdentifier', 'createdAt']
         exclude = ['createdByFullName', 'updatedByAccountant']
 
 

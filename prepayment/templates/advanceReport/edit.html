@@ -107,6 +107,8 @@
             </div>
             <input class="mb-0 form-control form-control-sm h-auto d-flex align-items-end justify-content-center {% if form.reportAccountingNum.errors %} is-invalid {% endif %}" name="{{ form.reportAccountingNum.name }}" value="{{ form.reportAccountingNum.value|default_if_none:'' }}" />
           </div>
+
+          <small>Создан: {{ form.createdAt.value }}</small>
         </div>
       </div>
     </div>
@@ -609,7 +611,8 @@
       $('#tab-content-1').on('change', '[id$="expenseCategory"]', function (e) {
         const selectElement = e.target
         const selectedText = selectElement.options[selectElement.selectedIndex].text
-        if (['38', '40'].includes(e.target.value)) {
+        //console.log(e.target.value)
+        if (['38', '40', '39', '41'].includes(e.target.value)) {
           const tr = $(e.target).parents('tr')
           const daysCount = $('#mission-days').val()
           if (daysCount && selectedText) {

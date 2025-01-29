@@ -164,7 +164,7 @@
                             total += intVal($(n).text());
                         })
               
-                        $(api.column(14).footer()).html(total);
+                        $(api.column(14).footer()).html(total.toFixed(2));
                     },
                     columns: [
                         { data: 'month', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },

@@ -133,6 +133,9 @@ def editPrepayment(request, id):
                     deletedItem.instance.delete()
             for purpose in purposeFormSet.save(commit=False):
                 purpose.save()
+            for deletedPurpose in purposeFormSet.deleted_forms:
+                if deletedPurpose.instance.id is not None:
+                    deletedPurpose.instance.delete()
             return HttpResponseRedirect('/prepayments')
     if request.method == 'GET':
         form = PrepaymentForm(instance=prepayment, user=request.user)
@@ -208,9 +211,9 @@ def editAdvanceReport(request, id):
 
             if form.is_valid() and (travelExpenses is None or travelExpenses.is_valid()) and (orgServices is None or orgServices.is_valid()) and iventoryItems.is_valid() and services.is_valid() and presentationExpenses.is_valid() and purchaseOrderExpenses.is_valid() and attachments.is_valid():
                 # Если статус авансового отчета "Подготовлен" и номера нет присвоить сквозной по Коду учета и году, начиная с 1
-                if prepayment.reportStatus_id == 2 and prepayment.reportNum is None:
-                    maxNumDict = Prepayment.objects.filter(imprestAccount_id=prepayment.imprestAccount_id, docDate__year=datetime.now().year).aggregate(Max('reportNum'))
-                    prepayment.reportNum = 1 if maxNumDict['reportNum__max'] is None else maxNumDict['reportNum__max'] + 1
+                # if prepayment.reportStatus_id == 2 and prepayment.reportNum is None:
+                #    maxNumDict = Prepayment.objects.filter(imprestAccount_id=prepayment.imprestAccount_id, approveDate__year=datetime.now().year).aggregate(Max('reportNum'))
+                #    prepayment.reportNum = 1 if maxNumDict['reportNum__max'] is None else maxNumDict['reportNum__max'] + 1
                 # Если статус авансового отчета "Удтвержден" и даты нет присваиваем
                 if prepayment.reportStatus_id == 5 and prepayment.reportDate is None:
                     prepayment.status_id = 5
@@ -220,10 +223,19 @@ def editAdvanceReport(request, id):
                     prepayment.status_id = 3
                     if prepayment.approveDate is None:
                         prepayment.approveDate = datetime.now()
+                    # СОМНИТЕЛЬНО !!! генерацию номера по дате согласования
+                    if prepayment.reportNum is None:
+                        maxNumDict = Prepayment.objects.filter(imprestAccount_id=prepayment.imprestAccount_id, approveDate__year=datetime.now().year).aggregate(Max('reportNum'))
+                        prepayment.reportNum = 1 if maxNumDict['reportNum__max'] is None else maxNumDict['reportNum__max'] + 1
 
                 prepayment.lockLevel = lockLevel
                 
                 prepayment = form.save()
+
+                cursor = connection.cursor()
+                if prepayment.reportStatus_id <= 3 and prepayment.lockLevel < 2:
+                    cursor.execute('DELETE FROM fact WHERE prepayment_id = %s', [prepayment.id])
+                    cursor.execute('DELETE FROM accounting_entry WHERE prepayment_id = %s', [prepayment.id])
 
                 if prepayment.imprestAccount_id not in [7104, 7106]:
                     # Обрабатываем командироваочные расходы
@@ -242,16 +254,15 @@ def editAdvanceReport(request, id):
                 processFormset(attachments)
 
                 # Подсчитываем суммы Израсходовано всего, в руб. коп
-                cursor = connection.cursor()
                 cursor.execute(
                     'UPDATE prepayment SET spended_sum = (SELECT SUM(item.expense_sum_rub) FROM advance_report_item item WHERE item.prepayment_id = prepayment.id AND item.item_type != 1), report_accounting_sum = (SELECT SUM(entity.accounting_sum) FROM advance_report_item_entity entity INNER JOIN advance_report_item item ON item.id = entity.advance_report_item_id WHERE item.prepayment_id = prepayment.id), account_codes = (SELECT STRING_AGG(DISTINCT arie.credit_account::text, \',\') FROM advance_report_item_entity arie INNER JOIN advance_report_item ari ON ari.id = arie.advance_report_item_id WHERE arie.credit_account::text like \'71%%\' AND ari.prepayment_id = prepayment.id) WHERE id = %s', [prepayment.id])
 
                 # Если отчет согласован, заполняем ФАКТЫ и проводки
                 if prepayment.reportStatus_id == 3 and prepayment.lockLevel < 2:
-                    cursor.execute('DELETE FROM fact WHERE prepayment_id = %s', [prepayment.id])
+                    # cursor.execute('DELETE FROM fact WHERE prepayment_id = %s', [prepayment.id])
                     cursor.execute(ADD_FACTS, [prepayment.id])
 
-                    cursor.execute('DELETE FROM accounting_entry WHERE prepayment_id = %s', [prepayment.id])
+                    # cursor.execute('DELETE FROM accounting_entry WHERE prepayment_id = %s', [prepayment.id])
                     cursor.execute(ADD_ACCOUNTING_ENTRIES, [prepayment.id])
 
                 return HttpResponseRedirect('/advanceReports?imprestAccount=%s' % (prepayment.imprestAccount_id))

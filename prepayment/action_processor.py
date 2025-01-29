@@ -189,6 +189,9 @@ def checkPurchaseOrderItem(data, prefix, poGroup):
 
 def updatePurchaseOrderItem(data, sourcePrefix, destPrefix):
     data[('%s-itemType' % destPrefix)] = data.get('%s-itemType' % sourcePrefix, None)
+    data['%s-approveDocDate' % destPrefix] = data.get('%s-approveDocDate' % sourcePrefix, None)
+    data['%s-approveDocNum' % destPrefix] = data.get('%s-approveDocNum' % sourcePrefix, None)
+    data['%s-approveDocument' % destPrefix] = data.get('%s-approveDocument' % sourcePrefix, None)
     data['%s-comment' % destPrefix] = data.get('%s-comment' % sourcePrefix, None)
     data['%s-route' % destPrefix] = data.get('%s-route' % sourcePrefix, None)
     data['%s-service1Sum' % destPrefix] = data.get('%s-service1Sum' % sourcePrefix, None)
@@ -295,25 +298,32 @@ def fillServiceEntity(data, prefix, prepayment):  # Заполняем бухг�
             # Дебет/КАУ 1
             if expenseItem.debitKAU1 is not None:
                 data['%s-%s-debitKAU1' % (prefix, currentNum)] = expenseItem.debitKAU1
+            elif evalDebitAccount is not None and (str(evalDebitAccount).startswith('60') or str(evalDebitAccount).startswith('19')):
+                    data['%s-%s-debitKAU1' % (prefix, currentNum)] = invoiceCode[0:3]
             elif len(kau1) > 0:
                 data['%s-%s-debitKAU1' % (prefix, currentNum)] = kau1
-            else:
-                if evalDebitAccount is not None and (str(evalDebitAccount).startswith('60') or str(evalDebitAccount).startswith('19')):
-                    data['%s-%s-debitKAU1' % (prefix, currentNum)] = invoiceCode[0:3]
+            # else:
+            #     if evalDebitAccount is not None and (str(evalDebitAccount).startswith('60') or str(evalDebitAccount).startswith('19')):
+            #         data['%s-%s-debitKAU1' % (prefix, currentNum)] = invoiceCode[0:3]
 
             # Дебет/КАУ 2
             if expenseItem.debitKAU2 is not None:
                 data['%s-%s-debitKAU2' % (prefix, currentNum)] = expenseItem.debitKAU2
+            elif evalDebitAccount is not None and (str(evalDebitAccount).startswith('60') or str(evalDebitAccount).startswith('19')):
+                    data['%s-%s-debitKAU2' % (prefix, currentNum)] = invoiceCode[3:] + '0'
             elif len(kau2) > 0:
                 data['%s-%s-debitKAU2' % (prefix, currentNum)] = kau2
-            else:
-                if evalDebitAccount is not None and (str(evalDebitAccount).startswith('60') or str(evalDebitAccount).startswith('19')):
-                    data['%s-%s-debitKAU2' % (prefix, currentNum)] = invoiceCode[3:] + '0'
+
+            # else:
+            #     if evalDebitAccount is not None and (str(evalDebitAccount).startswith('60') or str(evalDebitAccount).startswith('19')):
+            #         data['%s-%s-debitKAU2' % (prefix, currentNum)] = invoiceCode[3:] + '0'
             # Дебет/Шифр отнесения затрат/доп. признак
             if expenseItem.debitExtra is not None:
                 data['%s-%s-debitExtra' % (prefix, currentNum)] = expenseItem.debitExtra
-            else:
+            elif expenseItem.debitAccount is None:
                 data['%s-%s-debitExtra' % (prefix, currentNum)] = extra
+            else:
+                data['%s-%s-debitExtra' % (prefix, currentNum)] = '0'
 
             # Кредит/Счет/Субсчет
             data['%s-%s-creditAccount' % (prefix, currentNum)] = expenseItem.creditAccount
@@ -337,6 +347,8 @@ def fillServiceEntity(data, prefix, prepayment):  # Заполняем бухг�
             # Кредит/Доп.признак
             if expenseItem.creditAccount is not None and str(expenseItem.creditAccount).startswith('71'):
                 data['%s-%s-creditExtra' % (prefix, currentNum)] = prepayment.empNum
+            else:
+                data['%s-%s-creditExtra' % (prefix, currentNum)] = '0'
             # Сумма, принятая к учету
             data['%s-%s-accountingSum' % (prefix, currentNum)] = expenseSumRub if expenseItem.accept == 'Sобщ' else expenseSumVAT if expenseItem.accept == 'Sндс' else (expenseSumRub -
                                                                                                                                                                         expenseSumVAT) if expenseItem.accept == 'Sобщ-Sндс' else bankCommission if expenseItem.accept == 'Sкомиссия' else ''
@@ -448,9 +460,9 @@ def fillPurchaseOrderEntity(data, prefix, prepayment):  # Заполняем б�
             data['%s-%s-debitAccount' % (prefix, currentNum)] = expenseItem.debitAccount
 
             # Дебет/КАУ 1
-            data['%s-%s-debitKAU1' % (prefix, currentNum)] = expenseItem.debitKAU1
+            data['%s-%s-debitExpenseItem' % (prefix, currentNum)] = expenseItem.debitKAU1
             # Дебет/КАУ 2
-            data['%s-%s-debitKAU2' % (prefix, currentNum)] = expenseItem.debitKAU2
+            data['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = expenseItem.debitKAU2
             # Дебет/Шифр отнесения затрат/доп. признак
             if expenseItem.debitExtra is not None:
                 data['%s-%s-debitExtra' % (prefix, currentNum)] = expenseItem.debitExtra
@@ -461,14 +473,14 @@ def fillPurchaseOrderEntity(data, prefix, prepayment):  # Заполняем б�
             data['%s-%s-creditAccount' % (prefix, currentNum)] = expenseItem.creditAccount
 
             # Кредит/КАУ 1
-            data['%s-%s-creditKAU1' % (prefix, currentNum)] = expenseItem.creditKAU1
+            data['%s-%s-creditExpenseItem' % (prefix, currentNum)] = expenseItem.creditKAU1
 
             # Кредит/КАУ 2
             if expenseItem.creditKAU2 is not None:
-                data['%s-%s-creditKAU2' % (prefix, currentNum)] = expenseItem.creditKAU2
+                data['%s-%s-creditDept' % (prefix, currentNum)] = expenseItem.creditKAU2
             else:
                 if expenseItem.creditAccount is not None and str(expenseItem.creditAccount).startswith('71'):
-                    data['%s-%s-creditKAU2' % (prefix, currentNum)] = prepayment.empDivNum
+                    data['%s-%s-creditDept' % (prefix, currentNum)] = prepayment.empDivNum
 
             # Кредит/Доп.признак
             if expenseItem.creditAccount is not None and str(expenseItem.creditAccount).startswith('71'):
@@ -611,7 +623,8 @@ def fillInventoryEntity2(data, prefix, prepayment, accounting):  # Заполн�
                 if expenseItem.debitKAU1 is not None:
                     data['%s-debitKAU1' % (entityPrefix)] = expenseItem.debitKAU1
                 else:
-                    if expenseItem.debitAccount is not None and str(expenseItem.debitAccount).startswith('60'):
+                    # Хотя в ТЗ стр 105 указано только для счета 60**
+                    if expenseItem.debitAccount is not None and (str(expenseItem.debitAccount).startswith('60') or str(expenseItem.debitAccount).startswith('19')):
                         if len(invAnalysisPSO) > 0 and len(invAnalysisWarehouseNum) > 0 and len(invAnalysisInvoice) == 0:
                             data['%s-debitKAU1' % (entityPrefix)] = invAnalysisPSO + invAnalysisWarehouseNum[0]
                         elif len(invAnalysisPSO) == 0 and len(invAnalysisWarehouseNum) == 0 and len(invAnalysisInvoice) > 0:
@@ -621,7 +634,8 @@ def fillInventoryEntity2(data, prefix, prepayment, accounting):  # Заполн�
                 if expenseItem.debitKAU2 is not None:
                     data['%s-debitKAU2' % (entityPrefix)] = expenseItem.debitKAU2
                 else:
-                    if expenseItem.debitAccount is not None and str(expenseItem.debitAccount).startswith('60'):
+                    # Хотя в ТЗ стр 105 указано только для счета 60**
+                    if expenseItem.debitAccount is not None and (str(expenseItem.debitAccount).startswith('60') or str(expenseItem.debitAccount).startswith('19')):
                         if len(invAnalysisPSO) > 0 and len(invAnalysisWarehouseNum) > 0 and len(invAnalysisInvoice) == 0:
                             data['%s-debitKAU2' % (entityPrefix)] = invAnalysisWarehouseNum[1:] + '0'
                         elif len(invAnalysisPSO) == 0 and len(invAnalysisWarehouseNum) == 0 and len(invAnalysisInvoice) > 0:

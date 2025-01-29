@@ -187,7 +187,7 @@
                             searchable: false,
                             render: function (data, type, row) {
                                 if (isAdminOrAccountant || data.status == null || data.status.id < 3)
-                                    return `<a href="/prepayments/${data.id}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить заявку?');"></a>`
+                                    return `<a href="/prepayments/${data.id}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить аванс?');"></a>`
                                 return ''
                             }
                          }

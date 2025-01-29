@@ -65,6 +65,8 @@ def parameterizedReportShow(request):
         if param and condition and valueFist:
             if condition == 'ne':
                 excludeKwargs['%s__%s' % (param, 'exact')] = valueFist
+            elif condition == 'in':
+                filterKwargs['%s__%s' % (param, condition)] = [int(v) for v in valueFist.split(',')]
             else:
                 filterKwargs['%s__%s' % (param, condition)] = valueFist
 

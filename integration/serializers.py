@@ -39,6 +39,13 @@ class EmployeeSerializer (serializers.ModelSerializer):
 class PrepaymentSerializer (serializers.ModelSerializer):
     pdId = serializers.IntegerField(read_only=True)
 
+    acplSubaccount = serializers.SerializerMethodField()
+
+    def get_acplSubaccount(self, obj):
+        if obj.acplSubaccount is None:
+            return None
+        return '%02d' % obj.acplSubaccount
+
     class Meta:
         model = Prepayment
         fields = ('pdId', 'pdSource', 'empOrgNo', 'xv26eiId', 'orderId', 'orderIdUpd', 'orderNo', 'orderDate', 'bic', 'sum', 'acplAccount', 'acplSubaccount')
