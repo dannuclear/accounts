@@ -155,7 +155,7 @@ def createPrepaymentFromOrder(request, id):
     prep.imprestAccount_id = 7101
     prep.save()
 
-    intPrep = Prepayment.objects.filter(xv26eiId=order.estimateId).first()
+    intPrep = Prepayment.objects.filter(xv26eiId=order.estimateId, empOrgNo=order.empOrgNo).first()
     if intPrep is not None:
         prepItem = prepaymentModels.PrepaymentItem()
         prepItem.prepayment = prep

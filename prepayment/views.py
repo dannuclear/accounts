@@ -233,7 +233,7 @@ def editAdvanceReport(request, id):
                 prepayment = form.save()
 
                 cursor = connection.cursor()
-                if prepayment.reportStatus_id <= 3 and prepayment.lockLevel < 2:
+                if (prepayment.reportStatus_id is None or prepayment.reportStatus_id <= 3) and prepayment.lockLevel < 2:
                     cursor.execute('DELETE FROM fact WHERE prepayment_id = %s', [prepayment.id])
                     cursor.execute('DELETE FROM accounting_entry WHERE prepayment_id = %s', [prepayment.id])
 

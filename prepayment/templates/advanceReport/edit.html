@@ -108,7 +108,7 @@
             <input class="mb-0 form-control form-control-sm h-auto d-flex align-items-end justify-content-center {% if form.reportAccountingNum.errors %} is-invalid {% endif %}" name="{{ form.reportAccountingNum.name }}" value="{{ form.reportAccountingNum.value|default_if_none:'' }}" />
           </div>
 
-          <small>Создан: {{ form.createdAt.value }}</small>
+          <small>Создан: {{ form.instance.createdAt }}</small>
         </div>
       </div>
     </div>
