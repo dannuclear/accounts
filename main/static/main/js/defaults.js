@@ -36,6 +36,8 @@ $.extend(true, $.fn.dataTable.defaults, {
 	processing: true,
 	serverSide: true,
 	stateSave: true,
+	fixedHeader: true,
+	select: {info: false},
 	pagingType: 'first_last_numbers',
 	dom: '<"row"<"toolbar col-sm-12 col-md-4"B><"filters col-sm-12 col-md-6"><"col-sm-12 col-md-2"fb>>'
 		+ '<"row"<"col-sm-12"tr>>'

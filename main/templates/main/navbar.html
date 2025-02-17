@@ -210,10 +210,16 @@
                 </li>
               {% endif %}
 
-              {% if perms.integration.view_employees %}
+              {% if perms.guide.view_department_account or perms.guide.edit_department_account %}
                 <li>
-                  <a class="dropdown-item" href="{% url 'departmentAccounts' %}"><i class="fa-light fa-building"></i>&nbsp;Справочник подразделений</a>
+                  <a class="dropdown-item" href="{% url 'departmentAccounts' %}"><i class="fa-light fa-file-invoice-dollar"></i>&nbsp;Справочник счетов подразделений</a>
                 </li>
+              {% endif %}
+
+              {% if perms.guide.view_department or perms.guide.edit_department%}
+              <li>
+                <a class="dropdown-item" href="{% url 'departments' %}"><i class="fa-light fa-building"></i>&nbsp;Справочник подразделений</a>
+              </li>
               {% endif %}
 
               {% comment %} {% if perms.integration.view_employees %}
