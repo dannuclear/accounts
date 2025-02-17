@@ -46,6 +46,8 @@
 <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100" style="font-size: 0.9em;">
     <thead>
         <tr>
+            <th rowspan="2" data-dt-order="disable" width='40px'>АО</th>
+
             <th rowspan="2" data-dt-order="disable" width='40px'>Месяц</th>
             <th rowspan="2" data-dt-order="disable" width='40px'>Год</th>
 
@@ -72,14 +74,18 @@
             <th data-dt-order="disable" width='100px'>ДП</th>
         </tr>
         <tr>
-          {% for i in 'x'|rjust:'17'|make_list %}
-            <th style="font-size: 0.7em; padding: 0 !important;">{{ forloop.counter}}</th>
+          {% for i in 'x'|rjust:'18'|make_list %}
+            {% if forloop.counter0 > 0 %}
+                <th style="font-size: 0.7em; padding: 0 !important;">{{ forloop.counter0}}</th>
+            {% else %}
+                <th></th>
+            {% endif %}
           {% endfor %}
         </tr>
     </thead>
     <tfoot>
         <tr>
-            <th colspan="14" class="text-left">Итого:</th>
+            <th colspan="15" class="text-left">Итого:</th>
             <th></th>
             <th colspan="2"></th>
         </tr>
@@ -160,13 +166,23 @@
                         var total = 0;
                         var api = this.api();
               
-                        api.cells(null, 14, { page: 'current' }).nodes().each(function(n) {
+                        api.cells(null, 15, { page: 'current' }).nodes().each(function(n) {
                             total += intVal($(n).text());
                         })
               
-                        $(api.column(14).footer()).html(total.toFixed(2));
+                        $(api.column(15).footer()).html(total.toFixed(2));
                     },
                     columns: [
+                        {
+                            data: null,
+                            orderable: false,
+                            width: '1rem',
+                            className: 'text-center',
+                            searchable: false,
+                            render: function (data, type, row, meta) {
+                                return `<a role="button" href="/advanceReports/${data.prepayment.id}"><i class="text-danger fa-light fa-left h5 m-0"></i></a>`
+                            },
+                        },
                         { data: 'month', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
                         { data: 'year', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
                         { data: 'prepayment.empNum', orderable: false, defaultContent: "", className: 'text-center' },
