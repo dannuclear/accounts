@@ -5,8 +5,8 @@ from rest_framework import viewsets
 from .filters import PeriodFilter, FilterTypeFilter
 from datetime import datetime
 from django.http import HttpResponse, HttpResponseRedirect
-from prepayment.models import Prepayment
-from django.db.models import Q, Sum
+from prepayment.models import Prepayment, PrepaymentPurpose
+from django.db.models import Q, Sum, Subquery, Func, OuterRef
 from .queries import GET_EXPENSE_CODES_REPORT
 import csv
 # Create your views here.
@@ -55,6 +55,11 @@ def ixdReport(request):
     }
     return render(request, 'report/ixdReport.html', ctx)
 
+purposesSubquery = PrepaymentPurpose.objects.select_related('prepaidDest').annotate(
+    missionDestList=Func('missionDest', function='string_agg', template="%(function)s(%(expressions)s, ', ')"),
+    purposeList=Func('missionPurpose', function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')")
+    ).filter(prepayment=OuterRef("prepayment__id"))
+
 def parameterizedReportShow(request):
     filterKwargs = {}
     excludeKwargs = {}
@@ -70,19 +75,24 @@ def parameterizedReportShow(request):
             else:
                 filterKwargs['%s__%s' % (param, condition)] = valueFist
 
+    totalSum = 0
+    totalCount = 0
     queryset = AccountingEntry.objects.select_related('prepayment').filter(**filterKwargs).exclude(**excludeKwargs)
     yearGroups = queryset.values('aePeriod__year').annotate(yearSum=Sum('aeSum'))
     for yearGroup in yearGroups:
         monthGroups = queryset.filter(aePeriod__year=yearGroup['aePeriod__year']).values('aePeriod__month').annotate(monthSum=Sum('aeSum'))
         for monthGroup in monthGroups:
-            prepaymentGroups = queryset.filter(aePeriod__year=yearGroup['aePeriod__year'], aePeriod__month=monthGroup['aePeriod__month']).values('prepayment__id', 'prepayment__reportAccountingNum').annotate(prepaymentSum=Sum('aeSum'))
+            prepaymentGroups = queryset.filter(aePeriod__year=yearGroup['aePeriod__year'], aePeriod__month=monthGroup['aePeriod__month']).values('prepayment__id', 'prepayment__reportAccountingNum', 'prepayment__docNum', 'prepayment__docDate', 'prepayment__empFullName').annotate(prepaymentSum=Sum('aeSum'), purposeList=Subquery(purposesSubquery.values('purposeList')), missionDestList=Subquery(purposesSubquery.values('missionDestList')))
             for prepaymentGroup in prepaymentGroups:
-                entries = queryset.filter(aePeriod__year=yearGroup['aePeriod__year'], aePeriod__month=monthGroup['aePeriod__month'], prepayment__id=prepaymentGroup['prepayment__id'])
+                entries = queryset.filter(aePeriod__year=yearGroup['aePeriod__year'], aePeriod__month=monthGroup['aePeriod__month'], prepayment__id=prepaymentGroup['prepayment__id']).values('acplAccountDebit', 'acplSubaccountDebit', 'acplCodeAnaliticDebit', 'acplCodeAnaliticDebit1', 'acplCodeAnaliticDebit2', 'acplAddSignDebit', 'acplAccountCredit', 'acplSubaccountCredit', 'acplCodeAnaliticCredit', 'acplCodeAnaliticCredit1', 'acplCodeAnaliticCredit2', 'acplAddSignCredit').annotate(ae_sum=Sum('aeSum'))
                 prepaymentGroup['entries'] = entries
+                totalCount+=1
             monthGroup['prepaymentGroups'] = prepaymentGroups
         yearGroup['monthGroups'] = monthGroups
+        totalSum += yearGroup['yearSum']
 
-    return render(request, 'report/report.html', {'yearGroups': yearGroups})
+
+    return render(request, 'report/report.html', {'yearGroups': yearGroups, 'totalSum': totalSum, 'totalCount':totalCount})
 
 
 def download(request):

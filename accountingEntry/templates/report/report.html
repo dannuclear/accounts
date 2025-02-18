@@ -45,7 +45,7 @@
       table,
       th,
       td {
-          border: 1px solid gainsboro; 
+          /* border: 1px solid gainsboro; */
       }
       th {
         font-weight: lighter;
@@ -106,35 +106,38 @@
                   {% for yearGroup in yearGroups %}
                     {% for monthGroup in yearGroup.monthGroups %}
                         <tr>
-                            <td colspan="6" class="text-left h4">{{ monthGroup.aePeriod__month|month_name|default_if_none:" " }} {{ yearGroup.aePeriod__year|default_if_none:" "}} года</td>
+                            <td colspan="6" class="text-left h4" style="background-color: rgb(190, 159, 189);">{{ monthGroup.aePeriod__month|month_name|default_if_none:" " }} {{ yearGroup.aePeriod__year|default_if_none:" "}} года</td>
                         </tr>
-                        <tr>
-                            <td colspan="6" class="text-left h4">цель командировки</td>
-                        </tr>
-                        <tr>
-                            <td colspan="1" class="text-left h5">проводка №</td>
-                            <td colspan="5" class="text-left h5">документ №</td>
-                        </tr>
-                        <tr>
-                            <td colspan="6" class="text-left h6">место назначения:</td>
-                        </tr>
-                        {% for entry in monthGroup.entries %}
-                            <tr>
-                                <td class="text-center "></td>
-                                <td class="text-center ">{{ entry.acplAccountDebit|zfill:2}}{{entry.acplSubaccountDebit|zfill:2 }} {{ entry.acplCodeAnaliticDebit1|zfill:3}} {{ entry.acplCodeAnaliticDebit2|zfill:3}}</td>
-                                <td class="text-center ">{{ entry.acplAddSignDebit|default_if_none:" " }}</td>
-                                <td class="text-center ">{{ entry.acplAccountCredit|zfill:2}}{{entry.acplSubaccountCredit|zfill:2 }} {{ entry.acplCodeAnaliticCredit1|zfill:3}} {{ entry.acplCodeAnaliticCredit2|zfill:3}}</td>
-                                <td class="text-center ">{{ entry.acplAddSignCredit|default_if_none:" " }}</td>
-                                <td class="text-right ">{{ entry.aeSum|default_if_none:" " }}</td>
-                            </tr>
+                        
+                        {% for prepaymentGroup in monthGroup.prepaymentGroups %}
+                          <tr>
+                            <td colspan="6" class="text-left h4">цель командировки: {{ prepaymentGroup.purposeList|default_if_none:'' }}</td>
+                          </tr>
+                          <tr>
+                              <td colspan="1" class="text-left h5"><strong>проводка № {{ prepaymentGroup.prepayment__reportAccountingNum|zfill:6 }}</strong></td>
+                              <td colspan="5" class="text-left h5">документ № {{ prepaymentGroup.prepayment__docNum }} от {{ prepaymentGroup.prepayment__docDate }}</td>
+                          </tr>
+                          <tr>
+                              <td colspan="6" class="text-left h6">место назначения: {{ prepaymentGroup.missionDestList|default_if_none:'' }}</td>
+                          </tr>
+                          {% for entry in prepaymentGroup.entries %}
+                              <tr>
+                                  <td class="text-left ">{% if forloop.counter == 1 %} {{ prepaymentGroup.prepayment__empFullName }} {% endif %}</td>
+                                  <td class="text-center ">{{ entry.acplAccountDebit|zfill:2}}{{entry.acplSubaccountDebit|zfill:2 }} {{ entry.acplCodeAnaliticDebit1|zfill:3}} {{ entry.acplCodeAnaliticDebit2|zfill:3}}</td>
+                                  <td class="text-center ">{{ entry.acplAddSignDebit|default_if_none:" " }}</td>
+                                  <td class="text-center ">{{ entry.acplAccountCredit|zfill:2}}{{entry.acplSubaccountCredit|zfill:2 }} {{ entry.acplCodeAnaliticCredit1|zfill:3}} {{ entry.acplCodeAnaliticCredit2|zfill:3}}</td>
+                                  <td class="text-center ">{{ entry.acplAddSignCredit|default_if_none:" " }}</td>
+                                  <td class="text-right ">{{ entry.ae_sum|default_if_none:" " }}</td>
+                              </tr>
+                          {% endfor %}
+                          <tr>
+                              <td colspan="5" class="text-left h6" style="border-bottom: 1px dashed black;">итого по проводке №: {{ prepaymentGroup.prepayment__reportAccountingNum|zfill:6 }}</td>
+                              <td colspan="1" class="text-right h6" style="border-bottom: 1px dashed black; border-top: 1px dashed black;">{{ prepaymentGroup.prepaymentSum }}</td>
+                          </tr>
                         {% endfor %}
                         <tr>
-                            <td colspan="5" class="text-left h6">итого по проводке №:</td>
-                            <td colspan="1" class="text-right h6">{{ monthGroup.monthSum }}</td>
-                        </tr>
-                        <tr>
-                            <td colspan="5" class="text-left h6">итого за {{ monthGroup.aePeriod__month|month_name|default_if_none:" " }} {{ yearGroup.aePeriod__year|default_if_none:" "}} года</td>
-                            <td colspan="1" class="text-right h6">{{ monthGroup.monthSum }}</td>
+                            <td colspan="5" class="text-left h6" style="border-bottom: 1px solid black;">итого за {{ monthGroup.aePeriod__month|month_name|default_if_none:" " }} {{ yearGroup.aePeriod__year|default_if_none:" "}} года</td>
+                            <td colspan="1" class="text-right h6" style="border-bottom: 1px solid black;">{{ monthGroup.monthSum }}</td>
                         </tr>
                     {% endfor %}
                     <tr>
@@ -143,9 +146,19 @@
                     </tr>
                   {% endfor %}
                 </tbody>
+
+                <tfoot style="background-color: rgb(190, 159, 189);">
+                  <tr>
+                    <th colspan="5" class="text-left h4">всего по ведомости</th>
+                    <td class="text-right h4">{{ totalSum }}</td>
+                  </tr>
+                  <tr>
+                    <th colspan="5" class="text-left h4">количество записей</th>
+                    <td class="text-right h4">{{ totalCount }}</td>
+                  </tr>
+                </tfoot>
               </table>
             </tr>
-
           </table>
         </div>
       </div>
