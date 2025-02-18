@@ -69,3 +69,24 @@ function parseDate(dateString) {
     const year = parseInt(parts[2], 10);
     return new Date(year, month, day);
 }
+
+function initPeriodFilter (table, currentMonth = false) {
+	const now = dayjs();
+	const periodFilter = $(
+		`<div class="input-group input-group-sm">
+			<div class="input-group-prepend">
+				<span class="input-group-text">Период с</span>
+			</div>
+			<input id="period-from" class="text-center datepeeker" style="width: 100px" value='${currentMonth?now.startOf('month').format('DD.MM.YYYY'):''}'/>
+			<div class="input-group-append">
+				<span class="input-group-text">по</span>
+				<input id='period-to' class='text-center datepeeker' style='width: 100px' value='${currentMonth?now.endOf('month').format('DD.MM.YYYY'):''}'/>
+			</div>
+		</div>`)
+
+	$("div.filters").append(periodFilter);        
+	periodFilter.find('.datepeeker').datepicker()  
+	periodFilter.on('change', 'input', function(e){
+		requestTable.ajax.reload()
+	}) 
+}

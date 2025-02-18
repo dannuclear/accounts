@@ -241,25 +241,42 @@ def fillTravelExpenseEntity(data, prefix, prepayment):  # Заполняем б�
                 data['%s-%s-expenseCode' % (prefix, currentNum)] = purpose.expenseCode_id
                 # Дебет/Шифр отнесения затрат/счет.субсчет
                 data['%s-%s-debitAccount' % (prefix, currentNum)] = purpose.account if expenseItem.schema is None else expenseItem.debitAccount
+                factDebitAccount = data['%s-%s-debitAccount' % (prefix, currentNum)]
                 # Дебет/Шифр отнесения затрат/цех отнесения затрат
-                data['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = (purpose.deptExpense if expenseItem.schema is None else expenseItem.debitExpenseDept) if not is91 and purpose.account not in [
-                    '2000', '2302', '4410'] else purpose.deptExpenditure
+                if factDebitAccount is not None and (str(factDebitAccount).startswith('19') or str(factDebitAccount).startswith('68')):
+                    data['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = '0'
+                else:
+                    data['%s-%s-debitExpenseWorkshop' % (prefix, currentNum)] = (purpose.deptExpense if expenseItem.schema is None else expenseItem.debitExpenseDept) if not is91 and purpose.account not in [
+                        '2000', '2302', '4410'] else purpose.deptExpenditure
 
                 # Дебет/Шифр отнесения затрат/статья расходов
-                data['%s-%s-debitExpenseItem' % (prefix, currentNum)] = expenseItem.debitExpenseItem if not is91 and purpose.account not in ['2000', '2302', '4410'] else purpose.expenditure
+                data['%s-%s-debitExpenseItem' % (prefix, currentNum)] = expenseItem.debitExpenseItem if purpose.expenditure is None or purpose.expenditure == '0' else purpose.expenditure
+                #data['%s-%s-debitExpenseItem' % (prefix, currentNum)] = expenseItem.debitExpenseItem if not is91 and purpose.account not in ['2000', '2302', '4410'] else purpose.expenditure
                 # Сумма, принятая к учету
                 data['%s-%s-accountingSum' % (prefix, currentNum)] = expenseSumRub if expenseItem.accept == 'Sобщ' else expenseSumVAT if expenseItem.accept == 'Sндс' else (
                     expenseSumRub - expenseSumVAT) if expenseItem.accept == 'Sобщ-Sндс' else ''
                 # Дебет/Шифр отнесения затрат/доп. признак
-                data['%s-%s-debitExtra' % (prefix, currentNum)] = expenseItem.debitExtra if not is91 and purpose.account not in ['2000', '2302', '4410'] else purpose.extra
+                if factDebitAccount is not None and (str(factDebitAccount).startswith('19') or str(factDebitAccount).startswith('68')):
+                    data['%s-%s-debitExtra' % (prefix, currentNum)] = '0'
+                else:
+                    data['%s-%s-debitExtra' % (prefix, currentNum)] = expenseItem.debitExtra if not is91 and purpose.account not in ['2000', '2302', '4410'] else purpose.extra
                 # Кредит/Счет/Субсчет
                 data['%s-%s-creditAccount' % (prefix, currentNum)] = expenseItem.creditAccount
+                factCreditAccount = data['%s-%s-creditAccount' % (prefix, currentNum)]
                 # Кредит/Статья расходов
                 data['%s-%s-creditExpenseItem' % (prefix, currentNum)] = expenseItem.creditExpenseItem
+
                 # Кредит/№ подразделения работника
-                data['%s-%s-creditDept' % (prefix, currentNum)] = prepayment.empDivNum if expenseItem.schema is None else expenseItem.creditExpenseDept
+                if factCreditAccount is not None and (str(factDebitAccount).startswith('19')):
+                    data['%s-%s-creditDept' % (prefix, currentNum)] = '0'
+                else:
+                    data['%s-%s-creditDept' % (prefix, currentNum)] = prepayment.empDivNum if expenseItem.schema is None else expenseItem.creditExpenseDept
+
                 # Кредит/Доп.признак
-                data['%s-%s-creditExtra' % (prefix, currentNum)] = prepayment.empNum if expenseItem.schema is None else prepayment.reportNum
+                if factCreditAccount is not None and (str(factDebitAccount).startswith('19')):
+                    data['%s-%s-creditExtra' % (prefix, currentNum)] = '0'
+                else:
+                    data['%s-%s-creditExtra' % (prefix, currentNum)] = prepayment.empNum if expenseItem.schema is None else prepayment.reportNum
                 currentNum = currentNum + 1
             if not hasExpenseItems:
                 currentNum = currentNum + 1

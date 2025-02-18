@@ -84,7 +84,9 @@
                         if (data.reportStatus && data.reportStatus.id == 4)
                             $(row).addClass('text-danger')
                     },
-                    initComplete: function(){
+                    initComplete: function() {
+                        //currentMonth = false
+                        //const now = dayjs();
                         const periodFilter = $(
                             `<div class="input-group input-group-sm">
                                 <div class="input-group-prepend">
@@ -96,7 +98,7 @@
                                     <input id='period-to' class='text-center datepeeker' style='width: 100px'/>
                                 </div>
                             </div>`)
-
+                    
                         $("div.filters").append(periodFilter);        
                         periodFilter.find('.datepeeker').datepicker()  
                         periodFilter.on('change', 'input', function(e){

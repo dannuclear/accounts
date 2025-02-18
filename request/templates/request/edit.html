@@ -250,13 +250,13 @@
       })
 
       function updateIssuedSum () {
-        let totalSum = 0;
-
+        let totalSum = 0.0;
+        
         // Iterate through all total-input fields and sum their values
         $('.total-input:visible').each(function() {
-          totalSum += parseFloat($(this).val()) || 0; // Default to 0 if NaN
+          totalSum += parseFloat($(this).val().replaceAll(',', '.')) || 0; // Default to 0 if NaN
         });
-  
+
         // Update the issued sum input
         issuedSumInput.val(totalSum.toFixed(2));
       }
@@ -319,7 +319,7 @@
           })
         })
 
-        updateIssuedSum();
+        //updateIssuedSum();
     })
   </script>
 {% endblock %}
