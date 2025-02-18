@@ -75,8 +75,11 @@ def parameterizedReportShow(request):
     for yearGroup in yearGroups:
         monthGroups = queryset.filter(aePeriod__year=yearGroup['aePeriod__year']).values('aePeriod__month').annotate(monthSum=Sum('aeSum'))
         for monthGroup in monthGroups:
-            entries = queryset.filter(aePeriod__year=yearGroup['aePeriod__year'], aePeriod__month=monthGroup['aePeriod__month'])
-            monthGroup['entries'] = entries
+            prepaymentGroups = queryset.filter(aePeriod__year=yearGroup['aePeriod__year'], aePeriod__month=monthGroup['aePeriod__month']).values('prepayment__id', 'prepayment__reportAccountingNum').annotate(prepaymentSum=Sum('aeSum'))
+            for prepaymentGroup in prepaymentGroups:
+                entries = queryset.filter(aePeriod__year=yearGroup['aePeriod__year'], aePeriod__month=monthGroup['aePeriod__month'], prepayment__id=prepaymentGroup['prepayment__id'])
+                prepaymentGroup['entries'] = entries
+            monthGroup['prepaymentGroups'] = prepaymentGroups
         yearGroup['monthGroups'] = monthGroups
 
     return render(request, 'report/report.html', {'yearGroups': yearGroups})
