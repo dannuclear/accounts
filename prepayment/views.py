@@ -81,7 +81,8 @@ def prepayments(request):
 
 
 def advanceReports(request):
-    return render(request, 'advanceReport/all.html')
+    isAdminOrAccountant = is_user_in_group(request.user, ['Администратор', 'Бухгалтер'])
+    return render(request, 'advanceReport/all.html', {'isAdminOrAccountant': isAdminOrAccountant})
 
 def inventories(request):
     return render(request, 'inventory/all.html')

@@ -21,6 +21,8 @@
 
 </div>
 
+<input type="hidden" id="isAdminOrAccountant" value="{{ isAdminOrAccountant }}"/>
+
 <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100" style="font-size: 0.9em;">
     <thead>
         <tr>
@@ -56,6 +58,8 @@
 
 <script type="text/javascript">
     const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ']
+
+    const isAdminOrAccountant = $('#isAdminOrAccountant').val() == 'True'
 
     let urlParams = new URLSearchParams(document.location.search)
     let imprestAccount = urlParams.get("imprestAccount")
@@ -167,7 +171,9 @@
                             orderable: false, 
                             searchable: false,
                             render: function (data, type, row) {
-                                return `<a href="/advanceReports/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
+                                if (isAdminOrAccountant || data.reportStatus == null || data.reportStatus.id < 3)
+                                    return `<a href="/advanceReports/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
+                                return ''
                             }
                         }
                     ],
