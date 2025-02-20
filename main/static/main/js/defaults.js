@@ -31,6 +31,9 @@ $.extend(true, $.fn.dataTable.defaults, {
 	language: {
         url: '/static/main/json/ru.json',
     },
+	columnDefs: [
+		{ className: "dt-head-center", targets: "_all" }
+	],
 	searching: true,
 	ordering: true,
 	processing: true,
