@@ -1,6 +1,7 @@
 from rest_framework.filters import BaseFilterBackend
 from datetime import datetime
-
+from integration.models import Employee
+import re
 
 class PeriodFilter(BaseFilterBackend):
 
@@ -52,3 +53,17 @@ class FilterTypeFilter(BaseFilterBackend):
     
         return queryset
 
+class UserFilter(BaseFilterBackend):
+
+    def filter_queryset(self, request, queryset, view):
+        queryset = queryset.filter(createdBy=request.user.username)
+        return queryset
+
+class DepartmentFilter(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        result = re.search(r'\d+', request.user.username if request.user.username is not None else '') #57099000
+        currentEmpOrgNo = result.group() if result is not None else None
+
+        if currentEmpOrgNo is not None:
+            queryset = queryset.filter(empDivNum__in=Employee.objects.filter(empOrgNo__endswith=currentEmpOrgNo).values('divNo'))
+        return queryset

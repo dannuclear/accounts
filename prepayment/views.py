@@ -11,7 +11,7 @@ from django.forms import formset_factory, inlineformset_factory, models
 from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func, Sum, IntegerField, Q, Case, When, DateField, Value, F
 from django.db.models.functions import Cast, ExtractDay
 from django.db import connection
-from .filters import PeriodFilter, ImprestAccountFilter, FilterTypeFilter
+from .filters import PeriodFilter, ImprestAccountFilter, FilterTypeFilter, UserFilter, DepartmentFilter
 from django.utils import formats
 from .queries import ADD_FACTS, ADD_ACCOUNTING_ENTRIES, GET_ADVANCE_REPORT_ITEMS_FOR_REPORT, GET_ACCOUNTING_CERT_ROW
 from numbers import Number
@@ -71,7 +71,11 @@ class PrepaymentViewSet (viewsets.ModelViewSet):
             self.filter_backends.insert(0, ImprestAccountFilter)
         if 'filterType' in self.request.query_params:
             self.filter_backends.insert(0, FilterTypeFilter)
-
+        if (self.request.user.has_perm('prepayment.view_owner_prepayments') or self.request.user.has_perm('prepayment.view_owner_advance_reports')) and not self.request.user.is_superuser:
+            self.filter_backends.insert(0, UserFilter)
+        if (self.request.user.has_perm('prepayment.view_owner_dept_prepayments') or self.request.user.has_perm('prepayment.view_owner_dept_advance_reports')) and not self.request.user.is_superuser:
+            self.filter_backends.insert(0, DepartmentFilter)
+        
         return super().filter_queryset(queryset)
 
 

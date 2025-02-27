@@ -25,6 +25,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 # from advance_report.urls import advanceReportRouter
 
+admin.autodiscover()
+admin.site.enable_nav_sidebar = False
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),

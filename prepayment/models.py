@@ -119,6 +119,15 @@ class Prepayment(models.Model):
             ("edit_advance_reports", "Редактирование авансовых отчетов"),
             ("view_inventories", "Просмотр описей массива авансовых отчетов"),
             ("downolad_inventories", "Выгрузка описей массива авансовых отчетов"),
+            
+            ("view_owner_prepayments", "Просмотр только свои"),
+            ("edit_owner_prepayments", "Редактирование только свои"),
+            ("view_owner_advance_reports", "Просмотр только своих авансовых отчетов"),
+            ("edit_owner_advance_reports", "Редактирование только своих авансовых отчетов"),
+            ("view_owner_dept_prepayments", "Просмотр своего подразделения"),
+            ("edit_owner_dept_prepayments", "Редактирование своего подразделения"),
+            ("view_owner_dept_advance_reports", "Просмотр авансовых отчетов своего подразделения"),
+            ("edit_owner_dept_advance_reports", "Редактирование авансовых отчетов своего подразделения")
         ]
 
 # Аванс пункт

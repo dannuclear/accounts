@@ -12,7 +12,7 @@ from . import loaders
 from .models import Employee, Estimate, Prepayment, WC07POrder, Protocol
 from .serializers import EstimateSerializer, EmployeeSerializer, PrepaymentSerializer, WC07POrderSerializer, ProtocolSerializer
 from .helper import FileType
-from django.db.models import OuterRef, Subquery
+from django.db.models import OuterRef, Subquery, Q
 from prepayment import models as prepaymentModels
 from guide.models import Document, Department, DepartmentAccount
 from datetime import datetime
@@ -140,7 +140,11 @@ def createPrepaymentFromOrder(request, id):
     if document is None:
         return HttpResponseBadRequest('Тип документа \'' + order.orderName + '\' не найден в справочнике')
 
-    
+    employee = Employee.objects.filter(Q(empOrgNo=order.empOrgNo) | Q(empOrgNo__endswith=order.empOrgNo)).first()
+
+    #Если сотрудник не найден, то фактический табельный номер должен состоять из 8 цифр
+    empOrgNo = employee.empOrgNo if employee != None else 57000000 + order.empOrgNo if order.empOrgNo < 100000 else order.empOrgNo
+
     prep = prepaymentModels.Prepayment()
     prep.createdBy = request.user.username
     prep.createdAt = datetime.now()
@@ -148,7 +152,7 @@ def createPrepaymentFromOrder(request, id):
     prep.document = document
     prep.docNum = order.orderNum
     prep.docDate = order.orderDate
-    prep.empNum = order.empOrgNo
+    prep.empNum = empOrgNo
     prep.empDivNum = order.depName
     prep.empFullName = order.fio
     prep.empProfName = order.profName
