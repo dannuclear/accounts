@@ -507,14 +507,14 @@
       $(tabDiv).find('input.expense-sum, input.accounting-sum').each(function(){
         if (this.value)
           if (this.classList.contains("expense-sum-currency"))
-            sum_currency += parseFloat(this.value)
+            sum_currency += parseFloat(this.value.replace(/,/g, '.'))
           else if (this.classList.contains("expense-sum-rub"))
-            sum_rub += parseFloat(this.value)
+            sum_rub += parseFloat(this.value.replace(/,/g, '.'))
           else if (this.classList.contains("expense-sum-vat"))
-            sum_vat += parseFloat(this.value)
+            sum_vat += parseFloat(this.value.replace(/,/g, '.'))
           else if (this.classList.contains("accounting-sum"))
             if ($(this).closest('tr').find('input[name$="creditAccount"][value^="71"]').length)
-              accounting_sum += parseFloat(this.value)
+              accounting_sum += parseFloat(this.value.replace(/,/g, '.'))
       });
       $(tabDiv).find('.expense-sum-currency-total').text(format(sum_currency))
       $(tabDiv).find('.expense-sum-rub-total').text(format(sum_rub))

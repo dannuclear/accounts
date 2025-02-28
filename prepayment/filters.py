@@ -56,7 +56,11 @@ class FilterTypeFilter(BaseFilterBackend):
 class UserFilter(BaseFilterBackend):
 
     def filter_queryset(self, request, queryset, view):
-        queryset = queryset.filter(createdBy=request.user.username)
+        result = re.search(r'\d+', request.user.username if request.user.username is not None else '') #57099000
+        currentEmpOrgNo = result.group() if result is not None else None
+
+        #queryset = queryset.filter(createdBy=request.user.username)
+        queryset = queryset.filter(empNum__endswith=currentEmpOrgNo)
         return queryset
 
 class DepartmentFilter(BaseFilterBackend):
