@@ -28,7 +28,8 @@ from accounts import settings
 import os
 from django.contrib.staticfiles import finders
 from main.helpers import is_user_in_group
-from django.utils.encoding import smart_text
+import locale
+import sys
 
 # Create your views here.
 purposesSubquery = PrepaymentPurpose.objects.select_related('prepaidDest').annotate(
@@ -86,8 +87,24 @@ def prepayments(request):
 
 
 def advanceReports(request):
+
+
+    """Display the locales"""
+    locales = "Current locale: %s %s -- Default locale: %s %s" % (
+        locale.getlocale() + locale.getdefaultlocale())
+    default_encoding =  sys.getdefaultencoding()
+    file_system_encoding = sys.getfilesystemencoding()
     isAdminOrAccountant = is_user_in_group(request.user, ['Администратор', 'Бухгалтер'])
-    return render(request, 'advanceReport/all.html', {'isAdminOrAccountant': isAdminOrAccountant})
+    context = {
+        'locales': locales,
+        'default_encoding': default_encoding,
+        'file_system_encoding': file_system_encoding,  # affects file uploads,
+        'isAdminOrAccountant': isAdminOrAccountant
+    }
+
+
+
+    return render(request, 'advanceReport/all.html', context)
 
 def inventories(request):
     return render(request, 'inventory/all.html')
@@ -309,9 +326,6 @@ def editAdvanceReport(request, id):
 
 def processFormset(formset):
     for el in formset.save(commit=False):
-        if el.file is not None:
-            print(smart_text(el.file.name))
-            # el.file.name = el.file.name.encode('utf-8')
         el.save()
     for deletedEl in formset.deleted_forms:
         if deletedEl.instance.id is not None:
