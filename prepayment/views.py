@@ -308,6 +308,9 @@ def editAdvanceReport(request, id):
 
 def processFormset(formset):
     for el in formset.save(commit=False):
+        if el.file is not None:
+            print(el.file)
+            #el.file.name = el.file.name.encode('utf-8')
         el.save()
     for deletedEl in formset.deleted_forms:
         if deletedEl.instance.id is not None:

@@ -32,7 +32,7 @@ class LoggingMiddleware:
 
         request = WSGIRequest(environ)
         try:
-            request.META['REMOTE_USER'] = 'buh'
+            #request.META['REMOTE_USER'] = 'buh'
             #request.META['REMOTE_USER'] = 'admin'
             #request.META['REMOTE_USER'] = 'user'
             os.environ['KRB5CCNAME'] = request.META['KRB5CCNAME']
