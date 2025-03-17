@@ -28,7 +28,6 @@ from accounts import settings
 import os
 from django.contrib.staticfiles import finders
 from main.helpers import is_user_in_group
-import sys
 
 # Create your views here.
 purposesSubquery = PrepaymentPurpose.objects.select_related('prepaidDest').annotate(
@@ -87,7 +86,7 @@ def prepayments(request):
 
 def advanceReports(request):
     isAdminOrAccountant = is_user_in_group(request.user, ['Администратор', 'Бухгалтер'])
-    return render(request, 'advanceReport/all.html', {'isAdminOrAccountant': isAdminOrAccountant, 'fs':sys.getfilesystemencoding()})
+    return render(request, 'advanceReport/all.html', {'isAdminOrAccountant': isAdminOrAccountant})
 
 def inventories(request):
     return render(request, 'inventory/all.html')
