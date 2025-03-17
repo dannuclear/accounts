@@ -28,6 +28,7 @@ from accounts import settings
 import os
 from django.contrib.staticfiles import finders
 from main.helpers import is_user_in_group
+from django.utils.encoding import smart_text
 
 # Create your views here.
 purposesSubquery = PrepaymentPurpose.objects.select_related('prepaidDest').annotate(
@@ -308,6 +309,9 @@ def editAdvanceReport(request, id):
 
 def processFormset(formset):
     for el in formset.save(commit=False):
+        if el.file is not None:
+            print(smart_text(el.file.name))
+            # el.file.name = el.file.name.encode('utf-8')
         el.save()
     for deletedEl in formset.deleted_forms:
         if deletedEl.instance.id is not None:
