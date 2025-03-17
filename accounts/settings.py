@@ -142,6 +142,7 @@ USE_I18N = True
 
 USE_L10N = True
 
+FILE_CHARSET = 'utf-8'
 #Ломается psycopg2
 #USE_TZ = True
 
