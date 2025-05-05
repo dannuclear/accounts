@@ -1,8 +1,8 @@
 <nav class="navbar navbar-expand-sm navbar-dark bg-success">
-  <a class="navbar-brand bi bi-stack" href="#">&nbsp;АО</a>
+  <a class="navbar-brand" href="#"><i class="fa-duotone fa-layer-group fa-xl mb-0"></i></a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
 
-  <div class="collapse navbar-collapse" id="navbarsExample03" style="font-size: 1.0em;">
+  <div class="collapse navbar-collapse" id="navbarsExample03" style="font-size: 1.1em;">
     <ul class="navbar-nav mr-auto">
       <!--              <li class="nav-item active">
                 <a class="nav-link" href="#">Домой <span class="sr-only">(current)</span></a>
@@ -10,19 +10,19 @@
 
       {% if perms.request.view_requests %}
         <li class="nav-item dropdown active">
-          <a class="nav-link" href="{% url 'requests' %}"><i class="fa-light fa-file-signature"></i>&nbsp;Заявления на аванс</a>
+          <a class="nav-link" href="{% url 'requests' %}"><i class="fa-duotone fa-file-signature"></i>&nbsp;Заявления на аванс</a>
         </li>
       {% endif %}
 
       {% if perms.prepayment.view_prepayments %}
         <li class="nav-item dropdown active">
-          <a class="nav-link" href="{% url 'prepayments' %}"><i class="fa-light fa-money-bill-transfer"></i>&nbsp;Выданный под отчет аванс</a>
+          <a class="nav-link" href="{% url 'prepayments' %}"><i class="fa-duotone fa-money-bill-transfer"></i>&nbsp;Выданный под отчет аванс</a>
         </li>
       {% endif %}
 
       {% if perms.prepayment.view_advance_reports %}
         <li class="nav-item dropdown active">
-          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa-light fa-file-contract"></i>&nbsp;Авансовые отчеты</a>
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa-duotone fa-file-contract"></i>&nbsp;Авансовые отчеты</a>
           <ul class="dropdown-menu">
             <li>
               <a class="dropdown-item" href="{% url 'advanceReports' %}?imprestAccount=7101">Расходы по командировкам (б.сч.7101)</a>
@@ -57,7 +57,7 @@
 
       {% if perms.accountingEntry %}
         <li class="nav-item dropdown active">
-          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa-light fa-scale-balanced"></i>&nbsp;Бухгалтерский учет</a>
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa-duotone fa-scale-balanced"></i>&nbsp;Бухгалтерский учет</a>
           <ul class="dropdown-menu">
             <li>
               <a class="dropdown-item" href="{% url 'facts' %}">Массив подтвержденных командировочных расходов</a>
@@ -77,11 +77,11 @@
                 <a class="dropdown-item" href="#">Справки доходов и удержаний для выгрузки в ТС УП &raquo</a>
                 <ul class="submenu dropdown-menu" style="transform: translate3d(-100%, 0px, 0px); left:0">
                   <li>
-                    <a class="dropdown-item" href="{% url 'deductions' %}"><i class="fa-light fa-circle-minus"></i>&nbsp;Ведомость удержаний из заработной платы по виду удержаний 8120</a>
+                    <a class="dropdown-item" href="{% url 'deductions' %}"><i class="fa-duotone fa-circle-minus"></i>&nbsp;Ведомость удержаний из заработной платы по виду удержаний 8120</a>
                   </li>
 
                   <li>
-                    <a class="dropdown-item" href="{% url 'compensations' %}"><i class="fa-light fa-circle-plus"></i>&nbsp;Возмещаемые расходы, подлежащие включению в совокупный доход работника</a>
+                    <a class="dropdown-item" href="{% url 'compensations' %}"><i class="fa-duotone fa-circle-plus"></i>&nbsp;Возмещаемые расходы, подлежащие включению в совокупный доход работника</a>
                   </li>
                 </ul>
               </li>
@@ -92,7 +92,7 @@
 
       {% if perms.accountingEntry %}
         <li class="nav-item dropdown active">
-          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa-light fa-file-chart-column"></i>&nbsp;Отчеты</a>
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa-duotone fa-file-chart-column"></i>&nbsp;Отчеты</a>
           <ul class="dropdown-menu">
             <li>
               <a class="dropdown-item" href="{% url 'parameterizedReport' %}">Отчеты по заданным параметрам</a>
@@ -106,18 +106,18 @@
 
       {% if perms.guide %}
         <li class="nav-item dropdown active">
-          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa-light fa-layer-group"></i>&nbsp;Справочники</a>
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa-duotone fa-layer-group"></i>&nbsp;Справочники</a>
           <ul class="dropdown-menu">
             {% if perms.guide.view_expense_item or perms.guide.edit_expense_item %}
               <li>
                 <a class="dropdown-item" href="#">Расходы по командировкам (б.сч.7101) &raquo</a>
                 <ul class="submenu dropdown-menu" style="transform: translate3d(-100%, 0px, 0px); left:0">
                   <li>
-                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7101&type=0"><i class="fa-light fa-list-ol"></i>&nbsp;Статьи расхода</a>
+                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7101&type=0"><i class="fa-duotone fa-list-ol"></i>&nbsp;Статьи расхода</a>
                   </li>
 
                   <li>
-                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7101&type=1"><i class="fa-light fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
+                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7101&type=1"><i class="fa-duotone fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
                   </li>
                 </ul>
               </li>
@@ -128,7 +128,7 @@
                 <a class="dropdown-item" href="#">Расходы по загранкомандировкам (б.сч.7102) &raquo</a>
                 <ul class="submenu dropdown-menu" style="transform: translate3d(-100%, 0px, 0px); left:0">
                   <li>
-                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7102&type=0"><i class="fa-light fa-list-ol"></i>&nbsp;Статьи расхода</a>
+                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7102&type=0"><i class="fa-duotone fa-list-ol"></i>&nbsp;Статьи расхода</a>
                   </li>
                 </ul>
               </li>
@@ -139,11 +139,11 @@
                 <a class="dropdown-item" href="#">Расходы 013 цеха (б.сч.7103) &raquo</a>
                 <ul class="submenu dropdown-menu" style="transform: translate3d(-100%, 0px, 0px); left:0">
                   <li>
-                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7103&type=0"><i class="fa-light fa-list-ol"></i>&nbsp;Статьи расхода</a>
+                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7103&type=0"><i class="fa-duotone fa-list-ol"></i>&nbsp;Статьи расхода</a>
                   </li>
 
                   <li>
-                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7103&type=1"><i class="fa-light fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
+                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7103&type=1"><i class="fa-duotone fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
                   </li>
                 </ul>
               </li>
@@ -154,7 +154,7 @@
                 <a class="dropdown-item" href="#">Расходы по приобретению ТМЦ, работ, услуг (б.сч.7104) &raquo</a>
                 <ul class="submenu dropdown-menu" style="transform: translate3d(-100%, 0px, 0px); left:0">
                   <li>
-                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7104&type=1"><i class="fa-light fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
+                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7104&type=1"><i class="fa-duotone fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
                   </li>
                 </ul>
               </li>
@@ -165,11 +165,11 @@
                 <a class="dropdown-item" href="#">Расходы 075 отдела (б.сч.7105) &raquo</a>
                 <ul class="submenu dropdown-menu" style="transform: translate3d(-100%, 0px, 0px); left:0">
                   <li>
-                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7105&type=0"><i class="fa-light fa-list-ol"></i>&nbsp;Статьи расхода</a>
+                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7105&type=0"><i class="fa-duotone fa-list-ol"></i>&nbsp;Статьи расхода</a>
                   </li>
 
                   <li>
-                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7105&type=1"><i class="fa-light fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
+                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7105&type=1"><i class="fa-duotone fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
                   </li>
                 </ul>
               </li>
@@ -180,7 +180,7 @@
                 <a class="dropdown-item" href="#">Расходы по приобретению ТМЦ, работ, услуг г. Москва (б.сч. 7106) &raquo</a>
                 <ul class="submenu dropdown-menu" style="transform: translate3d(-100%, 0px, 0px); left:0">
                   <li>
-                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7106&type=1"><i class="fa-light fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
+                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7106&type=1"><i class="fa-duotone fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
                   </li>
                 </ul>
               </li>
@@ -191,11 +191,11 @@
                 <a class="dropdown-item" href="#">Расходы 900 отдела (б.сч.7108) &raquo</a>
                 <ul class="submenu dropdown-menu" style="transform: translate3d(-100%, 0px, 0px); left:0">
                   <li>
-                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7108&type=0"><i class="fa-light fa-list-ol"></i>&nbsp;Статьи расхода</a>
+                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7108&type=0"><i class="fa-duotone fa-list-ol"></i>&nbsp;Статьи расхода</a>
                   </li>
 
                   <li>
-                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7108&type=1"><i class="fa-light fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
+                    <a class="dropdown-item" href="{% url 'expenseItems' %}?imprestAccount=7108&type=1"><i class="fa-duotone fa-shuffle"></i>&nbsp;Схемы проводок, по приобретению ТМЦ, работ, услуг</a>
                   </li>
                 </ul>
               </li>
@@ -206,89 +206,89 @@
               <ul class="submenu dropdown-menu" style="transform: translate3d(-100%, 0px, 0px); left:0">
                 {% if perms.guide.view_imprest_accounts or perms.guide.edit_imprest_accounts %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'imprestAccounts' %}"><i class="fa-light fa-list-dropdown"></i>&nbsp;Код учета подотчетной суммы</a>
+                    <a class="dropdown-item" href="{% url 'imprestAccounts' %}"><i class="fa-duotone fa-list-dropdown"></i>&nbsp;Код учета подотчетной суммы</a>
                   </li>
                 {% endif %}
                 {% if perms.guide.view_expense_codes or perms.guide.edit_expense_codes %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'expenseCodes' %}"><i class="fa-light fa-list"></i>&nbsp;Код расхода</a>
+                    <a class="dropdown-item" href="{% url 'expenseCodes' %}"><i class="fa-duotone fa-list"></i>&nbsp;Код расхода</a>
                   </li>
                 {% endif %}
 
                 {% if perms.guide.view_department_account or perms.guide.edit_department_account %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'departmentAccounts' %}"><i class="fa-light fa-file-invoice-dollar"></i>&nbsp;Справочник счетов подразделений</a>
+                    <a class="dropdown-item" href="{% url 'departmentAccounts' %}"><i class="fa-duotone fa-file-invoice-dollar"></i>&nbsp;Справочник счетов подразделений</a>
                   </li>
                 {% endif %}
 
                 {% if perms.guide.view_department or perms.guide.edit_department %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'departments' %}"><i class="fa-light fa-building"></i>&nbsp;Справочник подразделений</a>
+                    <a class="dropdown-item" href="{% url 'departments' %}"><i class="fa-duotone fa-building"></i>&nbsp;Справочник подразделений</a>
                   </li>
                 {% endif %}
 
                 {% comment %} {% if perms.integration.view_employees %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'employees' %}"><i class="fa-light fa-user-helmet-safety"></i>&nbsp;Сотрудники</a>
+                    <a class="dropdown-item" href="{% url 'employees' %}"><i class="fa-duotone fa-user-helmet-safety"></i>&nbsp;Сотрудники</a>
                   </li>
                 {% endif %} {% endcomment %}
 
                 {% if perms.guide.view_expense_rates or perms.guide.edit_expense_rates %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'expenseRates' %}"><i class="fa-light fa-wave-pulse"></i>&nbsp;Нормы командировочных расходов</a>
+                    <a class="dropdown-item" href="{% url 'expenseRates' %}"><i class="fa-duotone fa-wave-pulse"></i>&nbsp;Нормы командировочных расходов</a>
                   </li>
                 {% endif %}
 
                 {% if perms.guide.view_documents or perms.guide.edit_documents %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'documents' %}"><i class="fa-light fa-file-invoice"></i>&nbsp;Список документов</a>
+                    <a class="dropdown-item" href="{% url 'documents' %}"><i class="fa-duotone fa-file-invoice"></i>&nbsp;Список документов</a>
                   </li>
                 {% endif %}
 
                 {% if perms.guide.view_refund_expenses or perms.guide.edit_refund_expenses %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'refundExpenses' %}"><i class="fa-light fa-circle-nodes"></i>&nbsp;Возмещаемые расходы для включения в совокупный доход работника</a>
+                    <a class="dropdown-item" href="{% url 'refundExpenses' %}"><i class="fa-duotone fa-circle-nodes"></i>&nbsp;Возмещаемые расходы для включения в совокупный доход работника</a>
                   </li>
                 {% endif %}
 
                 {% if perms.guide.view_accounting_cert or perms.guide.edit_accounting_cert %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'accountingCerts' %}"><i class="fa-light fa-stamp"></i>&nbsp;Бухгалтерская справка</a>
+                    <a class="dropdown-item" href="{% url 'accountingCerts' %}"><i class="fa-duotone fa-stamp"></i>&nbsp;Бухгалтерская справка</a>
                   </li>
                 {% endif %}
 
                 {% if perms.guide.view_status or perms.guide.edit_status %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'statuses' %}"><i class="fa-light fa-recycle"></i>&nbsp;Статус</a>
+                    <a class="dropdown-item" href="{% url 'statuses' %}"><i class="fa-duotone fa-recycle"></i>&nbsp;Статус</a>
                   </li>
                 {% endif %}
 
                 {% if perms.guide.view_prepaid_dest or perms.guide.edit_prepaid_dest %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'prepaidDests' %}"><i class="fa-light fa-bullseye"></i>&nbsp;Назначение аванса</a>
+                    <a class="dropdown-item" href="{% url 'prepaidDests' %}"><i class="fa-duotone fa-bullseye"></i>&nbsp;Назначение аванса</a>
                   </li>
                 {% endif %}
 
                 {% if perms.guide.view_obtain_method or perms.guide.edit_obtain_method %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'obtainMethods' %}"><i class="fa-light fa-credit-card"></i>&nbsp;Способы получения</a>
+                    <a class="dropdown-item" href="{% url 'obtainMethods' %}"><i class="fa-duotone fa-credit-card"></i>&nbsp;Способы получения</a>
                   </li>
                 {% endif %}
 
                 {% if perms.guide.view_expense_categories or perms.guide.edit_expense_categories %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'expenseCategories' %}"><i class="fa-light fa-input-text"></i>&nbsp;Наименование категорий расхода</a>
+                    <a class="dropdown-item" href="{% url 'expenseCategories' %}"><i class="fa-duotone fa-input-text"></i>&nbsp;Наименование категорий расхода</a>
                   </li>
                 {% endif %}
 
                 {% comment %} {% if perms.integration.view_estimates %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'estimates' %}"><i class="fa-light fa-list"></i>&nbsp;Сметы</a>
+                    <a class="dropdown-item" href="{% url 'estimates' %}"><i class="fa-duotone fa-list"></i>&nbsp;Сметы</a>
                   </li>
                 {% endif %}
                 {% if perms.integration.view_orders %}
                   <li>
-                    <a class="dropdown-item" href="{% url 'orders' %}"><i class="fa-light fa-award"></i>&nbsp;Приказы</a>
+                    <a class="dropdown-item" href="{% url 'orders' %}"><i class="fa-duotone fa-award"></i>&nbsp;Приказы</a>
                   </li>
                 {% endif %} {% endcomment %}
               </ul>
@@ -299,34 +299,34 @@
 
       {% if perms.integration %}
         <li class="nav-item dropdown active">
-          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa-light fa-arrow-down-arrow-up"></i>&nbsp;Обмен данными</a>
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa-duotone fa-arrow-down-arrow-up"></i>&nbsp;Обмен данными</a>
           <ul class="dropdown-menu">
             {% if perms.integration.view_prepayments %}
               <li class="nav-item dropdown active">
-                <a class="dropdown-item" href="{% url 'integrationPrepayments' %}"><i class="fa-light fa-money-bill-transfer"></i>&nbsp;Выданный аванс</a>
+                <a class="dropdown-item" href="{% url 'integrationPrepayments' %}"><i class="fa-duotone fa-money-bill-transfer"></i>&nbsp;Выданный аванс</a>
               </li>
             {% endif %}
 
             {% if perms.integration.view_employees %}
               <li>
-                <a class="dropdown-item" href="{% url 'employees' %}"><i class="fa-light fa-user-helmet-safety"></i>&nbsp;Сотрудники</a>
+                <a class="dropdown-item" href="{% url 'employees' %}"><i class="fa-duotone fa-user-helmet-safety"></i>&nbsp;Сотрудники</a>
               </li>
             {% endif %}
 
             {% if perms.integration.view_estimates %}
               <li>
-                <a class="dropdown-item" href="{% url 'estimates' %}"><i class="fa-light fa-list"></i>&nbsp;Сметы</a>
+                <a class="dropdown-item" href="{% url 'estimates' %}"><i class="fa-duotone fa-list"></i>&nbsp;Сметы</a>
               </li>
             {% endif %}
 
             {% if perms.integration.view_orders %}
               <li>
-                <a class="dropdown-item" href="{% url 'orders' %}"><i class="fa-light fa-award"></i>&nbsp;Приказы</a>
+                <a class="dropdown-item" href="{% url 'orders' %}"><i class="fa-duotone fa-award"></i>&nbsp;Приказы</a>
               </li>
             {% endif %}
 
             <li>
-              <a class="dropdown-item" href="{% url 'protocols' %}"><i class="fa-light fa-layer-group"></i>&nbsp;Протокол</a>
+              <a class="dropdown-item" href="{% url 'protocols' %}"><i class="fa-duotone fa-layer-group"></i>&nbsp;Протокол</a>
             </li>
           </ul>
         </li>
@@ -334,10 +334,10 @@
 
       {% if user.is_superuser %}
         <li class="nav-item dropdown active">
-          <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa-light fa-gear"></i>&nbsp;Настройки</a>
+          <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa-duotone fa-gear"></i>&nbsp;Настройки</a>
           <div class="dropdown-menu" aria-labelledby="dropdown04">
-            <a class="dropdown-item" href="{% url 'settings' %}"><i class="fa-light fa-sliders"></i>&nbsp;Каталоги файлов</a>
-            <a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fa-light fa-users"></i>&nbsp;Пользователи и группы</a>
+            <a class="dropdown-item" href="{% url 'settings' %}"><i class="fa-duotone fa-sliders"></i>&nbsp;Каталоги файлов</a>
+            <a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fa-duotone fa-users"></i>&nbsp;Пользователи и группы</a>
           </div>
         </li>
       {% endif %}

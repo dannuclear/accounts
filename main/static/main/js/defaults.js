@@ -3,44 +3,66 @@ var csrftoken = Cookies.get('csrftoken');
 dayjs.locale('ru')
 dayjs.extend(window.dayjs_plugin_customParseFormat);
 
-const defaultLang = {
-	info: 'Страница _PAGE_ из _PAGES_',
-	lengthMenu: 'На странице _MENU_',
-	zeroRecords: 'Сотрудников не найдено',
-	infoEmpty: 'Не найдено',
-	search: 'Поиск',
-	processing: 'Загрузка...',
-	loadingRecords: 'Загрузка...',
-	paginate: {
-	  first: '|<',
-	  last: '>|',
-	  next: '>',
-	  previous: '<'
-	}
-  }
+function editColumn(path, predicate) {
+	return ({
+		data: null,
+		defaultContent: '',
+		orderable: false,
+		searchable: false,
+		className: 'text-center align-middle px-1',
+		render: function (data, type, row) {
+			if (!predicate || predicate(data))
+				return `<a href="${path}/${data.id}" class="text-success m-0"><i class="fa-light fa-pencil fa-xl"></i></a>`
+			return ''
+		}	
+	})
+}
+
+function deleteColumn(path, predicate, confirmText = 'Удалить?') {
+	return ({
+		data: null,
+		defaultContent: '',
+		orderable: false,
+		searchable: false,
+		className: 'text-center align-middle p-0',
+		render: function (data, type, row) {
+			return `<a href="${path}/${data.id}/delete" class="text-danger m-0" onclick="return confirm('${confirmText}');"><i class="fa-light fa-trash fa-xl"></i></a>`
+		}
+	})
+}
+
+function deleteColumnPost(path, confirmText = 'Удалить?') {
+	return ({
+		data: null,
+		defaultContent: '',
+		orderable: false,
+		searchable: false,
+		className: 'text-center align-middle p-0',
+		render: function (data, type, row) {
+			return `<form action="${path}/${data.id}/delete" method="post">
+						<input type='hidden' name='csrfmiddlewaretoken' value='${csrftoken}'/>
+						<button type='submit' class="text-danger h4 m-0 bg-transparent border-0" onclick="return confirm('${confirmText}');">
+							<i class="fa-light fa-trash"></i>
+						</button>
+					</form>`
+		}
+	})
+}
 
 $.extend(true, $.fn.dataTable.defaults, {
 	ajax: {
-		//type: 'POST',
-		// contentType: 'application/json',
-		// data: function(d) {
-		// 	return JSON.stringify(d);
-		// },
 		headers: {'X-CSRFToken': csrftoken}
 	},
 	language: {
         url: '/static/main/json/ru.json',
     },
-	columnDefs: [
-		{ className: "dt-head-center", targets: "_all" }
-	],
 	searching: true,
 	ordering: true,
 	processing: true,
 	serverSide: true,
 	stateSave: true,
 	fixedHeader: true,
-	select: {info: false},
+	select: {info: false, style: 'single'},
 	pagingType: 'first_last_numbers',
 	dom: '<"row"<"toolbar col-sm-12 col-md-4"B><"filters col-sm-12 col-md-6"><"col-sm-12 col-md-2"fb>>'
 		+ '<"row"<"col-sm-12"tr>>'
@@ -71,25 +93,4 @@ function parseDate(dateString) {
     const month = parseInt(parts[1], 10) - 1; // Months are 0-based in JavaScript
     const year = parseInt(parts[2], 10);
     return new Date(year, month, day);
-}
-
-function initPeriodFilter (table, currentMonth = false) {
-	const now = dayjs();
-	const periodFilter = $(
-		`<div class="input-group input-group-sm">
-			<div class="input-group-prepend">
-				<span class="input-group-text">Период с</span>
-			</div>
-			<input id="period-from" class="text-center datepeeker" style="width: 100px" value='${currentMonth?now.startOf('month').format('DD.MM.YYYY'):''}'/>
-			<div class="input-group-append">
-				<span class="input-group-text">по</span>
-				<input id='period-to' class='text-center datepeeker' style='width: 100px' value='${currentMonth?now.endOf('month').format('DD.MM.YYYY'):''}'/>
-			</div>
-		</div>`)
-
-	$("div.filters").append(periodFilter);        
-	periodFilter.find('.datepeeker').datepicker()  
-	periodFilter.on('change', 'input', function(e){
-		requestTable.ajax.reload()
-	}) 
 }

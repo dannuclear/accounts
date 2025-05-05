@@ -8,6 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from prepayment.models import Prepayment, PrepaymentPurpose
 from django.db.models import Q, Sum, Subquery, Func, OuterRef
 from .queries import GET_EXPENSE_CODES_REPORT
+from guide.models import RefundExpense
 import csv
 # Create your views here.
 
@@ -133,7 +134,10 @@ def compensationsDownload(request):
     if 'periodTo' in request.GET and len(request.GET['periodTo']) > 2:
         query = query.filter(prepayment__approveDate__lte=datetime.strptime(request.GET['periodTo'], '%d.%m.%Y'))
     if 'compensationType' in request.GET and request.GET['compensationType']:
-        query = query.filter(acplCodeAnaliticCredit=request.GET['compensationType'])
+        compensationType = request.GET['compensationType']
+        query = query.filter(acplCodeAnaliticCredit1__in=Subquery(RefundExpense.objects.filter(payKind__in=([compensationType] if compensationType else ['4479', '7121', '7130', '7140', '0901'])).values('code')))
+
+        # query = query.filter(acplCodeAnaliticCredit=request.GET['compensationType'])
     accountingEntries = query.all()
 
     fileName = 'compensations.csv'

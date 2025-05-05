@@ -178,6 +178,7 @@ def editAdvanceReport(request, id):
                 postCopy['approveActionDate'] = datetime.now()
                 lockLevel = 1
             elif postCopy['action'] == 'unlock' and lockLevel < 2:
+                postCopy['approveDate'] = None
                 # Удаляем проводки при нажатии кнопки корректировка проводки
                 cr = connection.cursor()
                 cr.execute('DELETE FROM accounting_entry WHERE prepayment_id = %s', [prepayment.id])
@@ -229,8 +230,8 @@ def editAdvanceReport(request, id):
                 # Если статус авансового отчета "Согласован" и даты нет присваиваем
                 if prepayment.reportStatus_id == 3:
                     prepayment.status_id = 3
-                    if prepayment.approveDate is None:
-                        prepayment.approveDate = datetime.now()
+                    # if prepayment.approveDate is None:
+                    #     prepayment.approveDate = datetime.now()
                     # СОМНИТЕЛЬНО !!! генерацию номера по дате согласования
                     if prepayment.reportNum is None:
                         maxNumDict = Prepayment.objects.filter(imprestAccount_id=prepayment.imprestAccount_id, approveDate__year=datetime.now().year).aggregate(Max('reportNum'))

@@ -267,13 +267,13 @@ def fillTravelExpenseEntity(data, prefix, prepayment):  # Заполняем б�
                 data['%s-%s-creditExpenseItem' % (prefix, currentNum)] = expenseItem.creditExpenseItem
 
                 # Кредит/№ подразделения работника
-                if factCreditAccount is not None and (str(factDebitAccount).startswith('19')):
+                if factCreditAccount is not None and (str(factCreditAccount).startswith('19')):
                     data['%s-%s-creditDept' % (prefix, currentNum)] = '0'
                 else:
                     data['%s-%s-creditDept' % (prefix, currentNum)] = prepayment.empDivNum if expenseItem.schema is None else expenseItem.creditExpenseDept
 
                 # Кредит/Доп.признак
-                if factCreditAccount is not None and (str(factDebitAccount).startswith('19')):
+                if factCreditAccount is not None and (str(factCreditAccount).startswith('19')):
                     data['%s-%s-creditExtra' % (prefix, currentNum)] = '0'
                 else:
                     data['%s-%s-creditExtra' % (prefix, currentNum)] = prepayment.empNum if expenseItem.schema is None else prepayment.reportNum

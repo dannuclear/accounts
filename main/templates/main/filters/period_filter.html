@@ -1,0 +1,13 @@
+<div id="period-filter" class="input-group input-group-sm justify-content-center">
+  <div class="input-group-prepend">
+    <span class="input-group-text">Период с</span>
+  </div>
+  <input id="period-from" value={% now '01.m.Y' %} class="text-center datepeeker" style="width: 100px" />
+  <div class="input-group-append">
+    <span class="input-group-text">по</span>
+    <input id="period-to" value={% now 't.m.Y' %} class="text-center datepeeker" style="width: 100px" />
+  </div>
+  <div class="input-group-append">
+    <button class="btn btn-sm btn-outline-success">X</button>
+  </div>
+</div>
