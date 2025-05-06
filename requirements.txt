@@ -6,3 +6,4 @@ psycopg2==2.8.6
 num2words==0.5.13
 # reportlab==3.6.6 # 3.5.59 для python 3.5
 # xhtml2pdf==0.2.4
+django-widget-tweaks==1.4

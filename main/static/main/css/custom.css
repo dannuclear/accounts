@@ -102,6 +102,13 @@ table.dataTable.table.table-hover>tbody>tr.selected:hover>* {
     box-shadow: inset 0 0 0 9999px #81dbe9;
 }
 
-.dt-column-title {
+.table-header-sm>thead>tr>th {
     text-align: center;
+    border-bottom-width: 1px!important;
+    padding: .2rem!important;
+    font-size: 0.9em;
+}
+
+.table-header-sm>tbody>tr>td {
+    line-height: 1;
 }

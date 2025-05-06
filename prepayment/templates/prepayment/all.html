@@ -6,26 +6,15 @@
 
 {% block content %}
     <style>
-        tr > th {
-            text-align: center;
-            border-bottom-width: 1px!important;
-            padding: .2rem!important;
-            font-size: 0.9em;
-        }
-
         .table-warning {
             background-color: #f2c464;
         }
-        td {
-            line-height: 1;
-        }
     </style>
-<input type="hidden" id="isAdminOrAccountant" value="{{ isAdminOrAccountant }}"/>
 <div class="alert alert-primary" role="alert" style="display: none;"></div>
 
 {% include "main/filters/period_filter.html" %}
 
-<table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100" style="font-size: 0.9em;">
+<table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm" style="font-size: 0.9em;">
     <thead>
         <tr>
             <th scope="col" colspan="3" data-dt-order="disable">Документ</th>
@@ -37,29 +26,29 @@
 
             <th scope="col" colspan="2" data-dt-order="disable">Период командирования</th>
 
-            <th scope="col" rowspan="2" data-dt-order="disable" width='60px'>Подотчет<br/>ная сумма<br/>(аванс)</th>
-            <th scope="col" rowspan="2" data-dt-order="disable" width='130px'>Статус</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" data-width='60px'>Подотчет<br/>ная сумма<br/>(аванс)</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" data-width="1%">Статус</th>
             <th scope="col" rowspan="2" data-dt-order="disable">Бух. справка</th>
             <th scope="col" rowspan="2" data-dt-order="disable">Шифр отнесения затрат</th>
             <th scope="col" rowspan="2" data-dt-order="disable">Дата принятия на учет АО</th>
             <th scope="col" rowspan="2" data-dt-order="disable">Срок АО</th>
             <th scope="col" rowspan="2" data-dt-order="disable">Создатель/Исполнитель</th>
 
-            <th scope="col" rowspan="2" data-dt-order="disable" width='30px'></th>
-            <th scope="col" rowspan="2" data-dt-order="disable" width='30px'></th>
+            <th scope="col" rowspan="2" data-dt-order="disable" data-width='30px'></th>
+            <th scope="col" rowspan="2" data-dt-order="disable" data-width='30px'></th>
             
         </tr>
         <tr>
             <th scope="col" data-dt-order="disable">Тип</th>
             <th scope="col" data-dt-order="disable">Номер</th>
-            <th scope="col" data-dt-order="disable" width='100px'>Дата</th>
+            <th scope="col" data-dt-order="disable" data-width='80px'>Дата</th>
 
             <th scope="col" data-dt-order="disable">Подр.</th>
-            <th scope="col" data-dt-order="disable">Таб. номер</th>
-            <th scope="col" data-dt-order="disable" width='200px'>ФИО</th>
+            <th scope="col" data-dt-order="disable">Таб.</th>
+            <th scope="col" data-dt-order="disable" data-width='200px'>ФИО</th>
 
-            <th scope="col" data-dt-order="disable" width='100px'>С</th>
-            <th scope="col" data-dt-order="disable" width='100px'>По</th>
+            <th scope="col" data-dt-order="disable" data-width='100px'>С</th>
+            <th scope="col" data-dt-order="disable" data-width='100px'>По</th>
         </tr>
     </thead>
 </table>
@@ -68,7 +57,7 @@
     const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ']
     const periodFilter = $('#period-filter')
     let urlParams = new URLSearchParams(document.location.search)
-    const isAdminOrAccountant = $('#isAdminOrAccountant').val() == 'True'
+    const isAdminOrAccountant = {{ isAdminOrAccountant|yesno:"true,false" }}
 
     $(document).ready(
         function () {
@@ -91,7 +80,6 @@
                         }
                     },
                     rowId: 'id',
-                    pagingType: 'first_last_numbers',
                     order: [],
                     rowCallback: function(row, data) {
                         const deadline = new parseDate(data.deadline);
@@ -135,7 +123,7 @@
                         { data: 'missionFrom', orderable: false, defaultContent: "", searchable: false },
                         { data: 'missionTo', orderable: false, defaultContent: "", searchable: false },
                         { data: 'totalSum', orderable: false, searchable: false, className: 'text-right text-nowrap', render: $.fn.dataTable.render.number( ' ', ',', 2 )  },
-                        { data: 'status.name', orderable: false, defaultContent: "Не установлен", searchable: false },
+                        { data: 'status.name', orderable: false, className: 'text-center', defaultContent: "Не установлен", searchable: false },
                         { data: 'reportAccountingNum', orderable: false, defaultContent: "", searchable: false },
                         { data: 'accountList', orderable: false, defaultContent: "", searchable: false },
                         { data: 'reportDate', orderable: false, defaultContent: "", searchable: false },
@@ -150,8 +138,8 @@
                                 return `<small style="font-size:0.8em;">${data.createdBy || ''}/${data.updatedByAccountant || ''}</small>`;
                             },
                         },
-                        editColumn("/prepayments", function(data) { return isAdminOrAccountant || data.status == null || data.status.id < 3 }),
-                        deleteColumn("/prepayments", function(data) { return isAdminOrAccountant || data.status == null || data.status.id < 3 }, "Удалить аванс?")
+                        editColumn("{% url 'prepayments' %}", function(data) { return isAdminOrAccountant || data.status == null || data.status.id < 3 }),
+                        deleteColumn("{% url 'prepayments' %}", function(data) { return isAdminOrAccountant || data.status == null || data.status.id < 3 }, "Удалить аванс?")
                     ],
                     buttons: [
                         {

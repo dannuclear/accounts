@@ -5,50 +5,69 @@
 {% endblock %}
 
 {% block content %}
-<style>
-    tr > th {
-        text-align: center;
-        border-bottom-width: 1px!important;
-        padding: .2rem!important;
-        font-size: 0.9em;
-    }
-    td {
-        line-height: 1;
-    }
-</style>
-
 <div class="alert alert-primary" role="alert" style="display: none;">
 
 </div>
-<table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100"></table>
 
-<div id="request-variant-dialog" title="Выберите вариант заявления на выдачу аванса" style="display: none;">
-    <div class="container">
-      <div class="row p-1">
-        <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=0">Аванс на приобретение ТМЦ, работ, услуг</a>
-      </div>
-      <div class="row p-1">
-        <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=1">Аванс на приобретение ГСМ</a>
-      </div>
-    </div>
-</div>
+{% include "main/filters/period_filter.html" %}
 
-<div id="print-dialog" title="Печать" style="display: none;">
-    <div class="container">
-      <div class="row p-1">
-        <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=0">Реестр Заявлений на выдачу денег под отчет на приобретение ТМЦ, работ, услуг</a>
-      </div>
-      <div class="row p-1">
-        <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=1">Заявление на приобретение ТМЦ, работ, услуг</a>
-      </div>
-      <div class="row p-1">
-        <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=1">Заявление на приобретение ГСМ</a>
+<table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm">
+    <thead>
+        <tr>
+            <th scope="col" data-dt-order="disable"></th>
+            <th scope="col" data-dt-order="disable">№</th>
+
+            <th scope="col" data-dt-order="disable">Дата</th>
+            <th scope="col" data-dt-order="disable">Подр.</th>
+            <th scope="col" data-dt-order="disable">Табельный</th>
+
+            <th scope="col" data-dt-order="disable" data-width='30%'>ФИО</th>
+
+            <th scope="col" data-dt-order="disable" data-width='30%'>Должность</th>
+            <th scope="col" data-dt-order="disable" data-width='10%'>Сумма, руб.</th>
+            <th scope="col" data-dt-order="disable" data-width='60px'>Код учета</th>
+            <th scope="col" data-dt-order="disable" data-width='30%'>Назначение аванса</th>
+            <th scope="col" data-dt-order="disable" data-width='10%'>Описание покупок</th>
+
+            <th scope="col" data-dt-order="disable" data-width="1%">Статус</th>
+            <th scope="col" data-dt-order="disable">Создал/Согласовал</th>
+            
+            <th scope="col" data-dt-order="disable" data-width='1%'></th>
+            <th scope="col" data-dt-order="disable" data-width='1%'></th>
+            <th scope="col" data-dt-order="disable" data-width='1%'></th>
+        </tr>
+    </thead>
+</table>
+
+<div class="modal fade" id="request-variant-dialog" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="requestVariantDialogLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="requestVariantDialog">Вариант заявления на выдачу аванса</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="container">
+                <div class="row p-1">
+                  <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=0">Аванс на приобретение ТМЦ, работ, услуг</a>
+                </div>
+                <div class="row p-1">
+                  <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=1">Аванс на приобретение ГСМ</a>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+        </div>
       </div>
     </div>
 </div>
 
 <script type="text/javascript">
     const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ']
+    const periodFilter = $('#period-filter')
     $(document).ready(
         function () {
             var requestTable = $('#request-table').DataTable(
@@ -66,187 +85,66 @@
                         }
                     },
                     rowId: 'id',
-                    pagingType: 'first_last_numbers',
-                    initComplete: function(){
-                        const periodFilter = $(
-                            `<div class="input-group input-group-sm">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Период с</span>
-                                </div>
-                                <input id='period-from' class='text-center datepeeker' style='width: 100px'/>
-                                <div class="input-group-append">
-                                    <span class="input-group-text">по</span>
-                                    <input id='period-to' class='text-center datepeeker' style='width: 100px'/>
-                                </div>
-                            </div>`)
-
-                        $("div.filters").append(periodFilter);        
-                        periodFilter.find('.datepeeker').datepicker()  
-                        periodFilter.on('change', 'input', function(e){
-                            requestTable.ajax.reload()
-                        }) 
-                    },
+                    order: [],
                     columns: [
                         {
-                            title: '',
                             data: null,
-                            width: '25px',
                             defaultContent: '',
                             orderable: false,
                             searchable: false,
+                            className: 'text-center align-middle px-1',
                             render: function (data, type, row) {
                                 if (data.status.id == 3)
-                                    return `<a href="/requests/${data.id}/html" class="text-success bi bi-printer h4 m-0" target="_blank"></a>`
+                                    return `<a href="/requests/${data.id}/html" class="text-success" target="_blank"><i class="fa-duotone fa-print fa-xl"></i></a>`
                                 else return ''
                             }
                         },
-                        {
-                            title: '№',
-                            data: 'num',
-                            width: '2rem',
-                            orderable: false
-                        },
-                        {
-                            title: 'Дата',
-                            data: 'createDate',
-                            width: '2rem',
-                            orderable: false
-                        },
-                        {
-                            title: 'Подр.',
-                            data: 'applicant.divNo',
-                            orderable: false,
-                            className: 'text-center',
-                            width: '4rem'
-                        },
-                        {
-                            title: 'Табельный',
-                            data: 'applicant.empOrgNo',
-                            orderable: false,
-                            className: 'text-center',
-                            width: '6rem'
-                        },
-                        {
-                            title: 'ФИО',
-                            data: 'applicant.fullName',
-                            orderable: false,
-                            searchable: false
-                        },
-                        {
-                            title: 'Должность',
-                            data: 'applicant.profName',
-                            orderable: false
-                        },
-                        {
-                            title: 'Сумма, руб.',
-                            data: 'issuedSum',
-                            orderable: false,
-                            width: '6rem',
-                            className: 'text-center',
-                            render: $.fn.dataTable.render.number( ' ', ',', 2 )
-                        },
-                        {
-                            title: 'Код учета',
-                            data: 'imprestAccount.account',
-                            orderable: false,
-                            width: '5rem',
-                        },
-                        {
-                            title: 'Назначение аванса',
-                            data: null,
-                            orderable: false,
+                        { data: 'num', width: '2rem', orderable: false },
+                        { data: 'createDate', width: '2rem', orderable: false },
+                        { data: 'applicant.divNo', orderable: false, className: 'text-center', width: '4rem' },
+                        { data: 'applicant.empOrgNo', orderable: false, className: 'text-center', width: '6rem' },
+                        { data: 'applicant.fullName', orderable: false, searchable: false },
+                        { data: 'applicant.profName', orderable: false },
+                        { data: 'issuedSum', orderable: false, className: 'text-right', render: $.fn.dataTable.render.number( ' ', ',', 2 ) },
+                        { data: 'imprestAccount.account', orderable: false, width: '5rem' },
+                        { data: null, orderable: false, searchable: false,
                             render: function (data, type, row, meta) {
                                 return purposes[data.type];
                             },
-                            width: '10rem',
                         },
-                        {
-                            title: 'Описание покупок',
-                            data: 'comments',
-                            orderable: false
-                        },
-                        {
-                            title: 'Статус',
-                            data: 'status.name',
-                            orderable: false,
-                            width: '7rem',
-                            className: 'text-center'
-                        },
-                        {
-                            title: 'Создал/Согласовал',
-                            data: null,
-                            orderable: false,
-                            width: '7rem',
-                            className: 'text-center',
+                        { data: 'comments', searchable: false, orderable: false },
+                        { data: 'status.name', orderable: false, searchable: false, width: '7rem', className: 'text-center' },
+                        { data: null, orderable: false, searchable: false, width: '7rem', className: 'text-center',
                             render: function (data, type, row, meta) {
                                 return `<small>${data.createdByFullName || ''}/${data.updatedByAccountant || ''}</small>`;
                             },
                         },
                         {
-                            title: '',
                             data: null,
-                            width: '1%',
                             defaultContent: '',
                             orderable: false,
+                            searchable: false,
+                            className: 'text-center align-middle px-1',
                             render: function (data, type, row) {
                                 if (data.prepaymentId)
                                     return ''
-                                return `<a href="/requests/${data.id}/createPrepayment" title='Создать запись в реестре выданных под отчет авансов' class="create-prepayment-button h4 m-0"><i class="fa-light fa-money-bill-transfer"></i></a>`
+                                return `<a href="{% url 'requests' %}/${data.id}/createPrepayment" title='Создать запись в реестре выданных под отчет авансов' class="create-prepayment-button"><i class="fa-duotone fa-xl fa-money-bill-transfer"></i></a>`
                             }
                         },
-                        {
-                            title: '',
-                            data: null,
-                            width: '1%',
-                            defaultContent: '',
-                            orderable: false,
-                            render: function (data, type, row) {
-                                return `<a href="/requests/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
-                            }
-                        },
-                        {
-                            title: '',
-                            data: null,
-                            width: '1%',
-                            defaultContent: '',
-                            orderable: false,
-                            render: function (data, type, row) {
-                              return `<a href="/requests/${data.id}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить заявку?');"></a>`
-                            }
-                         }
+                        editColumn("{% url 'requests' %}", null),
+                        deleteColumn("{% url 'requests' %}", null, "Удалить заявку?")
                     ],
                     buttons: [
                         {
-                            text: '&nbsp;СОЗДАТЬ НОВУЮ ЗАЯВКУ',
-                            className: 'btn btn-info fa-light fa-square-plus',
-                            action: function (e, dt, node, config) {
-                                requestVariantDialog.dialog("open")
+                            text: '<i class="fa-light fa-octagon-plus me-2"></i>&nbsp;СОЗДАТЬ НОВУЮ ЗАЯВКУ',
+                            className: 'btn btn-success btn-sm',
+                            attr: {
+                                "data-toggle": "modal",
+                                "data-target": "#request-variant-dialog"
                             }
                         }
                     ]
                 });
-
-            const requestVariantDialog = $( "#request-variant-dialog" ).dialog({
-                    autoOpen: false,
-                    //height: 150,
-                    width: 500,
-                    modal: true,
-                    appendTo: "body",
-                    closeText: "hide"
-                  });
-            const printDialog = $( "#print-dialog" ).dialog({
-                    autoOpen: false,
-                    //height: 150,
-                    width: 500,
-                    modal: true,
-                    appendTo: "body",
-                    closeText: "hide"
-                  });
-
-            $('#request-table').on('click', 'tbody td .print', function(e){
-                console.log(e.target.dataset.id)
-                printDialog.dialog('open')
-            })
 
             requestTable.on('click', '.create-prepayment-button', function(e){
                 e.preventDefault();
@@ -262,6 +160,14 @@
                     alertEl.show().delay(3000).fadeOut()
                     requestTable.ajax.reload()
                 })
+            })
+
+            periodFilter.find('.datepeeker').datepicker().on('change', function (e) {
+                requestTable.ajax.reload()
+            })
+            periodFilter.find('button').on('click', function (e) {
+                periodFilter.find('input').val('')
+                requestTable.ajax.reload()
             })
         }
     );

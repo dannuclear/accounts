@@ -24,7 +24,7 @@ function deleteColumn(path, predicate, confirmText = 'Удалить?') {
 		defaultContent: '',
 		orderable: false,
 		searchable: false,
-		className: 'text-center align-middle p-0',
+		className: 'text-center align-middle px-1',
 		render: function (data, type, row) {
 			return `<a href="${path}/${data.id}/delete" class="text-danger m-0" onclick="return confirm('${confirmText}');"><i class="fa-light fa-trash fa-xl"></i></a>`
 		}

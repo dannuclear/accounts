@@ -60,7 +60,10 @@ class UserFilter(BaseFilterBackend):
         currentEmpOrgNo = result.group() if result is not None else None
 
         #queryset = queryset.filter(createdBy=request.user.username)
-        queryset = queryset.filter(empNum__endswith=currentEmpOrgNo)
+        if currentEmpOrgNo is None:
+            queryset = queryset.filter(empNum__isnull=True)
+        else:
+            queryset = queryset.filter(empNum__endswith=currentEmpOrgNo)
         return queryset
 
 class DepartmentFilter(BaseFilterBackend):

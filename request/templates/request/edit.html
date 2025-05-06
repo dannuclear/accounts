@@ -1,6 +1,6 @@
 {% extends 'main/base.html' %}
 {% load prepayment_extras %}
-
+{% load widget_tweaks %}
 {% block title %}
   Заявление на аванс
 {% endblock %}
@@ -16,12 +16,6 @@
         <a href="{% url 'requests' %}" class="btn btn-danger btn-sm">Отмена</a>
       </div>
     </div>
-
-    {% comment %} <div>user.username {{ user.username }}</div>
-    <div>user.get_full_name {{ user.get_full_name }}</div>
-    <div>user.groups.all.0 {{ user.groups.all }}</div>
-    <div>user.email {{ user.email }}</div>
-    <div>user.last_login {{ user.last_login }}</div> {% endcomment %}
 
     {{ form.errors }}
     <input type="hidden" name="id" value="{{ form.id.value }}" />
