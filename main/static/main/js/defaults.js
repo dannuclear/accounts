@@ -71,7 +71,7 @@ $.extend(true, $.fn.dataTable.defaults, {
 
 $.datepicker.setDefaults( $.datepicker.regional[ "ru" ] )
 
-$.fn.select2.defaults.set("theme", "bootstrap4");
+$.fn.select2.defaults.set("theme", "bootstrap-5");
 
 function stringDif (val1, val2) {
 	if (val1 == null || val2 == null || val1.trim() == '' || val2.trim() == '')

@@ -38,7 +38,7 @@ class StatusChoiceField(forms.ModelChoiceField):
 
 class RequestForm (forms.ModelForm):
     id = forms.IntegerField(label='id', disabled=True, required=False)
-    num = forms.IntegerField(label='Номер', disabled=True, required=False)
+    num = forms.IntegerField(label='Номер', disabled=True, required=False, widget=forms.TextInput)
     createDate = MyDateField(label='Дата', localize=True, disabled=True)
 
     issuedSum = forms.DecimalField(label='Сумма к выдаче', localize=True, required=True)
@@ -49,8 +49,7 @@ class RequestForm (forms.ModelForm):
     status = StatusChoiceField(queryset=Status.objects.order_by('id'), widget=forms.Select(
         attrs={'class': 'custom-select form-control-sm'}), label='Статус', required=True, empty_label=None)
 
-    applicant = ApplicantOrgNoChoiceField(queryset=Employee.objects.all(), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Сотрудник', required=True, empty_label='Не выбран')
+    applicant = ApplicantOrgNoChoiceField(queryset=Employee.objects.all(), label='Сотрудник', required=True, empty_label='Не выбран')
 
     imprestAccount = ImprestAccountChoiceField(queryset=ImprestAccount.objects.order_by('account'), widget=forms.Select(
         attrs={'class': 'custom-select form-control-sm'}), label='Код учета', required=True, empty_label=None)

@@ -1,0 +1,21 @@
+{% load widget_tweaks %}
+
+<div class="input-group input-group-sm {% if field.errors %}has-validation{% endif %}">
+  <span class="input-group-text {{ labelClass }}">
+    {% if label %}
+      {{ label }}
+    {% else %}
+      {{ field.label }}
+    {% endif %}
+  </span>
+  {% with ic=inputClass|default_if_none:'' %}
+    {{ field|add_class:'form-control'|add_class:ic|add_error_class:'is-invalid' }}
+  {% endwith %}
+  {% if appendLabel %}
+    <span class="input-group-text">{{ appendLabel }}</span>
+  {% endif %}
+
+  {% for error in field.errors %}
+    <div class="small invalid-feedback">{{ error }}</div>
+  {% endfor %}
+</div>
