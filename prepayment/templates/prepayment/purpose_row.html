@@ -1,0 +1,31 @@
+{% load prepayment_extras %}
+{% load widget_tweaks %}
+
+<tr class="purpose-form">
+  {{ form.id }}
+  <td>
+    <button class="btn btn-sm btn-outline-primary clone-purpose" data-prefix="{{ form.prefix }}"><i class="fa-duotone fa-copy"></i></button>
+  </td>
+  <td>{{ form.prepaidDest|add_class:'form-select' }}</td>
+  <td>{{ form.deptExpense|add_class:'form-control form-control-sm dept-exp'|attr:'autocomplete:off' }}</td>
+  <td>{{ form.expenseCode|add_class:'form-select' }}</td>
+  <td>{{ form.account|add_class:'form-control form-control-sm purpose-account'|attr:'autocomplete:off' }}</td>
+  <td>{{ form.expenditure|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</td>
+  <td>
+    <input type="text" class="form-control form-control-sm" name="{{ form.deptExpenditure.html_name }}" value="{{ form.deptExpenditure.value|zfillIfNotNone:3|default_if_none:'' }}" autocomplete="off" />
+  </td>
+  <td>
+    <input type="text" class="form-control form-control-sm text-right" name="{{ form.extra.html_name }}" value="{{ form.extra.value|zfillIfNotNone:5|default_if_none:'' }}" autocomplete="off" />
+  </td>
+  <td>{{ form.missionFromDate|add_class:'form-control form-control-sm datepeeker period-from'|attr:'autocomplete:off' }}</td>
+  <td>{{ form.missionToDate|add_class:'form-control form-control-sm datepeeker period-to'|attr:'autocomplete:off' }}</td>
+  <td>
+    <button type="button" class="btn btn-sm btn-outline-success purpose-split" data-bs-toggle="modal" data-bs-target="#splitModal"><i class="fa-duotone fa-split"></i></button>
+  </td>
+  <td>{{ form.missionDest|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</td>
+  <td>{{ form.missionPurpose|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</td>
+  <td>{{ form.reportDeadline|add_class:'form-control form-control-sm datepeeker'|attr:'autocomplete:off' }}</td>
+  <td>
+    <button class="btn btn-sm btn-outline-danger delete-purpose" data-prefix="{{ form.prefix }}"><i class="fa-duotone fa-trash"></i></button>
+  </td>
+</tr>

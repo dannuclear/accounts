@@ -10,7 +10,7 @@
     {% csrf_token %}
 
     <input id="action" type="hidden" name="action" />
-    
+
     {% url 'requests' as back_url %}
     {% include 'main/save_cancel.html' with path=back_url %}
 
@@ -77,67 +77,15 @@
 
       {% if type == 0 %}
         <div class="col-12">
-          <div class="container-fluid">
-            <div class="row p-1 border rounded inventory-container">
-              <div class="col-12 p-1" style="background-color: #fff3e4;">
+          <div class="container-fluid p-1 border rounded">
+            <div class="row g-1 inventory-container">
+              <div class="col-12" style="background-color: #fff3e4;">
                 <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ inventories.prefix }}">Добавить</button>
               </div>
-      
+
               {{ inventories.management_form }}
               {% for inventory in inventories %}
-                <div id="{{ inventory.prefix }}" class="col-12 border rounded mt-1 inventory-form" style="background-color: #fff3e4; {% if inventory.DELETE.value %} display:none {% endif %}">
-                  <input type="hidden" name="{{ inventory.DELETE.html_name }}" id="{{ inventory.DELETE.auto_id }}" value="{{ inventory.DELETE.value|default_if_none:'' }}" />
-                  {{ inventory.id }}
-                  <div class="row g-1">
-                    <div class="col">
-                      <div class="row g-1">
-                        <div class="col-12">
-                          {% include 'main/input_group.html' with field=inventory.requestNum label='Приобретение МПЗ (заявка №:' appendLabel=')' %}
-                        </div>
-                        <div class="col-12">
-                          {% include 'main/input_group.html' with field=inventory.comment label='Комментарий' %}
-                        </div>
-                      </div>
-
-                      <div class="row pt-1 px-1 pb-0" style="background-color: #a2b4d0;">
-                        <div class="col-12 p-1">
-                          <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ inventory.items.prefix }}">Добавить</button>
-                        </div>
-                      </div>
-      
-                      <div class="row pt-1 px-1 pb-0" style="background-color: #a2b4d0">
-                        <table class="table table-bordered table-sm text-center mb-0 mb-1" style="font-size: 0.9em;">
-                          <thead>
-                            <tr>
-                              <th scope="col" width="10%">№ п/п</th>
-                              <th scope="col" width="50%">Наименование ТМЦ</th>
-                              <th scope="col" width="10%">Кол-во</th>
-                              <th scope="col" width="10%">Цена</th>
-                              <th scope="col" width="20%">Сумма, итого</th>
-                              <th scope="col" width="1%"></th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {{ inventory.items.management_form }}
-                            {% for item in inventory.items %}
-                              {% include 'request/inventoryItemRow.html' with item=item %}
-                            {% endfor %}
-                          </tbody>
-                        </table>
-                      </div>
-      
-                      <div class="row g-1">
-                        <div class="col-12">
-                          {% include 'main/input_group.html' with field=inventory.attachment label='Приложение' %}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="col-auto p-1 d-flex">
-                      <button class="btn btn-sm btn-outline-danger delete-inventory align-self-stretch" data-prefix="{{ inventory.prefix }}"><i class="fa-light fa-trash"></i></button>
-                    </div>
-                  </div>
-                </div>
+                {% include 'request/inventoryRow.html' with inventory=inventory %}
               {% endfor %}
             </div>
           </div>
@@ -168,7 +116,6 @@
           {{ form.status|add_class:'form-select form-select-sm' }}
         </div>
       </div>
-
     </div>
   </form>
 
@@ -216,13 +163,13 @@
         $('#action').val('delete-' + $(e.target).data('prefix'))
       })
       /*
-          $('.inventory-container').on('click', '.delete-inventory', function (e) {
-            const form = $(e.currentTarget).parents('.inventory-form')
-            form.children('[id$="DELETE"]').val(1)
-            if (!form.children('[id$="id"]').val()) form.remove()
-            else form.hide()
-            updateIssuedSum()
-          })*/
+              $('.inventory-container').on('click', '.delete-inventory', function (e) {
+                const form = $(e.currentTarget).parents('.inventory-form')
+                form.children('[id$="DELETE"]').val(1)
+                if (!form.children('[id$="id"]').val()) form.remove()
+                else form.hide()
+                updateIssuedSum()
+              })*/
     
       $('tbody').on('click', '.btn-delete-row', function (e) {
         const tr = $(e.currentTarget).closest('tr')

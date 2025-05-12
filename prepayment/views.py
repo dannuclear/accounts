@@ -20,7 +20,7 @@ import csv
 import math
 from num2words import num2words
 import textwrap
-from .action_processor import processActionNew, addItem
+from .action_processor import processActionNew, addItem, clone_from
 from decimal import Decimal
 #from xhtml2pdf import pisa
 from django.template.loader import get_template
@@ -116,6 +116,10 @@ def editPrepayment(request, id):
             if action.startswith('add-'):
                 prefix = action.replace('add-', '')
                 addItem(postCopy, prefix)
+            # Обрабатываем клонирование записи
+            if action.startswith('clone-'):
+                parts = action.split('-')
+                clone_from(postCopy, parts[1], parts[2], None, ['prepaidDest', 'deptExpense', 'expenseCode', 'account', 'expenditure', 'deptExpenditure', 'extra', 'missionFromDate', 'missionToDate', 'missionDest', 'missionPurpose', 'missionPurpose'])
             # Обрабатываем удаление записи
             elif action.startswith('delete-'):
                 prefix = action.replace('delete-', '')

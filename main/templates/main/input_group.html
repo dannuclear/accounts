@@ -8,8 +8,12 @@
       {{ field.label }}
     {% endif %}
   </span>
-  {% with ic=inputClass|default_if_none:'' %}
-    {{ field|add_class:'form-control'|add_class:ic|add_error_class:'is-invalid' }}
+  {% with ic=inputClass|default_if_none:'' ia=inputAttr|default_if_none:'' %}
+    {% if ia %}
+      {{ field|add_class:'form-control'|add_class:ic|add_error_class:'is-invalid'|attr:'autocomplete:off'|attr:ia }}
+    {% else %}
+      {{ field|add_class:'form-control'|add_class:ic|add_error_class:'is-invalid'|attr:'autocomplete:off' }}
+    {% endif %}
   {% endwith %}
   {% if appendLabel %}
     <span class="input-group-text">{{ appendLabel }}</span>

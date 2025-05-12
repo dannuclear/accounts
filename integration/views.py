@@ -57,7 +57,7 @@ class EmployeeViewSet (viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset
         empOrgNo = self.request.query_params.get('empOrgNo')
-        if empOrgNo is not None:
+        if empOrgNo:
             queryset = queryset.filter(empOrgNo=empOrgNo)
         return queryset
 

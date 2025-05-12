@@ -1,175 +1,175 @@
 {% extends 'main/base.html' %}
 
 {% block title %}
-Заявления на аванс
+  Заявления на аванс
 {% endblock %}
 
 {% block content %}
-<div class="alert alert-primary" role="alert" style="display: none;">
+  <div class="alert alert-primary" role="alert" style="display: none;"></div>
 
-</div>
+  {% include 'main/filters/period_filter.html' %}
 
-{% include "main/filters/period_filter.html" %}
-
-<table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm">
+  <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm">
     <thead>
-        <tr>
-            <th scope="col" data-dt-order="disable"></th>
-            <th scope="col" data-dt-order="disable">№</th>
+      <tr>
+        <th scope="col" data-dt-order="disable" style="width: 38px;"></th>
+        <th scope="col" data-dt-order="disable" style="width: 55px;">№</th>
 
-            <th scope="col" data-dt-order="disable">Дата</th>
-            <th scope="col" data-dt-order="disable">Подр.</th>
-            <th scope="col" data-dt-order="disable">Табельный</th>
+        <th scope="col" data-dt-order="disable" style="width: 90px;">Дата</th>
+        <th scope="col" data-dt-order="disable" style="width: 50px;">Подр.</th>
+        <th scope="col" data-dt-order="disable" style="width: 93px;">Табельный</th>
 
-            <th scope="col" data-dt-order="disable" data-width='30%'>ФИО</th>
+        <th scope="col" data-dt-order="disable" style="width: 250px;">ФИО</th>
 
-            <th scope="col" data-dt-order="disable" data-width='30%'>Должность</th>
-            <th scope="col" data-dt-order="disable" data-width='10%'>Сумма, руб.</th>
-            <th scope="col" data-dt-order="disable" data-width='60px'>Код учета</th>
-            <th scope="col" data-dt-order="disable" data-width='30%'>Назначение аванса</th>
-            <th scope="col" data-dt-order="disable" data-width='10%'>Описание покупок</th>
+        <th scope="col" data-dt-order="disable">Должность</th>
+        <th scope="col" data-dt-order="disable" style="width: 120px;">Сумма, руб.</th>
+        <th scope="col" data-dt-order="disable" style="width: 60px;">Код учета</th>
+        <th scope="col" data-dt-order="disable">Назначение аванса</th>
+        <th scope="col" data-dt-order="disable">Описание покупок</th>
 
-            <th scope="col" data-dt-order="disable" data-width="1%">Статус</th>
-            <th scope="col" data-dt-order="disable">Создал/Согласовал</th>
-            
-            <th scope="col" data-dt-order="disable" data-width='1%'></th>
-            <th scope="col" data-dt-order="disable" data-width='1%'></th>
-            <th scope="col" data-dt-order="disable" data-width='1%'></th>
-        </tr>
+        <th scope="col" data-dt-order="disable" style="width: 100px;">Статус</th>
+        <th scope="col" data-dt-order="disable" style="width: 50px;">Создал/Согласовал</th>
+
+        <th scope="col" data-dt-order="disable" style="width: 40px;"></th>
+        <th scope="col" data-dt-order="disable" style="width: 35px;"></th>
+        <th scope="col" data-dt-order="disable" style="width: 35px;"></th>
+      </tr>
     </thead>
-</table>
+  </table>
 
-<div class="modal fade" id="request-variant-dialog" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="requestVariantDialogLabel" aria-hidden="true">
+  <div class="modal fade" id="request-variant-dialog" tabindex="-1" aria-labelledby="requestVariantDialogLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="requestVariantDialog">Вариант заявления на выдачу аванса</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+          <h1 class="modal-title fs-5" id="requestVariantDialog">Вариант заявления на выдачу аванса</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <div class="container">
-                <div class="row p-1">
-                  <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=0">Аванс на приобретение ТМЦ, работ, услуг</a>
-                </div>
-                <div class="row p-1">
-                  <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=1">Аванс на приобретение ГСМ</a>
-                </div>
+          <div class="container">
+            <div class="row p-1">
+              <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=0">Аванс на приобретение ТМЦ, работ, услуг</a>
             </div>
+            <div class="row p-1">
+              <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=1">Аванс на приобретение ГСМ</a>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
         </div>
       </div>
     </div>
-</div>
+  </div>
 
-<script type="text/javascript">
+  <script type="text/javascript">
     const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ']
     const periodFilter = $('#period-filter')
-    $(document).ready(
-        function () {
-            var requestTable = $('#request-table').DataTable(
+    $(document).ready(function () {
+
+        var requestTable = $('#request-table').DataTable({
+            ajax: {
+                url: '/api/v1/requests/?format=datatables',
+                data: function (d) {
+                    if ($('#period-from').val())
+                        d.periodFrom=$('#period-from').val()
+                    if ($('#period-to').val())
+                        d.periodTo=$('#period-to').val()
+                    d.columns.push({data: 'applicant.pfnSurname', searchable: true})
+                    d.columns.push({data: 'applicant.pfnName', searchable: true})
+                    d.columns.push({data: 'applicant.pfnPatronymic', searchable: true})
+                }
+            },
+            rowId: 'id',
+            order: [],
+            columns: [
                 {
-                    ajax: {
-                        url: '/api/v1/requests/?format=datatables',
-                        data: function (d) {
-                            if ($('#period-from').val())
-                                d.periodFrom=$('#period-from').val()
-                            if ($('#period-to').val())
-                                d.periodTo=$('#period-to').val()
-                            d.columns.push({data: 'applicant.pfnSurname', searchable: true})
-                            d.columns.push({data: 'applicant.pfnName', searchable: true})
-                            d.columns.push({data: 'applicant.pfnPatronymic', searchable: true})
-                        }
+                    data: null,
+                    defaultContent: '',
+                    orderable: false,
+                    searchable: false,
+                    className: 'text-center align-middle px-1',
+                    render: function (data, type, row) {
+                        if (data.status.id == 3)
+                            return `<a href="/requests/${data.id}/html" class="text-success" target="_blank"><i class="fa-duotone fa-print fa-xl"></i></a>`
+                        else return ''
+                    }
+                },
+                { data: 'num', width: '2rem', orderable: false },
+                { data: 'createDate', width: '2rem', orderable: false },
+                { data: 'applicant.divNo', orderable: false, className: 'text-center' },
+                { data: 'applicant.empOrgNo', orderable: false, className: 'text-center' },
+                { data: 'applicant.fullName', orderable: false, searchable: false },
+                { data: 'applicant.profName', orderable: false },
+                { data: 'issuedSum', orderable: false, className: 'text-right', render: $.fn.dataTable.render.number( ' ', ',', 2 ) },
+                { data: 'imprestAccount.account', orderable: false },
+                { data: null, orderable: false, searchable: false,
+                    render: function (data, type, row, meta) {
+                        return purposes[data.type];
                     },
-                    rowId: 'id',
-                    order: [],
-                    columns: [
-                        {
-                            data: null,
-                            defaultContent: '',
-                            orderable: false,
-                            searchable: false,
-                            className: 'text-center align-middle px-1',
-                            render: function (data, type, row) {
-                                if (data.status.id == 3)
-                                    return `<a href="/requests/${data.id}/html" class="text-success" target="_blank"><i class="fa-duotone fa-print fa-xl"></i></a>`
-                                else return ''
-                            }
-                        },
-                        { data: 'num', width: '2rem', orderable: false },
-                        { data: 'createDate', width: '2rem', orderable: false },
-                        { data: 'applicant.divNo', orderable: false, className: 'text-center', width: '4rem' },
-                        { data: 'applicant.empOrgNo', orderable: false, className: 'text-center', width: '6rem' },
-                        { data: 'applicant.fullName', orderable: false, searchable: false },
-                        { data: 'applicant.profName', orderable: false },
-                        { data: 'issuedSum', orderable: false, className: 'text-right', render: $.fn.dataTable.render.number( ' ', ',', 2 ) },
-                        { data: 'imprestAccount.account', orderable: false, width: '5rem' },
-                        { data: null, orderable: false, searchable: false,
-                            render: function (data, type, row, meta) {
-                                return purposes[data.type];
-                            },
-                        },
-                        { data: 'comments', searchable: false, orderable: false },
-                        { data: 'status.name', orderable: false, searchable: false, width: '7rem', className: 'text-center' },
-                        { data: null, orderable: false, searchable: false, width: '7rem', className: 'text-center',
-                            render: function (data, type, row, meta) {
-                                return `<small>${data.createdByFullName || ''}/${data.updatedByAccountant || ''}</small>`;
-                            },
-                        },
-                        {
-                            data: null,
-                            defaultContent: '',
-                            orderable: false,
-                            searchable: false,
-                            className: 'text-center align-middle px-1',
-                            render: function (data, type, row) {
-                                if (data.prepaymentId)
-                                    return ''
-                                return `<a href="{% url 'requests' %}/${data.id}/createPrepayment" title='Создать запись в реестре выданных под отчет авансов' class="create-prepayment-button"><i class="fa-duotone fa-xl fa-money-bill-transfer"></i></a>`
-                            }
-                        },
-                        editColumn("{% url 'requests' %}", null),
-                        deleteColumn("{% url 'requests' %}", null, "Удалить заявку?")
-                    ],
-                    buttons: [
-                        {
-                            text: '<i class="fa-light fa-octagon-plus me-2"></i>&nbsp;СОЗДАТЬ НОВУЮ ЗАЯВКУ',
-                            className: 'btn btn-success btn-sm',
-                            attr: {
-                                "data-toggle": "modal",
-                                "data-target": "#request-variant-dialog"
-                            }
-                        }
-                    ]
-                });
-
-            requestTable.on('click', '.create-prepayment-button', function(e){
-                e.preventDefault();
-                const alertEl = $('.alert')
-                const url = e.currentTarget.getAttribute('href')
-                $.get(url, function(e) {
-                    alertEl.attr('class', 'alert alert-success')
-                    alertEl.html(e)
-                }).fail(function(e){
-                    alertEl.attr('class', 'alert alert-danger')
-                    alertEl.html(e.responseText)
-                }).always(function(){
-                    alertEl.show().delay(3000).fadeOut()
-                    requestTable.ajax.reload()
-                })
-            })
-
-            periodFilter.find('.datepeeker').datepicker().on('change', function (e) {
-                requestTable.ajax.reload()
-            })
-            periodFilter.find('button').on('click', function (e) {
-                periodFilter.find('input').val('')
-                requestTable.ajax.reload()
-            })
-        }
-    );
-</script>
+                },
+                { data: 'comments', searchable: false, orderable: false },
+                { data: 'status.name', orderable: false, searchable: false, className: 'text-center' },
+                { data: null, orderable: false, searchable: false, className: 'text-center',
+                    render: function (data, type, row, meta) {
+                        return `<small>${data.createdByFullName || ''}/${data.updatedByAccountant || ''}</small>`;
+                    },
+                },
+                {
+                    data: null,
+                    defaultContent: '',
+                    orderable: false,
+                    searchable: false,
+                    className: 'text-center align-middle px-1',
+                    render: function (data, type, row) {
+                        if (data.prepaymentId)
+                            return ''
+                        return `<a href='{% url "requests" %}/${data.id}/createPrepayment' title="Создать запись в реестре выданных под отчет авансов" class="create-prepayment-button"><i class="fa-duotone fa-xl fa-money-bill-transfer"></i></a>`
+                    }
+                },
+                editColumn("{% url 'requests' %}", null),
+                deleteColumn("{% url 'requests' %}", null, 'Удалить заявку?')
+            ],
+            buttons: [
+                {
+                    text: '<i class="fa-light fa-octagon-plus me-2"></i>&nbsp;СОЗДАТЬ НОВУЮ ЗАЯВКУ',
+                    className: 'btn btn-success btn-sm',
+                    attr: {
+                        "data-bs-toggle": "modal",
+                        "data-bs-target": "#request-variant-dialog"
+                    }
+                }
+            ]
+        });
+        
+      requestTable.on('click', '.create-prepayment-button', function (e) {
+        e.preventDefault()
+        const alertEl = $('.alert')
+        const url = e.currentTarget.getAttribute('href')
+        $.get(url, function (e) {
+          alertEl.attr('class', 'alert alert-success')
+          alertEl.html(e)
+        })
+          .fail(function (e) {
+            alertEl.attr('class', 'alert alert-danger')
+            alertEl.html(e.responseText)
+          })
+          .always(function () {
+            alertEl.show().delay(3000).fadeOut()
+            requestTable.ajax.reload()
+          })
+      })
+    
+      periodFilter
+        .find('.datepeeker')
+        .datepicker()
+        .on('change', function (e) {
+          requestTable.ajax.reload()
+        })
+    
+      periodFilter.find('button').on('click', function (e) {
+        periodFilter.find('input').val('')
+        requestTable.ajax.reload()
+      })
+    })
+  </script>
 {% endblock %}

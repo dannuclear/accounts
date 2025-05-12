@@ -54,6 +54,16 @@ def addItem(data, prefix):
     totalForms = getTotalForms(data, prefix)
     data['%s-TOTAL_FORMS' % (prefix)] = totalForms + 1
 
+def clone_from(data, prefix, from_idx, to_idx, fields):
+    if not fields:
+        return
+    if to_idx is None:
+        total_forms = getTotalForms(data, prefix)
+    for field in fields:
+        from_field_name = '%s-%s-%s' % (prefix, from_idx, field)
+        if from_field_name in data:
+            data['%s-%s-%s' % (prefix, total_forms, field)] = data.get(from_field_name, None)
+    data['%s-TOTAL_FORMS' % (prefix)] = total_forms + 1
 
 def setTotalForms(data, prefix, value):
     data['%s-TOTAL_FORMS' % (prefix)] = value

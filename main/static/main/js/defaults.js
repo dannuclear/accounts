@@ -64,9 +64,9 @@ $.extend(true, $.fn.dataTable.defaults, {
 	fixedHeader: true,
 	select: {info: false, style: 'single'},
 	pagingType: 'first_last_numbers',
-	dom: '<"row"<"toolbar col-sm-12 col-md-4"B><"filters col-sm-12 col-md-6"><"col-sm-12 col-md-2"fb>>'
-		+ '<"row"<"col-sm-12"tr>>'
-		+ '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-4"l><"col-sm-12 col-md-3"p>>'
+	dom: "<'row mt-2 justify-content-between'<'d-md-flex justify-content-between align-items-center dt-layout-start col-md-auto me-auto'B><'d-md-flex justify-content-between align-items-center dt-layout-end col-md-auto ms-auto'f>>" +
+		"<'row mt-2 justify-content-between dt-layout-table'<'d-md-flex justify-content-between align-items-center col-12 dt-layout-full col-md'tr>>" +
+		"<'row mt-2 justify-content-between'<'d-md-flex justify-content-between align-items-center dt-layout-start col-md-auto me-auto'i><'d-md-flex justify-content-between align-items-center col-md-auto'l><'d-md-flex justify-content-between align-items-center dt-layout-end col-md-auto ms-auto'p>>",
 });
 
 $.datepicker.setDefaults( $.datepicker.regional[ "ru" ] )

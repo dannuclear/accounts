@@ -100,7 +100,6 @@ table.dataTable.table.table-hover>tbody>tr.selected:hover>* {
 
 .table-header-sm>thead>tr>th {
     text-align: center;
-    border-bottom-width: 1px!important;
     padding: .2rem!important;
     font-size: 0.9em;
 }

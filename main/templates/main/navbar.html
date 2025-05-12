@@ -3,17 +3,17 @@
     <a class="navbar-brand" href="#"><i class="fa-duotone fa-layer-group fa-xl mb-0"></i></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
 
-    <div class="collapse navbar-collapse" id="navbarsExample03" style="font-size: 1.0em;">
+    <div class="collapse navbar-collapse" id="navbarsExample03" style="font-size: 1.1em;">
       <ul class="navbar-nav mr-auto">
         {% if perms.request.view_requests %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'requests' %}"><i class="fa-duotone fa-file-signature"></i>&nbsp;Заявления на аванс</a>
+            <a class="nav-link" href="{% url 'requests' %}"><i class="fa-duotone fa-file-signature"></i>&nbsp;Заявления</a>
           </li>
         {% endif %}
 
         {% if perms.prepayment.view_prepayments %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'prepayments' %}"><i class="fa-duotone fa-money-bill-transfer"></i>&nbsp;Выданный под отчет аванс</a>
+            <a class="nav-link" href="{% url 'prepayments' %}"><i class="fa-duotone fa-money-bill-transfer"></i>&nbsp;Выданный аванс</a>
           </li>
         {% endif %}
 
@@ -224,12 +224,6 @@
                     </li>
                   {% endif %}
 
-                  {% comment %} {% if perms.integration.view_employees %}
-                    <li>
-                      <a class="dropdown-item" href="{% url 'employees' %}"><i class="fa-duotone fa-user-helmet-safety"></i>&nbsp;Сотрудники</a>
-                    </li>
-                  {% endif %} {% endcomment %}
-
                   {% if perms.guide.view_expense_rates or perms.guide.edit_expense_rates %}
                     <li>
                       <a class="dropdown-item" href="{% url 'expenseRates' %}"><i class="fa-duotone fa-wave-pulse"></i>&nbsp;Нормы командировочных расходов</a>
@@ -277,17 +271,6 @@
                       <a class="dropdown-item" href="{% url 'expenseCategories' %}"><i class="fa-duotone fa-input-text"></i>&nbsp;Наименование категорий расхода</a>
                     </li>
                   {% endif %}
-
-                  {% comment %} {% if perms.integration.view_estimates %}
-                    <li>
-                      <a class="dropdown-item" href="{% url 'estimates' %}"><i class="fa-duotone fa-list"></i>&nbsp;Сметы</a>
-                    </li>
-                  {% endif %}
-                  {% if perms.integration.view_orders %}
-                    <li>
-                      <a class="dropdown-item" href="{% url 'orders' %}"><i class="fa-duotone fa-award"></i>&nbsp;Приказы</a>
-                    </li>
-                  {% endif %} {% endcomment %}
                 </ul>
               </li>
             </ul>
@@ -339,20 +322,20 @@
           </li>
         {% endif %}
       </ul>
-
-      <div class="form-inline my-2 my-lg-0 navbar-nav">
-        <div style="line-height: 1;">
-          <div class="nav-link active p-0">{{ user }}</div>
-          <small id="browser-info" class="p-0"></small>
-        </div>
-      </div>
-
-      <script type="text/javascript">
-        $(document).ready(function () {
-          const browser = $.browser
-          $('#browser-info').text(`${browser.name}: ${browser.versionNumber}`)
-        })
-      </script>
     </div>
+
+    <div class="d-flex navbar-nav">
+      <div style="line-height: 1;">
+        <div class="nav-link active p-0">{{ user }}</div>
+        <small id="browser-info" class="p-0"></small>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      $(document).ready(function () {
+        const browser = $.browser
+        $('#browser-info').text(`${browser.name}: ${browser.versionNumber}`)
+      })
+    </script>
   </div>
 </nav>

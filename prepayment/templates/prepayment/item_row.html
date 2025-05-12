@@ -1,0 +1,26 @@
+{% load widget_tweaks %}
+
+<div id="{{ form.prefix }}" class="col-11 col-xxl-9 item-form">
+  {{ form.id }}
+  <div class="row g-1">
+    <div class="col-auto text-end">
+      <p class="h4 m-0">Аванс {{ form.prefix|cut:'item-'|add:1 }}:</p>
+    </div>
+
+    <div class="col-2">
+      {% include 'main/input_group.html' with field=form.value inputClass='text-center prepayment-part' %}
+    </div>
+
+    <div class="col-3">
+      {% include 'main/input_group.html' with field=form.obtainMethod %}
+    </div>
+
+    <div class="col-3 col-md-2">
+      {% include 'main/input_group.html' with field=form.date inputClass='text-center datepeeker' %}
+    </div>
+
+    <div class="col-auto">
+      <button class="btn btn-sm btn-outline-danger delete-item" data-prefix="{{ form.prefix }}"><i class="fa-duotone fa-trash"></i></button>
+    </div>
+  </div>
+</div>

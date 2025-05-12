@@ -1,0 +1,57 @@
+<div id="{{ inventory.prefix }}" class="col-12 inventory-form" style="background-color: #fff3e4; {% if inventory.DELETE.value %} display:none {% endif %}">
+  <div class="container-fluid p-1 border rounded">
+    <input type="hidden" name="{{ inventory.DELETE.html_name }}" id="{{ inventory.DELETE.auto_id }}" value="{{ inventory.DELETE.value|default_if_none:'' }}" />
+    {{ inventory.id }}
+    <div class="row g-1">
+      <div class="col">
+        <div class="row g-1">
+          <div class="col-12">
+            {% include 'main/input_group.html' with field=inventory.requestNum label='Приобретение МПЗ (заявка №:' appendLabel=')' %}
+          </div>
+          <div class="col-12">
+            {% include 'main/input_group.html' with field=inventory.comment label='Комментарий' %}
+          </div>
+
+          <div class="col-12">
+            <div class="container-fluid p-1 border rounded" style="background-color: #a2b4d0;">
+              <div class="row g-1">
+                <div class="col-12">
+                  <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ inventory.items.prefix }}">Добавить</button>
+                </div>
+
+                <div class="col-12">
+                  <table class="table table-bordered table-sm text-center mb-0 mb-1" style="font-size: 1em;">
+                    <thead>
+                      <tr>
+                        <th scope="col" style="width: 10%">№ п/п</th>
+                        <th scope="col" style="width: 50%">Наименование ТМЦ</th>
+                        <th scope="col" style="width: 10%">Кол-во</th>
+                        <th scope="col" style="width: 10%">Цена</th>
+                        <th scope="col" style="width: 20%">Сумма, итого</th>
+                        <th scope="col" wstyle="width: 1%"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {{ inventory.items.management_form }}
+                      {% for item in inventory.items %}
+                        {% include 'request/inventoryItemRow.html' with item=item %}
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            {% include 'main/input_group.html' with field=inventory.attachment label='Приложение' %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-auto px-1 d-flex">
+        <button class="btn btn-sm btn-outline-danger delete-inventory align-self-stretch" data-prefix="{{ inventory.prefix }}"><i class="fa-light fa-trash"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
