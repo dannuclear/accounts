@@ -64,6 +64,7 @@ def clone_from(data, prefix, from_idx, to_idx, fields):
         if from_field_name in data:
             data['%s-%s-%s' % (prefix, total_forms, field)] = data.get(from_field_name, None)
     data['%s-TOTAL_FORMS' % (prefix)] = total_forms + 1
+    return total_forms
 
 def setTotalForms(data, prefix, value):
     data['%s-TOTAL_FORMS' % (prefix)] = value

@@ -1,10 +1,8 @@
 <div class="row g-1">
-    <div class="col d-flex">
-        <button type="submit" class="btn btn-success btn-sm ms-auto me-1">
-            <i class="fa-light fa-floppy-disk pe-2"></i>Сохранить
-        </button>
-        <button type="button" class="btn btn-danger btn-sm" onclick="window.location = '{{ path }}'">
-            Отменить
-        </button>
-    </div>
+  <div class="col d-flex">
+    {% if renderSave|default_if_none:True %}
+      <button type="submit" class="btn btn-success btn-sm ms-auto me-1"><i class="fa-light fa-floppy-disk pe-2"></i>Сохранить</button>
+    {% endif %}
+    <button type="button" class="btn btn-danger btn-sm {% if not renderSave|default_if_none:True %}ms-auto{% endif %}" onclick="window.location = '{{ path }}'">Отменить</button>
+  </div>
 </div>

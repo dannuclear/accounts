@@ -1,7 +1,7 @@
 {% load widget_tweaks %}
 
-<div class="input-group input-group-sm {% if field.errors %}has-validation{% endif %}">
-  <span class="input-group-text {{ labelClass }}">
+<div class="input-group input-group-sm {% if field.errors %}has-validation{% endif %} {{ inputGroupClass }}">
+  <span class="input-group-text {{ labelClass }}" style="{{ labelStyle }}">
     {% if label %}
       {{ label }}
     {% else %}

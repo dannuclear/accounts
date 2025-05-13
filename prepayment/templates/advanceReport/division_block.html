@@ -1,0 +1,24 @@
+{% load widget_tweaks %}
+<table class="table table-bordered table-sm m-0" style="border-radius: 2px;">
+  <tbody>
+    <tr>
+      <td rowspan="2" class="w-20 align-middle text-center text-nowrap" style="background-color: #d4e8b8;">
+        <span>Структурное подразделение*</span>
+      </td>
+      <td rowspan="2" class="align-middle text-center" style="height: 60px;">
+        <div class="input-group input-group-sm h-100">
+          {{ form.empDivName|add_class:'text-center form-control'|add_error_class:'is-invalid'|attr:'id:emp-div-name' }}
+          <button id="div-search" class="btn btn-outline-secondary" type="button"><i class="fa-duotone fa-magnifying-glass"></i></button>
+        </div>
+      </td>
+      <td class="text-center w-10">
+        <p class="h5 m-0 lh-1">код*</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <input id="emp-div-num" type="text" class="text-center form-control p-0 lh-1" value="{{ form.instance.empDivNum|default_if_none:''|stringformat:'03d' }}" readonly />
+      </td>
+    </tr>
+  </tbody>
+</table>

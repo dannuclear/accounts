@@ -113,9 +113,25 @@ def editPrepayment(request, id):
         postCopy = request.POST.copy()
         if postCopy['action']:
             action = postCopy['action']
+            # Обрабатываем добавление записи
             if action.startswith('add-'):
                 prefix = action.replace('add-', '')
                 addItem(postCopy, prefix)
+            # Обрабатываем split
+            if action.startswith('split-'):
+                parts = action.split('-')
+                dates = [datetime.fromtimestamp(int(p)/1000) for p in postCopy.get('split', '').split(',')]
+                period_from = dates[0]
+                current_prefix = '%s-%s' % (parts[1], parts[2])
+                for d in dates[1:-1]:
+                    period_to = d
+                    postCopy['%s-missionFromDate' % current_prefix] = period_from.strftime('%d.%m.%Y')
+                    postCopy['%s-missionToDate' % current_prefix] = (period_to - timedelta(1)).strftime('%d.%m.%Y')
+                    num = clone_from(postCopy, parts[1], parts[2], None, ['prepaidDest', 'deptExpense', 'expenseCode', 'account', 'expenditure', 'deptExpenditure', 'extra', 'missionFromDate', 'missionToDate', 'missionDest', 'missionPurpose', 'missionPurpose'])
+                    current_prefix = '%s-%s' % (parts[1], num)
+                    period_from = period_to
+                postCopy['%s-missionFromDate' % current_prefix] = period_from.strftime('%d.%m.%Y')
+                postCopy['%s-missionToDate' % current_prefix] = dates[-1].strftime('%d.%m.%Y')
             # Обрабатываем клонирование записи
             if action.startswith('clone-'):
                 parts = action.split('-')

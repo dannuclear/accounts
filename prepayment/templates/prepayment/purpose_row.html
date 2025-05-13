@@ -1,7 +1,7 @@
 {% load prepayment_extras %}
 {% load widget_tweaks %}
 
-<tr class="purpose-form">
+<tr class="purpose-form" data-prefix="{{ form.prefix }}">
   {{ form.id }}
   <td>
     <button class="btn btn-sm btn-outline-primary clone-purpose" data-prefix="{{ form.prefix }}"><i class="fa-duotone fa-copy"></i></button>

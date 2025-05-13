@@ -10,6 +10,7 @@
   <form method="post" class="container-fluid">
     {% csrf_token %}
     <input id="action" type="hidden" name="action">
+    <input id="split" type="hidden" name="split">
     <input type="hidden" name="id" value="{{ form.id.value }}" />
 
     {% url 'prepayments' as back_url %}
@@ -345,25 +346,10 @@
         periods.push(lastValue)
         if (!isValid)
           return;
-
-        if (periods.length > 2){
-          let prev;
-          periods.forEach(function(el, idx) {
-            if (idx === 1) {
-              editedRow.find('.period-from').val(prev.format('DD.MM.YYYY'))
-              editedRow.find('.period-to').val(el.format('DD.MM.YYYY'))
-            }  else if (idx > 1) {
-              const newEditedRow = $(addForm('purpose'))
-              newEditedRow.find('.period-from').val(prev.add(1, 'day').format('DD.MM.YYYY'))
-              newEditedRow.find('.period-to').val(el.format('DD.MM.YYYY'))
-              container.append(newEditedRow)
-            }
-
-            prev = el;
-          })
-        }
-        $('#id_purpose-TOTAL_FORMS').val($('.purpose-form').length)
-        modal.modal('hide')
+        console.log(editedRow.data('prefix'))
+        $('#action').val('split-' + editedRow.data('prefix'))
+        $('#split').val(periods)
+        $('form').submit()
       })
 
       updatePrepaymentSum ()
