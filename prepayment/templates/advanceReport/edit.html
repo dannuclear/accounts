@@ -12,6 +12,9 @@
     .col-num-row td{
       padding: 0;
     }
+    td>input {
+      text-align: center;
+    }
   </style>
 
   <form id="mainForm" method="post" class="container-fluid" enctype="multipart/form-data">
@@ -386,7 +389,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLongTitle">Распределить остаток</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           </div>
           <div class="modal-body container-fluid">
             <div class="row p-1">
@@ -421,8 +424,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            {% comment %} <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button> {% endcomment %}
-            <button type="button" class="btn btn-primary" data-dismiss="modal">Ок</button>
+            {% comment %} <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button> {% endcomment %}
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ок</button>
           </div>
         </div>
       </div>
@@ -434,7 +437,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLongTitle">Подтвердить проводки</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         </div>
         <div class="modal-body container-fluid">
           <div class="row p-1">
@@ -447,7 +450,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
           <button type="submit" form="mainForm" class="btn btn-primary ok-button">Ок</button>
         </div>
       </div>
@@ -459,7 +462,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="entityApproveModalTitle">Подтвердить проводки</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         </div>
         <div class="modal-body container-fluid">
           <div class="row p-1">
@@ -472,8 +475,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-          <button type="button" form="mainForm" class="btn btn-primary ok-button" data-dismiss="modal">Ок</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="button" form="mainForm" class="btn btn-primary ok-button" data-bs-dismiss="modal">Ок</button>
         </div>
       </div>
     </div>

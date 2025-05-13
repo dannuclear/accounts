@@ -1,36 +1,109 @@
-<div class="modal fade" id="inventoryModal" tabindex="-1" role="dialog" aria-labelledby="inventoryModalTitle" aria-hidden="true">
+{% load prepayment_extras %}
+<div class="modal fade inventoryModal" id="{{ item.prefix }}-modal" tabindex="-1" role="dialog" aria-labelledby="{{ item.prefix }}-title" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h6 class="modal-title" id="exampleModalLongTitle">Способ списания стоимости ТМА</h6>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h6 class="modal-title" id="{{ item.prefix }}-title">Способ списания стоимости ТМА</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body container-fluid">
-        
-        {% include 'advanceReport/commonModal.html' %}
+        <div class="row g-1">
 
-        <div class="row p-1">
-          <div class="col-sm-12 input-group input-group-sm">
-            <div class="input-group-prepend">
+          {% include 'advanceReport/commonModal.html' %}
+
+          <div class="col-sm-12">
+            <div class="input-group input-group-sm">
               <span class="input-group-text text-left">Направление:</span>
+              <input type="text" class="form-control route" autocomplete="off" />
             </div>
-            <input type="text" class="form-control form-control-sm route" autocomplete="off" />
           </div>
+
+          {% if itemType == 2 %}
+            <div class="col-sm-12 p-1">
+              <div class="row g-1">
+                <div class="col-sm-12 p-1 rounded" style="background: gainsboro;">
+                  <button class="btn btn-sm btn-outline-primary btn-add-entity-row" data-prefix="{{ item.prefix }}-item">Добавить</button>
+                </div>
+              </div>
+              {% for deletedInventoryItem in item.inventoryItems.deleted_forms %}
+                {{ deletedInventoryItem.id }}
+                {{ deletedInventoryItem.DELETE.as_hidden }}
+              {% endfor %}
+              {% for inventoryItem in item.inventoryItems %}
+                {{ inventoryItem.id }}
+                {% if not inventoryItem.DELETE.value %}
+                <div class="row rounded p-1 mt-1 mx-1" style="background: cadetblue;">
+                  <div class="col">
+                    <div class="row g-1">
+                      <div class="col-sm-3">
+                        <div class="input-group input-group-sm">
+                          <span class="input-group-text text-left">Код ПСО</span>
+                          <input type="text" class="form-control" name="{{ inventoryItem.invAnalysisPSO.html_name }}" value="{{ inventoryItem.invAnalysisPSO.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %} readonly {% endif %}/>
+                        </div>
+                      </div>
+      
+                      <div class="col-sm-3">
+                        <div class="input-group input-group-sm">
+                          <span class="input-group-text text-left">№ склада</span>
+                          <input type="text" class="form-control" name="{{ inventoryItem.invAnalysisWarehouseNum.html_name }}" value="{{ inventoryItem.invAnalysisWarehouseNum.value|zfillIfNotNone:3|default_if_none:'' }}"   autocomplete="off" {% if lockLevel %} readonly {% endif %}/>
+                        </div>
+                      </div>
+      
+                      <div class="col-sm-6">
+                        <div class="input-group input-group-sm">
+                          <span class="input-group-text text-left">Сумма итоговая из приходного ордера на склад</span>
+                          <input type="text" class="form-control" name="{{ inventoryItem.whOrderSum.html_name }}" value="{{ inventoryItem.whOrderSum.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+                        </div>
+                      </div>
+
+                      <div class="col-sm-6">
+                        <div class="input-group input-group-sm">
+                          <span class="input-group-text text-left">Номер приходного ордера на склад</span>
+                          <input type="text" class="form-control" name="{{ inventoryItem.whOrderNum.html_name }}" value="{{ inventoryItem.whOrderNum.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+                        </div>
+                      </div>
+      
+                      <div class="col-sm-6">
+                        <div class="input-group input-group-sm">
+                          <span class="input-group-text text-left">Оприходовано</span>
+                          <input type="text" class="form-control datepeeker" name="{{ inventoryItem.whOrderDate.html_name }}" value="{{ inventoryItem.whOrderDate.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-auto p-1 d-flex">
+                    {% if not lockLevel %}
+                      <button class="btn btn-sm btn-outline-danger btn-delete-row align-self-stretch" data-prefix="{{ inventoryItem.prefix }}"><i class="fa-light fa-trash" ></i></button>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
 
-        <div class="row p-1">
-          <div class="col-sm-12 input-group input-group-sm">
-            <div class="input-group-prepend">
-              <span class="input-group-text text-left">Комментарий:</span>
+        <div class="row g-1">
+          <div class="col-sm-6"></div>
+          <div class="col-sm-6">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text text-left">Разница между суммой по документу и итоговой суммой из ПСО:</span>
+              <input type="text" class="form-control form-control-sm" name="{{ item.diffSum.html_name }}" value="{{ item.diffSum.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
             </div>
-            <input type="text" class="form-control form-control-sm comment" autocomplete="off" />
+          </div>
+
+          <div class="col-sm-12">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text text-left">Комментарий:</span>
+              <input type="text" class="form-control form-control-sm comment" autocomplete="off" />
+            </div>
           </div>
         </div>
-        
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-        <button id="inventory-ok" type="button" class="btn btn-primary ok-button" data-dismiss="modal">Ок</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        <button type="button" class="btn btn-primary ok-button" data-bs-dismiss="modal">Ок</button>
       </div>
     </div>
   </div>

@@ -3,85 +3,74 @@
     <div class="modal-content">
       <div class="modal-header">
         <h6 class="modal-title" id="exampleModalLongTitle">Приобретение работ, услуг</h6>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body container-fluid">
-        {% include 'advanceReport/commonModal.html' %}
+        <div class="row g-1">
+          {% include 'advanceReport/commonModal.html' %}
 
-        <div class="row p-1">
-          <div class="col-sm-12 input-group input-group-sm">
-            <div class="input-group-prepend">
+          <div class="col-sm-12">
+            <div class="input-group input-group-sm">
               <span class="input-group-text text-left">Комментарий:</span>
+              <input type="text" class="form-control form-control-sm comment" autocomplete="off" />
             </div>
-            <input type="text" class="form-control form-control-sm comment" autocomplete="off" />
           </div>
-        </div>
 
-        {% for i in 'x'|rjust:'2'|make_list %}
-          <div class="row p-1">
+          {% for i in 'x'|rjust:'2'|make_list %}
             <div class="col-sm-2"></div>
             <div class="col-sm-2 font-weight-light text-right">Услуга {{ forloop.counter }}</div>
-            <div class="col-sm-3 input-group input-group-sm">
-              <div class="input-group-prepend">
+            <div class="col-sm-3">
+              <div class="input-group input-group-sm">
                 <span class="input-group-text text-left">Сумма:</span>
-              </div>
-              <input type="text" class="form-control form-control-sm service-{{ forloop.counter }}-sum-rub" autocomplete="off" />
-              <div class="input-group-append">
+                <input type="text" class="form-control form-control-sm service-{{ forloop.counter }}-sum-rub" autocomplete="off" />
                 <span class="input-group-text text-left">руб.</span>
               </div>
             </div>
 
-            <div class="col-sm-3 input-group input-group-sm">
-              <div class="input-group-prepend">
+            <div class="col-sm-3">
+              <div class="input-group input-group-sm">
                 <span class="input-group-text text-left">В т.ч. НДС:</span>
-              </div>
-              <input type="text" class="form-control form-control-sm service-{{ forloop.counter }}-sum-vat" autocomplete="off" />
-              <div class="input-group-append">
+                <input type="text" class="form-control form-control-sm service-{{ forloop.counter }}-sum-vat" autocomplete="off" />
                 <span class="input-group-text text-left">руб.</span>
               </div>
             </div>
-          </div>
-        {% endfor %}
-
-        <div class="row p-1">
-          <div class="col-sm-4 input-group input-group-sm">
-            <div class="input-group-prepend">
+            <div class="col-sm-2"></div>
+          {% endfor %}
+       
+          <div class="col-sm-4">
+            <div class="input-group input-group-sm">
               <span class="input-group-text text-left">счет, субсчет:</span>
+              <input id="comment-input" type="text" class="form-control form-control-sm account" autocomplete="off" />
             </div>
-            <input id="comment-input" type="text" class="form-control form-control-sm account" autocomplete="off" />
           </div>
 
-          <div class="col-sm-3 input-group input-group-sm">
-            <div class="input-group-prepend">
+          <div class="col-sm-3">
+            <div class="input-group input-group-sm">
               <span class="input-group-text text-left">КАУ:</span>
+              <input id="comment-input" type="text" class="form-control form-control-sm kau-1" autocomplete="off" />
+              <input id="comment-input" type="text" class="form-control form-control-sm kau-2" autocomplete="off" />
             </div>
-            <input id="comment-input" type="text" class="form-control form-control-sm kau-1" autocomplete="off" />
-            <input id="comment-input" type="text" class="form-control form-control-sm kau-2" autocomplete="off" />
           </div>
 
-          <div class="col-sm-5 input-group input-group-sm">
-            <div class="input-group-prepend">
+          <div class="col-sm-5">
+            <div class="input-group input-group-sm">
               <span class="input-group-text text-left">доп. пр.:</span>
+              <input id="comment-input" type="text" class="form-control form-control-sm extra" autocomplete="off" />
             </div>
-            <input id="comment-input" type="text" class="form-control form-control-sm extra" autocomplete="off" />
           </div>
-        </div>
 
-        <div class="row p-1">
-          <div class="col-sm-4 input-group input-group-sm">
-            <div class="input-group-prepend">
+          <div class="col-sm-4">
+            <div class="input-group input-group-sm">
               <span class="input-group-text text-left">Комиссия банка. сумма:</span>
-            </div>
-            <input type="text" class="form-control form-control-sm bank-commission" autocomplete="off" />
-            <div class="input-group-append">
+              <input type="text" class="form-control form-control-sm bank-commission" autocomplete="off" />
               <span class="input-group-text text-left">руб.</span>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-        <button type="button" class="btn btn-primary ok-button" data-dismiss="modal">Ок</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        <button type="button" class="btn btn-primary ok-button" data-bs-dismiss="modal">Ок</button>
       </div>
     </div>
   </div>

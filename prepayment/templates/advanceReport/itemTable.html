@@ -3,29 +3,29 @@
 <table class="table table-bordered table-sm text-center" style="font-size: 0.7em;">
   <thead>
     <tr>
-      <th scope="col" rowspan="2" width="3%">№ п/п</th>
-      <th scope="col" rowspan="1" colspan="2" width="5%">Документ, подтверждающий произведенные расходы</th>
-      <th scope="col" rowspan="2" width="10%">Наименование документа</th>
-      <th scope="col" rowspan="2" width="10%">Наименование расхода</th>
-      <th scope="col" rowspan="2" width="10%">Номенклатура</th>
+      <th scope="col" rowspan="2" style="width:3%;">№ п/п</th>
+      <th scope="col" rowspan="1" colspan="2" style="width:5%;">Документ, подтверждающий произведенные расходы</th>
+      <th scope="col" rowspan="2" style="width:10%;">Наименование документа</th>
+      <th scope="col" rowspan="2" style="width:10%;">Наименование расхода</th>
+      <th scope="col" rowspan="2" style="width:10%;">Номенклатура</th>
       {% if itemType == 0 %}
-        <th scope="col" rowspan="2" width="5%">Количество дней</th>
+        <th scope="col" rowspan="2" style="width:5%;">Количество дней</th>
       {% endif %}
       <th scope="col" rowspan="1" colspan="3">Сумма расхода по отчету работника</th>
       {% if itemType == 3 or itemType == 4 %}
-        <th scope="col" rowspan="2" width="5%">Шифр счет-фактура</th>
+        <th scope="col" rowspan="2" style="width:5%;">Шифр счет-фактура</th>
       {% endif %}
       {% if itemType == 2 or itemType == 3 or itemType == 4 or itemType == 5 %}
-        <th scope="col" rowspan="2" width="2%"></th>
+        <th scope="col" rowspan="2" style="width:2%;"></th>
       {% endif %}
-      <th scope="col" rowspan="2" width="2%"></th>
+      <th scope="col" rowspan="2" style="width:2%;"></th>
     </tr>
     <tr>
-      <th scope="col" rowspan="1" width="7%">Дата</th>
-      <th scope="col" rowspan="1" width="7%">Номер</th>
-      <th scope="col" rowspan="1" width="7%">в валюте</th>
-      <th scope="col" rowspan="1" width="7%">в руб. коп.</th>
-      <th scope="col" rowspan="1" width="7%%">в т.ч. НДС</th>
+      <th scope="col" rowspan="1" style="width: 7%">Дата</th>
+      <th scope="col" rowspan="1" style="width: 7%">Номер</th>
+      <th scope="col" rowspan="1" style="width: 7%">в валюте</th>
+      <th scope="col" rowspan="1" style="width: 7%">в руб. коп.</th>
+      <th scope="col" rowspan="1" style="width: 7%">в т.ч. НДС</th>
     </tr>
   </thead>
 
@@ -42,13 +42,16 @@
         {% endfor %}
       {% endif %}
       <td/>
+      {% if itemType|stringformat:'s' in '2345' %}
+        <td/>
+      {% endif %}
     </tr>
 
     {{ items.management_form }}
     {% for item in items %}
 
       {% if itemType == 2 %}
-        {% include 'advanceReport/inventoryModal2.html' with itemType=itemType item=item lockLevel=lockLevel %}
+        {% include 'advanceReport/inventoryModal.html' with itemType=itemType item=item lockLevel=lockLevel %}
       {% endif %}
 
       <tr id="{{ item.prefix }}" class="{{ items.prefix }}-form" style="{% if item.DELETE.value %} display:none {% endif %}">
@@ -160,7 +163,7 @@
         {% endif %}
         <td>
           {% if not lockLevel %}
-            <button type="button" class="btn btn-sm btn-outline-danger row-delete"><i class="fa-light fa-trash"></i></button>
+            <button type="button" class="btn btn-sm btn-outline-danger row-delete"><i class="fa-duotone fa-trash"></i></button>
           {% endif %}
         </td>
       </tr>
@@ -205,55 +208,55 @@
                 <thead>
                   <tr>
                     {% if itemType == 0 %}
-                      <th scope="col" rowspan="2" width="5%">Расходы подр-я</th>
-                      <th scope="col" rowspan="2" width="5%">Код расхода</th>
+                      <th scope="col" rowspan="2" style="width: 5%">Расходы подр-я</th>
+                      <th scope="col" rowspan="2" style="width: 5%">Код расхода</th>
                     {% endif %}
 
                     {% comment %} {% if itemType == 2 %}
-                      <th scope="col" rowspan="1" colspan="3" width="5%">Код аналит. учета</th>
-                      <th scope="col" rowspan="1" colspan="4" width="5%">Приходный ордер на склад</th>
-                      <th scope="col" rowspan="2" width="1%"></th>
+                      <th scope="col" rowspan="1" colspan="3" style="width: 5%">Код аналит. учета</th>
+                      <th scope="col" rowspan="1" colspan="4" style="width: 5%">Приходный ордер на склад</th>
+                      <th scope="col" rowspan="2" style="width: 1%"></th>
                     {% endif %} {% endcomment %}
 
                     {% if items.form_kwargs.accounting %}
-                      <th scope="col" rowspan="2" width="6%">Сумма, принятая к учету</th>
+                      <th scope="col" rowspan="2" style="width: 6%">Сумма, принятая к учету</th>
                       <th scope="col" rowspan="1" colspan="4">
                         Дебет<br />Шифр отнесения затрат
                       </th>
                       <th scope="col" rowspan="1" colspan="4">
                         Кредит<br />Код учета подотчетной суммы
                       </th>
-                      <th scope="col" rowspan="2" width="1%"/>
+                      <th scope="col" rowspan="2" style="width: 1%"/>
                     {% endif %}
                   </tr>
                   <tr>
                     {% comment %} {% if itemType == 2 %}
-                      <th scope="col" rowspan="1" width="4%">Код в ПСО</th>
-                      <th scope="col" rowspan="1" width="4%">№ склада</th>
-                      <th scope="col" rowspan="1" width="4%">шифр счет-фактуры</th>
-                      <th scope="col" rowspan="1" width="4%">номер</th>
-                      <th scope="col" rowspan="1" width="6%">дата</th>
-                      <th scope="col" rowspan="1" width="5%">Сумма, в руб. коп.</th>
-                      <th scope="col" rowspan="1" width="5%">Σ разницы</th>
+                      <th scope="col" rowspan="1" style="width: 4%">Код в ПСО</th>
+                      <th scope="col" rowspan="1" style="width: 4%">№ склада</th>
+                      <th scope="col" rowspan="1" style="width: 4%">шифр счет-фактуры</th>
+                      <th scope="col" rowspan="1" style="width: 4%">номер</th>
+                      <th scope="col" rowspan="1" style="width: 6%">дата</th>
+                      <th scope="col" rowspan="1" style="width: 5%">Сумма, в руб. коп.</th>
+                      <th scope="col" rowspan="1" style="width: 5%">Σ разницы</th>
                     {% endif %} {% endcomment %}
                     {% if items.form_kwargs.accounting %}
-                      <th scope="col" rowspan="1" width="4%">Счет/Субсчет</th>
+                      <th scope="col" rowspan="1" style="width: 4%">Счет/Субсчет</th>
                       {% if itemType == 2 or itemType == 3 or itemType == 4 %}
-                        <th scope="col" rowspan="1" colspan="2" width="7%">КАУ</th>
+                        <th scope="col" rowspan="1" colspan="2" style="width: 7%">КАУ</th>
                       {% else %}
-                        <th scope="col" rowspan="1" width="5%">Статья расходов</th>
-                        <th scope="col" rowspan="1" width="5%">Цех отнесения затрат</th>
+                        <th scope="col" rowspan="1" style="width: 5%">Статья расходов</th>
+                        <th scope="col" rowspan="1" style="width: 5%">Цех отнесения затрат</th>
                       {% endif %}
-                      <th scope="col" rowspan="1" width="5%">Доп признак</th>
+                      <th scope="col" rowspan="1" style="width: 5%">Доп признак</th>
 
-                      <th scope="col" rowspan="1" width="4%">Счет/Субсчет</th>
+                      <th scope="col" rowspan="1" style="width: 4%">Счет/Субсчет</th>
                       {% if itemType == 2 or itemType == 3 or itemType == 4 %}
-                        <th scope="col" rowspan="1" colspan="2" width="7%">КАУ</th>
+                        <th scope="col" rowspan="1" colspan="2" style="width: 7%">КАУ</th>
                       {% else %}
-                        <th scope="col" rowspan="1" width="5%">Статья расходов</th>
-                        <th scope="col" rowspan="1" width="5%">№ подр-я работника</th>
+                        <th scope="col" rowspan="1" style="width: 5%">Статья расходов</th>
+                        <th scope="col" rowspan="1" style="width: 5%">№ подр-я работника</th>
                       {% endif %}
-                      <th scope="col" rowspan="1" width="5%">Доп признак</th>
+                      <th scope="col" rowspan="1" style="width: 5%">Доп признак</th>
                     {% endif %}
                   </tr>
                 </thead>

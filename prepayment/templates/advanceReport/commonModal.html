@@ -1,61 +1,51 @@
-<div class="row p-1">
-  <div id="approve-doc" class="col-sm-8 input-group input-group-sm">
-    <div class="input-group-prepend">
+  <div class="col-sm-8">
+    <div id="approve-doc" class="input-group input-group-sm">
       <span class="input-group-text text-left">Наименование</span>
     </div>
   </div>
 
-  <div class="col-sm-4 input-group input-group-sm">
-    <div class="input-group-prepend">
+  <div class="col-sm-4">
+    <div class="input-group input-group-sm">
       <span class="input-group-text text-left">Дата составления</span>
+      <input type="text" class="form-control form-control-sm datepeeker doc-date" autocomplete="off" />
     </div>
-    <input type="text" class="form-control form-control-sm datepeeker doc-date" autocomplete="off" />
   </div>
-</div>
 
-<div class="row p-1">
-  <div class="col-sm-4 input-group input-group-sm">
-    <div class="input-group-prepend">
+  <div class="col-sm-4">
+    <div class="input-group input-group-sm">
       <span class="input-group-text text-left">Номер документа</span>
+      <input type="text" class="form-control form-control-sm doc-num" autocomplete="off" />
     </div>
-    <input type="text" class="form-control form-control-sm doc-num" autocomplete="off" />
   </div>
 
-  <div class="col-sm-4 input-group input-group-sm">
-    <div class="input-group-prepend">
+  <div class="col-sm-4">
+    <div class="input-group input-group-sm">
       <span class="input-group-text text-left">Сумма по документу:</span>
-    </div>
-    <input type="text" class="form-control form-control-sm expense-sum-rub" autocomplete="off" />
-    <div class="input-group-append">
+      <input type="text" class="form-control form-control-sm expense-sum-rub" autocomplete="off" />
       <span class="input-group-text text-left">руб.</span>
     </div>
   </div>
 
-  <div class="col-sm-4 input-group input-group-sm">
-    <div class="input-group-prepend">
+  <div class="col-sm-4">
+    <div class="input-group input-group-sm">
       <span class="input-group-text text-left">В т.ч. НДС:</span>
-    </div>
-    <input type="text" class="form-control form-control-sm expense-sum-vat" autocomplete="off" />
-    <div class="input-group-append">
+      <input type="text" class="form-control form-control-sm expense-sum-vat" autocomplete="off" />
       <span class="input-group-text text-left">руб.</span>
     </div>
   </div>
-</div>
 
-{% if printSypher == None or printSypher == True %}
-  <div class="row p-1">
-    <div class="col-sm-5 input-group input-group-sm">
-      <div class="input-group-prepend">
+  {% if printSypher == None or printSypher == True %}
+    <div class="col-sm-5">
+      <div class="input-group input-group-sm">
         <span class="input-group-text text-left">Регистрация документа в отд.089: № Шифра</span>
+        <input type="text" class="form-control form-control-sm sypher-num" autocomplete="off" />
       </div>
-      <input type="text" class="form-control form-control-sm sypher-num" autocomplete="off" />
     </div>
 
-    <div class="col-sm-3 input-group input-group-sm">
-      <div class="input-group-prepend">
+    <div class="col-sm-3">
+      <div class="input-group input-group-sm">
         <span class="input-group-text text-left">Дата шифра:</span>
+        <input type="text" class="form-control form-control-sm datepeeker sypher-date" autocomplete="off" />
       </div>
-      <input type="text" class="form-control form-control-sm datepeeker sypher-date" autocomplete="off" />
     </div>
-  </div>
-{% endif %}
+  {% endif %}
