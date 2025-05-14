@@ -91,8 +91,18 @@
             {% include 'main/input_group.html' with field=form.reportAccountingNum inputClass='align-items-end justify-content-center' inputGroupClass='h-100'%}
           </div>
 
-          <div class="col-3 text-end">
+          <div class="col text-end">
             <small>Создан: {{ form.instance.createdAt }}</small>
+            {% if form.instance.approveDate %}
+              <br/>
+              <small>Проводки подтверждены: {{ form.instance.approveDate }}</small>
+            {% endif %}
+          </div>
+
+          <div class="col-auto text-center pt-3 ps-3">
+            {% if lockLevel > 0 %}
+              <i class="fa-duotone fa-lock-keyhole text-danger fa-xl" title="Уровень блокировки:&#13;&#10;0 - Корректировка АО&#13;&#10;1 - Проводки подтверждены&#13;&#10;2 - Проводки выгружены"></i> - {{ lockLevel }}
+            {% endif %}
           </div>
         </div>
       </div>
@@ -196,7 +206,7 @@
         </div>
       </div>
 
-      {% if form.instance.reportStatus_id == 3 %}
+      {% if form.instance.reportStatus_id == 3 and lockLevel|stringformat:"s" in '10' %}
         <div class="col-12 border rounded p-1">
           <div class="row g-1">
             <div class="col">
@@ -336,10 +346,10 @@
               <table class="table table-bordered table-sm text-center">
                 <thead>
                   <th>Наименование</th>
-                  <th width="10%">Дата прикрепления</th>
+                  <th style="width: 10%;">Дата прикрепления</th>
                   <th>Просмотр</th>
-                  <th width="40%">Загрузить</th>
-                  <th width="3%"></th>
+                  <th style="width: 40%;">Загрузить</th>
+                  <th style="width: 3%;"></th>
                 </thead>
                 <tbody class="{{ attachments.prefix }}-container">
                   {{ attachments.management_form }}
@@ -372,11 +382,11 @@
           </div>
           <div class="tab-pane fade container-fluid" id="tab-content-8" role="tabpanel" aria-labelledby="tab-8">
             <div class="row">
-              <div class="col-12 p-1 input-group input-group-sm">
-                <div class="input-group-prepend">
-                  <span class="input-group-text">Примечание</span>
-                </div>
-                <textarea class="mb-0 form-control form-control-sm {% if form.reportComment.errors %} is-invalid {% endif %}" name="{{ form.reportComment.name }}">{{ form.reportComment.value|default_if_none:'' }}</textarea>
+              <div class="col-12 p-1">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">Примечание</span>
+                    <textarea class="mb-0 form-control form-control-sm {% if form.reportComment.errors %} is-invalid {% endif %}" name="{{ form.reportComment.name }}">{{ form.reportComment.value|default_if_none:'' }}</textarea>
+                  </div>
               </div>
             </div>
           </div>
@@ -384,111 +394,21 @@
       </div>
     </div>
 
-    <div class="modal fade" id="distribModal" tabindex="-1" role="dialog" aria-labelledby="distribModalTitle" aria-hidden="true">
-      <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLongTitle">Распределить остаток</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          </div>
-          <div class="modal-body container-fluid">
-            <div class="row p-1">
-              <div class="col-2">Остаток сумме</div>
-              <div class="col-2">
-                <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribSalary.name }}" value="{{ form.distribSalary.value|default_if_none:'' }}" />
-              </div>
-              <div class="col">Внесен в массив удержаний из зарплаты за</div>
-              <div class="col-3">
-                <input type="text" class="mb-0 form-control form-control-sm datepeeker" name="{{ form.distribSalaryDate.name }}" value="{{ form.distribSalaryDate.value|default_if_none:'' }}" />
-              </div>
-            </div>
+    {% include 'advanceReport/distributeModal.html' with modal_id='distribModal' render_cancel=False %}
 
-            <div class="row p-1">
-              <div class="col-2"></div>
-              <div class="col-2">
-                <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribBank.name }}" value="{{ form.distribBank.value|default_if_none:'' }}" />
-              </div>
-              <div class="col">(перерасход) перечислен на карту банка</div>
-              <div class="col-3">{{ form.distribBankMethod }}</div>
-            </div>
-
-            <div class="row p-1">
-              <div class="col-2"></div>
-              <div class="col-2">
-                <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribCarryover.name }}" value="{{ form.distribCarryover.value|default_if_none:'' }}" />
-              </div>
-              <div class="col">переходящий остаток. Номер А.О.:</div>
-              <div class="col-3">
-                <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribCarryoverReportNum.name }}" value="{{ form.distribCarryoverReportNum.value|default_if_none:'' }}" />
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            {% comment %} <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button> {% endcomment %}
-            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ок</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </form>
-
-  <div class="modal fade" id="approveModal" tabindex="-1" role="dialog" aria-labelledby="approveModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLongTitle">Подтвердить проводки</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        </div>
-        <div class="modal-body container-fluid">
-          <div class="row p-1">
-            <div class="col-12 input-group input-group-sm">
-              <div class="input-group-prepend">
-                <span class="input-group-text">Дата согласования</span>
-              </div>
-              <input type="text" class="mb-0 form-control form-control-sm datepeeker approve-date" />
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" form="mainForm" class="btn btn-primary ok-button">Ок</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="entityApproveModal" tabindex="-1" role="dialog" aria-labelledby="entityApproveModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="entityApproveModalTitle">Подтвердить проводки</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        </div>
-        <div class="modal-body container-fluid">
-          <div class="row p-1">
-            <div class="col-12 input-group input-group-sm">
-              <div class="input-group-prepend">
-                <span class="input-group-text">Дата согласования</span>
-              </div>
-              <input type="text" class="mb-0 form-control form-control-sm datepeeker approve-date" />
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="button" form="mainForm" class="btn btn-primary ok-button" data-bs-dismiss="modal">Ок</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   {% comment %} {% include 'advanceReport/inventoryModal.html' %} {% endcomment %}
 
-  {% include 'advanceReport/serviceModal.html' %}
+  {% include 'advanceReport/approveModal.html' with modal_id='approveModal' submit_form_id='mainForm' modal_size='xs' %}
 
-  {% include 'advanceReport/presentationModal.html' %}
+  {% include 'advanceReport/approveModal.html' with modal_id='entityApproveModal' submit_form_id='mainForm' modal_size='xs' %}
 
-  {% include 'advanceReport/purchaseOrderModal.html' %}
+  {% include 'advanceReport/serviceModal.html' with modal_id='serviceModal' %}
+
+  {% include 'advanceReport/presentationModal.html' with modal_id='presentationModal' %}
+
+  {% include 'advanceReport/purchaseOrderModal.html' with modal_id='purchaseOrderModal' %}
 
   <script type="text/javascript">
     var editRow

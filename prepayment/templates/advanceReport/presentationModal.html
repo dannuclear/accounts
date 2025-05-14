@@ -1,49 +1,40 @@
-<div class="modal fade" id="presentationModal" tabindex="-1" role="dialog" aria-labelledby="presentationModalTitle" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h6 class="modal-title" id="exampleModalLongTitle">Представительские расходы</h6>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+{% extends 'main/modal.html' %}
+
+{% block title %}
+Представительские расходы
+{% endblock %}
+
+{% block body %}
+  <div class="row g-1">
+    {% include 'advanceReport/commonModal.html' %}
+
+    <div class="col-sm-12">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text text-left">Комментарий:</span>
+        <input type="text" class="form-control form-control-sm comment" autocomplete="off" />
       </div>
-      <div class="modal-body container-fluid">
+    </div>
 
-        <div class="row p-1">
-          {% include 'advanceReport/commonModal.html' %}
-
-          <div class="col-sm-12">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text text-left">Комментарий:</span>
-              <input type="text" class="form-control form-control-sm comment" autocomplete="off" />
-            </div>
-          </div>
-
-          <div class="col-sm-4">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text text-left">счет, субсчет:</span>
-              <input id="comment-input" type="text" class="form-control form-control-sm account" autocomplete="off" />
-            </div>
-          </div>
-
-          <div class="col-sm-3">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text text-left">КАУ:</span>
-              <input id="comment-input" type="text" class="form-control form-control-sm kau-1" autocomplete="off" />
-              <input id="comment-input" type="text" class="form-control form-control-sm kau-2" autocomplete="off" />
-            </div>
-          </div>
-
-          <div class="col-sm-5">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text text-left">доп. пр.:</span>
-              <input id="comment-input" type="text" class="form-control form-control-sm extra" autocomplete="off" />
-            </div>
-          </div>
-        </div>
+    <div class="col-sm-4">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text text-left">счет, субсчет:</span>
+        <input id="comment-input" type="text" class="form-control form-control-sm account" autocomplete="off" />
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-        <button type="button" class="btn btn-primary ok-button" data-bs-dismiss="modal">Ок</button>
+    </div>
+
+    <div class="col-sm-3">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text text-left">КАУ:</span>
+        <input id="comment-input" type="text" class="form-control form-control-sm kau-1" autocomplete="off" />
+        <input id="comment-input" type="text" class="form-control form-control-sm kau-2" autocomplete="off" />
+      </div>
+    </div>
+
+    <div class="col-sm-5">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text text-left">доп. пр.:</span>
+        <input id="comment-input" type="text" class="form-control form-control-sm extra" autocomplete="off" />
       </div>
     </div>
   </div>
-</div>
+{% endblock %}

@@ -230,10 +230,13 @@ class AdvanceReportItemForm(forms.ModelForm):
         self.expenseItemType = kwargs.pop('expenseItemType', None)
         self.lockLevel = kwargs.pop('lockLevel', 0)
         _cache = kwargs.pop('entitiesCache', None)
+        _document_cache = kwargs.pop('document_cache', None)
         super(AdvanceReportItemForm, self).__init__(*args, **kwargs)
         if self.lockLevel:
             self.fields['expenseCategory'].widget.attrs['disabled'] = 'True'
             self.fields['approveDocument'].widget.attrs['disabled'] = 'True'
+            if _document_cache is not None:
+                self.fields['approveDocument'].queryset = _document_cache
             # self.fields['expenseCode'].widget.attrs['disabled'] = 'True'
             #self.fields['expenseCategory'].disabled = True
             #self.fields['approveDocument'].disabled = True

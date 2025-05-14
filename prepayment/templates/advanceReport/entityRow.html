@@ -1,10 +1,10 @@
 {% load prepayment_extras %}
+{% load widget_tweaks %}
 <tr style="{% if entity.DELETE.value %} display:none {% endif %} {% if entity.isStorno.value %} background-color: {% if entity.accountingSum.value|stringformat:"s"|slice:":1" == "-" %}indianred{% else %}cadetblue{% endif %}{% endif %}">
   {{ entity.id }}
-  
-  <input type="hidden" name="{{ entity.isStorno.html_name }}" id="{{ entity.isStorno.auto_id }}" value="{{ entity.isStorno.value|default_if_none:'' }}" />
+  {{ entity.isStorno.as_hidden }}
   <input type="hidden" name="{{ entity.approveDate.html_name }}" id="{{ entity.approveDate.auto_id }}" value="{{ entity.approveDate.value|default_if_none:'' }}" class="entity-approve-date"/>
-  <input type="hidden" name="{{ entity.DELETE.html_name }}" id="{{ entity.DELETE.auto_id }}" value="{{ entity.DELETE.value|default_if_none:'' }}" />
+  {{ entity.DELETE.as_hidden }}
 
   {% comment %} {% if itemType == 2 %}
     <td style="width:100px">
@@ -40,7 +40,7 @@
       {% if lockLevel and not entity.isStorno.value %}
         <input type="text" class="form-control form-control-sm" name="{{ entity.expenseCode.html_name }}" value="{{ entity.expenseCode.value|default_if_none:'' }}" autocomplete="off" readonly/>
       {% else %}
-        {{ entity.expenseCode }}
+        {{ entity.expenseCode|add_class:'form-select' }}
       {% endif %}
     </td>
   {% endif %}
@@ -99,22 +99,14 @@
     </td>
   {% endif %}
 
-  {% comment %} {% if itemType == 2 %}
-    <td>
-      {% if not lockLevel and items.form_kwargs.accounting %}
-        <button class="btn btn-sm btn-outline-success btn-fill-entity-row" data-prefix="{{ entity.prefix }}"><i class="fa-light fa-caret-right"></i></button>
-      {% endif %}
-    </td>
-  {% endif %} {% endcomment %}
-
   <td>
     {% if not lockLevel %}
-      <button type="button" class="btn btn-sm btn-outline-danger row-delete"><i class="fa-light fa-trash" ></i></button>
+      <button type="button" class="btn btn-sm btn-outline-danger row-delete"><i class="fa-duotone fa-trash" ></i></button>
       {% else %}
         {% if not entity.isStorno.value %}
           <button class="btn btn-sm btn-outline-danger row-storno" data-prefix="{{ entity.prefix }}">СТОРНО</button>
           {% else %}
-          <button type="button" class="btn btn-sm btn-outline-danger" data-prefix="{{ entity.prefix }}" data-toggle="modal" data-target="#entityApproveModal">ПОДТВ</button>
+          <button type="button" class="btn btn-sm btn-outline-danger" data-prefix="{{ entity.prefix }}" data-bs-toggle="modal" data-bs-target="#entityApproveModal">ПОДТВ</button>
         {% endif %}
     {% endif %}
   </td>

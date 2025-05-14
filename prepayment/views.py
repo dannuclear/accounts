@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from .serializers import PrepaymentSerializer
 from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm, AdvanceReportForm, AdvanceReportItemForm, AttachmentForm, ItemsFormSet, AttachmentFormSet
 from datetime import datetime, timedelta
-from guide.models import Status, ExpenseItem, ExpenseCategory, AccountingCert, Department
+from guide.models import Status, ExpenseItem, ExpenseCategory, AccountingCert, Department, Document
 from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
@@ -202,6 +202,7 @@ def editAdvanceReport(request, id):
                 # Удаляем проводки при нажатии кнопки корректировка проводки
                 cr = connection.cursor()
                 cr.execute('DELETE FROM accounting_entry WHERE prepayment_id = %s', [prepayment.id])
+                cr.execute('DELETE FROM fact WHERE prepayment_id = %s', [prepayment.id])
                 lockLevel = 0
             else:
                 processActionNew(postCopy, prepayment, accounting)
@@ -262,7 +263,7 @@ def editAdvanceReport(request, id):
                 prepayment = form.save()
 
                 cursor = connection.cursor()
-                if (prepayment.reportStatus_id is None or prepayment.reportStatus_id <= 3) and prepayment.lockLevel < 2:
+                if (prepayment.reportStatus_id is None or prepayment.reportStatus_id <= 3) and prepayment.lockLevel == 1:
                     cursor.execute('DELETE FROM fact WHERE prepayment_id = %s', [prepayment.id])
                     cursor.execute('DELETE FROM accounting_entry WHERE prepayment_id = %s', [prepayment.id])
 
@@ -286,8 +287,8 @@ def editAdvanceReport(request, id):
                 cursor.execute(
                     'UPDATE prepayment SET spended_sum = (SELECT SUM(item.expense_sum_rub) FROM advance_report_item item WHERE item.prepayment_id = prepayment.id AND item.item_type != 1), report_accounting_sum = (SELECT SUM(entity.accounting_sum) FROM advance_report_item_entity entity INNER JOIN advance_report_item item ON item.id = entity.advance_report_item_id WHERE item.prepayment_id = prepayment.id), account_codes = (SELECT STRING_AGG(DISTINCT arie.credit_account::text, \',\') FROM advance_report_item_entity arie INNER JOIN advance_report_item ari ON ari.id = arie.advance_report_item_id WHERE arie.credit_account::text like \'71%%\' AND ari.prepayment_id = prepayment.id) WHERE id = %s', [prepayment.id])
 
-                # Если отчет согласован, заполняем ФАКТЫ и проводки
-                if prepayment.reportStatus_id == 3 and prepayment.lockLevel < 2:
+                # Если отчет согласован, заполняем ФАКТЫ и проводки только если нажата кнопка подтвердить проводки(lock=1)
+                if prepayment.reportStatus_id == 3 and prepayment.lockLevel == 1:
                     # cursor.execute('DELETE FROM fact WHERE prepayment_id = %s', [prepayment.id])
                     cursor.execute(ADD_FACTS, [prepayment.id])
 
@@ -302,13 +303,17 @@ def editAdvanceReport(request, id):
             if dept:
                 prepayment.empDivName = dept.name
         form = AdvanceReportForm(instance=prepayment, user=request.user)
+
+        document_cache = Document.objects.order_by('-id').all()
+        for doc in document_cache:
+            pass
         if prepayment.imprestAccount_id not in [7104, 7106]:
-            travelExpenses = ItemsFormSet(prefix='travel-expense', instance=prepayment, queryset=queryset.filter(itemType=0), form_kwargs={'accounting': accounting, 'itemType': 0, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel })
-            orgServices = ItemsFormSet(prefix='org-service', instance=prepayment, queryset=queryset.filter(itemType=1), form_kwargs={'accounting': accounting, 'itemType': 1, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel})
-        iventoryItems = ItemsFormSet(prefix='inventory', instance=prepayment, queryset=queryset.filter(itemType=2), form_kwargs={'accounting': accounting, 'itemType': 2, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel})
-        services = ItemsFormSet(prefix='service', instance=prepayment, queryset=queryset.filter(itemType=3), form_kwargs={'accounting': accounting, 'itemType': 3, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel})
-        presentationExpenses = ItemsFormSet(prefix='presentation', instance=prepayment, queryset=queryset.filter(itemType=4), form_kwargs={'accounting': accounting, 'itemType': 4, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel})
-        purchaseOrderExpenses = ItemsFormSet(prefix='purchase-order', instance=prepayment, queryset=queryset.filter(itemType=5), form_kwargs={'accounting': accounting, 'itemType': 5, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel})
+            travelExpenses = ItemsFormSet(prefix='travel-expense', instance=prepayment, queryset=queryset.filter(itemType=0), form_kwargs={'accounting': accounting, 'itemType': 0, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'document_cache': document_cache })
+            orgServices = ItemsFormSet(prefix='org-service', instance=prepayment, queryset=queryset.filter(itemType=1), form_kwargs={'accounting': accounting, 'itemType': 1, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'document_cache': document_cache })
+        iventoryItems = ItemsFormSet(prefix='inventory', instance=prepayment, queryset=queryset.filter(itemType=2), form_kwargs={'accounting': accounting, 'itemType': 2, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'document_cache': document_cache })
+        services = ItemsFormSet(prefix='service', instance=prepayment, queryset=queryset.filter(itemType=3), form_kwargs={'accounting': accounting, 'itemType': 3, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'document_cache': document_cache })
+        presentationExpenses = ItemsFormSet(prefix='presentation', instance=prepayment, queryset=queryset.filter(itemType=4), form_kwargs={'accounting': accounting, 'itemType': 4, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'document_cache': document_cache })
+        purchaseOrderExpenses = ItemsFormSet(prefix='purchase-order', instance=prepayment, queryset=queryset.filter(itemType=5), form_kwargs={'accounting': accounting, 'itemType': 5, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'document_cache': document_cache })
 
         attachments = AttachmentFormSet(prefix='attachment', instance=prepayment)
 

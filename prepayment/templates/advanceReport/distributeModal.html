@@ -1,0 +1,35 @@
+{% extends 'main/modal.html' %}
+{% load widget_tweaks %}
+
+{% block title %}
+  Распределить остаток
+{% endblock %}
+
+{% block body %}
+  <div class="row g-1">
+    <div class="col-2">Остаток сумме</div>
+    <div class="col-2">
+      <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribSalary.name }}" value="{{ form.distribSalary.value|default_if_none:'' }}" />
+    </div>
+    <div class="col-5">Внесен в массив удержаний из зарплаты за</div>
+    <div class="col-3">
+      <input type="text" class="mb-0 form-control form-control-sm datepeeker" name="{{ form.distribSalaryDate.name }}" value="{{ form.distribSalaryDate.value|default_if_none:'' }}" />
+    </div>
+
+    <div class="col-2"></div>
+    <div class="col-2">
+      <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribBank.name }}" value="{{ form.distribBank.value|default_if_none:'' }}" />
+    </div>
+    <div class="col-5">(перерасход) перечислен на карту банка</div>
+    <div class="col-3">{{ form.distribBankMethod|add_class:'form-select' }}</div>
+
+    <div class="col-2"></div>
+    <div class="col-2">
+      <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribCarryover.name }}" value="{{ form.distribCarryover.value|default_if_none:'' }}" />
+    </div>
+    <div class="col-5">переходящий остаток. Номер А.О.:</div>
+    <div class="col-3">
+      <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribCarryoverReportNum.name }}" value="{{ form.distribCarryoverReportNum.value|default_if_none:'' }}" />
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,23 @@
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1" aria-labelledby="{{ modal_id }}-title" aria-hidden="true">
+  <div class="modal-dialog modal-{{ modal_size|default:"xl" }} modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title" id="{{ modal_id }}-title">
+        {% block title %}
+        {% endblock %}
+        </h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body container-fluid">
+        {% block body %}
+        {% endblock %}
+      </div>
+      <div class="modal-footer">
+        {% if render_cancel|default_if_none:True %}
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        {% endif %}
+        <button type="{% if submit_form_id is None %}button{% else %}submit{% endif %}" form="{{ submit_form_id }}" class="btn btn-primary ok-button" data-bs-dismiss="modal">Ок</button>
+      </div>
+    </div>
+  </div>
+</div>
