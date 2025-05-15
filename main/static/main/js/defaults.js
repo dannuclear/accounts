@@ -3,7 +3,7 @@ var csrftoken = Cookies.get('csrftoken');
 dayjs.locale('ru')
 dayjs.extend(window.dayjs_plugin_customParseFormat);
 
-function editColumn(path, predicate) {
+function editColumn(path, predicate, getRowId = function(data){return data.id}) {
 	return ({
 		data: null,
 		defaultContent: '',
@@ -12,13 +12,13 @@ function editColumn(path, predicate) {
 		className: 'text-center align-middle px-1',
 		render: function (data, type, row) {
 			if (!predicate || predicate(data))
-				return `<a href="${path}/${data.id}" class="text-success m-0"><i class="fa-light fa-pencil fa-xl"></i></a>`
+				return `<a href="${path}/${getRowId(data)}" class="text-success m-0"><i class="fa-light fa-pencil fa-xl"></i></a>`
 			return ''
 		}	
 	})
 }
 
-function deleteColumn(path, predicate, confirmText = 'Удалить?') {
+function deleteColumn(path, predicate, confirmText = 'Удалить?', getRowId = function(data){return data.id}) {
 	return ({
 		data: null,
 		defaultContent: '',
@@ -26,7 +26,7 @@ function deleteColumn(path, predicate, confirmText = 'Удалить?') {
 		searchable: false,
 		className: 'text-center align-middle px-1',
 		render: function (data, type, row) {
-			return `<a href="${path}/${data.id}/delete" class="text-danger m-0" onclick="return confirm('${confirmText}');"><i class="fa-light fa-trash fa-xl"></i></a>`
+			return `<a href="${path}/${getRowId(data)}/delete" class="text-danger m-0" onclick="return confirm('${confirmText}');"><i class="fa-light fa-trash fa-xl"></i></a>`
 		}
 	})
 }

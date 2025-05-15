@@ -6,63 +6,49 @@
 
 {% block content %}
   <div class="alert alert-primary" role="alert" style="display: none;"></div>
-  <table id="departmentAccount-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100"></table>
+  <table id="departmentAccount-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100">
+    <thead>
+      <tr>
+        <th style="width: 10%">Код</th>
+        <th style="width: 30%">Наименование</th>
+        <th style="width: 30%">Счет</th>
+        <th style="width: 30%">Доп признак</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+  </table>
 
   <script type="text/javascript">
     $(document).ready(function () {
       var departmentAccountTable = $('#departmentAccount-table').DataTable({
         ajax: {
-          url: '/api/v1/departmentAccounts/?format=datatables',
+          url: "{% url 'departmentaccount-list' %}?format=datatables",
           data: function (d) {}
         },
         rowId: 'id',
-        pagingType: 'first_last_numbers',
         columns: [
           {
-            title: 'Код',
-            data: 'department.id',
-            width: '5rem'
+            data: 'department.id'
           },
           {
-            title: 'Наименование',
             data: 'department.name'
           },
           {
-            title: 'Счет',
             data: 'account'
           },
           {
-            title: 'Доп признак',
             data: 'extra',
-            width: '5rem'
           },
-          {
-            title: '',
-            data: null,
-            width: '1%',
-            defaultContent: '',
-            orderable: false,
-            render: function (data, type, row) {
-                return `<a href="/departmentAccounts/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
-            }
-        },
-        {
-            title: '',
-            data: null,
-            width: '1%',
-            defaultContent: '',
-            orderable: false,
-            render: function (data, type, row) {
-              return `<a href="/departmentAccounts/${data.id}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить подразделение?');"></a>`
-            }
-         }
+         editColumn("{% url 'departmentAccounts' %}", null), 
+         deleteColumn("{% url 'departmentAccounts' %}", null, 'Удалить счет подразделения?')
         ],
         buttons: [
           {
-            text: '&nbsp;Создать',
-            className: 'btn btn-info btn-sm bi bi-boxes',
+            text: '<i class="fa-light fa-octagon-plus me-2"></i>&nbsp;Создать',
+            className: 'btn btn-success btn-sm',
             action: function (e, dt, node, config) {
-              window.location.href = '/departmentAccounts/new'
+              window.location.href = "{% url 'departmentAccounts' %}/new"
             }
           }
         ]

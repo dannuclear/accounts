@@ -29,8 +29,8 @@
         columns: [
           { data: 'account' },
           { data: 'name' }, 
-          editColumn("{% url 'imprestAccounts' %}", null), 
-          deleteColumn("{% url 'imprestAccounts' %}", null, 'Удалить код расхода?')
+          editColumn("{% url 'imprestAccounts' %}", null, function(data) { return data.account }), 
+          deleteColumn("{% url 'imprestAccounts' %}", null, 'Удалить код учетв?', function(data) { return data.account })
         ],
         buttons: [
           {

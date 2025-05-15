@@ -448,16 +448,12 @@
 
       // При показе таба обновляем итоги
       $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-        //console.log(e.target)
-        //console.log(e.relatedTarget)
         updateTotal($(e.target.dataset.target))
       })
 
       // Добавить элемент авансового отчета
       $('.btn-add-row, .btn-add-entity-row').on('click', function (e) {
         $('#action').val('add-' + $(e.target).data('prefix'))
-        //const form = addForm($(e.target).data('prefix'))
-        //$(form).find('.datepeeker').removeAttr('id').removeClass('hasDatepicker').datepicker()
       })
 
       // Удалить элемент авансового отчета
