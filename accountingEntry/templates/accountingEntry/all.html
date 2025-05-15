@@ -5,89 +5,82 @@
 {% endblock %}
 
 {% block content %}
-    <style>
-        tr > th {
-            text-align: center;
-            border-bottom-width: 1px!important;
-            padding: .2rem!important;
-            font-size: 0.9em;
-        }
-    </style>
-
 <div class="alert alert-primary" role="alert" style="display: none;">
 
 </div>
 
-  <div class="modal fade" id="periodModal" tabindex="-1" role="dialog" aria-labelledby="periodModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLongTitle">Подтвердить проводки</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        </div>
-        <div class="modal-body container-fluid">
-          <div class="row p-1">
-            <div class="col-12 input-group input-group-sm">
-              <div class="input-group-prepend">
-                <span class="input-group-text">Месяц, год выгрузки</span>
-              </div>
-              <input type="text" class="mb-0 form-control form-control-sm datepeeker period-date" />
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-          <button type="button" form="mainForm" class="btn btn-primary ok-button">Ок</button>
-        </div>
-      </div>
-    </div>
-  </div>
+{% include 'main/filters/period_filter.html' %}
 
-<table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100" style="font-size: 0.9em;">
+<div class="modal fade" id="periodModal" tabindex="-1" aria-labelledby="periodModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Подтвердить проводки</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body container-fluid">
+            <div class="row p-1">
+                <div class="col-12">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text">Месяц, год выгрузки</span>
+                        <input type="text" class="mb-0 form-control form-control-sm datepeeker period-date" />
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" form="mainForm" class="btn btn-primary ok-button">Ок</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm" style="font-size: 0.9em;">
     <thead>
         <tr>
-            <th rowspan="2" data-dt-order="disable" width='40px'>АО</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 40px">АО</th>
 
-            <th rowspan="2" data-dt-order="disable" width='40px'>Месяц</th>
-            <th rowspan="2" data-dt-order="disable" width='40px'>Год</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 40px">Месяц</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 40px">Год</th>
 
-            <th rowspan="2" data-dt-order="disable" width='70px'>Таб. №</th>
-            <th rowspan="2" data-dt-order="disable">ФИО</th>
-            <th rowspan="2" data-dt-order="disable" width='50px'>Подр-е</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 70px">Таб. №</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 15%">ФИО</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 50px">Подр-е</th>
 
-            <th rowspan="2" data-dt-order="disable" width='50px'>№ проводки</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 50px">№ проводки</th>
 
-            <th rowspan="1" colspan="4" data-dt-order="disable" width='60px'>Дебет</th>
-            <th rowspan="1" colspan="4" data-dt-order="disable" width='60px'>Кредит</th>
+            <th scope="col" rowspan="1" colspan="4" data-dt-order="disable" style="width: 60px">Дебет</th>
+            <th scope="col" rowspan="1" colspan="4" data-dt-order="disable" style="width: 60px">Кредит</th>
 
-            <th rowspan="2" data-dt-order="disable" width='130px'>Сумма</th>
-            <th rowspan="2" data-dt-order="disable" width='50px'>Признак подтверждения</th>
-            <th rowspan="2" data-dt-order="disable" width='70px'>Дата подтверждения</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 130px">Сумма</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 50px">Признак подтверждения</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 70px">Дата подтверждения</th>
         </tr>
         <tr>
-            <th data-dt-order="disable" width='50px'>счет/субсчет</th>
-            <th colspan="2" data-dt-order="disable" width='60px'>КАУ</th>
-            <th data-dt-order="disable" width='100px'>ДП</th>
+            <th scope="col" data-dt-order="disable" style="width: 50px">счет/субсчет</th>
+            <th scope="col" colspan="2" data-dt-order="disable" style="width: 80px">КАУ</th>
+            <th scope="col" data-dt-order="disable" style="width: 100px">ДП</th>
 
-            <th data-dt-order="disable" width='50px'>счет/субсчет</th>
-            <th colspan="2" data-dt-order="disable" width='60px'>КАУ</th>
-            <th data-dt-order="disable" width='100px'>ДП</th>
+            <th scope="col" data-dt-order="disable" style="width: 50px">счет/субсчет</th>
+            <th scope="col" colspan="2" data-dt-order="disable" style="width: 80px">КАУ</th>
+            <th scope="col" data-dt-order="disable" style="width: 100px">ДП</th>
         </tr>
         <tr>
           {% for i in 'x'|rjust:'18'|make_list %}
             {% if forloop.counter0 > 0 %}
-                <th style="font-size: 0.7em; padding: 0 !important;">{{ forloop.counter0}}</th>
+                <th scope="col" style="font-size: 0.7em; padding: 0 !important;">{{ forloop.counter0}}</th>
             {% else %}
-                <th></th>
+                <th scope="col"></th>
             {% endif %}
           {% endfor %}
         </tr>
     </thead>
     <tfoot>
         <tr>
-            <th colspan="15" class="text-left">Итого:</th>
-            <th></th>
-            <th colspan="2"></th>
+            <th scope="col" colspan="15" class="text-left">Итого:</th>
+            <th scope="col"></th>
+            <th scope="col" colspan="2"></th>
         </tr>
     </tfoot>
 </table>
@@ -115,6 +108,7 @@
 
     $(document).ready(
         function () {
+            const periodFilter = $('#period-filter')
             var requestTable = $('#request-table').DataTable(
                 {
                     ajax: {
@@ -136,32 +130,9 @@
                     rowId: 'id',
                     pagingType: 'first_last_numbers',
                     order: [],
-                    initComplete: function(){
-                        const now = dayjs();
-                        const periodFilter = $(
-                            `<div class="input-group input-group-sm">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Период с</span>
-                                </div>
-                                <input id="period-from" class="text-center datepeeker" style="width: 100px"/>
-                                <div class="input-group-append">
-                                    <span class="input-group-text">по</span>
-                                    <input id='period-to' class='text-center datepeeker' style='width: 100px'/>
-                                </div>
-                            </div>`)
-
-                        $("div.filters").append(periodFilter);        
-                        periodFilter.find('.datepeeker').datepicker()  
-                        periodFilter.on('change', 'input', function(e){
-                            requestTable.ajax.reload()
-                        }) 
-                    },
                     footerCallback: function(row, data, start, end, display) {
                         var intVal = function(i) {
-                          return typeof i === 'string' ?
-                            i.replace(/[\$,]/g, '') * 1 :
-                            typeof i === 'number' ?
-                            i : 0;
+                          return typeof i === 'string' ? i.replace(/,/g, '.').replace(/ /g, '') * 1 : typeof i === 'number' ? i : 0;
                         };
               
                         var total = 0;
@@ -198,7 +169,7 @@
                         { data: 'acplCodeAnaliticCredit1', orderable: false, defaultContent: "", className: 'text-center' },
                         { data: 'acplCodeAnaliticCredit2', orderable: false, defaultContent: "", className: 'text-center' },
                         { data: 'acplAddSignCredit', orderable: false, defaultContent: "", className: 'text-center' },
-                        { data: 'aeSum', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'aeSum', orderable: false, defaultContent: "", className: 'text-right', render: $.fn.dataTable.render.number( ' ', ',', 2 ) },
                         { data: null, orderable: false, searchable: false, defaultContent: "", className: 'text-center', render: function (data, type, row, meta) {
                                 if (data.prepayment && data.prepayment.lockLevel == 1)
                                     return '<span style="font-weight: bold;">v<span>'
@@ -212,26 +183,25 @@
                     ],
                     buttons: [
                         {
-                            text: '&nbsp;Сформировать файл выгрузки',
-                            className: 'btn btn-outline-info fa-light fa-file-export',
-                            action: function (e, dt, node, config) {
-                                $('#periodModal').modal('show')
-                                //window.location.href = '/accountingEntries/download'
+                            text: '<i class="fa-light fa-file-export me-2"></i>&nbsp;Сформировать файл выгрузки',
+                            className: 'btn btn-success btn-sm',
+                            attr: {
+                                "data-bs-toggle": "modal",
+                                "data-bs-target": "#periodModal"
                             }
-                        }/*,
-                        {
-                            text: '&nbsp;Выгрузить проводки',
-                            className: 'btn btn-outline-info fa-light fa-download',
-                            action: function (e, dt, node, config) {
-                                window.location.href = '/accountingEntries/download'
-                            }
-                        }*/
+                        }
                     ]
                 });
-
-            //$('#request-table').on('click', 'tbody td .print', function(e){
-            //    printDialog.dialog('open')
-            //})
+            periodFilter
+                .find('.datepeeker')
+                .datepicker()
+                .on('change', function (e) {
+                requestTable.ajax.reload()
+                })
+            periodFilter.find('button').on('click', function (e) {
+                periodFilter.find('input').val('')
+                requestTable.ajax.reload()
+            })
         }
     );
 </script>

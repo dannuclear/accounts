@@ -1,135 +1,122 @@
 {% extends 'main/base.html' %}
 
 {% block title %}
-Возмещаемые расходы, подлежащие включению в совокупный доход работника
+  Возмещаемые расходы, подлежащие включению в совокупный доход работника
 {% endblock %}
 
 {% block content %}
-    <style>
-        tr > th {
-            text-align: center;
-            border-bottom-width: 1px!important;
-            padding: .2rem!important;
-            font-size: 0.9em;
-        }
-    </style>
+  <div class="alert alert-primary" role="alert" style="display: none;"></div>
 
-<div class="alert alert-primary" role="alert" style="display: none;">
-
-</div>
-
-<div class="row mb-1">
-    <input id="compensation-type-input" type="hidden" value="{{ request.GET.type }}">
+  <div class="row mb-1">
+    <input id="compensation-type-input" type="hidden" value="{{ request.GET.type }}" />
     <div class="col-4 pr-1 flex-shrink-0">
-        <div class="input-group input-group-sm">
-            <div class="input-group-prepend">
-                <label class="input-group-text">Вид оплаты</label>
-            </div>
-            <select id="compensation-type-select" class="text-center form-control custom-select">
-                <option value="">Все (4479, 7121, 7130, 7140)</option>
-                <option value="4479">4479</option>
-                <option value="7121">7121</option>
-                <option value="7130">7130</option>
-                <option value="7140">7140</option>
-            </select>
-        </div>
+      <div class="input-group input-group-sm">
+        <span class="input-group-text">Вид оплаты</span>
+        <select id="compensation-type-select" class="text-center form-control custom-select">
+          <option value="">Все (4479, 7121, 7130, 7140)</option>
+          <option value="4479">4479</option>
+          <option value="7121">7121</option>
+          <option value="7130">7130</option>
+          <option value="7140">7140</option>
+        </select>
+      </div>
     </div>
-</div>
 
-<table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100" style="font-size: 0.9em;">
+    {% include 'main/filters/period_filter.html' %}
+  </div>
+
+  <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm">
+    <thead>
+      <tr>
+        <th scope="col" style="width: 3%;">Год</th>
+        <th scope="col" style="width: 3%;">Месяц</th>
+        <th scope="col" style="width: 20%;">Подразделение</th>
+        <th scope="col" style="width: 10%;">Табельный</th>
+        <th scope="col" style="width: 10%;">ФИО</th>
+        <th scope="col" style="width: 4%;">Сумма</th>
+      </tr>
+    </thead>
     <tfoot>
-        <tr>
-            <th colspan="5" class="text-left">Всего по периоду:</th>
-            <th></th>
-        </tr>
+      <tr>
+        <th scope="col" colspan="5" class="text-left">Всего по периоду:</th>
+        <th scope="col"></th>
+      </tr>
     </tfoot>
-</table>
+  </table>
 
-<script type="text/javascript">
+  <script type="text/javascript">
     let urlParams = new URLSearchParams(document.location.search)
-
-    $(document).ready(
-        function () {
-            var table = $('#request-table').DataTable(
-                {
-                    ajax: {
-                        url: '/api/v1/accountingEntries/?format=datatables',
-                        data: function (d) {
-                            if ($('#compensation-type-select').length > 0)
-                                d.compensationType = $('#compensation-type-select').val();
-                            if ($('#period-from').val())
-                                d.periodFrom=$('#period-from').val()
-                            if ($('#period-to').val())
-                                d.periodTo=$('#period-to').val()
-                                d.filterType=1
-                        }
-                    },
-                    rowId: 'id',
-                    pagingType: 'first_last_numbers',
-                    order: [],
-                    initComplete: function(){
-                        const periodFilter = $(
-                            `<div class="input-group input-group-sm">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Период с</span>
-                                </div>
-                                <input id="period-from" class="text-center datepeeker" style="width: 100px"/>
-                                <div class="input-group-append">
-                                    <span class="input-group-text">по</span>
-                                    <input id='period-to' class='text-center datepeeker' style='width: 100px'/>
-                                </div>
-                            </div>`)
-
-                        $("div.filters").append(periodFilter);        
-                        periodFilter.find('.datepeeker').datepicker()  
-                        periodFilter.on('change', 'input', function(e){
-                            table.ajax.reload()
-                        }) 
-                    },
-                    footerCallback: function(row, data, start, end, display) {
-                        var intVal = function(i) {
-                          return typeof i === 'string' ?
-                            i.replace(/[\$,]/g, '') * 1 :
-                            typeof i === 'number' ?
-                            i : 0;
-                        };
-              
-                        var total = 0;
-                        var api = this.api();
-              
-                        api.cells(null, 5, { page: 'current' }).nodes().each(function(n) {
-                            total += intVal($(n).text());
-                        })
-              
-                        $(api.column(5).footer()).html(total);
-                    },
-                    columns: [
-                        { title: 'Год', data: 'year', orderable: false, defaultContent: "", width: '50' },
-                        { title: 'Месяц', data: 'month', orderable: false, defaultContent: "", width: '50' },
-                        
-                        { title: 'Подразделение', data: 'prepayment.empDivNum', orderable: false, defaultContent: "", width: '100' },
-                        { title: 'Табельный', data: 'prepayment.empNum', orderable: false, defaultContent: "", width: '100' },
-                        { title: 'ФИО', data: 'prepayment.empFullName', orderable: false, defaultContent: "" },
-                        { title: 'Сумма', data: 'aeSum', orderable: false, defaultContent: "", width: '200', className: 'sum text-center' }
-                    ],
-                    buttons: [
-                        {
-                            text: '&nbsp;Выгрузить',
-                            className: 'btn btn-outline-info fa-light fa-file-export',
-                            action: function (e, dt, node, config) {
-                                periodFrom = $('#period-from').val()
-                                periodTo = $('#period-to').val()
-                                compensationType = $('#compensation-type-select').val()
-                                window.open(`/compensations/download?periodFrom=${periodFrom}&periodTo=${periodTo}&compensationType=${compensationType}`, '_blank').focus();
-                            }
-                        }
-                    ]
-                });
-
-                $('#compensation-type-select').on('change', function () {
-                    table.ajax.reload();
-                });
-        }
-    );
-</script>
+    
+    $(document).ready(function () {
+      const periodFilter = $('#period-filter')
+    
+      var table = $('#request-table').DataTable({
+        ajax: {
+          url: "{% url 'accountingentry-list' %}?format=datatables",
+          data: function (d) {
+            if ($('#compensation-type-select').length > 0) d.compensationType = $('#compensation-type-select').val()
+            if ($('#period-from').val()) d.periodFrom = $('#period-from').val()
+            if ($('#period-to').val()) d.periodTo = $('#period-to').val()
+            d.filterType = 1
+          }
+        },
+        rowId: 'id',
+        pagingType: 'first_last_numbers',
+        order: [],
+        footerCallback: function (row, data, start, end, display) {
+          var intVal = function (i) {
+            return typeof i === 'string' ? i.replace(/,/g, '.') * 1 : typeof i === 'number' ? i : 0
+          }
+    
+          var total = 0
+          var api = this.api()
+    
+          api
+            .cells(null, 5, { page: 'current' })
+            .nodes()
+            .each(function (n) {
+              total += intVal($(n).text())
+            })
+    
+          $(api.column(5).footer()).html(total.toFixed(2))
+        },
+        columns: [
+          { data: 'year', orderable: false, searchable: false, defaultContent: '' },
+          { data: 'month', orderable: false, searchable: false, defaultContent: '' },
+    
+          { data: 'prepayment.empDivNum', orderable: false, defaultContent: '' },
+          { data: 'prepayment.empNum', orderable: false, searchable: false, defaultContent: '' },
+          { data: 'prepayment.empFullName', orderable: false, defaultContent: '', className: 'sum text-center' },
+          { data: 'aeSum', orderable: false, searchable: false, defaultContent: '', className: 'sum text-right' }
+        ],
+        buttons: [
+          {
+            text: '<i class="fa-light fa-file-export me-2"></i>&nbsp;Выгрузить',
+            className: 'btn btn-success btn-sm',
+            action: function (e, dt, node, config) {
+              const periodFrom = $('#period-from').val()
+              const periodTo = $('#period-to').val()
+              const compensationType = $('#compensation-type-select').val()
+              window.open(`/compensations/download?periodFrom=${periodFrom}&periodTo=${periodTo}&compensationType=${compensationType}`, '_blank').focus()
+            }
+          }
+        ]
+      })
+    
+      $('#compensation-type-select').on('change', function () {
+        table.ajax.reload()
+      })
+    
+      periodFilter
+        .find('.datepeeker')
+        .datepicker()
+        .on('change', function (e) {
+          table.ajax.reload()
+        })
+      periodFilter.find('button').on('click', function (e) {
+        periodFilter.find('input').val('')
+        table.ajax.reload()
+      })
+    })
+  </script>
 {% endblock %}

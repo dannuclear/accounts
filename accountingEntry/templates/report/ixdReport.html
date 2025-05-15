@@ -1,143 +1,51 @@
 {% extends 'main/base.html' %}
 
 {% block title %}
-Реестр выданных подотчетных сумм
+  Командировочные расходы для ИХД
 {% endblock %}
 
 {% block content %}
-    <style>
-        tr > th {
-            text-align: center;
-            border-bottom-width: 1px!important;
-            padding: .2rem!important;
-            font-size: 0.9em;
-        }
+  <div class="alert alert-primary" role="alert" style="display: none;"></div>
 
-        .table-warning {
-            background-color: #f2c464;
-        }
-        td {
-            line-height: 1;
-        }
-    </style>
+  {% include 'main/filters/period_filter.html' %}
 
-<div class="alert alert-primary" role="alert" style="display: none;">
-
-</div>
-<div class="input-group input-group-sm">
-    <div class="input-group-prepend">
-        <span class="input-group-text">Период с</span>
-    </div>
-    <input id="period-from" class="text-center datepeeker" value="{{ periodFrom }}" style="width: 100px"/>
-    <div class="input-group-append">
-        <span class="input-group-text">по</span>
-        <input id='period-to' class='text-center datepeeker' value="{{ periodTo }}"  style='width: 100px'/>
-    </div>
-</div>
-<table id="ixd-table" class="table table-sm table-bordered table-hover dtr-inline w-100 mt-1" style="font-size: 0.9em;">
+  <table id="ixd-table" class="table table-sm table-bordered table-hover dtr-inline w-100 mt-1" style="font-size: 0.9em;">
     <thead>
-        <tr>
-            <th>Код расхода</th>
-            <th>Сумма руб.</th>
-            <th>Количество, чел.</th>
-            <th>Количество, дней</th>
-        </tr>
+      <tr>
+        <th>Код расхода</th>
+        <th>Сумма руб.</th>
+        <th>Количество, чел.</th>
+        <th>Количество, дней</th>
+      </tr>
     </thead>
     <tbody>
-        {% for expenseCode in expenseCodes %}
-            <tr>
-                <td>{{ expenseCode.id|default_if_none:"" }}</td>
-                <td>{{ expenseCode.sm |default_if_none:""}}</td>
-                <td>{{ expenseCode.cnt|default_if_none:"" }}</td>
-                <td>{{ expenseCode.days|default_if_none:"" }}</td>
-            </tr>
-        {% endfor %}
+      {% for expenseCode in expenseCodes %}
+        <tr>
+          <td>{{ expenseCode.id|default_if_none:'' }}</td>
+          <td>{{ expenseCode.sm|default_if_none:'' }}</td>
+          <td>{{ expenseCode.cnt|default_if_none:'' }}</td>
+          <td>{{ expenseCode.days|default_if_none:'' }}</td>
+        </tr>
+      {% endfor %}
     </tbody>
-</table>
+  </table>
 
-<script type="text/javascript">
+  <script type="text/javascript">
     const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ']
-
+    
     let urlParams = new URLSearchParams(document.location.search)
-
-    $(document).ready(
-        function () {
-            $('.datepeeker').datepicker() 
-            $('#period-from, #period-to').on('change', function(e) {
-                const periodFromValue = $('#period-from').val()
-                const periodToValue = $('#period-to').val()
-                window.location=window.location.href.split('?')[0] + "?periodFrom=" + periodFromValue + "&periodTo=" + periodToValue
-            })
-            /*
-            var ixdTable = $('#ixd-table').DataTable(
-                {
-                    ajax: {
-                        url: '/api/v1/prepayments/?format=datatables',
-                        data: function (d) {
-                            let imprestAccount = urlParams.get("imprestAccount")
-                            if (imprestAccount)
-                                d.imprestAccount=imprestAccount
-                            if ($('#period-from').val())
-                                d.periodFrom=$('#period-from').val()
-                            if ($('#period-to').val())
-                                d.periodTo=$('#period-to').val()
-                        }
-                    },
-                    rowId: 'id',
-                    pagingType: 'first_last_numbers',
-                    order: [],
-                    initComplete: function(){
-                        const periodFilter = $(
-                            `<div class="input-group input-group-sm">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Период с</span>
-                                </div>
-                                <input id="period-from" class="text-center datepeeker" style="width: 100px"/>
-                                <div class="input-group-append">
-                                    <span class="input-group-text">по</span>
-                                    <input id='period-to' class='text-center datepeeker' style='width: 100px'/>
-                                </div>
-                            </div>`)
-
-                        $("div.filters").append(periodFilter);        
-                        periodFilter.find('.datepeeker').datepicker()  
-                        periodFilter.on('change', 'input', function(e){
-                            ixdTable.ajax.reload()
-                        }) 
-                    },
-                    columns: [
-                        {
-                            title: 'Код расхода',
-                            data: null,
-                            width: '5rem'
-                        },      
-                        {
-                            title: 'Сумма руб.',
-                            data: null,
-                            width: '5rem'
-                        },   
-                        {
-                            title: 'Количество, чел.',
-                            data: null,
-                            width: '5rem'
-                        },      
-                        {
-                            title: 'Количество, дней',
-                            data: null,
-                            width: '5rem'
-                        }                              
-                    ],
-                    buttons: [
-                        {
-                            text: '&nbsp;СОЗДАТЬ НОВУЮ ПОДОТЧЕТНУЮ СУММУ',
-                            className: 'btn btn-info fa-light fa-square-plus',
-                            action: function (e, dt, node, config) {
-                                window.location.href = '/prepayments/new'
-                            }
-                        }
-                    ]
-                });*/
-        }
-    );
-</script>
+    
+    $(document).ready(function () {
+      $('.datepeeker').datepicker()
+      $('#period-from, #period-to').on('change', function (e) {
+        const periodFromValue = $('#period-from').val()
+        const periodToValue = $('#period-to').val()
+        window.location = window.location.href.split('?')[0] + '?periodFrom=' + periodFromValue + '&periodTo=' + periodToValue
+      })
+      $('button').on('click', function (e) {
+        $('input').val('')
+        window.location = window.location.href.split('?')[0] + '?periodFrom=&periodTo='
+      })
+    })
+  </script>
 {% endblock %}

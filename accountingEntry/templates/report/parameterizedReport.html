@@ -5,22 +5,22 @@
 {% endblock %}
 
 {% block content %}
+  <div class="text-right w-100">
+    <input id="show-btn" type="button" class="btn btn-success btn-sm" value="Просмотр" />
+  </div>
+  <form action="#">
+    <div class="form-row border rounded mt-1 p-1">
+      <div class="w-100">
+        <ul class="nav nav-tabs w-100" id="myTab">
+          <li class="nav-item">
+            <button class="nav-link active h-100" id="tab-1" data-bs-toggle="tab" data-bs-target="#tab-content-1" type="button" role="tab" aria-controls="tab-content-1" aria-selected="true">Форма отчета</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link h-100" id="tab-2" data-bs-toggle="tab" data-bs-target="#tab-content-2" type="button" role="tab" aria-controls="tab-content-2" aria-selected="false">Условия выборки</button>
+          </li>
+        </ul>
 
-<div class="text-right w-100">
-  <input id="show-btn" type="button" class="btn btn-success btn-sm" value="Просмотр" />
-</div>
-<form>
-  <div class="form-row border rounded mt-1 p-1">
-    <div class="w-100">
-      <ul class="nav nav-tabs w-100" id="myTab" role="tablist" style="font-size: 0.8em;">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active h-100" id="tab-1" data-toggle="tab" data-target="#tab-content-1" type="button" role="tab" aria-controls="tab-content-1" aria-selected="true">Форма отчета</button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link h-100" id="tab-2" data-toggle="tab" data-target="#tab-content-2" type="button" role="tab" aria-controls="tab-content-2" aria-selected="false">Условия выборки</button>
-          </li>
-      </ul>
-      <div class="tab-content border" id="tabContent">
+        <div class="tab-content border" id="tabContent">
           <div class="tab-pane fade show active container-fluid p-2" id="tab-content-1" role="tabpanel" aria-labelledby="tab-1">
             <select class="form-select w-100" multiple aria-label="multiple select example">
               <option value="1">Справка о расходах, отнесенных на балансовый счет(с указанием цели командировки)</option>
@@ -28,8 +28,8 @@
           </div>
 
           <div class="tab-pane fade container-fluid p-2" id="tab-content-2" role="tabpanel" aria-labelledby="tab-2">
-            <div id="condition-container">
-              {% include "report/conditionRow.html" %}
+            <div id="condition-container" class="container-fluid">
+              {% include 'report/conditionRow.html' %}
             </div>
 
             <div class="row">
@@ -41,37 +41,34 @@
         </div>
       </div>
     </div>
-  </div>
-<form>
+  </form>
 
-<script type="text/javascript">
-  $(document).ready(function () {
-    let condCounter = 1;
-    const conditionContainer = $('#condition-container');
-
-    $('#condition-add').on('click', function (e) {
-      const firstConditionRow = conditionContainer.find('.condition-row').first();
-      const newConditionRow = firstConditionRow.clone();
-      newConditionRow.find('select.param-select').attr('name', 'param_' + condCounter);
-      newConditionRow.find('select.condition-select').attr('name', 'condition_' + condCounter);
-      newConditionRow.find('input.value-first-input').attr('name', 'value_first_' + condCounter);
-      newConditionRow.find('input.value-second-input').attr('name', 'value_second_' + condCounter);
-      condCounter ++;
-      newConditionRow.appendTo(conditionContainer);
+  <script type="text/javascript">
+    $(document).ready(function () {
+      let condCounter = 1
+      const conditionContainer = $('#condition-container')
+    
+      $('#condition-add').on('click', function (e) {
+        const firstConditionRow = conditionContainer.find('.condition-row').first()
+        const newConditionRow = firstConditionRow.clone()
+        newConditionRow.find('select.param-select').attr('name', 'param_' + condCounter)
+        newConditionRow.find('select.condition-select').attr('name', 'condition_' + condCounter)
+        newConditionRow.find('input.value-first-input').attr('name', 'value_first_' + condCounter)
+        newConditionRow.find('input.value-second-input').attr('name', 'value_second_' + condCounter)
+        condCounter++
+        newConditionRow.appendTo(conditionContainer)
+      })
+    
+      conditionContainer.on('click', '.condition-delete', function (e) {
+        if (conditionContainer.find('div.condition-row').length == 1) return
+        const conditionRow = $(e.target).closest('div.condition-row')
+        conditionRow.remove()
+      })
+    
+      $('#show-btn').on('click', function (e) {
+        console.log($('form').serialize())
+        window.open('parameterizedReport/show?' + $('form').serialize(), '_blank')
+      })
     })
-
-    conditionContainer.on('click', '.condition-delete', function (e) {
-      if (conditionContainer.find('div.condition-row').length == 1)
-        return;
-      const conditionRow = $(e.target).closest('div.condition-row')
-      conditionRow.remove();
-    })
-
-    $('#show-btn').on('click', function(e){
-      console.log($('form').serialize())
-      window.open('parameterizedReport/show?'+$('form').serialize(), '_blank');
-    })
-
-  })
-</script>
+  </script>
 {% endblock %}

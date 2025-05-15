@@ -31,20 +31,20 @@
 
     {{ form.errors }}
     {{ form.non_field_errors }}
-    {% comment %} {{ travelExpenses.errors }}
+    {% comment %} {{ travelExpenses.errors }} {% endcomment %}
     {{ travelExpenses.non_field_errors }}
-    {{ orgServices.errors }}
+    {% comment %} {{ orgServices.errors }} {% endcomment %}
     {{ orgServices.non_field_errors }}
-    {{ iventoryItems.errors }}
+    {% comment %} {{ iventoryItems.errors }} {% endcomment %}
     {{ iventoryItems.non_field_errors }}
-    {{ services.errors }}
+    {% comment %} {{ services.errors }} {% endcomment %}
     {{ services.non_field_errors }}
-    {{ presentationExpenses.errors }}
+    {% comment %} {{ presentationExpenses.errors }} {% endcomment %}
     {{ presentationExpenses.non_field_errors }}
-    {{ purchaseOrderExpenses.errors }}
+    {% comment %} {{ purchaseOrderExpenses.errors }} {% endcomment %}
     {{ purchaseOrderExpenses.non_field_errors }}
-    {{ attachments.errors }}
-    {{ attachments.non_field_errors }} {% endcomment %}
+    {% comment %} {{ attachments.errors }} {% endcomment %}
+    {{ attachments.non_field_errors }}
 
     <input type="hidden" name="id" value="{{ form.id.value }}" />
     <input id="mission-days" type="hidden" value="{{ form.instance.days|default_if_none:'' }}" />

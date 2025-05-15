@@ -304,16 +304,13 @@ def editAdvanceReport(request, id):
                 prepayment.empDivName = dept.name
         form = AdvanceReportForm(instance=prepayment, user=request.user)
 
-        document_cache = Document.objects.order_by('-id').all()
-        for doc in document_cache:
-            pass
         if prepayment.imprestAccount_id not in [7104, 7106]:
-            travelExpenses = ItemsFormSet(prefix='travel-expense', instance=prepayment, queryset=queryset.filter(itemType=0), form_kwargs={'accounting': accounting, 'itemType': 0, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'document_cache': document_cache })
-            orgServices = ItemsFormSet(prefix='org-service', instance=prepayment, queryset=queryset.filter(itemType=1), form_kwargs={'accounting': accounting, 'itemType': 1, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'document_cache': document_cache })
-        iventoryItems = ItemsFormSet(prefix='inventory', instance=prepayment, queryset=queryset.filter(itemType=2), form_kwargs={'accounting': accounting, 'itemType': 2, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'document_cache': document_cache })
-        services = ItemsFormSet(prefix='service', instance=prepayment, queryset=queryset.filter(itemType=3), form_kwargs={'accounting': accounting, 'itemType': 3, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'document_cache': document_cache })
-        presentationExpenses = ItemsFormSet(prefix='presentation', instance=prepayment, queryset=queryset.filter(itemType=4), form_kwargs={'accounting': accounting, 'itemType': 4, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'document_cache': document_cache })
-        purchaseOrderExpenses = ItemsFormSet(prefix='purchase-order', instance=prepayment, queryset=queryset.filter(itemType=5), form_kwargs={'accounting': accounting, 'itemType': 5, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel, 'document_cache': document_cache })
+            travelExpenses = ItemsFormSet(prefix='travel-expense', instance=prepayment, queryset=queryset.filter(itemType=0), form_kwargs={'accounting': accounting, 'itemType': 0, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel })
+            orgServices = ItemsFormSet(prefix='org-service', instance=prepayment, queryset=queryset.filter(itemType=1), form_kwargs={'accounting': accounting, 'itemType': 1, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel })
+        iventoryItems = ItemsFormSet(prefix='inventory', instance=prepayment, queryset=queryset.filter(itemType=2), form_kwargs={'accounting': accounting, 'itemType': 2, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel })
+        services = ItemsFormSet(prefix='service', instance=prepayment, queryset=queryset.filter(itemType=3), form_kwargs={'accounting': accounting, 'itemType': 3, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel })
+        presentationExpenses = ItemsFormSet(prefix='presentation', instance=prepayment, queryset=queryset.filter(itemType=4), form_kwargs={'accounting': accounting, 'itemType': 4, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel })
+        purchaseOrderExpenses = ItemsFormSet(prefix='purchase-order', instance=prepayment, queryset=queryset.filter(itemType=5), form_kwargs={'accounting': accounting, 'itemType': 5, 'expenseItemType': prepayment.imprestAccount_id, 'lockLevel': lockLevel })
 
         attachments = AttachmentFormSet(prefix='attachment', instance=prepayment)
 

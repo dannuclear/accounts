@@ -119,18 +119,10 @@
           <input type="text" class="form-control form-control-sm doc-num" name="{{ item.approveDocNum.html_name }}" value="{{ item.approveDocNum.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
         </td>
         <td>
-          {% comment %} {% if lockLevel %}
-            <input type="text" class="form-control form-control-sm" value="{{ item.instance.approveDocument.name|default_if_none:'' }}" readonly/>
-          {% else %} {% endcomment %}
-            {{ item.approveDocument|add_class:'form-control form-select' }}
-          {% comment %} {% endif %} {% endcomment %}
+          {{ item.approveDocument|add_class:'form-select form-select-sm approve-doc'|add_error_class:'is-invalid' }}
         </td>
         <td>
-          {% comment %} {% if lockLevel %} {% endcomment %}
-            {% comment %} <input type="text" class="form-control form-control-sm" name="{{ item.expenseCategory.html_name }}" value="{{ item.expenseCategory.value|default_if_none:'' }}" autocomplete="off" readonly/> {% endcomment %}
-          {% comment %} {% else %} {% endcomment %}
-            {{ item.expenseCategory|add_class:'form-control form-select' }}
-          {% comment %} {% endif %} {% endcomment %}
+          {{ item.expenseCategory|add_class:'form-select form-select-sm'|add_error_class:'is-invalid' }}
         </td>
         <td>
           <input type="text" class="form-control form-control-sm" name="{{ item.nomenclature.html_name }}" value="{{ item.nomenclature.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>

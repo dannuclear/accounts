@@ -6,6 +6,7 @@ from guide.models import Status, ImprestAccount, Document, PrepaidDest, ExpenseC
 from integration.models import Employee, WC07POrder
 from main.helpers import is_user_in_group
 from distutils.util import strtobool
+from main.fields import CachedModelChoiceField
 
 
 class MyDateField(forms.DateField):
@@ -23,7 +24,20 @@ class StatusChoiceField(forms.ModelChoiceField):
         return obj.name
 
 
-class DocumentChoiceField(forms.ModelChoiceField):
+class DocumentChoiceField(forms.ModelChoiceField): 
+
+    def __init__(self, *args, **kwargs):
+        kwargs['empty_label'] = None
+        super().__init__(*args, **kwargs)
+
+    def label_from_instance(self, obj):
+        return obj.name
+
+class CachedDocumentChoiceField(CachedModelChoiceField): 
+    def __init__(self, *args, **kwargs):
+        kwargs['empty_label'] = None
+        super().__init__(*args, **kwargs)
+
     def label_from_instance(self, obj):
         return obj.name
 
@@ -47,6 +61,13 @@ class ExpenseCategoryChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
 
+class CachedExpenseCategoryChoiceField(CachedModelChoiceField): 
+    def __init__(self, *args, **kwargs):
+        kwargs['empty_label'] = None
+        super().__init__(*args, **kwargs)
+
+    def label_from_instance(self, obj):
+        return obj.name
 
 class ObtainMethodChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
@@ -60,8 +81,7 @@ class PrepaymentForm (forms.ModelForm):
     docDate = MyDateField(label='Дата', localize=True, required=False)
 
     # «приказ», «заявление», «авансовый отчет», «электронный документ» справочника «Список документов»
-    document = DocumentChoiceField(queryset=Document.objects.filter(pk__in=[5, 14, 15, 16]).order_by('id'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Наименование', required=False, empty_label=None)
+    document = DocumentChoiceField(queryset=Document.objects.filter(pk__in=[5, 14, 15, 16]).order_by('id'), label='Наименование', required=False)
 
     wc07pOrder = WC07POrderChoiceField(queryset=WC07POrder.objects.order_by('orderId'), widget=forms.Select(
         attrs={'class': 'custom-select form-control-sm'}), label='Номер', required=False, empty_label=None)
@@ -211,11 +231,9 @@ class AdvanceReportForm (forms.ModelForm):
 
 class AdvanceReportItemForm(forms.ModelForm):
 
-    approveDocument = DocumentChoiceField(queryset=Document.objects.order_by('id').all(), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm approve-doc', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
+    approveDocument = CachedDocumentChoiceField(queryset=Document.objects.order_by('id'), required=False)
 
-    expenseCategory = ExpenseCategoryChoiceField(queryset=ExpenseCategory.objects.order_by('id'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
+    expenseCategory = ExpenseCategoryChoiceField(queryset=ExpenseCategory.objects.order_by('id'), required=False, empty_label=None)
 
     # expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), widget=forms.Select(
     #     attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
@@ -230,13 +248,10 @@ class AdvanceReportItemForm(forms.ModelForm):
         self.expenseItemType = kwargs.pop('expenseItemType', None)
         self.lockLevel = kwargs.pop('lockLevel', 0)
         _cache = kwargs.pop('entitiesCache', None)
-        _document_cache = kwargs.pop('document_cache', None)
         super(AdvanceReportItemForm, self).__init__(*args, **kwargs)
         if self.lockLevel:
             self.fields['expenseCategory'].widget.attrs['disabled'] = 'True'
             self.fields['approveDocument'].widget.attrs['disabled'] = 'True'
-            if _document_cache is not None:
-                self.fields['approveDocument'].queryset = _document_cache
             # self.fields['expenseCode'].widget.attrs['disabled'] = 'True'
             #self.fields['expenseCategory'].disabled = True
             #self.fields['approveDocument'].disabled = True
