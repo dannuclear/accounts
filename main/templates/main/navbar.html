@@ -4,7 +4,7 @@
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
 
     <div class="collapse navbar-collapse" id="navbarsExample03" style="font-size: 1.1em;">
-      <ul class="navbar-nav mr-auto">
+      <ul class="navbar-nav">
         {% if perms.request.view_requests %}
           <li class="nav-item">
             <a class="nav-link" href="{% url 'requests' %}"><i class="fa-duotone fa-file-signature"></i>&nbsp;Заявления</a>
