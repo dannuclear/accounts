@@ -7,7 +7,11 @@
 {% block content %}
   <div class="alert alert-primary" role="alert" style="display: none;"></div>
 
-  {% include 'main/filters/period_filter.html' %}
+  <div class="row">
+    <div class="col-3">  
+        {% include 'main/filters/period_filter.html' %}
+    </div>
+  </div>
 
   <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm">
     <thead>

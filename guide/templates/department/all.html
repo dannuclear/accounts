@@ -35,15 +35,7 @@
           editColumn("{% url 'departments' %}", null),
           deleteColumn("{% url 'departments' %}", null, 'Удалить подразделение?')
         ],
-        buttons: [
-          {
-            text: '<i class="fa-light fa-octagon-plus me-2"></i>&nbsp;Создать',
-            className: 'btn btn-success btn-sm',
-            action: function (e, dt, node, config) {
-              window.location.href = "{% url 'departments' %}/new"
-            }
-          }
-        ]
+        buttons: [addButton("{% url 'departments' %}")]
       })
     })
   </script>

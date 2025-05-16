@@ -23,8 +23,10 @@
     $(document).ready(function () {
       $('#departmentAccount-table').DataTable({
         ajax: {
-          url: "{% url 'departmentaccount-list' %}?format=datatables",
-          data: function (d) {}
+          url: "{% url 'departmentaccount-list' %}",
+          data: function (d) {
+            d.format = "datatables"
+          }
         },
         rowId: 'id',
         columns: [
@@ -43,15 +45,7 @@
           editColumn("{% url 'departmentAccounts' %}", null),
           deleteColumn("{% url 'departmentAccounts' %}", null, 'Удалить счет подразделения?')
         ],
-        buttons: [
-          {
-            text: '<i class="fa-light fa-octagon-plus me-2"></i>&nbsp;Создать',
-            className: 'btn btn-success btn-sm',
-            action: function (e, dt, node, config) {
-              window.location.href = "{% url 'departmentAccounts' %}/new"
-            }
-          }
-        ]
+        buttons: [addButton("{% url 'departmentAccounts' %}")]
       })
     })
   </script>

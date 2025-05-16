@@ -7,7 +7,7 @@
 {% block content %}
   <div class="alert alert-primary" role="alert" style="display: none;"></div>
 
-  <div class="row mb-1">
+  <div class="row g-1 mb-1">
     <input id="compensation-type-input" type="hidden" value="{{ request.GET.type }}" />
     <div class="col-4 pr-1 flex-shrink-0">
       <div class="input-group input-group-sm">
@@ -22,7 +22,10 @@
       </div>
     </div>
 
-    {% include 'main/filters/period_filter.html' %}
+    <div class="col-3">  
+        {% include 'main/filters/period_filter.html' %}
+    </div>
+
   </div>
 
   <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm">

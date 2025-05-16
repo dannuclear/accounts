@@ -30,3 +30,13 @@ class DepartmentFilter(BaseFilterBackend):
             queryset = queryset.filter(department__id=departmentId)
     
         return queryset
+    
+class StatusFilter(BaseFilterBackend):
+
+    def filter_queryset(self, request, queryset, view):
+        status_filter = request.query_params.get("statusFilter")
+
+        if status_filter:
+            queryset = queryset.filter(status__id=status_filter)
+    
+        return queryset

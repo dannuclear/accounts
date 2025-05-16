@@ -32,15 +32,7 @@
           editColumn("{% url 'imprestAccounts' %}", null, function(data) { return data.account }), 
           deleteColumn("{% url 'imprestAccounts' %}", null, 'Удалить код учета?', function(data) { return data.account })
         ],
-        buttons: [
-          {
-            text: '<i class="fa-light fa-octagon-plus me-2"></i>&nbsp;Создать',
-            className: 'btn btn-success btn-sm',
-            action: function (e, dt, node, config) {
-              window.location.href = "{% url 'imprestAccounts'  %}"
-            }
-          }
-        ]
+        buttons: [addButton("{% url 'imprestAccounts' %}")]
       })
     })
   </script>

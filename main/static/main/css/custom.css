@@ -107,3 +107,7 @@ table.dataTable.table.table-hover>tbody>tr.selected:hover>* {
 .table-header-sm>tbody>tr>td {
     line-height: 1;
 }
+
+#dt-search-0 {
+    width: 20rem;
+}

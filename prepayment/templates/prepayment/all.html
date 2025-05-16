@@ -12,7 +12,16 @@
   </style>
   <div class="alert alert-primary" role="alert" style="display: none;"></div>
 
-  {% include 'main/filters/period_filter.html' %}
+  <div class="row">
+    <div class="col-3">  
+        {% include 'main/filters/period_filter.html' %}
+    </div>
+    {% if statuses %}
+        <div class="col-3">
+            {% include 'status/status_filter.html' with options=statuses %}
+        </div>
+    {% endif %}
+  </div>
 
   <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm" style="font-size: 0.9em;">
     <thead>
@@ -74,6 +83,8 @@
                                 d.periodFrom=$('#period-from').val()
                             if ($('#period-to').val())
                                 d.periodTo=$('#period-to').val()
+                            if (statusFilter && statusFilter.val())
+                                d.statusFilter = statusFilter.val()
 
                             d.columns.push({data: 'wc07pOrder.orderNum', searchable: true})
                             d.columns.push({data: 'imprestAccount.account', searchable: true})
@@ -160,6 +171,11 @@
             periodFilter.find('.datepeeker').datepicker().on('change', function (e) {
                 requestTable.ajax.reload()
             })
+
+            statusFilter.on('change', function (e) {
+                requestTable.ajax.reload()
+            })
+
             periodFilter.find('button').on('click', function (e) {
                 periodFilter.find('input').val('')
                 requestTable.ajax.reload()

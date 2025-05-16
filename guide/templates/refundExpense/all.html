@@ -47,15 +47,7 @@
           editColumn("{% url 'refundExpenses' %}", null),
           deleteColumn("{% url 'refundExpenses' %}", null, 'Удалить возмещаемые расходы?')
         ],
-        buttons: [
-          {
-            text: '<i class="fa-light fa-octagon-plus me-2"></i>&nbsp;Создать',
-            className: 'btn btn-success btn-sm',
-            action: function (e, dt, node, config) {
-              window.location.href = "{% url 'refundExpenses' %}/new"
-            }
-          }
-        ]
+        buttons: [addButton("{% url 'refundExpenses' %}")]
       })
     })
   </script>

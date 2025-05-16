@@ -39,15 +39,7 @@
           editColumn("{% url 'expenseRates' %}", null),
           deleteColumn("{% url 'expenseRates' %}", null, 'Удалить код расхода?')
         ],
-        buttons: [
-          {
-            text: '<i class="fa-light fa-octagon-plus me-2"></i>&nbsp;Создать',
-            className: 'btn btn-success btn-sm',
-            action: function (e, dt, node, config) {
-              window.location.href = "{% url 'expenseRates' %}/new"
-            }
-          }
-        ]
+        buttons: [addButton("{% url 'expenseRates' %}")]
       })
     })
   </script>

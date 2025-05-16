@@ -1,0 +1,19 @@
+<div class="input-group input-group-sm">
+    <span class="input-group-text">Статус</span>
+    <select id="status-filter" class="form-select" >
+        <option value="">Все</option>
+        {% for opt in options %}
+            <option value="{{ opt.id }}">{{ opt.name }}</option>
+        {% endfor %}
+    </select>
+    <button id="status-filter-reset" class="btn btn-sm btn-outline-success">X</button>
+</div>
+
+<script type="text/javascript">
+    const statusFilter = $("#status-filter")
+    $(document).ready(function () {
+        $("#status-filter-reset").on('click', function(e) {
+            statusFilter.val('').change()
+        })
+    })
+</script>

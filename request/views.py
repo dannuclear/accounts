@@ -7,6 +7,7 @@ from .forms import RequestForm, RequestInventoryFormSet
 from datetime import datetime
 from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func, Sum, IntegerField, Q
 from guide.models import Status, Document, PrepaidDest
+from guide.filters import StatusFilter
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
@@ -47,6 +48,8 @@ class RequestViewSet (viewsets.ModelViewSet):
     def filter_queryset(self, queryset):
         self.filter_backends = [*self.filter_backends]
 
+        if 'statusFilter' in self.request.query_params:
+            self.filter_backends.insert(0, StatusFilter)
         if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
             self.filter_backends.insert(0, PeriodFilter)
         if self.request.user.has_perm('request.view_owner_requests') and not self.request.user.is_superuser:
@@ -56,7 +59,7 @@ class RequestViewSet (viewsets.ModelViewSet):
 
 
 def requests(request):
-    return render(request, 'request/all.html')
+    return render(request, 'request/all.html', { 'statuses': Status.objects.all() })
 
 
 def editRequest(request, id):

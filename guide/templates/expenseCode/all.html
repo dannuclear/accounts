@@ -36,15 +36,7 @@
           editColumn("{% url 'expenseCodes' %}", null, function(data) { return data.code }), 
           deleteColumn("{% url 'expenseCodes' %}", null, 'Удалить код расхода?', function(data) { return data.code })
         ],
-        buttons: [
-          {
-            text: '<i class="fa-light fa-octagon-plus me-2"></i>&nbsp;Создать',
-            className: 'btn btn-success btn-sm',
-            action: function (e, dt, node, config) {
-              window.location.href = "{% url 'expenseCodes' %}/new"
-            }
-          }
-        ]
+        buttons: [addButton("{% url 'expenseCodes' %}")]
       })
     })
   </script>

@@ -5,6 +5,7 @@ from .serializers import PrepaymentSerializer
 from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm, AdvanceReportForm, AdvanceReportItemForm, AttachmentForm, ItemsFormSet, AttachmentFormSet
 from datetime import datetime, timedelta
 from guide.models import Status, ExpenseItem, ExpenseCategory, AccountingCert, Department, Document
+from guide.filters import StatusFilter
 from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
@@ -65,6 +66,8 @@ class PrepaymentViewSet (viewsets.ModelViewSet):
         #     self.filter_backends.remove(PeriodFilter)
         # if ImprestAccountFilter in self.filter_backends:
         #     self.filter_backends.remove(ImprestAccountFilter)
+        if 'statusFilter' in self.request.query_params:
+            self.filter_backends.insert(0, StatusFilter)
         if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
             self.filter_backends.insert(0, PeriodFilter)
         if 'imprestAccount' in self.request.query_params:
@@ -81,12 +84,12 @@ class PrepaymentViewSet (viewsets.ModelViewSet):
 
 def prepayments(request):
     isAdminOrAccountant = is_user_in_group(request.user, ['Администратор', 'Бухгалтер'])
-    return render(request, 'prepayment/all.html', {'isAdminOrAccountant': isAdminOrAccountant})
+    return render(request, 'prepayment/all.html', {'isAdminOrAccountant': isAdminOrAccountant, 'statuses': Status.objects.all() })
 
 
 def advanceReports(request):
     isAdminOrAccountant = is_user_in_group(request.user, ['Администратор', 'Бухгалтер'])
-    return render(request, 'advanceReport/all.html', {'isAdminOrAccountant': isAdminOrAccountant})
+    return render(request, 'advanceReport/all.html', {'isAdminOrAccountant': isAdminOrAccountant, 'statuses': Status.objects.all() })
 
 def inventories(request):
     return render(request, 'inventory/all.html')
