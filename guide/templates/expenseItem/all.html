@@ -5,63 +5,56 @@
 {% endblock %}
 
 {% block content %}
-  <style>
-    tr > th {
-      text-align: center;
-      border-bottom-width: 1px!important;
-      padding: .2rem!important;
-    }
-  </style>
   <div class="alert alert-primary" role="alert" style="display: none;"></div>
+
   <div class="row mb-1">
     <input id="type-input" type="hidden" value="{{ request.GET.type }}">
     <div class="col-4 pr-1 flex-shrink-0">
         <div class="input-group input-group-sm">
-            <div class="input-group-prepend">
-                <label class="input-group-text">Код учета подотчетной суммы</label>
-            </div>
-            <select id="imprest-account-select" class="text-center form-control custom-select">
+            <span class="input-group-text">Код учета подотчетной суммы</span>
+            <select id="imprest-account-select" class="text-center form-select">
                 <option value="">Все</option>
                 {% for opt in imprestAccounts %}
-                <option value="{{ opt.account }}" {% ifequal opt.account|stringformat:"i" request.GET.imprestAccount %}selected="selected"{% endifequal %}>{{ opt.name }}</option>
+                  <option value="{{ opt.account }}" {% ifequal opt.account|stringformat:"i" request.GET.imprestAccount %}selected="selected"{% endifequal %}>{{ opt.name }}</option>
                 {% endfor %}
             </select>
         </div>
     </div>
-</div>
-  <table id="expenseItem-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100">
+  </div>
+
+  <table id="expenseItem-table" class="table table-sm table-bordered table-striped table-hover table-header-sm">
     <thead>
       <tr>
-          <th rowspan="3">Пункт</th>
-          <th rowspan="3">Наименование расхода</th>
-          <th rowspan="3">Код расхода</th>
-          <th rowspan="3">Принято к учету</th>
-          <th colspan="6">Дебет</th>
-          <th colspan="6">Кредит</th>
-          <th rowspan="3">Схема</th>
-          <th rowspan="3">Для печати</th>
-          <th rowspan="3"></th>
-          <th rowspan="3"></th>
+        <th scope="col" rowspan="3">Пункт</th>
+        <th scope="col" rowspan="3">Наименование расхода</th>
+        <th scope="col" rowspan="3">Код расхода</th>
+        <th scope="col" rowspan="3">Принято к учету</th>
+        <th scope="col" colspan="6">Дебет</th>
+        <th scope="col" colspan="6">Кредит</th>
+        <th scope="col" rowspan="3">Схема</th>
+        <th scope="col" rowspan="3">Для печати</th>
+        <th scope="col" rowspan="3"></th>
+        <th scope="col" rowspan="3"></th>
       </tr>
       <tr>
-          <th rowspan="2" data-dt-order="disable">Счет</th>
-          <th colspan="2" data-dt-order="disable">КАУ</th>
-          <th rowspan="2" data-dt-order="disable">Статья</th>
-          <th rowspan="2" data-dt-order="disable" width="30px">Расх. Подр.</th>
-          <th rowspan="2" data-dt-order="disable">Доп</th>
+        <th scope="col" rowspan="2" data-dt-order="disable">Счет</th>
+        <th scope="col" colspan="2" data-dt-order="disable">КАУ</th>
+        <th scope="col" rowspan="2" data-dt-order="disable">Статья</th>
+        <th scope="col" rowspan="2" data-dt-order="disable" style="width:30px">Расх. Подр.</th>
+        <th scope="col" rowspan="2" data-dt-order="disable">Доп</th>
 
-          <th rowspan="2" data-dt-order="disable">Счет</th>
-          <th colspan="2" data-dt-order="disable">КАУ</th>
-          <th rowspan="2" data-dt-order="disable">Статья</th>
-          <th rowspan="2" data-dt-order="disable" width="30px">Расх. Подр.</th>
-          <th rowspan="2" data-dt-order="disable">Доп</th>
+        <th scope="col" rowspan="2" data-dt-order="disable">Счет</th>
+        <th scope="col" colspan="2" data-dt-order="disable">КАУ</th>
+        <th scope="col" rowspan="2" data-dt-order="disable">Статья</th>
+        <th scope="col" rowspan="2" data-dt-order="disable" style="width:30px">Расх. Подр.</th>
+        <th scope="col" rowspan="2" data-dt-order="disable">Доп</th>
       </tr>
       <tr>
-        <th colspan="1" data-dt-order="disable" width="30px">&nbsp;</th>
-        <th colspan="1" data-dt-order="disable" width="30px">&nbsp;</th>
-        <th colspan="1" data-dt-order="disable" width="30px">&nbsp;</th>
-        <th colspan="1" data-dt-order="disable" width="30px">&nbsp;</th>
-    </tr>
+        <th scope="col" colspan="1" data-dt-order="disable" style="width:30px">&nbsp;</th>
+        <th scope="col" colspan="1" data-dt-order="disable" style="width:30px">&nbsp;</th>
+        <th scope="col" colspan="1" data-dt-order="disable" style="width:30px">&nbsp;</th>
+        <th scope="col" colspan="1" data-dt-order="disable" style="width:30px">&nbsp;</th>
+      </tr>
     </thead>
   </table>
 
@@ -71,20 +64,18 @@
         ajax: {
           url: '/api/v1/expenseItems/?format=datatables',
           data: function (d) {
-            if ($('#imprest-account-select').length > 0)
-              d.imprestAccount = $('#imprest-account-select').val();
-            if ($('#type-input').val())
-              d.type = $('#type-input').val();
+            if ($('#imprest-account-select').length > 0) d.imprestAccount = $('#imprest-account-select').val()
+            if ($('#type-input').val()) d.type = $('#type-input').val()
           }
         },
         rowId: 'id',
         pagingType: 'first_last_numbers',
         columns: [
           {
-            data: 'category.num',
+            data: 'category.num'
           },
           {
-            data: 'category.name',
+            data: 'category.name'
           },
           {
             data: 'expenseCode',
@@ -126,7 +117,7 @@
             orderable: false,
             searchable: false
           },
-
+    
           {
             data: 'creditAccount',
             orderable: false,
@@ -157,7 +148,7 @@
             orderable: false,
             searchable: false
           },
-
+    
           {
             data: 'schema',
             orderable: false,
@@ -168,44 +159,15 @@
             orderable: false,
             searchable: false
           },
-
-          {
-            title: '',
-            data: null,
-            width: '1%',
-            defaultContent: '',
-            orderable: false,
-            searchable: false,
-            render: function (data, type, row) {
-                return `<a href="/expenseItems/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
-            }
-          },
-          {
-            title: '',
-            data: null,
-            width: '1%',
-            defaultContent: '',
-            orderable: false,
-            searchable: false,
-            render: function (data, type, row) {
-              return `<a href="/expenseItems/${data.id}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить код расхода?');"></a>`
-            }
-          }
+          editColumn("{% url 'expenseItems' %}", null),
+          deleteColumn("{% url 'expenseItems' %}", null, 'Удалить статью расхода?')
         ],
-        buttons: [
-          {
-            text: '&nbsp;Создать',
-            className: 'btn btn-info btn-sm bi bi-boxes',
-            action: function (e, dt, node, config) {
-              window.location.href = '/expenseItems/new'
-            }
-          }
-        ]
+        buttons: [addButton("{% url 'expenseItems' %}")]
       })
-
+    
       $('#imprest-account-select').on('change', function () {
-        expenseItemTable.ajax.reload();
-    });
+        expenseItemTable.ajax.reload()
+      })
     })
   </script>
 {% endblock %}

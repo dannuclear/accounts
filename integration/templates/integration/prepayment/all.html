@@ -1,118 +1,90 @@
 {% extends 'main/base.html' %}
 
 {% block title %}
-Сотрудники
+  Интеграция. Выданные авансы
 {% endblock %}
 
 {% block content %}
-<div class="alert alert-primary" role="alert" style="display: none;">
+  <div class="alert alert-primary" role="alert" style="display: none;"></div>
+  <table id="prepayment-table" class="table table-sm table-bordered table-striped table-hover table-header-sm">
+    <thead>
+      <tr>
+        <th style="width: 2rem">ID</th>
+        <th style="width: 3rem">Н/БН</th>
+        <th style="width: 6rem">Табельный</th>
+        <th style="width: 6rem">Пункт сметы</th>
+        <th style="width: 6rem">ID приказа</th>
+        <th style="width: 6rem">№ Докум.</th>
+        <th style="width: 6rem">Дата документа</th>
+        <th style="width: 6rem">БИК</th>
+        <th style="width: 6rem">Б. счет</th>
+        <th style="width: 6rem">Б. субсчет</th>
+      </tr>
+    </thead>
+  </table>
 
-</div>
-<table id="prepayment-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100"></table>
-
-<script type="text/javascript">
-    var sampleLang = {
-        info: 'Страница _PAGE_ из _PAGES_',
-        lengthMenu: 'На странице _MENU_',
-        zeroRecords: 'Авансов не найдено',
-        infoEmpty: 'Не найдено',
-        search: "Поиск",
-        processing: "Загрузка...",
-        loadingRecords: "Загрузка...",
-        paginate: {
-            first: "|<",
-            last: ">|",
-            next: ">",
-            previous: "<"
-        }
-    };
-    $(document).ready(
-        function () {
-
-            var prepaymentTable = $('#prepayment-table').DataTable(
-                {
-                    ajax: {
-                        url: '/api/v1/integration/prepayments/?format=datatables',
-                        data: function (d) {
-
-                        }
-                    },
-                    rowId: 'id',
-                    pagingType: 'first_last_numbers',
-                    language: sampleLang,
-                    columns: [
-                        {
-                            title: 'id',
-                            data: 'pdId',
-                            width: '2rem'
-                        },
-                        {
-                            title: 'Н/БН',
-                            data: 'pdSource',
-                            width: '3rem'
-                        },
-                        {
-                            title: 'Табельный',
-                            data: 'empOrgNo',
-                            width: '6rem'
-                        },
-                        {
-                            title: 'Пункт сметы',
-                            data: 'xv26eiId',
-                            width: '6rem'
-                        },
-                        {
-                            title: 'ID приказа',
-                            data: 'orderId',
-                            width: '6rem',
-                        },
-                        {
-                            title: '№ Докум.',
-                            data: 'orderNo',
-                            width: '6rem'
-                        },
-                        {
-                            title: 'Дата документа',
-                            data: 'orderDate',
-                            width: '6rem'
-                        },
-                        {
-                            title: 'БИК',
-                            data: 'bic',
-                            width: '6rem'
-                        },
-                        {
-                            title: 'Б. счет',
-                            data: 'acplAccount',
-                            width: '6rem'
-                        },
-                        {
-                            title: 'Б. субсчет',
-                            data: 'acplSubaccount',
-                            width: '6rem'
-                        },
-                    ],
-                    buttons: [
-                        {
-                            text: '&nbsp;Загрузить',
-                            className: 'btn btn-info btn-sm fa-light fa-upload',
-                            action: function (e, dt, node, config) {
-                                const alertEl = $('.alert')
-                                $.get('/integration/prepayments/load', function(e){
-                                    alertEl.attr('class', 'alert alert-success')
-                                    alertEl.html(e)
-                                }).fail(function(e){
-                                    alertEl.attr('class', 'alert alert-danger')
-                                    alertEl.html(e.responseText)
-                                }).always(function(){
-                                    alertEl.show().delay(3000).fadeOut()
-                                    prepaymentTable.ajax.reload()
-                                })
-                            }
-                        }
-                    ]
-                });
-        }
-    );
-</script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      var prepaymentTable = $('#prepayment-table').DataTable({
+        ajax: {
+          url: "{% url 'integration-prepayment-list' %}?format=datatables",
+          data: function (d) {}
+        },
+        rowId: 'id',
+        columns: [
+          {
+            data: 'pdId'
+          },
+          {
+            data: 'pdSource'
+          },
+          {
+            data: 'empOrgNo'
+          },
+          {
+            data: 'xv26eiId'
+          },
+          {
+            data: 'orderId'
+          },
+          {
+            data: 'orderNo'
+          },
+          {
+            data: 'orderDate'
+          },
+          {
+            data: 'bic'
+          },
+          {
+            data: 'acplAccount'
+          },
+          {
+            data: 'acplSubaccount'
+          }
+        ],
+        buttons: [
+          {
+            text: '<i class="fa-light fa-upload me-2"></i>&nbsp;Загрузить',
+            className: 'btn btn-success btn-sm',
+            action: function (e, dt, node, config) {
+              const alertEl = $('.alert')
+              $.get('/integration/prepayments/load', function (e) {
+                alertEl.attr('class', 'alert alert-success')
+                alertEl.html(e)
+              })
+                .fail(function (e) {
+                  alertEl.attr('class', 'alert alert-danger')
+                  alertEl.html(e.responseText)
+                })
+                .always(function () {
+                  alertEl.show().delay(3000).fadeOut()
+                  prepaymentTable.ajax.reload()
+                })
+            }
+          }
+        ]
+      })
+    })
+  </script>
 {% endblock %}

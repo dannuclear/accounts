@@ -1,29 +1,20 @@
 {% extends 'main/base.html' %}
 
 {% block title %}
-  Статус
+  Документ
 {% endblock %}
 
 {% block content %}
-  <form method="post" class="container-fluid">
+  <form method="post" class="container-fluid pt-1">
     {% csrf_token %}
-    <input type="hidden" name="{{ form.id.name }}" value="{{ form.id.value|default_if_none:'' }}" />
 
-    <div class="form-row align-items-center">
-      <div class="col-12 p-1 text-right">
-        <input type="submit" class="btn btn-success btn-sm" value="Сохранить" />
-        <input onclick="window.location = '/documents'" class="btn btn-danger btn-sm" value="Отмена" />
-      </div>
-    </div>
+    {% url 'documents' as back_url %}
+    {% include 'main/save_cancel.html' with path=back_url %}
 
-    <div class="row">
+    <div class="row g-1">
       <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Наименование</span>
-        </div>
-        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.name.name }}" value="{{ form.name.value|default_if_none:'' }}" />
+        {% include 'main/input_group.html' with field=form.name label='Наименование' %}
       </div>
     </div>
-
   </form>
 {% endblock %}

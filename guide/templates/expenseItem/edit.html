@@ -8,146 +8,90 @@
   <form method="post" class="container-fluid">
     {% csrf_token %}
 
-    <div class="form-row align-items-center">
-      <div class="col-12 p-1 text-right">
-        <input type="submit" class="btn btn-success btn-sm" value="Сохранить" />
-        <input onclick="history.back()" class="btn btn-danger btn-sm" value="Отмена" />
+    <div class="row g-1">
+      <div class="col d-flex">
+        <button type="submit" class="btn btn-success btn-sm ms-auto me-1"><i class="fa-light fa-floppy-disk pe-2"></i>Сохранить</button>
+        <button type="button" class="btn btn-danger btn-sm" onclick="history.back()">Отменить</button>
       </div>
     </div>
 
-    <div class="row">
-      <div class="col-9 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text {% if form.category.errors %} bg-danger {% endif %}">Наименование</span>
-        </div>
-        {{ form.category }}
+    <div class="row g-1 pt-1">
+      <div class="col-9">
+        {% include 'main/input_group.html' with field=form.category label='Наименование' inputClass='form-select' %}
       </div>
 
-      <div class="col-3 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text {% if form.expenseCode.errors %} bg-danger {% endif %}">{{ form.expenseCode.label }}</span>
-        </div>
-        {{ form.expenseCode }}
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.expenseCode inputClass='form-select' %}
+      </div>
+
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.accept label='Принято к учету' %}
       </div>
     </div>
 
-    <div class="row">
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Принято к учету</span>
-        </div>
-        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.accept.name }}" value="{{ form.accept.value|default_if_none:'' }}" />
+    <div class="row g-1 pt-1">
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.debitAccount label='Дебет. Счет, субсчет' %}
+      </div>
+
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.debitExpenseItem label='Дебет. Статья расхода' %}
+      </div>
+
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.debitExpenseDept label='Дебет. Расходы подразделения' %}
+      </div>
+
+      <div class="col-1">
+        {% include 'main/input_group.html' with field=form.debitKAU1 label='Дебет. КАУ_1' %}
+      </div>
+
+      <div class="col-1">
+        {% include 'main/input_group.html' with field=form.debitKAU2 label='Дебет. КАУ_2' %}
+      </div>
+
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.debitExtra label='Дебет. Доп.признак' %}
       </div>
     </div>
 
-    <div class="row">
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Дебет. Счет, субсчет</span>
-        </div>
-        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.debitAccount.name }}" value="{{ form.debitAccount.value|default_if_none:'' }}" />
+    <div class="row g-1 pt-1">
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.creditAccount label='Кредит. Счет, субсчет' %}
       </div>
 
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Дебет. Статья расхода</span>
-        </div>
-        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.debitExpenseItem.name }}" value="{{ form.debitExpenseItem.value|default_if_none:'' }}" />
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.creditExpenseItem label='Кредит. Статья расхода' %}
       </div>
 
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Дебет. Расходы подразделения</span>
-        </div>
-        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.debitExpenseDept.name }}" value="{{ form.debitExpenseDept.value|default_if_none:'' }}" />
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.creditExpenseDept label='Кредит. Расходы подразделения' %}
       </div>
 
-      <div class="col-1 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Дебет. КАУ_1</span>
-        </div>
-        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.debitKAU1.name }}" value="{{ form.debitKAU1.value|default_if_none:'' }}" />
+      <div class="col-1">
+        {% include 'main/input_group.html' with field=form.creditKAU1 label='Кредит. КАУ_1' %}
       </div>
 
-      <div class="col-1 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Дебет. КАУ_2</span>
-        </div>
-        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.debitKAU2.name }}" value="{{ form.debitKAU2.value|default_if_none:'' }}" />
+      <div class="col-1">
+        {% include 'main/input_group.html' with field=form.creditKAU2 label='Кредит. КАУ_2' %}
       </div>
 
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Дебет. Доп.признак</span>
-        </div>
-        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.debitExtra.name }}" value="{{ form.debitExtra.value|default_if_none:'' }}" />
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.creditExtra label='Кредит. Доп.признак' %}
       </div>
     </div>
 
-    <div class="row">
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Кредит. Счет, субсчет</span>
-        </div>
-        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.creditAccount.name }}" value="{{ form.creditAccount.value|default_if_none:'' }}" />
+    <div class="row pt-1">
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.schema label='Схема проводок' %}
       </div>
 
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Кредит. Статья расхода</span>
-        </div>
-        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.creditExpenseItem.name }}" value="{{ form.creditExpenseItem.value|default_if_none:'' }}" />
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.itemType label='Код учета подотчетной суммы' inputClass='form-select' %}
       </div>
 
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Кредит. Расходы подразделения</span>
-        </div>
-        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.creditExpenseDept.name }}" value="{{ form.creditExpenseDept.value|default_if_none:'' }}" />
-      </div>
-
-      <div class="col-1 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Кредит. КАУ_1</span>
-        </div>
-        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.creditKAU1.name }}" value="{{ form.creditKAU1.value|default_if_none:'' }}" />
-      </div>
-
-      <div class="col-1 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Кредит. КАУ_2</span>
-        </div>
-        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.creditKAU2.name }}" value="{{ form.creditKAU2.value|default_if_none:'' }}" />
-      </div>
-
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Кредит. Доп.признак</span>
-        </div>
-        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.creditExtra.name }}" value="{{ form.creditExtra.value|default_if_none:'' }}" />
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Схема проводок</span>
-        </div>
-        <input type="text" class="text-center mb-0 form-control form-control-sm" name="{{ form.schema.name }}" value="{{ form.schema.value|default_if_none:'' }}" />
-      </div>
-
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Код учета подотчетной суммы</span>
-        </div>
-        {{ form.itemType }}
-      </div>
-
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Тип расхода</span>
-        </div>
-        {{ form.expenseType }}
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.expenseType label='Тип расхода' inputClass='form-select' %}
       </div>
     </div>
   </form>

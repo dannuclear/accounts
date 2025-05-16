@@ -1,51 +1,44 @@
 {% extends 'main/base.html' %}
 
 {% block title %}
-Протокол операций
+  Протокол операций
 {% endblock %}
 
 {% block content %}
-<div class="alert alert-primary" role="alert" style="display: none;">
+  <div class="alert alert-primary" role="alert" style="display: none;"></div>
+  <table id="protocol-table" class="table table-sm table-bordered table-striped table-hover table-header-sm">
+    <thead>
+      <tr>
+        <th style="width: 2rem">№</th>
+        <th style="width: 2rem">Дата/Время</th>
+        <th style="width: 6rem">Операция</th>
+      </tr>
+    </thead>
+  </table>
 
-</div>
-<table id="protocol-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100"></table>
-
-<script type="text/javascript">
-    $(document).ready(
-        function () {
-
-            var protocolTable = $('#protocol-table').DataTable(
-                {
-                    ajax: {
-                        url: '/api/v1/integration/protocols/?format=datatables',
-                        data: function (d) {
-
-                        }
-                    },
-                    order: [],
-                    rowId: 'id',
-                    pagingType: 'first_last_numbers',
-                    columns: [
-                        {
-                            title: '№',
-                            data: 'id',
-                            width: '2rem'
-                        },
-                        {
-                            title: 'Дата/Время',
-                            data: 'operDate',
-                            width: '12rem'
-                        },
-                        {
-                            title: 'Операция',
-                            data: 'comment',
-                        }
-                    ],
-                    buttons: [
-                        
-                    ]
-                });
-        }
-    );
-</script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $('#protocol-table').DataTable({
+        ajax: {
+          url: "{% url 'protocol-list' %}",
+          data: function (d) {
+            d.format = 'datatables'
+          }
+        },
+        order: [],
+        rowId: 'id',
+        columns: [
+          {
+            data: 'id'
+          },
+          {
+            data: 'operDate'
+          },
+          {
+            data: 'comment'
+          }
+        ]
+      })
+    })
+  </script>
 {% endblock %}

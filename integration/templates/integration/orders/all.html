@@ -1,172 +1,143 @@
 {% extends 'main/base.html' %}
 
 {% block title %}
-Сотрудники
+  Приказы
 {% endblock %}
 
 {% block content %}
-<div class="alert alert-primary" role="alert" style="display: none;">
+  <div class="alert alert-primary" role="alert" style="display: none;"></div>
+  <table id="order-table" class="table table-sm table-bordered table-striped table-hover table-header-sm">
+    <thead>
+      <tr>
+        <th style="width: 2rem">ID</th>
+        <th style="width: 3rem">Наим.</th>
+        <th style="width: 6rem">№ приказа</th>
 
-</div>
-<table id="order-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100"></table>
+        <th style="width: 6rem">Дата приказа</th>
+        <th style="width: 3rem">Таб.</th>
+        <th style="width: 3rem">Подр.</th>
+        <th style="width: 15rem">ФИО</th>
+        <th style="width: 15rem">Должность</th>
+        <th style="width: 15rem">Место назначения</th>
+        <th style="width: 6rem">Начало</th>
+        <th style="width: 6rem">Окончание</th>
+        <th style="width: 10rem">Цель</th>
+        <th style="width: 3rem">ID Сметы</th>
+        <th style="width: 6rem">За счет</th>
+        <th style="width: 6rem">ID мен.</th>
+        <th style="width: 6rem"></th>
+      </tr>
+    </thead>
+  </table>
 
-<script type="text/javascript">
-    var sampleLang = {
-        info: 'Страница _PAGE_ из _PAGES_',
-        lengthMenu: 'На странице _MENU_',
-        zeroRecords: 'Приказов не найдено',
-        infoEmpty: 'Не найдено',
-        search: "Поиск",
-        processing: "Загрузка...",
-        loadingRecords: "Загрузка...",
-        paginate: {
-            first: "|<",
-            last: ">|",
-            next: ">",
-            previous: "<"
-        }
-    };
-    $(document).ready(
-        function () {
-
-            var orderTable = $('#order-table').DataTable(
-                {
-                    ajax: {
-                        url: '/api/v1/integration/orders/?format=datatables',
-                        data: function (d) {
-
-                        }
-                    },
-                    rowId: 'id',
-                    pagingType: 'first_last_numbers',
-                    language: sampleLang,
-                    columns: [
-                        {
-                            title: 'id',
-                            data: 'orderId',
-                            width: '2rem'
-                        },
-                        
-                        {
-                            title: 'Наим.',
-                            data: 'orderName',
-                            width: '3rem'
-                        },
-                        {
-                            title: '№ приказа',
-                            data: 'orderNum',
-                            width: '6rem'
-                        },
-                        {
-                            title: 'Дата приказа',
-                            data: 'orderDate',
-                            width: '6rem'
-                        },
-                        {
-                            title: 'Таб.',
-                            data: 'empOrgNo',
-                            width: '3rem',
-                        },
-                        {
-                            title: 'Подр.',
-                            data: 'depName',
-                            width: '3rem'
-                        },
-                        {
-                            title: 'ФИО',
-                            data: 'fio',
-                            width: '15rem'
-                        },
-                        {
-                            title: 'Должность',
-                            data: 'profName',
-                            width: '15rem'
-                        },
-                        {
-                            title: 'Место назначения',
-                            data: 'distName',
-                            width: '15rem'
-                        },
-                        {
-                            title: 'Начало',
-                            data: 'missionBegin',
-                            width: '6rem'
-                        },
-                        {
-                            title: 'Окончание',
-                            data: 'missionEnd',
-                            width: '6rem'
-                        },
-                        {
-                            title: 'Цель',
-                            data: 'missionPurpose',
-                            width: '10rem'
-                        },
-                        {
-                            title: 'ID Сметы',
-                            data: 'estimateId',
-                            width: '3rem'
-                        },
-                        {
-                            title: 'За счет',
-                            data: 'payDoc',
-                            width: '6rem'
-                        },
-                        {
-                            title: 'ID мен.',
-                            data: 'orderIdUpd',
-                            width: '6rem'
-                        },
-                        {
-                            title: '',
-                            data: null,
-                            width: '1%',
-                            defaultContent: '',
-                            orderable: false,
-                            render: function (data, type, row) {
-                                if (data.prepaymentId)
-                                    return ''
-                                return `<a href="/integration/orders/${data.orderId}/createPrepayment" class="create-prepayment-button text-info fa-light fa-plus h4 m-0"></a>`
-                            }
-                        }
-                    ],
-                    buttons: [
-                        {
-                            text: '&nbsp;Загрузить',
-                            className: 'btn btn-info btn-sm fa-light fa-upload',
-                            action: function (e, dt, node, config) {
-                                const alertEl = $('.alert')
-                                $.get('/integration/orders/load', function(e){
-                                    alertEl.attr('class', 'alert alert-success')
-                                    alertEl.html(e)
-                                }).fail(function(e){
-                                    alertEl.attr('class', 'alert alert-danger')
-                                    alertEl.html(e.responseText)
-                                }).always(function(){
-                                    alertEl.show().delay(3000).fadeOut()
-                                    orderTable.ajax.reload()
-                                })
-                            }
-                        }
-                    ]
-                });
-
-                orderTable.on('click', '.create-prepayment-button', function(e){
-                    e.preventDefault();
-                    const alertEl = $('.alert')
-                    const url = e.target.getAttribute('href')
-                    $.get(url, function(e) {
-                        alertEl.attr('class', 'alert alert-success')
-                        alertEl.html(e)
-                    }).fail(function(e){
-                        alertEl.attr('class', 'alert alert-danger')
-                        alertEl.html(e.responseText)
-                    }).always(function(){
-                        alertEl.show().delay(3000).fadeOut()
-                        orderTable.ajax.reload()
-                    })
+  <script type="text/javascript">
+    $(document).ready(function () {
+      var orderTable = $('#order-table').DataTable({
+        ajax: {
+          url: "{% url 'wc07porder-list' %}",
+          data: function (d) {
+            d.format = 'datatables'
+          }
+        },
+        rowId: 'id',
+        columns: [
+          {
+            data: 'orderId'
+          },
+          {
+            data: 'orderName'
+          },
+          {
+            data: 'orderNum'
+          },
+          {
+            data: 'orderDate'
+          },
+          {
+            data: 'empOrgNo'
+          },
+          {
+            data: 'depName'
+          },
+          {
+            data: 'fio'
+          },
+          {
+            data: 'profName'
+          },
+          {
+            data: 'distName'
+          },
+          {
+            data: 'missionBegin'
+          },
+          {
+            data: 'missionEnd'
+          },
+          {
+            data: 'missionPurpose'
+          },
+          {
+            data: 'estimateId'
+          },
+          {
+            data: 'payDoc'
+          },
+          {
+            data: 'orderIdUpd'
+          },
+          {
+            data: null,
+            defaultContent: '',
+            orderable: false,
+            searchable: false,
+            className: 'text-center align-middle px-1',
+            render: function (data, type, row) {
+              if (data.prepaymentId) return ''
+              return `<a href="{% url 'orders' %}/${data.orderId}/createPrepayment" class="create-prepayment-button"><i class="fa-regular fa-download fa-xl"></i></a>`
+            }
+          }
+        ],
+        buttons: [
+          {
+            text: '<i class="fa-light fa-upload me-2"></i>&nbsp;Загрузить',
+            className: 'btn btn-success btn-sm',
+            action: function (e, dt, node, config) {
+              const alertEl = $('.alert')
+              $.get("{% url 'orders' %}/load", function (e) {
+                alertEl.attr('class', 'alert alert-success')
+                alertEl.html(e)
+              })
+                .fail(function (e) {
+                  alertEl.attr('class', 'alert alert-danger')
+                  alertEl.html(e.responseText)
                 })
-        }
-    );
-</script>
+                .always(function () {
+                  alertEl.show().delay(3000).fadeOut()
+                  orderTable.ajax.reload()
+                })
+            }
+          }
+        ]
+      })
+    
+      orderTable.on('click', '.create-prepayment-button', function (e) {
+        e.preventDefault()
+        const alertEl = $('.alert')
+        const url = e.currentTarget.getAttribute('href')
+        $.get(url, function (e) {
+          alertEl.attr('class', 'alert alert-success')
+          alertEl.html(e)
+        })
+          .fail(function (e) {
+            alertEl.attr('class', 'alert alert-danger')
+            alertEl.html(e.responseText)
+          })
+          .always(function () {
+            alertEl.show().delay(3000).fadeOut()
+            orderTable.ajax.reload()
+          })
+      })
+    })
+  </script>
 {% endblock %}

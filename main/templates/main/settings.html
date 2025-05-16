@@ -9,80 +9,67 @@
     {% csrf_token %}
     <input type="hidden" name="id" value="{{ form.id.value }}" />
 
-    <div class="form-row align-items-center">
-      <div class="col-12 p-1 text-right">
-        <input type="submit" class="btn btn-success btn-sm" value="Сохранить" />
+    <div class="row g-1">
+      <div class="col d-flex">
+        <button type="submit" class="btn btn-success btn-sm ms-auto me-1"><i class="fa-light fa-floppy-disk pe-2"></i>Сохранить</button>
       </div>
     </div>
 
-    <div class="form-row align-items-center">
-      <div class="col-6 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
+    <div class="row g-1 pt-1">
+      <div class="col-6">
+        <div class="input-group input-group-sm">
           <span class="input-group-text">{{ form.inputDir.label }}</span>
-        </div>
-        <input id="input-path" type="text" class="h5 mb-0 form-control form-control-sm {% if form.inputDir.errors %}{% endif %}" name="{{ form.inputDir.name }}" value="{{ form.inputDir.value|default_if_none:'' }}" />
-        <div class="input-group-append">
+          <input id="input-path" type="text" class="h5 mb-0 form-control form-control-sm {% if form.inputDir.errors %}{% endif %}" name="{{ form.inputDir.name }}" value="{{ form.inputDir.value|default_if_none:'' }}" />
           <button class="btn btn-outline-secondary check-folder-btn" type="button" data-input-id="input-path">Проверить</button>
         </div>
       </div>
-      <div class="col-6 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
+      <div class="col-6">
+        <div class="input-group input-group-sm">
           <span class="input-group-text">{{ form.outputDir.label }}</span>
-        </div>
-        <input id="output-path" type="text" class="h5 mb-0 form-control form-control-sm {% if form.outputDir.errors %}{% endif %}" name="{{ form.outputDir.name }}" value="{{ form.outputDir.value|default_if_none:'' }}" />
-        <div class="input-group-append">
+          <input id="output-path" type="text" class="h5 mb-0 form-control form-control-sm {% if form.outputDir.errors %}{% endif %}" name="{{ form.outputDir.name }}" value="{{ form.outputDir.value|default_if_none:'' }}" />
           <button class="btn btn-outline-secondary check-folder-btn" type="button" data-input-id="output-path">Проверить</button>
         </div>
       </div>
-    </div>
 
-    <div class="form-row align-items-center">
-      <div class="col-4 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
+      <div class="col-4">
+        <div class="input-group input-group-sm">
           <span class="input-group-text">{{ form.employeeFileTemplate.label }}</span>
+          <input type="text" class="h5 mb-0 form-control form-control-sm {% if form.employeeFileTemplate.errors %}{% endif %}" name="{{ form.employeeFileTemplate.name }}" value="{{ form.employeeFileTemplate.value|default_if_none:'' }}" />
         </div>
-        <input type="text" class="h5 mb-0 form-control form-control-sm {% if form.employeeFileTemplate.errors %}{% endif %}" name="{{ form.employeeFileTemplate.name }}" value="{{ form.employeeFileTemplate.value|default_if_none:'' }}" />
       </div>
       <div class="form-group col-md-2 mb-0"></div>
-      <div class="col-4 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
+      <div class="col-4">
+        <div class="input-group input-group-sm">
           <span class="input-group-text">{{ form.accountEntryFileTemplate.label }}</span>
+          <input type="text" class="h5 mb-0 form-control form-control-sm {% if form.accountEntryFileTemplate.errors %}{% endif %}" name="{{ form.accountEntryFileTemplate.name }}" value="{{ form.accountEntryFileTemplate.value|default_if_none:'' }}" />
         </div>
-        <input type="text" class="h5 mb-0 form-control form-control-sm {% if form.accountEntryFileTemplate.errors %}{% endif %}" name="{{ form.accountEntryFileTemplate.name }}" value="{{ form.accountEntryFileTemplate.value|default_if_none:'' }}" />
       </div>
-    </div>
 
-    <div class="form-row align-items-center">
-      <div class="col-4 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
+      <div class="col-4">
+        <div class="input-group input-group-sm">
           <span class="input-group-text">{{ form.prepaymentFileTemplate.label }}</span>
+          <input type="text" class="h5 mb-0 form-control form-control-sm {% if form.prepaymentFileTemplate.errors %}{% endif %}" name="{{ form.prepaymentFileTemplate.name }}" value="{{ form.prepaymentFileTemplate.value|default_if_none:'' }}" />
         </div>
-        <input type="text" class="h5 mb-0 form-control form-control-sm {% if form.prepaymentFileTemplate.errors %}{% endif %}" name="{{ form.prepaymentFileTemplate.name }}" value="{{ form.prepaymentFileTemplate.value|default_if_none:'' }}" />
       </div>
       <div class="form-group col-md-2 mb-0"></div>
-      <div class="col-4 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
+      <div class="col-4">
+        <div class="input-group input-group-sm">
           <span class="input-group-text">{{ form.factFileTemplate.label }}</span>
+          <input type="text" class="h5 mb-0 form-control form-control-sm {% if form.factFileTemplate.errors %}{% endif %}" name="{{ form.factFileTemplate.name }}" value="{{ form.factFileTemplate.value|default_if_none:'' }}" />
         </div>
-        <input type="text" class="h5 mb-0 form-control form-control-sm {% if form.factFileTemplate.errors %}{% endif %}" name="{{ form.factFileTemplate.name }}" value="{{ form.factFileTemplate.value|default_if_none:'' }}" />
       </div>
-    </div>
-
-    <div class="form-row align-items-center">
-      <div class="col-4 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
+      <div class="col-4">
+        <div class="input-group input-group-sm">
           <span class="input-group-text">{{ form.estimateItemFileTemplate.label }}</span>
+          <input type="text" class="h5 mb-0 form-control form-control-sm {% if form.estimateItemFileTemplate.errors %}{% endif %}" name="{{ form.estimateItemFileTemplate.name }}" value="{{ form.estimateItemFileTemplate.value|default_if_none:'' }}" />
         </div>
-        <input type="text" class="h5 mb-0 form-control form-control-sm {% if form.estimateItemFileTemplate.errors %}{% endif %}" name="{{ form.estimateItemFileTemplate.name }}" value="{{ form.estimateItemFileTemplate.value|default_if_none:'' }}" />
       </div>
-    </div>
-
-    <div class="form-row align-items-center">
-      <div class="col-4 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
+      <div class="form-group col-md-2 mb-0"></div>
+      <div class="col-4">
+        <div class="input-group input-group-sm">
           <span class="input-group-text">{{ form.orderFileTemplate.label }}</span>
+          <input type="text" class="h5 mb-0 form-control form-control-sm {% if form.orderFileTemplate.errors %}{% endif %}" name="{{ form.orderFileTemplate.name }}" value="{{ form.orderFileTemplate.value|default_if_none:'' }}" />
         </div>
-        <input type="text" class="h5 mb-0 form-control form-control-sm {% if form.orderFileTemplate.errors %}{% endif %}" name="{{ form.orderFileTemplate.name }}" value="{{ form.orderFileTemplate.value|default_if_none:'' }}" />
       </div>
     </div>
   </form>

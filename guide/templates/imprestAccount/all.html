@@ -6,7 +6,7 @@
 
 {% block content %}
   <div class="alert alert-primary" role="alert" style="display: none;"></div>
-  <table id="imprestAccount-table" class="table table-sm table-bordered table-hoverdtr-inline">
+  <table id="imprestAccount-table" class="table table-sm table-bordered table-striped table-hover">
     <thead>
       <tr>
         <th style="width: 10%">Счет</th>
@@ -30,7 +30,7 @@
           { data: 'account' },
           { data: 'name' }, 
           editColumn("{% url 'imprestAccounts' %}", null, function(data) { return data.account }), 
-          deleteColumn("{% url 'imprestAccounts' %}", null, 'Удалить код учетв?', function(data) { return data.account })
+          deleteColumn("{% url 'imprestAccounts' %}", null, 'Удалить код учета?', function(data) { return data.account })
         ],
         buttons: [
           {

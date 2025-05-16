@@ -6,57 +6,40 @@
 
 {% block content %}
   <div class="alert alert-primary" role="alert" style="display: none;"></div>
-  <table id="accountingCert-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100"></table>
+  <table id="accountingCert-table" class="table table-sm table-bordered table-striped table-hover">
+    <thead>
+      <tr>
+        <th style="width: 2%">Счет</th>
+        <th style="width: 95%">Номер</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+  </table>
 
   <script type="text/javascript">
     $(document).ready(function () {
-      var accountingCertTable = $('#accountingCert-table').DataTable({
+      $('#accountingCert-table').DataTable({
         ajax: {
-          url: '/api/v1/accountingCerts/?format=datatables',
+          url: "{% url 'accountingcert-list' %}?format=datatables",
           data: function (d) {}
         },
         rowId: 'id',
-        pagingType: 'first_last_numbers',
         columns: [
           {
-            title: 'Счет',
-            data: 'account',
-            width: '5rem'
+            data: 'account'
           },
           {
-            title: 'Номер',
             data: 'num'
           },
-          {
-            title: '',
-            data: null,
-            width: '1%',
-            defaultContent: '',
-            orderable: false,
-            render: function (data, type, row) {
-                return `<a href="/accountingCerts/${data.account}" class="text-info bi bi-pencil h4 m-0"></a>`
-            }
-        },
-        {
-            title: '',
-            data: null,
-            width: '1%',
-            defaultContent: '',
-            orderable: false,
-            render: function (data, type, row) {
-              return `<a href="/accountingCerts/${data.account}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить код расхода?');"></a>`
-            }
-         }
+          editColumn("{% url 'accountingCerts' %}", null, function (data) {
+            return data.account
+          }),
+          deleteColumn("{% url 'accountingCerts' %}", null, 'Удалить бухгалтерскую справку?', function (data) {
+            return data.account
+          })
         ],
-        buttons: [
-          {
-            text: '&nbsp;Создать',
-            className: 'btn btn-info btn-sm bi bi-boxes',
-            action: function (e, dt, node, config) {
-              window.location.href = '/accountingCerts/new'
-            }
-          }
-        ]
+        buttons: [addButton("{% url 'accountingCerts' %}")]
       })
     })
   </script>

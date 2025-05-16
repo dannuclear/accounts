@@ -30,6 +30,7 @@ class ImprestAccountForm (forms.ModelForm):
 class ExpenseRateForm (forms.ModelForm):
     # id = forms.IntegerField(label='ID', required=True)
     # name = forms.CharField(label='Наименование', required=True)
+    value = forms.DecimalField(localize=True, required=False)
     
     class Meta:
         model = ExpenseRate
@@ -104,8 +105,7 @@ class DepartmentForm (forms.ModelForm):
 
 class DepartmentAccountForm (forms.ModelForm):
    
-    department = DepartmentChoiceField(queryset=Department.objects.order_by('pk'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Подразделение', required=False, empty_label='Не установлено')
+    department = DepartmentChoiceField(queryset=Department.objects.order_by('pk'), label='Подразделение', required=False, empty_label='Не установлено')
 
     class Meta:
         model = DepartmentAccount

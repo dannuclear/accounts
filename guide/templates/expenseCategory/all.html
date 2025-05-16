@@ -6,60 +6,41 @@
 
 {% block content %}
   <div class="alert alert-primary" role="alert" style="display: none;"></div>
-  <table id="expenseCategories-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100"></table>
+  <table id="expenseCategories-table" class="table table-sm table-bordered table-striped table-hover">
+    <thead>
+      <tr>
+        <th style="width: 2%">Номер</th>
+        <th style="width: 60%">Наименование</th>
+        <th style="width: 40%">Наименование для печати</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+  </table>
 
   <script type="text/javascript">
     $(document).ready(function () {
-      var expenseCategoryTable = $('#expenseCategories-table').DataTable({
+      $('#expenseCategories-table').DataTable({
         ajax: {
-          url: '/api/v1/expenseCategories/?format=datatables',
+          url: "{% url 'expensecategory-list' %}?format=datatables",
           data: function (d) {}
         },
         rowId: 'id',
         pagingType: 'first_last_numbers',
         columns: [
           {
-            title: 'Номер',
             data: 'num'
           },
           {
-            title: 'Наименование',
             data: 'name'
           },
           {
-            title: 'Наименование для печати',
             data: 'printName'
           },
-          {
-            title: '',
-            data: null,
-            width: '1%',
-            defaultContent: '',
-            orderable: false,
-            render: function (data, type, row) {
-                return `<a href="/expenseCategories/${data.id}" class="text-info bi bi-pencil h4 m-0"></a>`
-            }
-        },
-        {
-            title: '',
-            data: null,
-            width: '1%',
-            defaultContent: '',
-            orderable: false,
-            render: function (data, type, row) {
-              return `<a href="/expenseCategories/${data.id}/delete" class="text-danger bi bi-trash-fill h4 m-0" onclick="return confirm('Удалить наименование кода расхода?');"></a>`
-            }
-         }
+          editColumn("{% url 'expenseCategories' %}", null),
+          deleteColumn("{% url 'expenseCategories' %}", null, 'Удалить категорию расхода?')
         ],
-        buttons: [
-          {
-            text: '&nbsp;Создать',
-            className: 'btn btn-info btn-sm bi bi-boxes',
-            action: function (e, dt, node, config) {
-              window.location.href = '/expenseCategories/new'
-            }
-          }
-        ]
+        buttons: [addButton("{% url 'expenseCategories' %}")]
       })
     })
   </script>

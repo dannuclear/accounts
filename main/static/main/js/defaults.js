@@ -3,6 +3,16 @@ var csrftoken = Cookies.get('csrftoken');
 dayjs.locale('ru')
 dayjs.extend(window.dayjs_plugin_customParseFormat);
 
+function addButton(baseUrl, label="Создать") {
+	return ({
+		text: '<i class="fa-light fa-octagon-plus me-2"></i>&nbsp;' + label,
+		className: 'btn btn-success btn-sm',
+		action: function (e, dt, node, config) {
+			window.location.href = baseUrl + "/new"
+		}
+	})
+}
+
 function editColumn(path, predicate, getRowId = function(data){return data.id}) {
 	return ({
 		data: null,

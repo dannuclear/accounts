@@ -7,34 +7,22 @@
 {% block content %}
   <form method="post" class="container-fluid">
     {% csrf_token %}
-    <input type="hidden" name="{{ form.id.name }}" value="{{ form.id.value|default_if_none:'' }}" />
 
-    <div class="form-row align-items-center">
-      <div class="col-12 p-1 text-right">
-        <input type="submit" class="btn btn-success btn-sm" value="Сохранить" />
-        <a href="{% url 'departmentAccounts' %}" class="btn btn-danger btn-sm">Отмена</a>
-      </div>
-    </div>
+    {% url 'departmentAccounts' as back_url %}
+    {% include 'main/save_cancel.html' with path=back_url %}
 
-    <div class="row">
-      <div class="col-12 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text {% if form.category.errors %} bg-danger {% endif %}">Подразделение</span>
-        </div>
-        {{ form.department }}
+    <div class="row g-1 pt-1">
+      <div class="col-6">
+        {% include 'main/input_group.html' with field=form.department inputClass='form-select form-select-sm' %}
       </div>
 
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Счет</span>
-        </div>
-        <input type="text" class="mb-0 form-control form-control-sm {% if form.account.errors %} is-invalid {% endif %}" name="{{ form.account.name }}" value="{{ form.account.value|default_if_none:'' }}" />
+      <div class="col-6"></div>
+
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.account label='Счет' %}
       </div>
-      <div class="col-2 p-1 input-group input-group-sm">
-        <div class="input-group-prepend">
-          <span class="input-group-text">Доп. Признак</span>
-        </div>
-        <input type="text" class="mb-0 form-control form-control-sm {% if form.extra.errors %} is-invalid {% endif %}" name="{{ form.extra.name }}" value="{{ form.extra.value|default_if_none:'' }}" />
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.extra label='Доп. признак' %}
       </div>
     </div>
   </form>
