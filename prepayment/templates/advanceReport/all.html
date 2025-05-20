@@ -18,6 +18,8 @@
     {% endif %}
 </div>
 
+{% include 'advanceReport/emp_num_dialog.html' %}
+
 <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm" style="font-size: 0.9em;">
     <thead>
         <tr>
@@ -38,6 +40,7 @@
             <th scope="col" rowspan="2" data-dt-order="disable">Дата принятия на учет АО</th>
             <th scope="col" rowspan="2" data-dt-order="disable">Создатель/Исполнитель</th>
 
+            <th scope="col" rowspan="2" data-dt-order="disable" data-width="1%"></th>
             <th scope="col" rowspan="2" data-dt-order="disable" data-width="1%"></th>
         </tr>
         <tr>
@@ -140,7 +143,19 @@
                                 return `<small style="font-size:0.8em;">${data.createdBy || ''}/${data.updatedByAccountant || ''}</small>`;
                             },
                         },
-                        editColumn("/advanceReports", function(){ return isAdminOrAccountant || data.reportStatus == null || data.reportStatus.id < 3 })
+                        {
+                            data: null,
+                            defaultContent: '',
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center align-middle p-1',
+                            render: function (data, type, row) {
+                                return `<a class="text-success" href="#" role="button" data-bs-gov-number="${data.govNumberCombined}" data-bs-id="${data.id}" data-bs-toggle="modal" data-bs-target="#emp-num-dialog" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa-duotone fa-users fa-xl"></i>
+                                        </a>`
+                                }
+                        },
+                        editColumn("/advanceReports", function(d){ return isAdminOrAccountant || d.reportStatus == null || [1,2,4].includes(d.reportStatus.id) })
                     ]
                 });
 

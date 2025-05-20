@@ -10,6 +10,9 @@ import os
 def main(request):
     return render(request, 'main/main.html')
 
+def success(request):
+    return render(request, "main/success.html")
+
 def settings(request):
     settings = Settings.objects.first()
     if request.method == "POST":

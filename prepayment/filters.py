@@ -1,6 +1,8 @@
 from rest_framework.filters import BaseFilterBackend
 from datetime import datetime
 from integration.models import Employee
+from .models import PrepaymentEmpNum
+from django.db.models import Q
 import re
 
 class PeriodFilter(BaseFilterBackend):
@@ -64,7 +66,9 @@ class UserFilter(BaseFilterBackend):
         if currentEmpOrgNo is None:
             queryset = queryset.filter(empNum__isnull=True)
         else:
-            queryset = queryset.filter(empNum__endswith=currentEmpOrgNo)
+            advance_reports = PrepaymentEmpNum.objects.filter(empNum=currentEmpOrgNo).values('prepayment_id')
+            advance_report_ids = [report['prepayment_id'] for report in advance_reports]
+            queryset = queryset.filter(Q(empNum__endswith=currentEmpOrgNo) | Q(id__in=advance_report_ids))
         return queryset
 
 class DepartmentFilter(BaseFilterBackend):

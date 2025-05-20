@@ -1,0 +1,58 @@
+<div class="modal fade" id="emp-num-dialog" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="emp-num-dialog-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="emp-num-dialog-label">Доступ к авансовому отчету</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body container-fluid"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    var maintenanceModal = document.getElementById('emp-num-dialog')
+    var modalBody = maintenanceModal.querySelector('.modal-body')
+    var closeButton = maintenanceModal.querySelector('button')
+
+    maintenanceModal.addEventListener('show.bs.modal', function (event) {
+      var button = event.relatedTarget
+      var id = button.getAttribute('data-bs-id')
+  
+      var modalTitle = maintenanceModal.querySelector('.modal-title')
+      
+      modalTitle.textContent = 'Доступ к авансовому отчету'
+      modalBody.innerHTML = ''
+      $.get(`{% url "advanceReports" %}/${id}/empNum/add`, function (data) {
+        modalBody.innerHTML = (data)
+      })
+    })
+
+    $(maintenanceModal).find('.modal-body').on('submit', 'form', function(event){
+      event.preventDefault();
+      const formData = new FormData(this);
+      
+      $.ajax({
+        type: 'POST',
+        url: $(this).attr('action'),
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+          if (!data) {
+            closeButton.click()
+          } else {
+            modalBody.innerHTML = (data)
+          }
+        },
+        error: function(xhr, status, error) {
+          modalBody.innerHTML = xhr.responseText
+        }
+      });
+    })
+  })
+</script>

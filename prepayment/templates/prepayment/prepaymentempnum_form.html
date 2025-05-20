@@ -1,0 +1,38 @@
+{% load widget_tweaks %}
+<div class="row g-1">
+  <div class="col-12">
+    {{ form.errors }}
+    <form method="POST" action="{% url 'advanceReport_emp_num_add' form.prepayment.value %}">
+      {% csrf_token %}
+      {{ form.prepayment.as_hidden }}
+      {{ form.num|attr:"type:hidden" }}
+      <div class="row g-1">
+        <div class="col-12">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Табельный:</span>
+            {{ form.empNum|add_class:'form-control' }}
+            <button type="submit" class="btn btn-sm btn-outline-success">Добавить</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="col-12 text-center">
+    <h6>Доступ к данному авансовому отчету</h6>
+    <table class="table table-sm table-bordered">
+      <thead>
+        <tr>
+          <th class="text-center">Табельный</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in empNums %}
+          <tr>
+            <td class="text-center">{{ m.empNum }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

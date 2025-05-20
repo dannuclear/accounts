@@ -5,7 +5,6 @@ from integration.models import WC07POrder, Prepayment as iPrepayment
 from accounts import settings
 # Create your models here.
 
-
 # Выдача денежных средств подотчет
 class Prepayment(models.Model):
     id = models.AutoField(primary_key=True, blank=False)
@@ -129,6 +128,23 @@ class Prepayment(models.Model):
             ("view_owner_dept_advance_reports", "Просмотр авансовых отчетов своего подразделения"),
             ("edit_owner_dept_advance_reports", "Редактирование авансовых отчетов своего подразделения")
         ]
+
+# Доступность аванса и авансового отчета по табельному
+class PrepaymentEmpNum(models.Model):
+    id = models.AutoField(primary_key=True, blank=False)
+
+    prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.CASCADE, blank=False, null=False)
+    empNum = models.IntegerField(db_column="emp_num", blank=False, null=False, verbose_name="Табельный")
+
+    class Meta:
+            db_table = 'prepayment_emp_num'
+            verbose_name = 'Доступность авансового отчета'
+            verbose_name_plural = 'Доступность авансового отчета'
+            default_permissions = ()
+            permissions = [
+                ("view_prepayment_emp_nums", "Просмотр"),
+                ("edit_prepayment_emp_nums", "Редактирование"),
+            ]
 
 # Аванс пункт
 class PrepaymentItem (models.Model):

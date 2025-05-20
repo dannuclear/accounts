@@ -15,6 +15,7 @@ urlpatterns = [
     path('advanceReports/<id>/print', views.pdfAdvanceReport, name='pdfAdvanceReport'),
     path('advanceReports/<id>/html', views.htmlAdvanceReport, name='htmlAdvanceReport'),
     path('advanceReports/<id>/accountingCert/html', views.htmlAccountingCert, name='htmlAccountingCert'),
+    path('advanceReports/<int:pk>/empNum/add', views.EmpNumCreateView.as_view(), name='advanceReport_emp_num_add'),
 
     path('inventories', views.inventories, name='inventories'),
     path('inventories/download', views.inventoriesDownload, name='inventoriesDownload'),

@@ -1,6 +1,6 @@
 from django import forms
 from django.forms.models import ALL_FIELDS, BaseInlineFormSet
-from .models import Prepayment, PrepaymentPurpose, ExpenseCode, PrepaymentItem, AdvanceReportItem, Attachment, AdvanceReportItemEntity, AdvanceReportInventoryItem
+from .models import Prepayment, PrepaymentPurpose, ExpenseCode, PrepaymentItem, AdvanceReportItem, Attachment, AdvanceReportItemEntity, AdvanceReportInventoryItem, PrepaymentEmpNum
 from guide.models import ObtainMethod
 from guide.models import Status, ImprestAccount, Document, PrepaidDest, ExpenseCategory, ExpenseItem
 from integration.models import Employee, WC07POrder
@@ -73,6 +73,12 @@ class ObtainMethodChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
 
+class PrepaymentEmpNumForm (forms.ModelForm):
+    # empNum = forms.ChoiceField(label='Табельный', required=True)
+
+    class Meta:
+        model = PrepaymentEmpNum
+        fields = ALL_FIELDS
 
 class PrepaymentForm (forms.ModelForm):
     id = forms.IntegerField(label='id', disabled=True, required=False)

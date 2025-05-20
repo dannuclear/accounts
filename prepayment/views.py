@@ -1,8 +1,8 @@
 from django.shortcuts import render
-from .models import Prepayment, PrepaymentPurpose, PrepaymentItem, AdvanceReportItem, Attachment, AdvanceReportItemEntity
+from .models import Prepayment, PrepaymentPurpose, PrepaymentItem, AdvanceReportItem, Attachment, AdvanceReportItemEntity, PrepaymentEmpNum
 from rest_framework import viewsets
 from .serializers import PrepaymentSerializer
-from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm, AdvanceReportForm, AdvanceReportItemForm, AttachmentForm, ItemsFormSet, AttachmentFormSet
+from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm, AdvanceReportForm, AdvanceReportItemForm, AttachmentForm, ItemsFormSet, AttachmentFormSet, PrepaymentEmpNumForm
 from datetime import datetime, timedelta
 from guide.models import Status, ExpenseItem, ExpenseCategory, AccountingCert, Department, Document
 from guide.filters import StatusFilter
@@ -11,6 +11,8 @@ from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
 from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func, Sum, IntegerField, Q, Case, When, DateField, Value, F
 from django.db.models.functions import Cast, ExtractDay
+from django.urls import reverse_lazy
+from django.views.generic.edit import CreateView
 from django.db import connection
 from .filters import PeriodFilter, ImprestAccountFilter, FilterTypeFilter, UserFilter, DepartmentFilter
 from django.utils import formats
@@ -81,6 +83,23 @@ class PrepaymentViewSet (viewsets.ModelViewSet):
         
         return super().filter_queryset(queryset)
 
+
+class EmpNumCreateView(CreateView):
+    model = PrepaymentEmpNum
+    form_class = PrepaymentEmpNumForm
+    success_url = reverse_lazy('success')
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['prepayment'] = self.kwargs.get('pk')
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pk = self.kwargs.get('pk')
+        context['empNums'] = PrepaymentEmpNum.objects.filter(
+            prepayment=pk).all()
+        return context
 
 def prepayments(request):
     isAdminOrAccountant = is_user_in_group(request.user, ['Администратор', 'Бухгалтер'])
