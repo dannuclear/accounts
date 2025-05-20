@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .models import Request, RequestInventory, RequestInventoryItem
-from prepayment.models import Prepayment, PrepaymentPurpose
+from prepayment.models import Prepayment, PrepaymentPurpose, PrepaymentItem
 from rest_framework import viewsets
 from .serializers import RequestSerializer
 from .forms import RequestForm, RequestInventoryFormSet
@@ -156,6 +156,13 @@ def createPrepayment(request, id):
     prep.status = status
     prep.reportStatus = status
     prep.save()
+
+    prepayment_item = PrepaymentItem()
+    prepayment_item.prepayment = prep
+    prepayment_item.value = req.issuedSum
+    prepayment_item.obtainMethod = req.obtainMethod
+    prepayment_item.date = req.receivingDate
+    prepayment_item.save()
 
     purpose = PrepaymentPurpose()
     purpose.prepayment = prep

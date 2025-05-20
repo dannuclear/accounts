@@ -72,6 +72,7 @@
                                 d.periodFrom=$('#period-from').val()
                             if ($('#period-to').val())
                                 d.periodTo=$('#period-to').val()
+                            d.periodType=1   
                             if (statusFilter && statusFilter.val())
                                 d.statusFilter = statusFilter.val()
 
@@ -85,7 +86,9 @@
                     order: [],
                     createdRow: function( row, data, dataIndex) {
                         if (data.reportStatus && data.reportStatus.id == 4)
-                            $(row).addClass('text-danger')
+                            $(row).find('td').addClass('text-danger')
+                        if (data.reportStatus && data.reportStatus.id == 2)
+                            $(row).addClass('fw-bold');
                     },
                     columns: [
                         {

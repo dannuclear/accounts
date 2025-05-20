@@ -186,7 +186,7 @@ class PrepaymentPurpose(models.Model):
     missionDest = models.CharField(db_column="mission_dest", max_length=200, blank=True, null=True)
 
     # Цель командировки
-    missionPurpose = models.CharField(db_column="mission_purpose", max_length=200, blank=True, null=True)
+    missionPurpose = models.CharField(db_column="mission_purpose", max_length=400, blank=True, null=True)
 
     # Предельный срок предоставления АО (дата)
     reportDeadline = models.DateField(db_column="report_deadline", blank=True, null=True)

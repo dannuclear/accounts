@@ -83,9 +83,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'accounts.wsgi.application'
 
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
+ALLOW_CHANGE_USER = True
 
 DATABASES = {
     'default': {

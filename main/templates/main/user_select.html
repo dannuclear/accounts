@@ -1,0 +1,19 @@
+<div class="me-5">
+    <select id="change-user" name="current_user" class="form-select form-select-sm">
+      <option value="su" {% if user.username == 'su' %}selected{% endif %}>Суперпользователь</option>
+      <option value="admin" {% if user.username == 'admin' %}selected{% endif %}>Администратор</option>
+      <option value="chief" {% if user.username == 'chief' %}selected{% endif %}>Руководитель</option>
+      <option value="specialist" {% if user.username == 'specialist' %}selected{% endif %}>Специалист</option>
+      <option value="user" {% if user.username == 'user' %}selected{% endif %}>Пользователь</option>
+    </select>
+  </div>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $("#change-user").on('change', function(e){
+        const selectedUser  = $(this).val();
+        document.cookie = `username=${ selectedUser }; path=/;`
+        window.location.reload()
+      })
+    })
+  </script>

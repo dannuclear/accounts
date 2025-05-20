@@ -119,10 +119,18 @@
           <input type="text" class="form-control form-control-sm doc-num" name="{{ item.approveDocNum.html_name }}" value="{{ item.approveDocNum.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
         </td>
         <td>
-          {{ item.approveDocument|add_class:'form-select form-select-sm approve-doc'|add_error_class:'is-invalid' }}
+          {% comment %} {% if lockLevel %}
+            <input type="text" class="form-control form-control-sm" value="{{ item.instance.approveDocument.name|default_if_none:'' }}" readonly/>
+          {% else %} {% endcomment %}
+            {{ item.approveDocument|add_class:'form-control form-select form-select-sm' }}
+          {% comment %} {% endif %} {% endcomment %}
         </td>
         <td>
-          {{ item.expenseCategory|add_class:'form-select form-select-sm'|add_error_class:'is-invalid' }}
+          {% comment %} {% if lockLevel %} {% endcomment %}
+            {% comment %} <input type="text" class="form-control form-control-sm" name="{{ item.expenseCategory.html_name }}" value="{{ item.expenseCategory.value|default_if_none:'' }}" autocomplete="off" readonly/> {% endcomment %}
+          {% comment %} {% else %} {% endcomment %}
+            {{ item.expenseCategory|add_class:'form-control form-select form-select-sm' }}
+          {% comment %} {% endif %} {% endcomment %}
         </td>
         <td>
           <input type="text" class="form-control form-control-sm" name="{{ item.nomenclature.html_name }}" value="{{ item.nomenclature.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
@@ -133,7 +141,7 @@
           </td>
         {% endif %}
         <td>
-          <input type="text" class="form-control form-control-sm expense-sum expense-sum-currency" name="{{ item.expenseSumCurrency.html_name }}" value="{{ item.expenseSumCurrency.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>
+          <input type="text" class="form-control form-control-sm expense-sum expense-sum-currency" name="{{ item.expenseSumCurrency.html_name }}" value="{{ item.expenseSumCurrency.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel or disableCurrency|default:False%}readonly{% endif %}/>
         </td>
         <td>
           <input type="text" class="form-control form-control-sm expense-sum expense-sum-rub" name="{{ item.expenseSumRub.html_name }}" value="{{ item.expenseSumRub.value|default_if_none:'' }}" autocomplete="off" {% if lockLevel %}readonly{% endif %}/>

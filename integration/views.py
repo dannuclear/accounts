@@ -14,7 +14,7 @@ from .serializers import EstimateSerializer, EmployeeSerializer, PrepaymentSeria
 from .helper import FileType
 from django.db.models import OuterRef, Subquery, Q
 from prepayment import models as prepaymentModels
-from guide.models import Document, Department, DepartmentAccount
+from guide.models import Document, Department, DepartmentAccount, ObtainMethod
 from datetime import datetime
 # Create your views here.
 
@@ -157,14 +157,17 @@ def createPrepaymentFromOrder(request, id):
     prep.empFullName = order.fio
     prep.empProfName = order.profName
     prep.imprestAccount_id = 7101
+    prep.status_id = 1
     prep.save()
 
     intPrep = Prepayment.objects.filter(xv26eiId=order.estimateId, empOrgNo=empOrgNo).first()
     if intPrep is not None:
+        obtain_method = ObtainMethod.objects.filter(bik=intPrep.bic).first()
         prepItem = prepaymentModels.PrepaymentItem()
         prepItem.prepayment = prep
         prepItem.value = intPrep.sum
         prepItem.date = intPrep.orderDate
+        prepItem.obtainMethod = obtain_method
         prepItem.save()
     
 

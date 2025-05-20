@@ -262,7 +262,11 @@
               </div>
 
               <div class="row p-1">
-                {% include 'advanceReport/itemTable.html' with items=travelExpenses itemType=0 accounting=True %}
+                {% if form.instance.imprestAccount.account != 7102 %}
+                  {% include 'advanceReport/itemTable.html' with items=travelExpenses itemType=0 accounting=True disableCurrency=True %}
+                {% else %}
+                  {% include 'advanceReport/itemTable.html' with items=travelExpenses itemType=0 accounting=True %}
+                {% endif %}
               </div>
             </div>
 
@@ -276,7 +280,11 @@
               </div>
 
               <div class="row p-1">
-                {% include 'advanceReport/itemTable.html' with items=orgServices itemType=1 %}
+                {% if form.instance.imprestAccount.account != 7102 %}
+                  {% include 'advanceReport/itemTable.html' with items=orgServices itemType=1 disableCurrency=True %}
+                {% else %}
+                  {% include 'advanceReport/itemTable.html' with items=orgServices itemType=1 %}
+                {% endif %}
               </div>
             </div>
           {% endif %}
@@ -291,7 +299,11 @@
             </div>
 
             <div class="row p-1">
-              {% include 'advanceReport/itemTable.html' with items=iventoryItems itemType=2 accounting=True %}
+              {% if form.instance.imprestAccount.account != 7102 %}
+                {% include 'advanceReport/itemTable.html' with items=iventoryItems itemType=2 accounting=True disableCurrency=True %}
+              {% else %}
+                {% include 'advanceReport/itemTable.html' with items=iventoryItems itemType=2 accounting=True %}
+              {% endif %}
             </div>
           </div>
           <div class="tab-pane fade container-fluid" id="tab-content-4" role="tabpanel" aria-labelledby="tab-4">
@@ -304,7 +316,11 @@
             </div>
 
             <div class="row p-1">
-              {% include 'advanceReport/itemTable.html' with items=services itemType=3 %}
+              {% if form.instance.imprestAccount.account != 7102 %}
+                {% include 'advanceReport/itemTable.html' with items=services itemType=3 disableCurrency=True %}
+              {% else %}
+                {% include 'advanceReport/itemTable.html' with items=services itemType=3 %}
+              {% endif %}
             </div>
           </div>
           <div class="tab-pane fade container-fluid" id="tab-content-5" role="tabpanel" aria-labelledby="tab-5">
@@ -317,7 +333,11 @@
             </div>
 
             <div class="row p-1">
-              {% include 'advanceReport/itemTable.html' with items=presentationExpenses itemType=4 %}
+              {% if form.instance.imprestAccount.account != 7102 %}
+                {% include 'advanceReport/itemTable.html' with items=presentationExpenses itemType=4 disableCurrency=True %}
+              {% else %}
+                {% include 'advanceReport/itemTable.html' with items=presentationExpenses itemType=4 %}
+              {% endif %}
             </div>
           </div>
           <div class="tab-pane fade container-fluid" id="tab-content-6" role="tabpanel" aria-labelledby="tab-6">
@@ -330,7 +350,11 @@
             </div>
 
             <div class="row p-1">
-              {% include 'advanceReport/itemTable.html' with items=purchaseOrderExpenses itemType=5 %}
+              {% if form.instance.imprestAccount.account != 7102 %}
+                {% include 'advanceReport/itemTable.html' with items=purchaseOrderExpenses itemType=5 disableCurrency=True %}
+              {% else %}
+                {% include 'advanceReport/itemTable.html' with items=purchaseOrderExpenses itemType=5 %}
+              {% endif %}
             </div>
           </div>
           <div class="tab-pane fade container-fluid" id="tab-content-7" role="tabpanel" aria-labelledby="tab-7">

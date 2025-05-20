@@ -102,6 +102,9 @@
                         if (deadline >= twoDaysFromNow && deadline <= today) {
                             $(row).addClass('table-warning');
                         }
+                        if(data.status && data.status.id == 1) {
+                            $(row).addClass('fw-bold');
+                        }
                     },
                     columns: [
                         { data: null, orderable: false, searchable: false, render: function (data, type, row, meta) {

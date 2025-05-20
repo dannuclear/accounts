@@ -92,6 +92,11 @@
                     d.columns.push({data: 'applicant.pfnPatronymic', searchable: true})
                 }
             },
+            rowCallback: function(row, data) {
+              if(data.status && data.status.id == 2) {
+                $(row).addClass('fw-bold');
+              }
+            },
             rowId: 'id',
             order: [],
             columns: [

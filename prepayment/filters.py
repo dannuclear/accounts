@@ -9,9 +9,10 @@ class PeriodFilter(BaseFilterBackend):
         periodFrom = request.query_params.get("periodFrom")
         periodTo = request.query_params.get("periodTo")
         filterType = request.query_params.get("filterType")
+        periodType = request.query_params.get("periodType")
 
         # Опись авансовых отчетов. фильтр по полю reportDate
-        if filterType == '1':
+        if filterType == '1' or periodType == '1':
             if periodFrom is not None:
                 queryset = queryset.filter(reportDate__gte=datetime.strptime(periodFrom, '%d.%m.%Y'))
             if periodTo is not None:
