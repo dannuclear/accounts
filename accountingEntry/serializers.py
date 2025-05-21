@@ -43,7 +43,7 @@ class AccountingEntryDictSerializer (serializers.ModelSerializer):
 
     creditAccountSubaccount = serializers.SerializerMethodField()
 
-    # prepayment = PrepaymentSerializer(read_only=True, many=False)
+    prepayment = PrepaymentSerializer(read_only=True, many=False)
 
     def get_month(self, obj):
         return obj['aePeriod'].month

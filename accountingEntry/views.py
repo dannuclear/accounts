@@ -14,7 +14,7 @@ import csv
 
 
 class AccountingEntryViewSet (viewsets.ModelViewSet):
-    queryset = AccountingEntry.objects.select_related('prepayment')#.order_by('-id')
+    queryset = AccountingEntry.objects.select_related('prepayment').order_by('-id')
     serializer_class = AccountingEntrySerializer
 
     def filter_queryset(self, queryset):
@@ -25,11 +25,15 @@ class AccountingEntryViewSet (viewsets.ModelViewSet):
         if 'filterType' in self.request.query_params:
             self.filter_backends.insert(0, FilterTypeFilter)
 
-        # queryset = queryset.values('prepayment', 'aePeriod', 'acplAccountDebit', 'acplSubaccountDebit', 'acplCodeAnaliticDebit', 'acplCodeAnaliticDebit1', 'acplCodeAnaliticDebit2', 'acplAddSignDebit', 'acplAccountCredit', 'acplSubaccountCredit', 'acplCodeAnaliticCredit', 'acplCodeAnaliticCredit1', 'acplCodeAnaliticCredit2', 'acplAddSignCredit').annotate(ae_sum=Sum('aeSum'))
         queryset = super().filter_queryset(queryset)
         if 'group' in self.request.query_params:
             self.serializer_class = AccountingEntryDictSerializer
-            queryset = queryset.values('prepayment_id', 'aePeriod', 'aeNo', 'acplAccountDebit', 'acplSubaccountDebit', 'acplCodeAnaliticDebit', 'acplCodeAnaliticDebit1', 'acplCodeAnaliticDebit2', 'acplAddSignDebit', 'acplAccountCredit', 'acplSubaccountCredit', 'acplCodeAnaliticCredit', 'acplCodeAnaliticCredit1', 'acplCodeAnaliticCredit2', 'acplAddSignCredit').annotate(aeSum=Sum('aeSum')).order_by('-aePeriod')
+            
+            queryset = queryset.values('prepayment', 'aePeriod', 'aeNo', 'acplAccountDebit', 'acplSubaccountDebit', 'acplCodeAnaliticDebit', 'acplCodeAnaliticDebit1', 'acplCodeAnaliticDebit2', 'acplAddSignDebit', 'acplAccountCredit', 'acplSubaccountCredit', 'acplCodeAnaliticCredit', 'acplCodeAnaliticCredit1', 'acplCodeAnaliticCredit2', 'acplAddSignCredit').annotate(aeSum=Sum('aeSum')).order_by('-aePeriod')
+            prepayment_ids = [item['prepayment'] for item in queryset]
+            prepayments = Prepayment.objects.filter(id__in=prepayment_ids).in_bulk()
+            for item in queryset:
+                item['prepayment'] = prepayments.get(item['prepayment'])
         return queryset
 
 
