@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .models import AccountingEntry
-from .serializers import AccountingEntrySerializer
+from .serializers import AccountingEntrySerializer, AccountingEntryDictSerializer
 from rest_framework import viewsets
 from .filters import PeriodFilter, FilterTypeFilter
 from datetime import datetime
@@ -14,7 +14,7 @@ import csv
 
 
 class AccountingEntryViewSet (viewsets.ModelViewSet):
-    queryset = AccountingEntry.objects.all().select_related('prepayment').order_by('-id')
+    queryset = AccountingEntry.objects.select_related('prepayment')#.order_by('-id')
     serializer_class = AccountingEntrySerializer
 
     def filter_queryset(self, queryset):
@@ -25,7 +25,12 @@ class AccountingEntryViewSet (viewsets.ModelViewSet):
         if 'filterType' in self.request.query_params:
             self.filter_backends.insert(0, FilterTypeFilter)
 
-        return super().filter_queryset(queryset)
+        # queryset = queryset.values('prepayment', 'aePeriod', 'acplAccountDebit', 'acplSubaccountDebit', 'acplCodeAnaliticDebit', 'acplCodeAnaliticDebit1', 'acplCodeAnaliticDebit2', 'acplAddSignDebit', 'acplAccountCredit', 'acplSubaccountCredit', 'acplCodeAnaliticCredit', 'acplCodeAnaliticCredit1', 'acplCodeAnaliticCredit2', 'acplAddSignCredit').annotate(ae_sum=Sum('aeSum'))
+        queryset = super().filter_queryset(queryset)
+        if 'group' in self.request.query_params:
+            self.serializer_class = AccountingEntryDictSerializer
+            queryset = queryset.values('prepayment_id', 'aePeriod', 'aeNo', 'acplAccountDebit', 'acplSubaccountDebit', 'acplCodeAnaliticDebit', 'acplCodeAnaliticDebit1', 'acplCodeAnaliticDebit2', 'acplAddSignDebit', 'acplAccountCredit', 'acplSubaccountCredit', 'acplCodeAnaliticCredit', 'acplCodeAnaliticCredit1', 'acplCodeAnaliticCredit2', 'acplAddSignCredit').annotate(aeSum=Sum('aeSum')).order_by('-aePeriod')
+        return queryset
 
 
 def all(request):

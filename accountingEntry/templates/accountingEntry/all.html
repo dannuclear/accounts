@@ -13,6 +13,14 @@
     <div class="col-3">  
         {% include 'main/filters/period_filter.html' %}
     </div>
+    <div class="col-3">
+        <div class="form-check pt-1">
+            <input id="group-checkbox" class="form-check-input" type="checkbox" value="" id="flexCheckIndeterminate">
+            <label class="form-check-label" for="flexCheckIndeterminate">
+              Группировать
+            </label>
+          </div>
+    </div>
 </div>
 
 <div class="modal fade" id="periodModal" tabindex="-1" aria-labelledby="periodModalTitle" aria-hidden="true">
@@ -91,7 +99,7 @@
 
 <script type="text/javascript">
     const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ']
-
+    const groupCheckbox = $('#group-checkbox')
     let urlParams = new URLSearchParams(document.location.search)
 
     $('.datepeeker').datepicker({
@@ -125,6 +133,8 @@
                                 d.periodFrom=$('#period-from').val()
                             if ($('#period-to').val())
                                 d.periodTo=$('#period-to').val()
+                            if (groupCheckbox.is(':checked'))
+                                d.group=true
                             d.columns.push({data: 'acplAccountDebit', searchable: true})
                             d.columns.push({data: 'acplSubaccountDebit', searchable: true})
                             d.columns.push({data: 'acplAccountCredit', searchable: true})
@@ -202,6 +212,10 @@
                 .on('change', function (e) {
                 requestTable.ajax.reload()
                 })
+
+            groupCheckbox.on('change', function() {
+                requestTable.ajax.reload()
+            })
             periodFilter.find('button').on('click', function (e) {
                 periodFilter.find('input').val('')
                 requestTable.ajax.reload()
