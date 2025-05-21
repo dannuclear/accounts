@@ -18,7 +18,7 @@ class CachedModelChoiceField(models.ModelChoiceField):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.cache_key = f"{self.__class__.__name__}_{self.queryset.model.__name__}"
+        self.cache_key = self.__class__.__name__ + "_" + self.queryset.model.__name__
     
     def __deepcopy__(self, memo):
         result = super(ChoiceField, self).__deepcopy__(memo)

@@ -90,7 +90,7 @@ class DatatablesFilterBackend(filters.DatatablesBaseFilterBackend,
             if field['data'] in filterset.filters:
                 filter = filterset.filters[field['data']]
                 lookup = '__'.join(
-                    filter.field_name + '__' + filter.lookup_expr
+                    f'{filter.field_name}__{filter.lookup_expr}'
                     .split('__')
                     [:-1])
                 ret.append(('-' if dir_ == 'desc' else '')
