@@ -56,7 +56,6 @@
 
 <script type="text/javascript">
     const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ']
-    const periodFilter = $('#period-filter')
     const isAdminOrAccountant = $('#isAdminOrAccountant').val() == 'True'
 
     let urlParams = new URLSearchParams(document.location.search)
@@ -82,6 +81,7 @@
                             d.columns.push({data: 'wc07pOrder.orderNum', searchable: true})
                             d.columns.push({data: 'wc07pOrder.orderDate', searchable: true})
                             d.columns.push({data: 'docNum', searchable: true})
+                            d.statusField='reportStatus__id'
                         }
                     },
                     rowId: 'id',
@@ -172,7 +172,6 @@
             })
 
             periodFilter.find('button').on('click', function (e) {
-                periodFilter.find('input').val('')
                 requestTable.ajax.reload()
             })
         }

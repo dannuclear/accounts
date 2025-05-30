@@ -3,7 +3,7 @@
     <a class="navbar-brand" href="#"><i class="fa-duotone fa-layer-group fa-xl mb-0"></i></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
 
-    <div class="collapse navbar-collapse" id="navbarsExample03" style="font-size: 1.1em;">
+    <div class="collapse navbar-collapse" id="navbarsExample03" style="font-size: 1.0em;">
       <ul class="navbar-nav">
         {% if perms.request.view_requests %}
           <li class="nav-item">
@@ -96,6 +96,20 @@
               </li>
               <li>
                 <a class="dropdown-item" href="{% url 'ixdReport' %}">Командировочные расходы для ИХД</a>
+              </li>
+            </ul>
+          </li>
+        {% endif %}
+
+        {% if perms.accountingEntry %}
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="fa-duotone fa-building-columns"></i>&nbsp;Перечисление ДС</a>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="{% url 'parameterizedReport' %}">Реестры авансовых сумм, перечисленных на банки</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'ixdReport' %}">Реестры для банков</a>
               </li>
             </ul>
           </li>

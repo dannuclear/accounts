@@ -389,7 +389,7 @@
                       </td>
                       <td>
                         {% if attachment.file.value is not None %}
-                          <a href="{{ attachment.file.value.url|urlencode }}" target="__blank" title="{{ attachment.file.value }}">Просмотр</a>
+                          <a href="{{ attachment.file.file.url }}" target="__blank" title="{{ attachment.file.value }}">Просмотр</a>
                         {% endif %}
                       </td>
                       <td>

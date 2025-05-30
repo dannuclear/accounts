@@ -5,3 +5,28 @@
   <input id="period-to" value={% now 't.m.Y' %} class="form-control text-center datepeeker" />
   <button class="btn btn-sm btn-outline-success">X</button>
 </div>
+<script type="text/javascript">
+  const periodFilter = $('#period-filter')
+
+  $(document).ready( function () {
+    const storedValues = localStorage.getItem('periodFilter');
+    if (storedValues) {
+      const { from, to } = JSON.parse(storedValues);
+      $('#period-from').val(from);
+      $('#period-to').val(to);
+    }
+
+    periodFilter.find('input').on('change', function () {
+      console.log('change')
+      const from = $('#period-from').val();
+      const to = $('#period-to').val();
+      localStorage.setItem('periodFilter', JSON.stringify({ from, to }));
+    });
+
+    periodFilter.find('button').on('click', function (e) {
+      periodFilter.find('input').val('')
+      localStorage.setItem('periodFilter', JSON.stringify({ from:'', to:'' }));
+    })
+
+  })
+</script>

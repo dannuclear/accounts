@@ -95,10 +95,10 @@ def editRequest(request, id):
         if prepaymentRequest.type == 0:
             inventoriesFormSet = RequestInventoryFormSet(postCopy, prefix='inventory', instance=prepaymentRequest)
 
-        if not postCopy['action'] and form.is_valid() and (prepaymentRequest.type == 1 or inventoriesFormSet.is_valid()):
+        if not postCopy['action'] and form.is_valid() and (prepaymentRequest.type in [1, 2] or inventoriesFormSet.is_valid()):
             if is_user_in_group(request.user, ['Бухгалтер']):
                 prepaymentRequest.updatedByAccountant = userFullName if userFullName else request.user.username
-
+                prepaymentRequest.updatedAtAccountant = datetime.now()
             form.save()
             if prepaymentRequest.type == 0:
                 for inventory in inventoriesFormSet.save(commit=False):
@@ -120,7 +120,7 @@ def editRequest(request, id):
     return render(request, 'request/edit.html', context)
 
 def deleteRequest(request, id):
-    RequestInventory.objects.get(request=id).delete()
+    RequestInventory.objects.filter(request=id).delete()
     Request.objects.get(pk=id).delete()
     return HttpResponseRedirect('/requests')
 

@@ -64,7 +64,7 @@ class RequestForm (forms.ModelForm):
     class Meta:
         model = Request
         fields = ALL_FIELDS
-        exclude = ['createdBy', 'createdAt', 'type', 'createdByFullName', 'updatedByAccountant']
+        exclude = ['createdBy', 'createdAt', 'type', 'createdByFullName', 'updatedByAccountant', 'updatedAtAccountant']
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', False)

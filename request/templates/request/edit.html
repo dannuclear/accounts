@@ -76,29 +76,9 @@
       </div>
 
       {% if type == 0 %}
-        <div class="col-12">
-          <div class="container-fluid p-1 border rounded">
-            <div class="row g-1 inventory-container">
-              <div class="col-12" style="background-color: #fff3e4;">
-                <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ inventories.prefix }}">Добавить</button>
-              </div>
-
-              {{ inventories.management_form }}
-              {% for inventory in inventories %}
-                {% include 'request/inventoryRow.html' with inventory=inventory %}
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-
-        <div class="col-12">
-          {% include 'main/input_group.html' with field=form.servicePayment %}
-        </div>
-
-        <div class="col-12 input-group input-group-sm">
-          <span class="input-group-text">{{ form.comment.label }}</span>
-          <textarea type="text" rows="3" class="mb-0 form-control" name="{{ form.comment.name }}">{{ form.comment.value|default_if_none:'' }}</textarea>
-        </div>
+        {% include "request/type_0.html" %}
+      {% elif type == 2 %}
+        {% include "request/type_2.html" %}
       {% endif %}
 
       <div class="col-7"></div>
@@ -124,35 +104,24 @@
       const issuedSumInput = $('.issued-sum')
     
       $('.datepeeker').datepicker()
-    
-      $('.cnt-input, .price-input').on('change', function (e) {
-        const tr = $(e.currentTarget).closest('tr')
-        const cntInput = tr.find('.cnt-input')
-        const priceInput = tr.find('.price-input')
-        const totalInput = tr.find('.total-input')
-    
-        const cntValue = parseFloat(cntInput.val().replace(/,/g, '.')) || 0 // Default to 0 if NaN
-        const priceValue = parseFloat(priceInput.val().replace(/,/g, '.')) || 0
-    
-        // Calculate the total
-        const total = cntValue * priceValue
-        totalInput.val(total.toFixed(2))
-    
-        updateIssuedSum()
-      })
-    
+      
       function updateIssuedSum() {
         let totalSum = 0.0
-    
-        // Iterate through all total-input fields and sum their values
-        $('.total-input:visible').each(function () {
-          totalSum += parseFloat($(this).val().replaceAll(',', '.')) || 0 // Default to 0 if NaN
+        const inputs = $('.total-input-part:visible')
+        if (inputs.length == 0)
+          return
+        // Снабжаем все части итоговой суммы классом total-input-part
+        inputs.each(function () {
+          totalSum += parseFloat($(this).val().replaceAll(',', '.')) || 0
         })
-    
-        // Update the issued sum input
         issuedSumInput.val(totalSum.toFixed(2))
       }
     
+      $('form').on('change', '.total-input-part', function() {
+        console.log('Обновляем суммы')
+        updateIssuedSum()
+      })
+
       // Добавить аванс
       $('.btn-add-row').on('click', function (e) {
         $('#action').val('add-' + $(e.target).data('prefix'))
@@ -162,14 +131,6 @@
       $('.delete-inventory').on('click', function (e) {
         $('#action').val('delete-' + $(e.target).data('prefix'))
       })
-      /*
-              $('.inventory-container').on('click', '.delete-inventory', function (e) {
-                const form = $(e.currentTarget).parents('.inventory-form')
-                form.children('[id$="DELETE"]').val(1)
-                if (!form.children('[id$="id"]').val()) form.remove()
-                else form.hide()
-                updateIssuedSum()
-              })*/
     
       $('tbody').on('click', '.btn-delete-row', function (e) {
         const tr = $(e.currentTarget).closest('tr')
@@ -211,7 +172,7 @@
           })
         })
     
-      //updateIssuedSum();
+      updateIssuedSum();
     })
   </script>
 {% endblock %}

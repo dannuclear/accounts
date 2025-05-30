@@ -1,0 +1,112 @@
+{% load widget_tweaks %}
+{{ form.livingRate.as_hidden }}
+<div class="col-12">
+  <table class="table table-sm table-bordered text-center w-100">
+    <thead>
+      <tr>
+        <th>Суточные</th>
+        <th style="width: 15%;">Дата начала</th>
+        <th style="width: 15%;">Дата окончания</th>
+        <th style="width: 5%;">Дней</th>
+        <th style="width: 11%;">Сумма</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ form.dailyAllowance|add_class:'form-select form-select-sm text-center' }}</td>
+        <td>{{ form.dailyAllowanceDateFrom|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
+        <td>{{ form.dailyAllowanceDateTo|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
+        <td>{{ form.dailyAllowanceDays|add_class:'form-control form-control-sm text-center' }}</td>
+        <td>{{ form.dailyAllowanceSum|add_class:'form-control form-control-sm text-end total-input-part' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="col-12">
+  <table class="table table-sm table-bordered text-center">
+    <thead>
+      <tr>
+        <th>Проживание</th>
+        <th style="width: 15%;">Дата начала</th>
+        <th style="width: 15%;">Дата окончания</th>
+        <th style="width: 5%;">Дней</th>
+        <th style="width: 11%;">Сумма</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ form.living|add_class:'form-select form-select-sm text-center' }}</td>
+        <td>{{ form.livingDateFrom|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
+        <td>{{ form.livingDateTo|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
+        <td>{{ form.livingDays|add_class:'form-control form-control-sm text-center' }}</td>
+        <td>{{ form.livingSum|add_class:'form-control form-control-sm text-end total-input-part' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="col-12">
+  <table class="table table-sm table-bordered text-center">
+    <thead>
+      <tr>
+        <th>Проживание</th>
+        <th style="width: 15%;">Дата начала</th>
+        <th style="width: 15%;">Дата окончания</th>
+        <th style="width: 16%;">Сумма</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ form.transfer|add_class:'form-select form-select-sm text-center' }}</td>
+        <td>{{ form.transferDateFrom|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
+        <td>{{ form.transferDateTo|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
+        <td>{{ form.transferSum|add_class:'form-control form-control-sm text-end total-input-part' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="col-12">
+  <div class="row">
+    <div class="col-6">
+      <table class="table table-sm table-bordered text-center">
+        <thead>
+          <tr>
+            <th>Подотчет по распоряжению</th>
+            <th style="width: 16%;">Сумма</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ form.orderAllowance|add_class:'form-select form-select-sm text-center' }}</td>
+            <td>{{ form.orderAllowanceSum|add_class:'form-control form-control-sm text-end total-input-part' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col-6">
+      <table class="table table-sm table-bordered text-center">
+        <thead>
+          <tr>
+            <th>Подотчет на приобретение ГСМ</th>
+            <th style="width: 16%;">Сумма</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ form.gsmAllowance|add_class:'form-select form-select-sm text-center' }}</td>
+            <td>{{ form.gsmAllowanceSum|add_class:'form-control form-control-sm text-end total-input-part' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+
+  })
+</script>

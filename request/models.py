@@ -30,12 +30,58 @@ class Request(models.Model):
     createdAt = models.DateTimeField(db_column='created_at')
     createdByFullName = models.CharField(db_column='created_by_fullname', max_length=200, null=True)
     updatedByAccountant = models.CharField(db_column='updated_by_accountant', max_length=200, null=True)
+    updatedAtAccountant = models.DateTimeField(db_column='updated_at_accountant', null=True)
 
     status = models.ForeignKey(Status, db_column='status_id', on_delete=models.PROTECT, blank=False, null=False)
 
     imprestAccount = models.ForeignKey(ImprestAccount, db_column='imprest_account_id', on_delete=models.PROTECT, blank=False, null=False)
     
     obtainMethod = models.ForeignKey(ObtainMethod, db_column='obtain_method_id', on_delete=models.PROTECT, blank=True, null=True)
+    # Техническое задание-2
+    # Суточные
+    dailyAllowance = models.CharField(db_column='daily_allowance', max_length=100, blank=True, null=True)
+    # Суточные. Норма
+    dailyAllowanceRate = models.DecimalField(max_digits=6, decimal_places=2, db_column="daily_allowance_rate", blank=True, null=True)
+    # Суточные. Дата начала
+    dailyAllowanceDateFrom = models.DateField(db_column="daily_allowance_date_from", blank=True, null=True)
+    # Суточные. Дата окончания
+    dailyAllowanceDateTo = models.DateField(db_column="daily_allowance_date_to", blank=True, null=True)
+    # Суточные. Дней
+    dailyAllowanceDays = models.IntegerField(db_column="daily_allowance_days", blank=True, null=True)
+    # Суточные. Сумма
+    dailyAllowanceSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="daily_allowance_sum", blank=True, null=True)
+
+    # Проживание
+    living = models.CharField(db_column='living', max_length=100, blank=True, null=True)
+    # Проживание. Норма
+    livingRate = models.DecimalField(max_digits=6, decimal_places=2, db_column="living_rate", blank=True, null=True)
+    # Проживание. Дата начала
+    livingDateFrom = models.DateField(db_column="living_date_from", blank=True, null=True)
+    # Проживание. Дата окончания
+    livingDateTo = models.DateField(db_column="living_date_to", blank=True, null=True)
+    # Проживание. Дней
+    livingDays = models.IntegerField(db_column="living_days", blank=True, null=True)
+    # Проживание. Сумма
+    livingSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="living_sum", blank=True, null=True)
+
+    # Проезд
+    transfer = models.CharField(db_column='transfer', max_length=100, blank=True, null=True)
+    # Проезд. Дата начала
+    transferDateFrom = models.DateField(db_column="transfer_date_from", blank=True, null=True)
+    # Проезд. Дата окончания
+    transferDateTo = models.DateField(db_column="transfer_date_to", blank=True, null=True)
+    # Проезд. Сумма
+    transferSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="transfer_sum", blank=True, null=True)
+
+    # Подотчет по распоряжению
+    orderAllowance = models.CharField(db_column='order_allowance', max_length=100, blank=True, null=True)
+    # Подотчет по распоряжению. Сумма
+    orderAllowanceSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="order_allowance_sum", blank=True, null=True)
+
+    # Подотчет на приобретение ГСМ
+    gsmAllowance = models.CharField(db_column='gsm_allowance', max_length=100, blank=True, null=True)
+    # Подотчет на приобретение ГСМ. Сумма
+    gsmAllowanceSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="gsm_allowance_sum", blank=True, null=True)
 
     class Meta:
         db_table = 'request'

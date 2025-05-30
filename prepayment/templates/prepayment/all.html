@@ -65,7 +65,6 @@
 
   <script type="text/javascript">
     const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ']
-    const periodFilter = $('#period-filter')
     let urlParams = new URLSearchParams(document.location.search)
     const isAdminOrAccountant = {{ isAdminOrAccountant|yesno:"true,false" }}
 
@@ -180,7 +179,6 @@
             })
 
             periodFilter.find('button').on('click', function (e) {
-                periodFilter.find('input').val('')
                 requestTable.ajax.reload()
             })
         }

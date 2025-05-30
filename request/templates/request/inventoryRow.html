@@ -1,6 +1,6 @@
 <div id="{{ inventory.prefix }}" class="col-12 inventory-form" style="background-color: #fff3e4; {% if inventory.DELETE.value %} display:none {% endif %}">
   <div class="container-fluid p-1 border rounded">
-    <input type="hidden" name="{{ inventory.DELETE.html_name }}" id="{{ inventory.DELETE.auto_id }}" value="{{ inventory.DELETE.value|default_if_none:'' }}" />
+    {{ inventory.DELETE.as_hidden }}
     {{ inventory.id }}
     <div class="row g-1">
       <div class="col">

@@ -61,6 +61,9 @@
             <div class="row p-1">
               <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=1">Аванс на приобретение ГСМ</a>
             </div>
+            <div class="row p-1">
+              <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=2">Аванс на оплату расходов в служебной поездке</a>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -71,8 +74,7 @@
   </div>
 
   <script type="text/javascript">
-    const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ']
-    const periodFilter = $('#period-filter')
+    const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ', 'Аванс на оплату расходов в служебной поездке']
 
     $(document).ready(function () {
 
@@ -127,9 +129,14 @@
                 },
                 { data: 'comments', searchable: false, orderable: false },
                 { data: 'status.name', orderable: false, searchable: false, className: 'text-center' },
-                { data: null, orderable: false, searchable: false, className: 'text-center',
+                { data: null, orderable: false, searchable: false, className: 'text-center small',
                     render: function (data, type, row, meta) {
-                        return `<small>${data.createdByFullName || ''}/${data.updatedByAccountant || ''}</small>`;
+                      var result = ''
+                      if (data.createdByFullName)
+                        result += `<small>${data.createdByFullName || ''}:${data.createdAt || ''}</small>`
+                      if (data.updatedByAccountant)
+                        result += `<br/><small>${data.updatedByAccountant || ''}:${data.updatedAtAccountant || ''}</small>`
+                      return result
                     },
                 },
                 {
@@ -189,7 +196,6 @@
       })
     
       periodFilter.find('button').on('click', function (e) {
-        periodFilter.find('input').val('')
         requestTable.ajax.reload()
       })
     })

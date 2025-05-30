@@ -35,8 +35,10 @@ class StatusFilter(BaseFilterBackend):
 
     def filter_queryset(self, request, queryset, view):
         status_filter = request.query_params.get("statusFilter")
+        status_field = request.query_params.get("statusField", "status__id")
 
         if status_filter:
-            queryset = queryset.filter(status__id=status_filter)
+            filter_dict = {status_field: status_filter}
+            queryset = queryset.filter(**filter_dict)
     
         return queryset

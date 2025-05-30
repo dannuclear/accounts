@@ -1,0 +1,41 @@
+{% load widget_tweaks %}
+<div class="col-12">
+  <div class="container-fluid p-1 border rounded">
+    <div class="row g-1 inventory-container">
+      <div class="col-12" style="background-color: #fff3e4;">
+        <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ inventories.prefix }}">Добавить</button>
+      </div>
+
+      {{ inventories.management_form }}
+      {% for inventory in inventories %}
+        {% include 'request/inventoryRow.html' with inventory=inventory %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="col-12">
+  {% include 'main/input_group.html' with field=form.servicePayment %}
+</div>
+
+<div class="col-12 input-group input-group-sm">
+  <span class="input-group-text">{{ form.comment.label }}</span>
+  <textarea type="text" rows="3" class="mb-0 form-control" name="{{ form.comment.name }}">{{ form.comment.value|default_if_none:'' }}</textarea>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    $('.cnt-input, .price-input').on('change', function (e) {
+      const tr = $(e.currentTarget).closest('tr')
+      const cntInput = tr.find('.cnt-input')
+      const priceInput = tr.find('.price-input')
+      const totalInput = tr.find('.total-input')
+  
+      const cntValue = parseFloat(cntInput.val().replace(/,/g, '.')) || 0
+      const priceValue = parseFloat(priceInput.val().replace(/,/g, '.')) || 0
+
+      const total = cntValue * priceValue
+      totalInput.val(total.toFixed(2)).trigger('change')
+    })
+  })
+</script>

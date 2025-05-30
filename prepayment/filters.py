@@ -77,5 +77,7 @@ class DepartmentFilter(BaseFilterBackend):
         currentEmpOrgNo = result.group() if result is not None else None
 
         if currentEmpOrgNo is not None:
-            queryset = queryset.filter(empDivNum__in=Employee.objects.filter(empOrgNo__endswith=currentEmpOrgNo).values('divNo'))
+            advance_reports = PrepaymentEmpNum.objects.filter(empNum=currentEmpOrgNo).values('prepayment_id')
+            advance_report_ids = [report['prepayment_id'] for report in advance_reports]
+            queryset = queryset.filter(Q(empDivNum__in=Employee.objects.filter(empOrgNo__endswith=currentEmpOrgNo).values('divNo')) | Q(id__in=advance_report_ids))
         return queryset

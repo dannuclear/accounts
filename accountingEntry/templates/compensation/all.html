@@ -50,9 +50,7 @@
   <script type="text/javascript">
     let urlParams = new URLSearchParams(document.location.search)
     
-    $(document).ready(function () {
-      const periodFilter = $('#period-filter')
-    
+    $(document).ready(function () {  
       var table = $('#request-table').DataTable({
         ajax: {
           url: "{% url 'accountingentry-list' %}?format=datatables",
@@ -116,8 +114,8 @@
         .on('change', function (e) {
           table.ajax.reload()
         })
+        
       periodFilter.find('button').on('click', function (e) {
-        periodFilter.find('input').val('')
         table.ajax.reload()
       })
     })
