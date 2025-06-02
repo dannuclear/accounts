@@ -42,3 +42,14 @@ class StatusFilter(BaseFilterBackend):
             queryset = queryset.filter(**filter_dict)
     
         return queryset
+    
+class ExactNameFilter(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        name_filter = request.query_params.get("filterValue")
+        name_field = request.query_params.get("filterField", "name")
+
+        if name_filter:
+            filter_dict = {name_field: name_filter}
+            queryset = queryset.filter(**filter_dict)
+
+        return queryset
