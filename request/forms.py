@@ -1,7 +1,7 @@
 from django import forms
 from django.forms.models import ALL_FIELDS
 from .models import Request, RequestInventory, RequestInventoryItem
-from guide.models import Status, ImprestAccount, ObtainMethod
+from guide.models import Status, ImprestAccount, ObtainMethod, ExpenseRate
 from integration.models import Employee
 from main.helpers import is_user_in_group
 
@@ -35,6 +35,9 @@ class StatusChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
 
+class ExpenseRateChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+            return obj.name
 
 class RequestForm (forms.ModelForm):
     id = forms.IntegerField(label='id', disabled=True, required=False)
@@ -60,6 +63,8 @@ class RequestForm (forms.ModelForm):
     servicePayment = forms.CharField(label='Оплаты услуг', required=False)
 
     comment = forms.CharField(label='Приложения', required=False)
+
+    dailyAllowance = ExpenseRateChoiceField(queryset=ExpenseRate.objects.order_by('id'), empty_label=None)
 
     class Meta:
         model = Request
