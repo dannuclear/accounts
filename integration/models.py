@@ -167,7 +167,7 @@ class WC07POrder(models.Model):
         db_column="estimate_id", blank=True, null=True)
     # командировка_за_счет_документа
     payDoc = models.CharField(
-        db_column="pay_doc", max_length=20, blank=True, null=True)
+        db_column="pay_doc", max_length=100, blank=True, null=True)
     # документ_ID_меняемый
     orderIdUpd = models.CharField(
         db_column="order_id_upd", max_length=20, blank=True, null=True)

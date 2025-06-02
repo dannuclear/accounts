@@ -1,0 +1,7 @@
+<tr>
+  <td colspan="{{ labelColspan|default:1 }}" style="width: 1%;">{{ label }}</td>
+  {% if labelColspan|default:1 == 1 %}
+    <td>{{ text|default_if_none:'' }}</td>
+  {% endif %}
+  <td class="text-right">{{ sum|floatformat:'2'|default_if_none:'' }}</td>
+</tr>

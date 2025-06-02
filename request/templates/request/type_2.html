@@ -1,22 +1,23 @@
 {% load widget_tweaks %}
-{{ form.livingRate.as_hidden }}
 <div class="col-12">
-  <table class="table table-sm table-bordered text-center w-100">
+  <table class="table table-sm table-bordered w-100">
     <thead>
       <tr>
-        <th>Суточные</th>
-        <th style="width: 15%;">Дата начала</th>
-        <th style="width: 15%;">Дата окончания</th>
-        <th style="width: 5%;">Дней</th>
-        <th style="width: 11%;">Сумма</th>
+        <th class="text-center">Суточные</th>
+        <th class="text-center" style="width: 100px;">Норма</th>
+        <th class="text-center" style="width: 15%;">Дата начала</th>
+        <th class="text-center" style="width: 15%;">Дата окончания</th>
+        <th class="text-center" style="width: 5%;">Дней</th>
+        <th class="text-center" style="width: 11%;">Сумма</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>{{ form.dailyAllowance|add_class:'form-select form-select-sm text-center' }}</td>
+        <td class="text-left">{{ form.dailyAllowance|add_class:'form-select form-select-sm text-left' }}</td>
+        <td>{{ form.dailyAllowanceRate|add_class:'form-control form-control-sm text-end bg-body-secondary'|attr:'readonly' }}</td>
         <td>{{ form.dailyAllowanceDateFrom|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
         <td>{{ form.dailyAllowanceDateTo|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
-        <td>{{ form.dailyAllowanceDays|add_class:'form-control form-control-sm text-center' }}</td>
+        <td>{{ form.dailyAllowanceDays|add_class:'form-control form-control-sm text-center bg-body-secondary'|attr:'readonly' }}</td>
         <td>{{ form.dailyAllowanceSum|add_class:'form-control form-control-sm text-end total-input-part' }}</td>
       </tr>
     </tbody>
@@ -24,22 +25,24 @@
 </div>
 
 <div class="col-12">
-  <table class="table table-sm table-bordered text-center">
+  <table class="table table-sm table-bordered">
     <thead>
       <tr>
-        <th>Проживание</th>
-        <th style="width: 15%;">Дата начала</th>
-        <th style="width: 15%;">Дата окончания</th>
-        <th style="width: 5%;">Дней</th>
-        <th style="width: 11%;">Сумма</th>
+        <th class="text-center">Проживание</th>
+        <th class="text-center" style="width: 100px;">Норма</th>
+        <th class="text-center" style="width: 15%;">Дата начала</th>
+        <th class="text-center" style="width: 15%;">Дата окончания</th>
+        <th class="text-center" style="width: 5%;">Дней</th>
+        <th class="text-center" style="width: 11%;">Сумма</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>{{ form.living|add_class:'form-select form-select-sm text-center' }}</td>
+        <td>{{ form.living|add_class:'form-select form-select-sm text-left' }}</td>
+        <td>{{ form.livingRate|add_class:'form-control form-control-sm text-end bg-body-secondary'|attr:'readonly' }}</td>
         <td>{{ form.livingDateFrom|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
         <td>{{ form.livingDateTo|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
-        <td>{{ form.livingDays|add_class:'form-control form-control-sm text-center' }}</td>
+        <td>{{ form.livingDays|add_class:'form-control form-control-sm text-center bg-body-secondary'|attr:'readonly' }}</td>
         <td>{{ form.livingSum|add_class:'form-control form-control-sm text-end total-input-part' }}</td>
       </tr>
     </tbody>
@@ -50,7 +53,7 @@
   <table class="table table-sm table-bordered text-center">
     <thead>
       <tr>
-        <th>Проживание</th>
+        <th>Проезд</th>
         <th style="width: 15%;">Дата начала</th>
         <th style="width: 15%;">Дата окончания</th>
         <th style="width: 16%;">Сумма</th>
@@ -58,7 +61,7 @@
     </thead>
     <tbody>
       <tr>
-        <td>{{ form.transfer|add_class:'form-select form-select-sm text-center' }}</td>
+        <td>{{ form.transfer|add_class:'form-control form-control-sm text-left' }}</td>
         <td>{{ form.transferDateFrom|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
         <td>{{ form.transferDateTo|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
         <td>{{ form.transferSum|add_class:'form-control form-control-sm text-end total-input-part' }}</td>
@@ -79,7 +82,7 @@
         </thead>
         <tbody>
           <tr>
-            <td>{{ form.orderAllowance|add_class:'form-select form-select-sm text-center' }}</td>
+            <td>{{ form.orderAllowance|add_class:'form-control form-control-sm text-left' }}</td>
             <td>{{ form.orderAllowanceSum|add_class:'form-control form-control-sm text-end total-input-part' }}</td>
           </tr>
         </tbody>
@@ -96,7 +99,7 @@
         </thead>
         <tbody>
           <tr>
-            <td>{{ form.gsmAllowance|add_class:'form-select form-select-sm text-center' }}</td>
+            <td>{{ form.gsmAllowance|add_class:'form-control form-control-sm text-left' }}</td>
             <td>{{ form.gsmAllowanceSum|add_class:'form-control form-control-sm text-end total-input-part' }}</td>
           </tr>
         </tbody>
@@ -107,8 +110,53 @@
 
 <script type="text/javascript">
   $(document).ready(function () {
-    $("#id_dailyAllowance").select2({
-      tags: true
-    });
+    $('#id_dailyAllowance, #id_living')
+      .select2({
+        tags: true
+      })
+      .on('change', function (e) {
+        const select = e.target
+        const selectedValue = parseInt(e.target.value)
+        const rateInput = $(select).parent().parent().find("[id$='Rate']")
+        if (selectedValue)
+          $.get(`{% url "expenserate-list" %}${selectedValue}`)
+            .done(function (data) {
+              if (data && data.value && rateInput) rateInput.val(data.value).trigger('change')
+            })
+            .fail(function (data) {
+              rateInput.val('').trigger('change')
+            })
+        else rateInput.val('').trigger('change')
+      })
+  
+    $('input[id^="id_living"], input[id^="id_dailyAllowance"], input[id^="id_transfer"]')
+      .not('.total-input-part')
+      .on('change', function (e) {
+        const row = $(e.target).parent().parent()
+        const rateInput = row.find('input[id$="Rate"]')
+        const dateFromInput = row.find('input[id$="DateFrom"]')
+        const dateToInput = row.find('input[id$="DateTo"]')
+        const daysInput = row.find('input[id$="Days"]')
+        const sumInput = row.find('input[id$="Sum"]')
+  
+        const dateFromValue = dayjs(dateFromInput.val(), 'DD.MM.YYYY', true)
+        const dateToValue = dayjs(dateToInput.val(), 'DD.MM.YYYY', true)
+  
+        dateFromInput.removeClass('is-invalid')
+        dateToInput.removeClass('is-invalid')
+        if (!dateFromValue.isValid() || !dateToValue.isValid() || dateToValue.isBefore(dateFromValue)) {
+          daysInput.val(0)
+          if (rateInput.length != 0) sumInput.val(0).trigger('change')
+          dateFromInput.addClass('is-invalid')
+          dateToInput.addClass('is-invalid')
+          return
+        }
+        if (rateInput.length == 0) return
+        const rateValue = parseFloat(rateInput.val().replace(/,/g, '.')) || 0
+        const daysValue = dateToValue.diff(dateFromValue, 'days') + 1
+        daysInput.val(daysValue)
+  
+        sumInput.val(rateValue * daysValue).trigger('change')
+      })
   })
 </script>

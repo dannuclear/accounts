@@ -46,7 +46,7 @@
       table,
       th,
       td {
-         /* border: 1px solid gainsboro;*/
+        /*border: 1px solid gainsboro;*/
       }
       th {
         font-weight: lighter;
@@ -63,6 +63,15 @@
         border-top: 1px solid black;
         border-bottom: 2px solid black !important;
       }
+      
+      .table-bordered td,
+      .table-bordered th {
+        border: 1px solid rgb(0, 0, 0);
+      }
+      .table-bordered thead th {
+        vertical-align: bottom;
+        border-bottom: 2px solid rgb(0, 0, 0);
+      }
     </style>
   </head>
   <body>
@@ -72,10 +81,10 @@
           <table class="w-100 header-table">
             <tr>
               <td></td>
-              <td class="text-left" colspan="2">
+              <td class="text-center" colspan="2">
                 {% if req.type == 0 %}
                   Начальнику финансового отдела<br />Полякову А.Л.
-                {% elif req.type == 1 %}
+                {% elif req.type|stringformat:'\d' in '12' %}
                   Генеральному директору<br />ФГУП «Комбинат «Электрохимприбор»
                 {% endif %}
               </td>
@@ -84,72 +93,137 @@
             {% with applicant=req.applicant %}
               <tr>
                 <td></td>
-                <td class="text-left" style="width: 40%;" colspan="2">
-                  от<br /><u>{{ applicant.profName}}<br/>{{applicant.pfnSurname|add:' '|add:applicant.pfnName|add:' '|add:applicant.pfnPatronymic|default_if_none:'' }}</u>
+                <td class="text-left border-bottom border-dark" style="width: 40%;" colspan="2">
+                  от{% if req.type == 2 %}
+                    работника структурного подразделения № <u>{{ applicant.divNo|zfill:3|default_if_none:'' }}</u>
+                  {% endif %}
+                  {% if req.type != 2 %}
+                    <br /><u>{{ applicant.profName }}</u>
+                  {% endif %}<br />{{ applicant.pfnSurname|add:' '|add:applicant.pfnName|add:' '|add:applicant.pfnPatronymic|default_if_none:'' }}
                 </td>
               </tr>
               <tr>
                 <td></td>
-                <td class="text-center" style="font-size: 0.8em;" colspan="2">(должность, фамилия, инициалы работника)</td>
+                <td class="text-center" style="font-size: 0.8em;" colspan="2">
+                  ({% if req.type != 2 %}должность, {% endif %}фамилия, инициалы работника)
+                </td>
               </tr>
-              <tr>
-                <td></td>
-                <td class="text-center border-bottom border-dark" style="width: 20%;"><strong>{{ applicant.divNo|zfill:3|default_if_none:'' }}</strong></td>
-                <td class="text-center border-bottom border-dark"><strong>{{ applicant.empOrgNo|default_if_none:'' }}</strong></td>
-              </tr>
-              <tr>
-                <td></td>
-                <td class="text-center" style="font-size: 0.8em;">(подразделение)</td>
-                <td class="text-center" style="font-size: 0.8em;">(табельный номер)</td>
-              </tr>
-              <tr>
-                <td></td>
-                <td class="text-center"></td>
-                <td class="text-center border-bottom border-dark">{{ req.applicantPhone|default_if_none:'&nbsp;' }}</td>
-              </tr>
-              <tr>
-                <td></td>
-                <td class="text-center" style="font-size: 0.8em;"></td>
-                <td class="text-center" style="font-size: 0.8em;">(рабочий телефон)</td>
-              </tr>
+              {% if req.type != 2 %}
+                <tr>
+                  <td></td>
+                  <td class="text-center border-bottom border-dark" style="width: 20%;">
+                    <strong>{{ applicant.divNo|zfill:3|default_if_none:'' }}</strong>
+                  </td>
+                  <td class="text-center border-bottom border-dark">
+                    <strong>{{ applicant.empOrgNo|default_if_none:'' }}</strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td class="text-center" style="font-size: 0.8em;">(подразделение)</td>
+                  <td class="text-center" style="font-size: 0.8em;">(табельный номер)</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td class="text-center"></td>
+                  <td class="text-center border-bottom border-dark">{{ req.applicantPhone|default_if_none:'&nbsp;' }}</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td class="text-center" style="font-size: 0.8em;"></td>
+                  <td class="text-center" style="font-size: 0.8em;">(рабочий телефон)</td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td></td>
+                  <td class="text-center">
+                    (табельный № <u>{{ applicant.empOrgNo|default_if_none:'' }}</u>; раб.тел. <u>{{ req.applicantPhone|default_if_none:'&nbsp;' }}</u>)
+                  </td>
+                </tr>
+              {% endif %}
             {% endwith %}
 
             <tr style="height: 30px;">
               <td colspan="3" class="text-center font-weight-bold align-bottom">
-                <table class="w-100">
-                  <tbody>
-                    <tr>
-                      <td rowspan="2" class="text-right" style="width: 50%">
-                        <h3>Заявление о выдаче денег под отчет</h3>
-                      </td>
-                      <td rowspan="2" style="width: 10px"></td>
-                      <td class="border border-dark text-center" style="width: 120px;">номер</td>
-                      <td class="border border-dark text-center" style="width: 150px;">дата составления</td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td class="border border-dark text-center">{{ req.num }}</td>
-                      <td class="border border-dark text-center">{{ req.createDate }}</td>
-                      <td></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </td>
-            </tr>
-
-            <tr>
-              <td colspan="1" rowspan="2" class="text-left align-bottom">
-                Прошу выдать мне под отчет{% if req.type == 0 %}
-
-                {% elif req.type == 1 %}
-                  аванс на приобретение ГСМ для заправки служебных автомобилей в сумме
+                {% if req.type != 2 %}
+                  <table class="w-100">
+                    <tbody>
+                      <tr>
+                        <td rowspan="2" class="text-right" style="width: 50%">
+                          <h3>Заявление о выдаче денег под отчет</h3>
+                        </td>
+                        <td rowspan="2" style="width: 10px"></td>
+                        <td class="border border-dark text-center" style="width: 120px;">номер</td>
+                        <td class="border border-dark text-center" style="width: 150px;">дата составления</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td class="border border-dark text-center">{{ req.num }}</td>
+                        <td class="border border-dark text-center">{{ req.createDate }}</td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                {% else %}
+                  <h3>Заявление</h3>
                 {% endif %}
               </td>
-              <td colspan="2" rowspan="1" class="text-center border-bottom border-dark" style="font-size: 0.8em;"><strong>{{ issuedSumIntString }} ({{ req.issuedSum|default_if_none:'' }}) руб.</strong></td>
             </tr>
-            <tr>
-              <td colspan="2" rowspan="1" class="text-center" style="font-size: 0.8em;">(сумма в рублях прописью, в круглых скобках - цифрами)</td>
-            </tr>
+
+            {% if req.type != 2 %}
+              <tr>
+                <td colspan="1" rowspan="2" class="text-left align-bottom">
+                  Прошу выдать мне под отчет{% if req.type == 0 %}
+
+                  {% elif req.type == 1 %}
+                    аванс на приобретение ГСМ для заправки служебных автомобилей в сумме
+                  {% endif %}
+                </td>
+                <td colspan="2" rowspan="1" class="text-center border-bottom border-dark" style="font-size: 0.8em;">
+                  <strong>{{ issuedSumIntString }} ({{ req.issuedSum|default_if_none:'' }}) руб.</strong>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2" rowspan="1" class="text-center" style="font-size: 0.8em;">(сумма в рублях прописью, в круглых скобках - цифрами)</td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="2" class="text-left align-bottom">
+                  Прошу выдать мне под отчет аванс на командировочные расходы путем путем{% if req.obtainMethod.source == 0 %}
+                    его выдачи через кассу
+                  {% else %}
+                    его перечисления на карту банка <u>{{ req.obtainMethod.name }}</u>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2" class="text-left">
+                  в сумме <b>{{ req.issuedSum|floatformat:'0'|default_if_none:'' }}</b> руб. <b>{{ req.issuedSum|floatformat:'2'|slice:'-2:'|default_if_none:'' }}</b> коп. исходя из расчета:
+                </td>
+              </tr>
+            {% endif %}
+            {% if req.type == 2 %}
+              <tr>
+                <td colspan="2">
+                  <table class="table table-sm table-bordered">
+                    <thead class="text-center">
+                      <tr>
+                        <th colspan="2">наименование расхода</th>
+                        <th style="width: 15%;">сумма, в руб.</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% include 'request/report/travel_row.html' with label='Проезд' text=req.transfer sum=req.transferSum %}
+                      {% include 'request/report/travel_row.html' with label='Провоз и упаковка багажа, услуги камеры хранения' labelColspan=2 sum='' %}
+                      {% include 'request/report/travel_row.html' with label='Суточные' text=req.dailyAllowance sum=req.dailyAllowanceSum %}
+                      {% include 'request/report/travel_row.html' with label='Проживание' text=req.living sum=req.livingSum %}
+                      {% include 'request/report/travel_row.html' with label='Подотчет по распоряжению' labelColspan=2 sum=req.orderAllowanceSum %}
+                      {% include 'request/report/travel_row.html' with label='Подотчет водителю цеха 013 на приобретение ГСМ' labelColspan=2 sum=req.gsmAllowanceSum %}
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            {% endif %}
 
             {% if req.type == 0 %}
               <tr>
@@ -195,7 +269,7 @@
                 <td colspan="3">
                   <table class="w-100">
                     <tbody>
-                      {% with receivingDate=req.receivingDate|date:"d.m.Y"|default_if_none:'' %}
+                      {% with receivingDate=req.receivingDate|date:'d.m.Y'|default_if_none:'' %}
                         {% include 'request/signRow.html' with signUnder='(подпись подотчетного лица)' showDate='n' title='Предполагаемая дата получения денежных средств: '|add:receivingDate %}
                       {% endwith %}
                       {% with divNo=req.applicant.divNo|stringformat:'03d'|default_if_none:'___' %}
@@ -216,17 +290,15 @@
               <tr>
                 <td colspan="3" class="text-left">
                   путем{% if req.obtainMethod.source == 0 %}
-                  его выдачу через кассу
+                    его выдачу через кассу
                   {% else %}
-                  его перечисления на карту банка
+                    его перечисления на карту банка
                   {% endif %}
                 </td>
               </tr>
 
               <tr>
-                <td colspan="3" class="text-left">
-                  Обязуюсь в течении 10 рабочих дней с момента получения денежных средств отчитаться за их использование и (или) вернуть неизрасходованную часть полученной суммы
-                </td>
+                <td colspan="3" class="text-left">Обязуюсь в течении 10 рабочих дней с момента получения денежных средств отчитаться за их использование и (или) вернуть неизрасходованную часть полученной суммы</td>
               </tr>
 
               <tr>
@@ -241,7 +313,21 @@
               </tr>
             {% endif %}
 
-            
+            {% if req.type == 2 %}
+              <tr>
+                <td colspan="3" class="text-left">Обязуюсь в случае отмены командировки сдать неизрасходованную часть часть данного аванса в кассу комбината не позднее 3-х рабочих дней с момента отмены командировки</td>
+              </tr>
+              <tr>
+                <td colspan="3">
+                  <table class="w-100">
+                    <tbody>
+                      {% include 'request/signRow.html' with title='Работник' %}
+                      {% include 'request/signRow.html' with title='Руководитель ораганизации' %}
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            {% endif %}
           </table>
         </div>
       </div>

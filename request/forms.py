@@ -35,9 +35,11 @@ class StatusChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
 
-class ExpenseRateChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-            return obj.name
+class ExpenseRateChoiceField(forms.ChoiceField):
+    def to_python(self, value):
+        return value
+    def valid_value(self, value):
+        return True
 
 class RequestForm (forms.ModelForm):
     id = forms.IntegerField(label='id', disabled=True, required=False)
@@ -64,7 +66,9 @@ class RequestForm (forms.ModelForm):
 
     comment = forms.CharField(label='Приложения', required=False)
 
-    dailyAllowance = ExpenseRateChoiceField(queryset=ExpenseRate.objects.order_by('id'), empty_label=None)
+    dailyAllowance = ExpenseRateChoiceField(required=False)
+
+    living = ExpenseRateChoiceField(required=False)
 
     class Meta:
         model = Request
@@ -74,6 +78,13 @@ class RequestForm (forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', False)
         super(RequestForm, self).__init__(*args, **kwargs)
+
+        expense_rates = ExpenseRate.objects.order_by('id')
+        daily_allowance = self.initial['dailyAllowance']
+        self.fields['dailyAllowance'].widget.choices = [('', 'Не указано')] + [(rate.id, rate.name) for rate in expense_rates] + ([(daily_allowance, daily_allowance)] if daily_allowance and not daily_allowance.isdigit() else [])
+        living = self.initial['living']
+        self.fields['living'].widget.choices = [('', 'Не указано')] + [(rate.id, rate.name) for rate in expense_rates] + ([(living, living)] if living and not living.isdigit() else [])
+
         if is_user_in_group(self.user, ['Администратор']):
             self.fields['status'].queryset = Status.objects.order_by('id')
         elif is_user_in_group(self.user, ['Подотчетное лицо', 'Подотчетное лицо с расширенным функционалом', 'Руководитель']):
