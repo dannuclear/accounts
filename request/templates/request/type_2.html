@@ -116,12 +116,15 @@
       })
       .on('change', function (e) {
         const select = e.target
-        const selectedValue = parseInt(e.target.value)
+        const selectedValue = e.target.value
         const rateInput = $(select).parent().parent().find("[id$='Rate']")
         if (selectedValue)
-          $.get(`{% url "expenserate-list" %}${selectedValue}`)
+          $.get(`{% url "expenserate-list" %}?filterValue=${selectedValue}`)
             .done(function (data) {
-              if (data && data.value && rateInput) rateInput.val(data.value).trigger('change')
+              if (data && data.count > 0 && rateInput) 
+                rateInput.val(data.results[0].value).trigger('change')
+              else
+                rateInput.val('').trigger('change')
             })
             .fail(function (data) {
               rateInput.val('').trigger('change')

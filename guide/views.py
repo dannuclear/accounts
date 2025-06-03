@@ -5,7 +5,7 @@ from rest_framework import viewsets
 from .forms import ExpenseCodeForm, ImprestAccountForm, ExpenseRateForm, DocumentForm, ExpenseItemForm, StatusForm, ExpenseCategoryForm, DepartmentForm, DepartmentAccountForm, RefundExpenseForm, AccountingCertForm, ObtainMethodForm
 from .models import ExpenseCode, ImprestAccount, ExpenseRate, ExpenseItem, Document, AccountingCert, Status, Department, DepartmentAccount, ObtainMethod, PrepaidDest, RefundExpense, ExpenseCategory
 from .serializers import AccountingCertSerializer, ExpenseCodeSerializer, ImprestAccountSerializer, ExpenseRateSerializer, ExpenseItemSerializer, DocumentSerializer, StatusSerializer, DepartmentSerializer, DepartmentAccountSerializer, ObtainMethodSerializer, PrepaidDestSerializer, RefundExpenseSerializer, ExpenseCategorySerializer
-from .filters import ImprestAccountFilter, ExpenseTypeFilter, DepartmentFilter
+from .filters import ImprestAccountFilter, ExpenseTypeFilter, DepartmentFilter, ExactNameFilter
 # Create your views here.
 
 
@@ -69,6 +69,10 @@ class ExpenseCodeViewSet (viewsets.ModelViewSet):
 class ExpenseRateViewSet (viewsets.ModelViewSet):
     queryset = ExpenseRate.objects.all().order_by('id')
     serializer_class = ExpenseRateSerializer
+
+    def filter_queryset(self, queryset):
+        self.filter_backends = [ExactNameFilter, *self.filter_backends]
+        return super().filter_queryset(queryset)
 
 
 class DocumentViewSet (viewsets.ModelViewSet):
