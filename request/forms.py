@@ -109,10 +109,10 @@ RequestInventoryItemFormset = forms.inlineformset_factory(RequestInventory, Requ
 
 class RequestInventoryForm (forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(RequestInventoryForm, self).__init__(*args, **kwargs)
-
-        isBound = len([v for k, v in self.data.items() if k.startswith("%s-id" % (self.prefix))]) if self.is_bound else self.is_bound
-        self.items = RequestInventoryItemFormset(instance=self.instance,
+        super().__init__(*args, **kwargs)
+        if self.data.get("%s-DELETE" % (self.prefix), "False") == "False":
+            isBound = len([v for k, v in self.data.items() if k.startswith("%s-id" % (self.prefix))]) if self.is_bound else self.is_bound
+            self.items = RequestInventoryItemFormset(instance=self.instance,
                                                        data=self.data if isBound else None,
                                                        files=self.files if isBound else None,
                                                        prefix='%s-%s' % (self.prefix, 'item'))
