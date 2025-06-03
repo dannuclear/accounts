@@ -1,12 +1,16 @@
-<div id="{{ inventory.prefix }}" class="col-12 inventory-form" style="background-color: #fff3e4; {% if inventory.DELETE.value %} display:none {% endif %}">
+<div id="{{ inventory.prefix }}" class="col-12 inventory-form" style="background-color: #fff3e4;">
   <div class="container-fluid p-1 border rounded">
-    {{ inventory.DELETE.as_hidden }}
     {{ inventory.id }}
+    {{ inventory.elementType.as_hidden }}
     <div class="row g-1">
       <div class="col">
         <div class="row g-1">
           <div class="col-12">
-            {% include 'main/input_group.html' with field=inventory.requestNum label='Приобретение МПЗ (заявка №:' appendLabel=')' %}
+            {% if type == '0' %}
+              {% include 'main/input_group.html' with field=inventory.requestNum label='Приобретение МПЗ (заявка №:' appendLabel=')' %}
+            {% elif type == '1' %}
+              {% include 'main/input_group.html' with field=inventory.requestNum label='Приобретение услуг (заявка №:' appendLabel=')' %}
+            {% endif %}
           </div>
           <div class="col-12">
             {% include 'main/input_group.html' with field=inventory.comment label='Комментарий' %}
@@ -23,18 +27,33 @@
                   <table class="table table-bordered table-sm text-center mb-0 mb-1" style="font-size: 1em;">
                     <thead>
                       <tr>
-                        <th scope="col" style="width: 10%">№ п/п</th>
-                        <th scope="col" style="width: 50%">Наименование ТМЦ</th>
-                        <th scope="col" style="width: 10%">Кол-во</th>
-                        <th scope="col" style="width: 10%">Цена</th>
+                        <th scope="col" style="width: 70px">№ п/п</th>
+                        {% if type == '0' %}
+                          <th scope="col" style="width: 50%">Наименование ТМЦ</th>
+                          <th scope="col" style="width: 10%">Кол-во</th>
+                          <th scope="col" style="width: 10%">Цена</th>
+                        {% elif type == '1' %}
+                          <th scope="col" style="width: 70%">Наименование</th>
+                        {% endif %}
                         <th scope="col" style="width: 20%">Сумма, итого</th>
                         <th scope="col" wstyle="width: 1%"></th>
                       </tr>
                     </thead>
                     <tbody>
                       {{ inventory.items.management_form }}
+                      {% for deletedForm in inventory.items.deleted_forms %}
+                        {{ deletedForm.id }}
+                        {{ deletedForm.DELETE.as_hidden }}
+                      {% endfor %}
+
                       {% for item in inventory.items %}
-                        {% include 'request/inventoryItemRow.html' with item=item %}
+                        {% if not item.DELETE.value %}
+                          {% if type == '0' %}
+                            {% include 'request/inventoryItemRow.html' with item=item %}
+                          {% elif type == '1' %}
+                            {% include 'request/serviceItemRow.html' with item=item %}
+                          {% endif %}
+                        {% endif %}
                       {% endfor %}
                     </tbody>
                   </table>

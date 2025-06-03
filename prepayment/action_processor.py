@@ -53,6 +53,7 @@ def processActionNew(data, prepayment, accounting):
 def addItem(data, prefix):
     totalForms = getTotalForms(data, prefix)
     data['%s-TOTAL_FORMS' % (prefix)] = totalForms + 1
+    return '%s-%s' % (prefix, totalForms)
 
 def clone_from(data, prefix, from_idx, to_idx, fields):
     if not fields:

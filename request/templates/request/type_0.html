@@ -1,27 +1,57 @@
 {% load widget_tweaks %}
+
+{{ inventories.management_form }}
+{% for deletedForm in inventories.deleted_forms %}
+  {{ deletedForm.id }}
+  {{ deletedForm.DELETE.as_hidden }}
+{% endfor %}
+
 <div class="col-12">
   <div class="container-fluid p-1 border rounded">
     <div class="row g-1 inventory-container">
-      <div class="col-12" style="background-color: #fff3e4;">
-        <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ inventories.prefix }}">Добавить</button>
+      <div class="col-auto" style="background-color: #fff3e4;">
+        <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ inventories.prefix }}" data-element-type="0">Добавить</button>
       </div>
+      <div class="col text-center fs-5" style="background-color: #fff3e4;">Приобретение ТМЦ</div>
 
-      {{ inventories.management_form }}
       {% for inventory in inventories %}
-        {% include 'request/inventoryRow.html' with inventory=inventory %}
+        {% with type=inventory.elementType.value|default:'0'|stringformat:'s' %}
+          {% if not inventory.DELETE.value and type == '0' %}
+            {% include 'request/inventoryRow.html' with inventory=inventory type=type %}
+          {% endif %}
+        {% endwith %}
       {% endfor %}
     </div>
   </div>
 </div>
 
 <div class="col-12">
+  <div class="container-fluid p-1 border rounded">
+    <div class="row g-1 inventory-container">
+      <div class="col-auto" style="background-color: #fff3e4;">
+        <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ inventories.prefix }}" data-element-type="1">Добавить</button>
+      </div>
+      <div class="col text-center fs-5" style="background-color: #fff3e4;">Приобретение услуг</div>
+
+      {% for inventory in inventories %}
+        {% with type=inventory.elementType.value|default:'0'|stringformat:'s' %}
+          {% if not inventory.DELETE.value and type == '1' %}
+            {% include 'request/inventoryRow.html' with inventory=inventory type=type %}
+          {% endif %}
+        {% endwith %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% comment %} <div class="col-12">
   {% include 'main/input_group.html' with field=form.servicePayment %}
 </div>
 
 <div class="col-12 input-group input-group-sm">
   <span class="input-group-text">{{ form.comment.label }}</span>
   <textarea type="text" rows="3" class="mb-0 form-control" name="{{ form.comment.name }}">{{ form.comment.value|default_if_none:'' }}</textarea>
-</div>
+</div> {% endcomment %}
 
 <script type="text/javascript">
   $(document).ready(function () {
@@ -33,7 +63,7 @@
   
       const cntValue = parseFloat(cntInput.val().replace(/,/g, '.')) || 0
       const priceValue = parseFloat(priceInput.val().replace(/,/g, '.')) || 0
-
+  
       const total = cntValue * priceValue
       totalInput.val(total.toFixed(2)).trigger('change')
     })

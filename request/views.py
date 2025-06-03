@@ -78,14 +78,14 @@ def editRequest(request, id):
     else:
         prepaymentRequest = Request.objects.get(id=id)
 
-    #RequestInventoryForm = inlineformset_factory(Request, RequestInventory, can_delete=True, extra=0, min_num=1, exclude=['request'])
     if request.method == 'POST':
         postCopy = request.POST.copy()
         if postCopy['action']:
             action = postCopy['action']
             if action.startswith('add-'):
                 prefix = action.replace('add-', '')
-                addItem(postCopy, prefix)
+                new_prefix = addItem(postCopy, prefix)
+                postCopy["%s-elementType" % (new_prefix)] = postCopy.get('element-type')
             # Обрабатываем удаление записи
             elif action.startswith('delete-'):
                 prefix = action.replace('delete-', '')

@@ -95,9 +95,9 @@ class RequestForm (forms.ModelForm):
             self.fields['status'].queryset = Status.objects.filter(pk__in=[2]).order_by('id')
 
 class RequestInventoryItemForm (forms.ModelForm):
-    price = forms.DecimalField(localize=True, required=True)
+    price = forms.DecimalField(localize=True, required=False)
     
-    total = forms.DecimalField(localize=True, required=True)
+    total = forms.DecimalField(localize=True, required=False)
 
     class Meta:
         model = RequestInventoryItem
@@ -111,7 +111,7 @@ class RequestInventoryForm (forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(RequestInventoryForm, self).__init__(*args, **kwargs)
 
-        isBound = len([v for k, v in self.data.items() if k.startswith(self.prefix)]) if self.is_bound else self.is_bound
+        isBound = len([v for k, v in self.data.items() if k.startswith("%s-id" % (self.prefix))]) if self.is_bound else self.is_bound
         self.items = RequestInventoryItemFormset(instance=self.instance,
                                                        data=self.data if isBound else None,
                                                        files=self.files if isBound else None,

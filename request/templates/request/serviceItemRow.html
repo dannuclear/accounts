@@ -1,0 +1,13 @@
+{% load widget_tweaks %}
+<tr>
+  {{ item.id }}
+  <td class="align-middle">
+    {{ forloop.counter }}
+  </td>
+  <td>{{ item.name|add_class:'form-control form-control-sm'|add_error_class:'is-invalid'|attr:'autocomplete:off' }}</td>
+  <td>{{ item.total|add_class:'form-control form-control-sm total-input-part'|add_error_class:'is-invalid'|attr:'autocomplete:off' }}</td>
+
+  <td class="align-middle">
+    <button class="btn btn-sm btn-outline-danger btn-delete-row" data-prefix="{{ item.prefix }}"><i class="fa-light fa-trash"></i></button>
+  </td>
+</tr>

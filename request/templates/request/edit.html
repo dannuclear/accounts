@@ -10,6 +10,7 @@
     {% csrf_token %}
 
     <input id="action" type="hidden" name="action" />
+    <input id="element_type" type="hidden" name="element-type" />
 
     {% url 'requests' as back_url %}
     {% include 'main/save_cancel.html' with path=back_url %}
@@ -118,28 +119,20 @@
       }
     
       $('form').on('change', '.total-input-part', function() {
-        console.log('Обновляем суммы')
         updateIssuedSum()
       })
 
       // Добавить аванс
       $('.btn-add-row').on('click', function (e) {
-        $('#action').val('add-' + $(e.target).data('prefix'))
+        $('#element_type').val($(e.target).data('element-type'))
+        $('#action').val('add-' + $(e.currentTarget).data('prefix'))
       })
     
-      // Удалить аванс
-      $('.delete-inventory').on('click', function (e) {
-        $('#action').val('delete-' + $(e.target).data('prefix'))
+      // Удалить группу или элемент
+      $('.delete-inventory, .btn-delete-row').on('click', function (e) {
+        $('#action').val('delete-' + $(e.currentTarget).data('prefix'))
       })
-    
-      $('tbody').on('click', '.btn-delete-row', function (e) {
-        const tr = $(e.currentTarget).closest('tr')
-        $('.' + tr.attr('id')).hide()
-        tr.hide()
-        tr.find("[id$='DELETE']").val(1)
-        updateIssuedSum()
-      })
-    
+
       $('#id_applicant')
         .select2({
           ajax: {

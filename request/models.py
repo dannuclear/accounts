@@ -107,6 +107,8 @@ class RequestInventory(models.Model):
     comment = models.CharField(db_column="comment", blank=True, null=True, max_length=200)
     # Приложение
     attachment = models.CharField(db_column="attachment", blank=True, null=True, max_length=200)
+    # Тип
+    elementType = models.SmallIntegerField(db_column="element_type", blank=True, null=True)
 
     class Meta:
         db_table = 'request_inventory'
@@ -122,9 +124,9 @@ class RequestInventoryItem(models.Model):
     # Наименование
     name = models.CharField(db_column="name", blank=False, null=False, max_length=500)
     # Количество
-    cnt = models.SmallIntegerField(db_column="cnt", blank=False, null=False)
+    cnt = models.SmallIntegerField(db_column="cnt", blank=True, null=True)
     # Цена
-    price = models.DecimalField(max_digits=10, decimal_places=2, db_column="price", blank=False, null=False)
+    price = models.DecimalField(max_digits=10, decimal_places=2, db_column="price", blank=True, null=True)
     # Сумма
     total = models.DecimalField(max_digits=10, decimal_places=2, db_column="total", blank=False, null=False)
 
