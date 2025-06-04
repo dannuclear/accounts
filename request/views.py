@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from .models import Request, RequestInventory, RequestInventoryItem
+from .models import Request, RequestInventory, RequestInventoryItem, RequestTravelExpense
 from prepayment.models import Prepayment, PrepaymentPurpose, PrepaymentItem
 from rest_framework import viewsets
 from .serializers import RequestSerializer
-from .forms import RequestForm, RequestInventoryFormSet
+from .forms import RequestForm, RequestInventoryFormSet, RequestTravelExpenseFormSet
 from datetime import datetime
 from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func, Sum, IntegerField, Q
 from guide.models import Status, Document, PrepaidDest
@@ -85,7 +85,10 @@ def editRequest(request, id):
             if action.startswith('add-'):
                 prefix = action.replace('add-', '')
                 new_prefix = addItem(postCopy, prefix)
-                postCopy["%s-elementType" % (new_prefix)] = postCopy.get('element-type')
+                if prefix.startswith('travel-expenses'):
+                    postCopy["%s-type" % (new_prefix)] = postCopy.get('element-type')
+                else:
+                    postCopy["%s-elementType" % (new_prefix)] = postCopy.get('element-type')
             # Обрабатываем удаление записи
             elif action.startswith('delete-'):
                 prefix = action.replace('delete-', '')
@@ -94,8 +97,10 @@ def editRequest(request, id):
         form = RequestForm(postCopy, instance=prepaymentRequest, user=request.user)
         if prepaymentRequest.type == 0:
             inventoriesFormSet = RequestInventoryFormSet(postCopy, prefix='inventory', instance=prepaymentRequest)
+        elif prepaymentRequest.type == 2:
+            travel_expenses_form_set = RequestTravelExpenseFormSet(postCopy, prefix='travel-expenses', instance=prepaymentRequest)
 
-        if not postCopy['action'] and form.is_valid() and (prepaymentRequest.type in [1, 2] or inventoriesFormSet.is_valid()):
+        if not postCopy['action'] and form.is_valid() and (prepaymentRequest.type != 0 or inventoriesFormSet.is_valid()) and (prepaymentRequest.type != 2 or travel_expenses_form_set.is_valid()):
             if is_user_in_group(request.user, ['Бухгалтер']):
                 prepaymentRequest.updatedByAccountant = userFullName if userFullName else request.user.username
                 prepaymentRequest.updatedAtAccountant = datetime.now()
@@ -106,14 +111,24 @@ def editRequest(request, id):
                 for deleted in inventoriesFormSet.deleted_forms:
                     if deleted.instance.id is not None:
                         deleted.instance.delete()
+            if 'travel_expenses_form_set' in vars():
+                for te in travel_expenses_form_set.save(commit=False):
+                    te.save()
+                for deleted in travel_expenses_form_set.deleted_forms:
+                    if deleted.instance.id is not None:
+                        deleted.instance.delete()
             return HttpResponseRedirect('/requests')
     if request.method == 'GET':
         form = RequestForm(instance=prepaymentRequest, user=request.user)
         inventoriesFormSet = RequestInventoryFormSet(prefix='inventory', instance=prepaymentRequest)
+        if prepaymentRequest.type == 2:
+            initial_data = [{'type': i} for i in range(0,5)] if prepaymentRequest.id is None else []
+            travel_expenses_form_set = RequestTravelExpenseFormSet(initial=initial_data, prefix='travel-expenses', instance=prepaymentRequest)
 
     context = {
         'form': form,
         'inventories': inventoriesFormSet if 'inventoriesFormSet' in vars() else None,
+        'travelExpenses': travel_expenses_form_set if 'travel_expenses_form_set' in vars() else None,
         'title': 'Заявление',
         'type': prepaymentRequest.type
     }

@@ -1,6 +1,6 @@
 from django.db import models
 from integration.models import Employee
-from guide.models import Status, ImprestAccount, ObtainMethod
+from guide.models import Status, ImprestAccount, ObtainMethod, ExpenseRate
 # Create your models here.
 
 # Заявление на выдачу денег под отчет на приобретение ТМЦ, работ, услуг
@@ -134,4 +134,43 @@ class RequestInventoryItem(models.Model):
         db_table = 'request_inventory_item'
         verbose_name = 'элемент МПЗ по заявлению'
         verbose_name_plural = 'элементы МПЗ по заявлению'
+        default_permissions = ()
+
+
+# Расходы на служебную поездку по заявлению
+class RequestTravelExpense(models.Model):
+
+    class Type:
+        DAILY_ALLOWANCE = 0
+        LIVING = 1
+        TRANSFER = 2
+        ORDER_ALLOWANCE = 3
+        GSM_PURCHASE = 4
+
+    id = models.AutoField(primary_key=True, blank=False)
+
+    # Ссылка на заявку
+    request = models.ForeignKey(Request, db_column='request_id', on_delete=models.CASCADE, blank=False, null=False)
+    # Ссылка на нормы расходов
+    expenseRate = models.ForeignKey(ExpenseRate, db_column='expense_rate_id', on_delete=models.PROTECT, blank=True, null=True)
+
+    # Наименование
+    name = models.CharField(db_column='name', max_length=100, blank=True, null=True)
+    # Норма
+    rate = models.DecimalField(max_digits=6, decimal_places=2, db_column="rate", blank=True, null=True)
+    # Суточные. Дата начала
+    dateFrom = models.DateField(db_column="date_from", blank=True, null=True)
+    # Суточные. Дата окончания
+    dateTo = models.DateField(db_column="date_to", blank=True, null=True)
+    # Суточные. Дней
+    days = models.IntegerField(db_column="days", blank=True, null=True)
+    # Суточные. Сумма
+    sum = models.DecimalField(max_digits=10, decimal_places=2, db_column="total_sum", blank=True, null=True)
+    # Тип 0 - суточные, 1 - проживание, 2 - проезд, 3 - по распоряжению, 4 - приобретение ГСМ
+    type = models.SmallIntegerField(db_column="expense_type", blank=True, null=True)
+
+    class Meta:
+        db_table = 'request_travel_expense'
+        verbose_name = 'Расход на служебную поездку по заявлению'
+        verbose_name_plural = 'Расходы на служебную поездку по заявлению'
         default_permissions = ()

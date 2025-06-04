@@ -125,10 +125,13 @@
             <button id="button-add-item" class="btn btn-sm btn-outline-primary" data-prefix="{{ items.prefix }}">Добавить</button>
           </div>
           {{ items.management_form }}
-          {% for deletedForm in items.deleted_forms %}
-            {{ deletedForm.id }}
-            {{ deletedForm.DELETE.as_hidden }}
+          {% for del in items %}
+            {% if del.DELETE.value %}
+              {{ del.id }}
+              {{ del.DELETE.as_hidden }}
+            {% endif %}
           {% endfor %}
+
           {% for itemForm in items %}
             {% if not itemForm.DELETE.value %}
               {% include 'prepayment/item_row.html' with form=itemForm %}

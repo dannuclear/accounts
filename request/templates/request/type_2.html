@@ -1,109 +1,33 @@
 {% load widget_tweaks %}
+
+{{ travelExpenses.management_form }}
+{% for del in travelExpenses %}
+  {% if del.DELETE.value %}
+    {{ del.id }}
+    {{ del.DELETE.as_hidden }}
+  {% endif %}
+{% endfor %}
+
 <div class="col-12">
-  <table class="table table-sm table-bordered w-100">
-    <thead>
-      <tr>
-        <th class="text-center">Суточные</th>
-        <th class="text-center" style="width: 100px;">Норма</th>
-        <th class="text-center" style="width: 15%;">Дата начала</th>
-        <th class="text-center" style="width: 15%;">Дата окончания</th>
-        <th class="text-center" style="width: 5%;">Дней</th>
-        <th class="text-center" style="width: 11%;">Сумма</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="text-left">{{ form.dailyAllowance|add_class:'form-select form-select-sm text-left' }}</td>
-        <td>{{ form.dailyAllowanceRate|add_class:'form-control form-control-sm text-end bg-body-secondary'|attr:'readonly' }}</td>
-        <td>{{ form.dailyAllowanceDateFrom|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
-        <td>{{ form.dailyAllowanceDateTo|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
-        <td>{{ form.dailyAllowanceDays|add_class:'form-control form-control-sm text-center bg-body-secondary'|attr:'readonly' }}</td>
-        <td>{{ form.dailyAllowanceSum|add_class:'form-control form-control-sm text-end total-input-part' }}</td>
-      </tr>
-    </tbody>
-  </table>
+  {% include 'request/travel_expense_table.html' with expenses=travelExpenses name='Суточные' type=0 %}
 </div>
 
 <div class="col-12">
-  <table class="table table-sm table-bordered">
-    <thead>
-      <tr>
-        <th class="text-center">Проживание</th>
-        <th class="text-center" style="width: 100px;">Норма</th>
-        <th class="text-center" style="width: 15%;">Дата начала</th>
-        <th class="text-center" style="width: 15%;">Дата окончания</th>
-        <th class="text-center" style="width: 5%;">Дней</th>
-        <th class="text-center" style="width: 11%;">Сумма</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>{{ form.living|add_class:'form-select form-select-sm text-left' }}</td>
-        <td>{{ form.livingRate|add_class:'form-control form-control-sm text-end bg-body-secondary'|attr:'readonly' }}</td>
-        <td>{{ form.livingDateFrom|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
-        <td>{{ form.livingDateTo|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
-        <td>{{ form.livingDays|add_class:'form-control form-control-sm text-center bg-body-secondary'|attr:'readonly' }}</td>
-        <td>{{ form.livingSum|add_class:'form-control form-control-sm text-end total-input-part' }}</td>
-      </tr>
-    </tbody>
-  </table>
+  {% include 'request/travel_expense_table.html' with expenses=travelExpenses name='Проживание' type=1 %}
 </div>
 
 <div class="col-12">
-  <table class="table table-sm table-bordered text-center">
-    <thead>
-      <tr>
-        <th>Проезд</th>
-        <th style="width: 15%;">Дата начала</th>
-        <th style="width: 15%;">Дата окончания</th>
-        <th style="width: 16%;">Сумма</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>{{ form.transfer|add_class:'form-control form-control-sm text-left' }}</td>
-        <td>{{ form.transferDateFrom|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
-        <td>{{ form.transferDateTo|add_class:'form-control form-control-sm text-center datepeeker' }}</td>
-        <td>{{ form.transferSum|add_class:'form-control form-control-sm text-end total-input-part' }}</td>
-      </tr>
-    </tbody>
-  </table>
+  {% include 'request/travel_expense_table.html' with expenses=travelExpenses name='Проезд' type=2 %}
 </div>
 
 <div class="col-12">
   <div class="row">
     <div class="col-6">
-      <table class="table table-sm table-bordered text-center">
-        <thead>
-          <tr>
-            <th>Подотчет по распоряжению</th>
-            <th style="width: 16%;">Сумма</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{ form.orderAllowance|add_class:'form-control form-control-sm text-left' }}</td>
-            <td>{{ form.orderAllowanceSum|add_class:'form-control form-control-sm text-end total-input-part' }}</td>
-          </tr>
-        </tbody>
-      </table>
+      {% include 'request/travel_expense_table.html' with expenses=travelExpenses name='Подотчет по распоряжению' type=3 %}
     </div>
 
     <div class="col-6">
-      <table class="table table-sm table-bordered text-center">
-        <thead>
-          <tr>
-            <th>Подотчет на приобретение ГСМ</th>
-            <th style="width: 16%;">Сумма</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{ form.gsmAllowance|add_class:'form-control form-control-sm text-left' }}</td>
-            <td>{{ form.gsmAllowanceSum|add_class:'form-control form-control-sm text-end total-input-part' }}</td>
-          </tr>
-        </tbody>
-      </table>
+      {% include 'request/travel_expense_table.html' with expenses=travelExpenses name='Подотчет на приобретение ГСМ' type=4 %}
     </div>
   </div>
 </div>
@@ -121,10 +45,8 @@
         if (selectedValue)
           $.get(`{% url "expenserate-list" %}?filterValue=${selectedValue}`)
             .done(function (data) {
-              if (data && data.count > 0 && rateInput) 
-                rateInput.val(data.results[0].value).trigger('change')
-              else
-                rateInput.val('').trigger('change')
+              if (data && data.count > 0 && rateInput) rateInput.val(data.results[0].value).trigger('change')
+              else rateInput.val('').trigger('change')
             })
             .fail(function (data) {
               rateInput.val('').trigger('change')
@@ -132,15 +54,15 @@
         else rateInput.val('').trigger('change')
       })
   
-    $('input[id^="id_living"], input[id^="id_dailyAllowance"], input[id^="id_transfer"]')
+    $('input[id^="id_travel-expenses"]')
       .not('.total-input-part')
       .on('change', function (e) {
         const row = $(e.target).parent().parent()
-        const rateInput = row.find('input[id$="Rate"]')
-        const dateFromInput = row.find('input[id$="DateFrom"]')
-        const dateToInput = row.find('input[id$="DateTo"]')
-        const daysInput = row.find('input[id$="Days"]')
-        const sumInput = row.find('input[id$="Sum"]')
+        const rateInput = row.find('input[id$="rate"]')
+        const dateFromInput = row.find('input[id$="dateFrom"]')
+        const dateToInput = row.find('input[id$="dateTo"]')
+        const daysInput = row.find('input[id$="days"]')
+        const sumInput = row.find('input[id$="sum"]')
   
         const dateFromValue = dayjs(dateFromInput.val(), 'DD.MM.YYYY', true)
         const dateToValue = dayjs(dateToInput.val(), 'DD.MM.YYYY', true)

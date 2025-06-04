@@ -1,6 +1,6 @@
 from django import forms
 from django.forms.models import ALL_FIELDS
-from .models import Request, RequestInventory, RequestInventoryItem
+from .models import Request, RequestInventory, RequestInventoryItem, RequestTravelExpense
 from guide.models import Status, ImprestAccount, ObtainMethod, ExpenseRate
 from integration.models import Employee
 from main.helpers import is_user_in_group
@@ -97,7 +97,7 @@ class RequestForm (forms.ModelForm):
 class RequestInventoryItemForm (forms.ModelForm):
     price = forms.DecimalField(localize=True, required=False)
     
-    total = forms.DecimalField(localize=True, required=False)
+    total = forms.DecimalField(localize=True, required=True)
 
     class Meta:
         model = RequestInventoryItem
@@ -119,14 +119,13 @@ class RequestInventoryForm (forms.ModelForm):
     def is_valid(self):
         result = super(RequestInventoryForm, self).is_valid()
 
-        if self.is_bound:
-            if hasattr(self, 'items'):
+        if self.is_bound and hasattr(self, 'items'):
                 result = result and self.items.is_valid()
 
         return result
 
     def save(self, commit=True):
-        result = super(RequestInventoryForm, self).save(commit=True)
+        result = super().save(commit=True)
 
         if hasattr(self, 'items'):
             for el in self.items.save(commit=False):
@@ -139,7 +138,7 @@ class RequestInventoryForm (forms.ModelForm):
         return result
 
     def has_changed(self):
-        result = super(RequestInventoryForm, self).has_changed()
+        result = super().has_changed()
         if hasattr(self, 'items'):
             result = result or self.items.has_changed()
         return result
@@ -150,5 +149,5 @@ class RequestInventoryForm (forms.ModelForm):
         exclude = ['request']
         localized_fields = ALL_FIELDS
 
-#RequestInventoryFormSet = forms.inlineformset_factory(Request, RequestInventory, can_delete=True, extra=0, min_num=1, exclude=['request'])
 RequestInventoryFormSet = forms.inlineformset_factory(Request, RequestInventory, form=RequestInventoryForm, can_delete=True, extra=0, min_num=1)
+RequestTravelExpenseFormSet = forms.inlineformset_factory(Request, RequestTravelExpense, fields=ALL_FIELDS, can_delete=True, extra=0, min_num=5)

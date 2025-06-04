@@ -25,10 +25,14 @@
                   <button class="btn btn-sm btn-outline-primary btn-add-entity-row" data-prefix="{{ item.prefix }}-item">Добавить</button>
                 </div>
               </div>
-              {% for deletedInventoryItem in item.inventoryItems.deleted_forms %}
-                {{ deletedInventoryItem.id }}
-                {{ deletedInventoryItem.DELETE.as_hidden }}
+
+              {% for del in item.inventoryItems %}
+                {% if del.DELETE.value %}
+                  {{ del.id }}
+                  {{ del.DELETE.as_hidden }}
+                {% endif %}
               {% endfor %}
+
               {% for inventoryItem in item.inventoryItems %}
                 {{ inventoryItem.id }}
                 {% if not inventoryItem.DELETE.value %}

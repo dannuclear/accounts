@@ -1,18 +1,20 @@
 {% load widget_tweaks %}
 
 {{ inventories.management_form }}
-{% for deletedForm in inventories.deleted_forms %}
-  {{ deletedForm.id }}
-  {{ deletedForm.DELETE.as_hidden }}
+{% for del in inventories %}
+  {% if del.DELETE.value %}
+    {{ del.id }}
+    {{ del.DELETE.as_hidden }}
+  {% endif %}
 {% endfor %}
 
 <div class="col-12">
-  <div class="container-fluid p-1 border rounded">
+  <div class="container-fluid p-1 border rounded" style="background-color:rgb(130, 184, 154);">
     <div class="row g-1 inventory-container">
-      <div class="col-auto" style="background-color: #fff3e4;">
-        <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ inventories.prefix }}" data-element-type="0">Добавить</button>
+      <div class="col-auto">
+        <button class="btn btn-sm btn-outline-light btn-add-row" data-prefix="{{ inventories.prefix }}" data-element-type="0">Добавить</button>
       </div>
-      <div class="col text-center fs-5" style="background-color: #fff3e4;">Приобретение ТМЦ</div>
+      <div class="col text-center fs-5">Приобретение ТМЦ</div>
 
       {% for inventory in inventories %}
         {% with type=inventory.elementType.value|default:'0'|stringformat:'s' %}
@@ -26,12 +28,12 @@
 </div>
 
 <div class="col-12">
-  <div class="container-fluid p-1 border rounded">
+  <div class="container-fluid p-1 border rounded" style="background-color:rgb(100, 111, 161);">
     <div class="row g-1 inventory-container">
-      <div class="col-auto" style="background-color: #fff3e4;">
-        <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ inventories.prefix }}" data-element-type="1">Добавить</button>
+      <div class="col-auto">
+        <button class="btn btn-sm btn-outline-light btn-add-row" data-prefix="{{ inventories.prefix }}" data-element-type="1">Добавить</button>
       </div>
-      <div class="col text-center fs-5" style="background-color: #fff3e4;">Приобретение услуг</div>
+      <div class="col text-center fs-5">Приобретение услуг</div>
 
       {% for inventory in inventories %}
         {% with type=inventory.elementType.value|default:'0'|stringformat:'s' %}
@@ -43,15 +45,6 @@
     </div>
   </div>
 </div>
-
-{% comment %} <div class="col-12">
-  {% include 'main/input_group.html' with field=form.servicePayment %}
-</div>
-
-<div class="col-12 input-group input-group-sm">
-  <span class="input-group-text">{{ form.comment.label }}</span>
-  <textarea type="text" rows="3" class="mb-0 form-control" name="{{ form.comment.name }}">{{ form.comment.value|default_if_none:'' }}</textarea>
-</div> {% endcomment %}
 
 <script type="text/javascript">
   $(document).ready(function () {

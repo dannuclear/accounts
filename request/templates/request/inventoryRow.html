@@ -1,4 +1,4 @@
-<div id="{{ inventory.prefix }}" class="col-12 inventory-form" style="background-color: #fff3e4;">
+<div id="{{ inventory.prefix }}" class="col-12 inventory-form">
   <div class="container-fluid p-1 border rounded">
     {{ inventory.id }}
     {{ inventory.elementType.as_hidden }}
@@ -17,10 +17,10 @@
           </div>
 
           <div class="col-12">
-            <div class="container-fluid p-1 border rounded" style="background-color: #a2b4d0;">
+            <div class="container-fluid p-1 border rounded" style="background-color:rgb(49, 114, 76);">
               <div class="row g-1">
                 <div class="col-12">
-                  <button class="btn btn-sm btn-outline-primary btn-add-row" data-prefix="{{ inventory.items.prefix }}">Добавить</button>
+                  <button class="btn btn-sm btn-outline-light btn-add-row" data-prefix="{{ inventory.items.prefix }}">Добавить</button>
                 </div>
 
                 <div class="col-12">
@@ -41,9 +41,11 @@
                     </thead>
                     <tbody>
                       {{ inventory.items.management_form }}
-                      {% for deletedForm in inventory.items.deleted_forms %}
-                        {{ deletedForm.id }}
-                        {{ deletedForm.DELETE.as_hidden }}
+                      {% for del in inventory.items %}
+                        {% if del.DELETE.value %}
+                          {{ del.id }}
+                          {{ del.DELETE.as_hidden }}
+                        {% endif %}
                       {% endfor %}
 
                       {% for item in inventory.items %}
