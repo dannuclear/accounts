@@ -1,7 +1,14 @@
 <tr>
   <td colspan="{{ labelColspan|default:1 }}" style="width: 1%;">{{ label }}</td>
   {% if labelColspan|default:1 == 1 %}
-    <td>{{ text|default_if_none:'' }}</td>
+    <td>
+      {{ text|default_if_none:'' }} {% if fromDate is not None %}
+        в период с {{ fromDate|date:'d.m.Y' }}
+      {% endif %}
+      {% if toDate is not None %}
+        по {{ toDate|date:'d.m.Y' }}
+      {% endif %}
+    </td>
   {% endif %}
   <td class="text-right">{{ sum|floatformat:'2'|default_if_none:'' }}</td>
 </tr>

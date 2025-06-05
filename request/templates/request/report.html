@@ -79,6 +79,14 @@
       <div class="row">
         <div class="col-12">
           <table class="w-100 header-table">
+            {% if req.type == 2 %}
+              <tr>
+                <td></td>
+                <td class="text-center">
+                  <small>ФОРМА №Ф-11 утверждена приказом от 10.01.2017 №027</small>
+                </td>
+              </tr>
+            {% endif %}
             <tr>
               <td></td>
               <td class="text-center" colspan="2">
@@ -208,18 +216,36 @@
                   <table class="table table-sm table-bordered">
                     <thead class="text-center">
                       <tr>
-                        <th colspan="2">наименование расхода</th>
-                        <th style="width: 15%;">сумма, в руб.</th>
+                        <th class="text-center font-weight-bold" colspan="2">наименование расхода</th>
+                        <th class="text-center font-weight-bold" style="width: 15%;">сумма, в руб.</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {% include 'request/report/travel_row.html' with label='Проезд' text=req.transfer sum=req.transferSum %}
+                      {% for te in req.travelexpenses %}
+                        {% if te.type == 2 %}
+                          {% include 'request/report/travel_row.html' with label='Проезд' text=te.name fromDate=te.dateFrom toDate=te.dateTo sum=te.sum %}
+                        {% endif %}
+                        {% if te.type == 0 %}
+                          {% include 'request/report/travel_row.html' with label='Суточные' text=te.name fromDate=te.dateFrom toDate=te.dateTo sum=te.sum %}
+                        {% endif %}
+                        {% if te.type == 1 %}
+                          {% include 'request/report/travel_row.html' with label='Проживание' text=te.name sum=te.sum fromDate=te.dateFrom toDate=te.dateTo %}
+                        {% endif %}
+                        {% if te.type == 3 %}
+                          {% include 'request/report/travel_row.html' with label='Подотчет по распоряжению' labelColspan=2 sum=te.sum %}
+                        {% endif %}
+                        {% if te.type == 4 %}
+                          {% include 'request/report/travel_row.html' with label='Подотчет водителю цеха 013 на приобретение ГСМ' labelColspan=2 sum=te.sum %}
+                        {% endif %}
+                      {% endfor %}
                       {% include 'request/report/travel_row.html' with label='Провоз и упаковка багажа, услуги камеры хранения' labelColspan=2 sum='' %}
-                      {% include 'request/report/travel_row.html' with label='Суточные' text=req.dailyAllowance sum=req.dailyAllowanceSum %}
-                      {% include 'request/report/travel_row.html' with label='Проживание' text=req.living sum=req.livingSum %}
-                      {% include 'request/report/travel_row.html' with label='Подотчет по распоряжению' labelColspan=2 sum=req.orderAllowanceSum %}
-                      {% include 'request/report/travel_row.html' with label='Подотчет водителю цеха 013 на приобретение ГСМ' labelColspan=2 sum=req.gsmAllowanceSum %}
                     </tbody>
+                    <tfoot>
+                      <tr>
+                        <td class="text-left font-weight-bold" colspan="2">Итого</td>
+                        <td class="text-right font-weight-bold">{{ travelExpenseSum }}</td>
+                      </tr>
+                    </tfoot>
                   </table>
                 </td>
               </tr>

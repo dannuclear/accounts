@@ -5,6 +5,19 @@
 {% endblock %}
 
 {% block content %}
+
+  <div class="flex-row">
+      <fieldset class="input-group-sm btn-group btn-group-sm mb-1" aria-label="Статус" role="group">
+        <span class="input-group-text">Статус:</span>
+        <input type="radio" class="btn-check" name="status-radio" id="status-radio1" autocomplete="off" value="0" checked="">
+        <label class="btn btn-outline-success" for="status-radio1" title="Все">ВСЕ</label>
+        <input type="radio" class="btn-check" name="status-radio" id="status-radio2" autocomplete="off" value="1">
+        <label class="btn btn-outline-success" for="status-radio2" title="Загруженныее приказы">ЗАГРУЖЕНЫ</label>
+        <input type="radio" class="btn-check" name="status-radio" id="status-radio3" autocomplete="off" value="2">
+        <label class="btn btn-outline-success" for="status-radio3" title="Только незагруженные">НЕ ЗАГРУЖЕНЫ</label>
+      </fieldset>
+  </div>
+  
   <div class="alert alert-primary" role="alert" style="display: none;"></div>
   <table id="order-table" class="table table-sm table-bordered table-striped table-hover table-header-sm">
     <thead>
@@ -36,6 +49,12 @@
         ajax: {
           url: "{% url 'wc07porder-list' %}",
           data: function (d) {
+
+            const statusFilterValue = $('input[name="status-radio"]:checked').val();
+            if (statusFilterValue != '') {
+              d.statusFilter = statusFilterValue
+            }
+
             d.format = 'datatables'
           }
         },
@@ -138,6 +157,10 @@
             orderTable.ajax.reload()
           })
       })
+
+      $('input[type="radio"]').click(function() {
+        orderTable.ajax.reload()
+      });
     })
   </script>
 {% endblock %}

@@ -35,11 +35,9 @@ class StatusChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
 
-class ExpenseRateChoiceField(forms.ChoiceField):
-    def to_python(self, value):
-        return value
-    def valid_value(self, value):
-        return True
+class ExpenseRateChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.name
 
 class RequestForm (forms.ModelForm):
     id = forms.IntegerField(label='id', disabled=True, required=False)
@@ -65,10 +63,6 @@ class RequestForm (forms.ModelForm):
     servicePayment = forms.CharField(label='Оплаты услуг', required=False)
 
     comment = forms.CharField(label='Приложения', required=False)
-
-    dailyAllowance = ExpenseRateChoiceField(required=False)
-
-    living = ExpenseRateChoiceField(required=False)
 
     class Meta:
         model = Request
@@ -130,9 +124,9 @@ class RequestInventoryForm (forms.ModelForm):
         if hasattr(self, 'items'):
             for el in self.items.save(commit=False):
                 el.save()
-            for deletedEl in self.items.deleted_forms:
-                if deletedEl.instance.id is not None:
-                    deletedEl.instance.delete()
+            for deleted in self.items.deleted_forms:
+                if deleted.instance.id is not None:
+                    deleted.instance.delete()
             # self.entities.save()
 
         return result
@@ -149,5 +143,17 @@ class RequestInventoryForm (forms.ModelForm):
         exclude = ['request']
         localized_fields = ALL_FIELDS
 
+class RequestTravelExpenseForm (forms.ModelForm):
+    expenseRate = ExpenseRateChoiceField(queryset=ExpenseRate.objects.all(), required=False, empty_label='Не выбран')
+
+    def has_changed(self):
+        if 'type' in self.changed_data:
+            self.changed_data.remove('type')
+        return bool(self.changed_data)
+    
+    class Meta:
+        model = RequestTravelExpense
+        fields = ALL_FIELDS
+
 RequestInventoryFormSet = forms.inlineformset_factory(Request, RequestInventory, form=RequestInventoryForm, can_delete=True, extra=0, min_num=1)
-RequestTravelExpenseFormSet = forms.inlineformset_factory(Request, RequestTravelExpense, fields=ALL_FIELDS, can_delete=True, extra=0, min_num=5)
+RequestTravelExpenseFormSet = forms.inlineformset_factory(Request, RequestTravelExpense, form=RequestTravelExpenseForm, can_delete=True, extra=0, min_num=5)

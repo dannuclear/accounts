@@ -17,13 +17,23 @@
   <table id="fact-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100" style="font-size: 0.9em;">
     <thead>
       <tr>
-        <th class="text-center" style="width: 25%;">xv26ei_id</th>
-        <th class="text-center" style="width: 25%;">pd_id</th>
-        <th class="text-center" style="width: 25%;">pd_source</th>
-        <th class="text-center" style="width: 25%;">sum_fact</th>
-        <th class="text-center" style="width: 25%;">sum_delta</th>
+        <th scope="col" class="text-center" style="width: 5%;">Табельный</th>
+        <th scope="col" class="text-center" style="width: 15%;">ФИО</th>
+        <th scope="col" class="text-center" style="width: 5%;">Подразделение</th>
+        <th scope="col" class="text-center" style="width: 25%;">xv26ei_id</th>
+        <th scope="col" class="text-center" style="width: 25%;">pd_id</th>
+        <th scope="col" class="text-center" style="width: 25%;">pd_source</th>
+        <th scope="col" class="text-center" style="width: 25%;">sum_fact</th>
+        <th scope="col" class="text-center" style="width: 25%;">sum_delta</th>
       </tr>
     </thead>
+    <tfoot>
+        <tr>
+            <th scope="col" colspan="6" class="text-left">Итого:</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+    </tfoot>
   </table>
 
   <script type="text/javascript">
@@ -34,7 +44,7 @@
     $(document).ready(function () {
       var table = $('#fact-table').DataTable({
         ajax: {
-          url: '/api/v1/facts/?format=datatables',
+          url: "{% url 'fact-list' %}?format=datatables",
           data: function (d) {
             let imprestAccount = urlParams.get('imprestAccount')
             if (imprestAccount) d.imprestAccount = imprestAccount
@@ -43,7 +53,27 @@
         },
         rowId: 'id',
         order: [],
+        footerCallback: function (row, data, start, end, display) {
+          var intVal = function (i) {
+            return typeof i === 'string' ? i.replace(/,/g, '.').replace(/ /g, '') * 1 : typeof i === 'number' ? i : 0
+          }
+    
+          var total = 0
+          var api = this.api()
+    
+          api
+            .cells(null, 6, { page: 'current' })
+            .nodes()
+            .each(function (n) {
+              total += intVal($(n).text())
+            })
+    
+          $(api.column(6).footer()).html(total.toFixed(2))
+        },
         columns: [
+          { data: 'prepayment.empNum', orderable: false, defaultContent: '' },
+          { data: 'prepayment.empFullName', orderable: false, defaultContent: '' },
+          { data: 'prepayment.empDivNum', orderable: false, defaultContent: '' },
           { data: 'xv26eiId', orderable: false, defaultContent: '' },
           { data: 'pdId', orderable: false },
           { data: 'pdSource', orderable: false },
@@ -60,7 +90,7 @@
       $('#to-date').on('change', function (e) {
         table.ajax.reload()
       })
-      $('#reset').on('click', function(){
+      $('#reset').on('click', function () {
         $('#to-date').val('')
         table.ajax.reload()
       })

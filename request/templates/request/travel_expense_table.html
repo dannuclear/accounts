@@ -2,12 +2,12 @@
 <table class="table table-sm table-bordered w-100">
   <thead>
     <tr>
-      {% if type|stringformat:'s' in '01' %}
-        <th class="text-center" style="width: 15%;">Наименование нормы</th>
-      {% endif %}
       <th class="text-center">
         <button class="btn btn-sm btn-outline-success py-0 float-start btn-add-row" data-prefix="{{ expenses.prefix }}" data-element-type="{{ type }}">Добавить</button>{{ name }}
       </th>
+      {% if type|stringformat:'s' in '01' %}
+        <th class="text-center" style="width: 15%;">Наименование нормы</th>
+      {% endif %}
       {% if type|stringformat:'s' in '01' %}
         <th class="text-center" style="width: 100px;">Норма</th>
       {% endif %}
@@ -18,12 +18,7 @@
       {% if type|stringformat:'s' in '01' %}
         <th class="text-center" style="width: 5%;">Дней</th>
       {% endif %}
-      <th class="text-center"
-        style="width: {% if type|stringformat:'s' in '01' %}
-          11
-        {% elif type|stringformat:'s' in '234' %}
-          16
-        {% endif %}%;">Сумма</th>
+      <th class="text-center" style="width: {% if type|stringformat:'s' in '01' %}11{% elif type|stringformat:'s' in '234' %}16{% endif %}%;">Сумма</th>
       <th class="text-center" style="width: 40px;"></th>
     </tr>
   </thead>
@@ -33,10 +28,10 @@
         <tr>
           {{ expense.id }}
           {{ expense.type.as_hidden }}
+          <td class="text-left">{{ expense.name|add_class:'form-control form-control-sm' }}</td>
           {% if type|stringformat:'s' in '01' %}
             <td>{{ expense.expenseRate|add_class:'form-select form-select-sm' }}</td>
           {% endif %}
-          <td class="text-left">{{ expense.name|add_class:'form-control form-control-sm' }}</td>
           {% if type|stringformat:'s' in '01' %}
             <td>{{ expense.rate|add_class:'form-control form-control-sm text-end bg-body-secondary'|attr:'readonly' }}</td>
           {% endif %}

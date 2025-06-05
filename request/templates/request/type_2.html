@@ -34,18 +34,15 @@
 
 <script type="text/javascript">
   $(document).ready(function () {
-    $('#id_dailyAllowance, #id_living')
-      .select2({
-        tags: true
-      })
+    $('select[id$="expenseRate"]')//.select2()
       .on('change', function (e) {
         const select = e.target
         const selectedValue = e.target.value
-        const rateInput = $(select).parent().parent().find("[id$='Rate']")
+        const rateInput = $(select).parent().parent().find("[id$='rate']")
         if (selectedValue)
-          $.get(`{% url "expenserate-list" %}?filterValue=${selectedValue}`)
+          $.get(`{% url "expenserate-list" %}${selectedValue}/`)
             .done(function (data) {
-              if (data && data.count > 0 && rateInput) rateInput.val(data.results[0].value).trigger('change')
+              if (data && data.value && rateInput) rateInput.val(data.value).trigger('change')
               else rateInput.val('').trigger('change')
             })
             .fail(function (data) {

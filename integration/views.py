@@ -16,6 +16,7 @@ from django.db.models import OuterRef, Subquery, Q
 from prepayment import models as prepaymentModels
 from guide.models import Document, Department, DepartmentAccount, ObtainMethod
 from datetime import datetime
+from .filters import OrderStatusFilter
 # Create your views here.
 
 
@@ -72,6 +73,10 @@ class OrderViewSet (viewsets.ModelViewSet):
     #queryset = WC07POrder.objects.annotate(prepayment_id=Subquery(prepaymentModels.Prepayment.objects.filter(wc07pOrder=OuterRef("pk")).values('pk')[:1])).order_by('id')
     queryset = WC07POrder.objects.annotate(prepayment_id=Subquery(prepaymentModels.Prepayment.objects.filter(wc07pOrder=OuterRef("pk")).values('pk')[:1])).order_by('orderId')
     serializer_class = WC07POrderSerializer
+
+    def filter_queryset(self, queryset):
+        self.filter_backends = [OrderStatusFilter, *self.filter_backends]
+        return super().filter_queryset(queryset)
 
 
 def edit(request, id):

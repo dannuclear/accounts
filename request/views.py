@@ -16,6 +16,7 @@ from prepayment.action_processor import addItem
 import math
 from num2words import num2words
 from main.helpers import is_user_in_group
+import decimal
 # Create your views here.
 
 
@@ -96,43 +97,42 @@ def editRequest(request, id):
         
         form = RequestForm(postCopy, instance=prepaymentRequest, user=request.user)
         if prepaymentRequest.type == 0:
-            inventoriesFormSet = RequestInventoryFormSet(postCopy, prefix='inventory', instance=prepaymentRequest)
+            inventories_form_set = RequestInventoryFormSet(postCopy, prefix='inventory', instance=prepaymentRequest)
         elif prepaymentRequest.type == 2:
             travel_expenses_form_set = RequestTravelExpenseFormSet(postCopy, prefix='travel-expenses', instance=prepaymentRequest)
 
-        if not postCopy['action'] and form.is_valid() and (prepaymentRequest.type != 0 or inventoriesFormSet.is_valid()) and (prepaymentRequest.type != 2 or travel_expenses_form_set.is_valid()):
+        if not postCopy['action'] and form.is_valid() and (prepaymentRequest.type != 0 or inventories_form_set.is_valid()) and (prepaymentRequest.type != 2 or travel_expenses_form_set.is_valid()):
             if is_user_in_group(request.user, ['Бухгалтер']):
                 prepaymentRequest.updatedByAccountant = userFullName if userFullName else request.user.username
                 prepaymentRequest.updatedAtAccountant = datetime.now()
             form.save()
-            if prepaymentRequest.type == 0:
-                for inventory in inventoriesFormSet.save(commit=False):
-                    inventory.save()
-                for deleted in inventoriesFormSet.deleted_forms:
-                    if deleted.instance.id is not None:
-                        deleted.instance.delete()
+            if 'inventories_form_set' in vars():
+                save_form_set(inventories_form_set)
             if 'travel_expenses_form_set' in vars():
-                for te in travel_expenses_form_set.save(commit=False):
-                    te.save()
-                for deleted in travel_expenses_form_set.deleted_forms:
-                    if deleted.instance.id is not None:
-                        deleted.instance.delete()
+                save_form_set(travel_expenses_form_set)
             return HttpResponseRedirect('/requests')
     if request.method == 'GET':
         form = RequestForm(instance=prepaymentRequest, user=request.user)
-        inventoriesFormSet = RequestInventoryFormSet(prefix='inventory', instance=prepaymentRequest)
+        inventories_form_set = RequestInventoryFormSet(prefix='inventory', instance=prepaymentRequest)
         if prepaymentRequest.type == 2:
             initial_data = [{'type': i} for i in range(0,5)] if prepaymentRequest.id is None else []
             travel_expenses_form_set = RequestTravelExpenseFormSet(initial=initial_data, prefix='travel-expenses', instance=prepaymentRequest)
 
     context = {
         'form': form,
-        'inventories': inventoriesFormSet if 'inventoriesFormSet' in vars() else None,
+        'inventories': inventories_form_set if 'inventories_form_set' in vars() else None,
         'travelExpenses': travel_expenses_form_set if 'travel_expenses_form_set' in vars() else None,
         'title': 'Заявление',
         'type': prepaymentRequest.type
     }
     return render(request, 'request/edit.html', context)
+
+def save_form_set (form_set):
+    for item in form_set.save(commit=False):
+        item.save()
+    for deleted in form_set.deleted_forms:
+        if deleted.instance.id is not None:
+            deleted.instance.delete()
 
 def deleteRequest(request, id):
     RequestInventory.objects.filter(request=id).delete()
@@ -193,6 +193,11 @@ def htmlReport(request, id):
         for item in inv.requestinventoryitem_set.all():
             print (item.id)
 
+    travel_expense_sum = decimal.Decimal(0)
+    req.travelexpenses = req.requesttravelexpense_set.order_by('type')
+    for te in req.travelexpenses:
+        travel_expense_sum += te.sum
+
     (issuedSumFrac, issuedSumInt) = math.modf(req.issuedSum)
     issuedSumInt = int(issuedSumInt)
     issuedSumFrac = round(issuedSumFrac, 2)
@@ -201,5 +206,6 @@ def htmlReport(request, id):
     context = {
         'req': req,
         'issuedSumIntString': issuedSumIntString,
+        'travelExpenseSum': travel_expense_sum
     }
     return render(request, 'request/report.html', context)

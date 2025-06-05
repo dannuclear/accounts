@@ -17,7 +17,6 @@
     }
 
     periodFilter.find('input').on('change', function () {
-      console.log('change')
       const from = $('#period-from').val();
       const to = $('#period-to').val();
       localStorage.setItem('periodFilter', JSON.stringify({ from, to }));
