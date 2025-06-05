@@ -37,6 +37,14 @@ class UserFilter(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         queryset = queryset.filter(createdBy=request.user.username)
         return queryset
+    
+class TypeFilter(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        type = request.query_params.get("typeFilter")
+
+        if type is not None:
+            queryset = queryset.filter(type=type)
+        return queryset
 
 requestInventoryItemSubquery = RequestInventoryItem.objects.annotate(itemNames=Func('name', function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')")).filter(requestInventory=OuterRef("pk"))
 requestInventorySubquery = RequestInventory.objects.annotate(itemNames=Func(Subquery(requestInventoryItemSubquery.values('itemNames')), function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')"), comments=Func('comment', function='string_agg', template="%(function)s(%(expressions)s, ', ')")).filter(request=OuterRef("pk"))
@@ -49,6 +57,8 @@ class RequestViewSet (viewsets.ModelViewSet):
     def filter_queryset(self, queryset):
         self.filter_backends = [*self.filter_backends]
 
+        if 'typeFilter' in self.request.query_params:
+            self.filter_backends.insert(0, TypeFilter)
         if 'statusFilter' in self.request.query_params:
             self.filter_backends.insert(0, StatusFilter)
         if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:

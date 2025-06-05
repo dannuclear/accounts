@@ -16,6 +16,9 @@
             {% include 'status/status_filter.html' with options=statuses %}
         </div>
     {% endif %}
+    <div class="col-4">
+      {% include 'request/type_filter.html' %}
+    </div>
   </div>
 
   <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm">
@@ -88,6 +91,8 @@
                         d.periodTo=$('#period-to').val()
                     if (statusFilter && statusFilter.val())
                         d.statusFilter = statusFilter.val()
+                    if (typeFilter && typeFilter.val())
+                        d.typeFilter = typeFilter.val()
 
                     d.columns.push({data: 'applicant.pfnSurname', searchable: true})
                     d.columns.push({data: 'applicant.pfnName', searchable: true})
@@ -193,6 +198,10 @@
 
       statusFilter.on('change', function (e) {
           requestTable.ajax.reload()
+      })
+
+      typeFilter.on('change', function (e) {
+        requestTable.ajax.reload()
       })
     
       periodFilter.find('button').on('click', function (e) {

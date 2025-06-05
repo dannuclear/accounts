@@ -1,0 +1,19 @@
+<div class="input-group input-group-sm">
+    <span class="input-group-text">Тип</span>
+    <select id="type-filter" class="form-select" >
+        <option value="">Все</option>
+        <option value="0">Аванс на приобретение ТМЦ, работ, услуг</option>
+        <option value="1">Аванс на приобретение ГСМ</option>
+        <option value="2">Аванс на оплату расходов в служебной поездке</option>
+    </select>
+    <button id="type-filter-reset" class="btn btn-sm btn-outline-success">X</button>
+</div>
+
+<script type="text/javascript">
+    const typeFilter = $("#type-filter")
+    $(document).ready(function () {
+        $("#type-filter-reset").on('click', function(e) {
+            typeFilter.val('').change()
+        })
+    })
+</script>
