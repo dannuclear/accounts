@@ -85,7 +85,14 @@ def editRequest(request, id):
         prepaymentRequest.createDate = datetime.now()
         prepaymentRequest.type = int(request.GET['type'])
         prepaymentRequest.status_id = 2
-        prepaymentRequest.imprestAccount_id = 7101 if prepaymentRequest.type == 0 else 7103
+        prepaymentRequest.imprestAccount_id = [7101, 7103, 7104][prepaymentRequest.type]
+        carryover_prepayment_id = request.GET.get('carryoverId', None)
+        if carryover_prepayment_id is not None:
+            prepayment = Prepayment.objects.select_related('request').get(pk=carryover_prepayment_id)
+            employee = Employee.objects.filter(empOrgNo=prepayment.empNum).first()
+            prepaymentRequest.applicant = employee
+            prepaymentRequest.applicantPhone = prepayment.phone
+            prepaymentRequest.carryOverPrepayment_id = prepayment.id
     else:
         prepaymentRequest = Request.objects.get(id=id)
 

@@ -83,7 +83,7 @@
 
         var requestTable = $('#request-table').DataTable({
             ajax: {
-                url: '/api/v1/requests/?format=datatables',
+                url: '{% url "request-list" %}?format=datatables',
                 data: function (d) {
                     if ($('#period-from').val())
                         d.periodFrom=$('#period-from').val()

@@ -24,6 +24,10 @@
     <thead>
         <tr>
             <th scope="col" rowspan="2" data-dt-order="disable" data-width="34px"></th>
+            {% if request.GET.imprestAccount == '7103' %}
+              <th scope="col" rowspan="2" data-dt-order="disable" data-width="34px"></th>
+            {% endif %}
+
             <th scope="col" colspan="2" data-dt-order="disable" class="text-center">Документ</th>
             <th scope="col" colspan="3" data-dt-order="disable" class="text-center">Подотчетное лицо</th>
 
@@ -66,7 +70,7 @@
             var requestTable = $('#request-table').DataTable(
                 {
                     ajax: {
-                        url: '/api/v1/prepayments/?format=datatables',
+                        url: '{% url "prepayment-list" %}?format=datatables',
                         data: function (d) {
                             if (imprestAccount)
                                 d.imprestAccount=imprestAccount
@@ -96,13 +100,22 @@
                     columns: [
                         {
                             data: null, orderable: false, className: 'text-center align-middle px-1', render: function (data, type, row) {
-                               return `<a class="text-success m-0" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa-duotone fa-print fa-xl"></i></a>
-                                        <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="/advanceReports/${data.id}/html" target="_blank">Авансовый отчет</a>
-                                            <a class="dropdown-item" href="/advanceReports/${data.id}/accountingCert/html" target="_blank">Бухгалтерская справка</a>
-                                        </div>`
+                                return `<a class="text-success m-0" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa-duotone fa-print fa-xl"></i></a>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="/advanceReports/${data.id}/html" target="_blank">Авансовый отчет</a>
+                                                <a class="dropdown-item" href="/advanceReports/${data.id}/accountingCert/html" target="_blank">Бухгалтерская справка</a>
+                                            </div>`
                             }
                         },
+                        {% if request.GET.imprestAccount == '7103' %}
+                        {
+                            data: null, orderable: false, className: 'text-center align-middle px-1', render: function (data, type, row) {
+                                if (!data.distribCarryover)
+                                    return ''
+                                return `<a class="text-success m-0" href="{% url 'requests' %}/new?type=1&carryoverId=${data.id}" title="Создать заявку для переходящего остатка в ${data.distribCarryover} руб." onclick="return confirm('Создать заявку для переходящего остатка в ${data.distribCarryover} руб.?');"><i class="fa-duotone fa-file-signature fa-xl"></i></a>`
+                            }
+                        },
+                        {% endif %}
                         { data: null, orderable: false, render: function (data, type, row, meta) {
                                 if (data.wc07pOrder)
                                     return data.wc07pOrder.orderNum

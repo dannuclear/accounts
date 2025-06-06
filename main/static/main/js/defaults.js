@@ -104,3 +104,13 @@ function parseDate(dateString) {
     const year = parseInt(parts[2], 10);
     return new Date(year, month, day);
 }
+
+$(document).ready(function(e){
+	$(".filter-input").on('change', function(e) {
+		if (this.value) {
+			this.classList.add("bg-warning");
+		} else {
+			this.classList.remove("bg-warning");
+		}
+	})
+})

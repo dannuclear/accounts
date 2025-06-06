@@ -1,6 +1,6 @@
 <div class="input-group input-group-sm">
     <span class="input-group-text">Статус</span>
-    <select id="status-filter" class="form-select" >
+    <select id="status-filter" class="form-select filter-input" >
         <option value="">Все</option>
         {% for opt in options %}
             <option value="{{ opt.id }}">{{ opt.name }}</option>

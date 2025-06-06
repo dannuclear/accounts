@@ -67,17 +67,11 @@ class RequestForm (forms.ModelForm):
     class Meta:
         model = Request
         fields = ALL_FIELDS
-        exclude = ['createdBy', 'createdAt', 'type', 'createdByFullName', 'updatedByAccountant', 'updatedAtAccountant']
+        exclude = ['createdBy', 'createdAt', 'type', 'createdByFullName', 'updatedByAccountant', 'updatedAtAccountant', 'carryOverPrepayment']
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', False)
         super(RequestForm, self).__init__(*args, **kwargs)
-
-        expense_rates = ExpenseRate.objects.order_by('id')
-        daily_allowance = self.initial['dailyAllowance']
-        self.fields['dailyAllowance'].widget.choices = [('', 'Не указано')] + [(rate.name, rate.name) for rate in expense_rates] + ([(daily_allowance, daily_allowance)] if daily_allowance and not daily_allowance.isdigit() else [])
-        living = self.initial['living']
-        self.fields['living'].widget.choices = [('', 'Не указано')] + [(rate.name, rate.name) for rate in expense_rates] + ([(living, living)] if living and not living.isdigit() else [])
 
         if is_user_in_group(self.user, ['Администратор']):
             self.fields['status'].queryset = Status.objects.order_by('id')
