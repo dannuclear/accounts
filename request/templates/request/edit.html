@@ -77,9 +77,13 @@
       </div>
 
       {% if type == 0 %}
-        {% include "request/type_0.html" %}
+        {% include 'request/type_0.html' %}
+      {% elif type == 1 %}
+        {% if form.instance.carryOverPrepayment is not None %}
+          {% include 'request/carry_over_prepayment.html' with prepayment=form.instance.carryOverPrepayment %}
+        {% endif %}
       {% elif type == 2 %}
-        {% include "request/type_2.html" %}
+        {% include 'request/type_2.html' %}
       {% endif %}
 
       <div class="col-7"></div>
@@ -105,12 +109,11 @@
       const issuedSumInput = $('.issued-sum')
     
       $('.datepeeker').datepicker()
-      
+    
       function updateIssuedSum() {
         let totalSum = 0.0
         const inputs = $('.total-input-part:visible')
-        if (inputs.length == 0)
-          return
+        if (inputs.length == 0) return
         // Снабжаем все части итоговой суммы классом total-input-part
         inputs.each(function () {
           totalSum += parseFloat($(this).val().replaceAll(',', '.')) || 0
@@ -118,10 +121,10 @@
         issuedSumInput.val(totalSum.toFixed(2))
       }
     
-      $('form').on('change', '.total-input-part', function() {
+      $('form').on('change', '.total-input-part', function () {
         updateIssuedSum()
       })
-
+    
       // Добавить аванс
       $('.btn-add-row').on('click', function (e) {
         $('#element_type').val($(e.target).data('element-type'))
@@ -132,7 +135,7 @@
       $('.delete-inventory, .btn-delete-row').on('click', function (e) {
         $('#action').val('delete-' + $(e.currentTarget).data('prefix'))
       })
-
+    
       $('#id_applicant')
         .select2({
           ajax: {
@@ -165,7 +168,7 @@
           })
         })
     
-      updateIssuedSum();
+      updateIssuedSum()
     })
   </script>
 {% endblock %}

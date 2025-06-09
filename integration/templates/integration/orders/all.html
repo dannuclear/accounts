@@ -112,8 +112,9 @@
             searchable: false,
             className: 'text-center align-middle px-1',
             render: function (data, type, row) {
-              if (data.prepaymentId) return ''
-              return `<a href="{% url 'orders' %}/${data.orderId}/createPrepayment" class="create-prepayment-button"><i class="fa-regular fa-download fa-xl"></i></a>`
+              if (data.prepaymentId) 
+                return `<a href="{% url 'prepayments' %}/${data.prepaymentId}" class="text-success" title="Перейти к выданному авансу"><i class="fa-duotone fa-money-bill-transfer fa-xl"></i></a>`
+              return `<a href="{% url 'orders' %}/${data.orderId}/createPrepayment" class="create-prepayment-button"><i class="fa-duotone fa-download fa-xl"></i></a>`
             }
           }
         ],

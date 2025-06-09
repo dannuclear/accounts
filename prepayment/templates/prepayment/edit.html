@@ -19,7 +19,7 @@
     {{ form.errors }}
     {{ form.non_field_errors }}
 
-    <div class="row g-1 mt-1">
+    <div class="row g-1 mt-1 ">
       <div class="col-12 border rounded p-1">
         <div class="row g-1">
           <div class="col-2">
@@ -55,6 +55,24 @@
 
           <div class="col-2">
             {% include 'main/input_group.html' with field=form.docDate inputClass='datepeeker text-center' %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 border rounded p-1">
+        <p class="h3 m-0">Приказ об изменении: </p>
+
+        <div class="row g-1">
+          <div class="col-2">
+            {% include 'main/input_group.html' with field=form.orderChangeNum inputClass='text-center' label='Номер приказа' %}
+          </div>
+
+          <div class="col-2">
+            {% include 'main/input_group.html' with field=form.orderChangeDate inputClass='datepeeker text-center' label='Дата приказа'  %}
+          </div>
+
+          <div class="col-8">
+            {% include 'main/input_group.html' with field=form.orderChanges label='Внесенные изменения в приказ' %}
           </div>
         </div>
       </div>

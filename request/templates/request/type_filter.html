@@ -12,8 +12,22 @@
 <script type="text/javascript">
     const typeFilter = $("#type-filter")
     $(document).ready(function () {
+        const storedValue = localStorage.getItem('requestTypeFilter');
+        if (storedValue) {
+            typeFilter.val(storedValue);
+        }
+
         $("#type-filter-reset").on('click', function(e) {
             typeFilter.val('').change()
+            localStorage.setItem('requestTypeFilter', '');
         })
+
+        typeFilter.on('change', function () {
+            const val = typeFilter.val();
+            if (val)
+                localStorage.setItem('requestTypeFilter', val);
+            else
+                localStorage.setItem('requestTypeFilter', '');
+        });
     })
 </script>

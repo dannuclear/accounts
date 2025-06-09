@@ -59,7 +59,7 @@
 </table>
 
 <script type="text/javascript">
-    const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ']
+    const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ', 'Аванс на оплату расходов в служебной поездке']
     const isAdminOrAccountant = $('#isAdminOrAccountant').val() == 'True'
 
     let urlParams = new URLSearchParams(document.location.search)
@@ -110,7 +110,7 @@
                         {% if request.GET.imprestAccount == '7103' %}
                         {
                             data: null, orderable: false, className: 'text-center align-middle px-1', render: function (data, type, row) {
-                                if (!data.distribCarryover)
+                                if (!data.distribCarryover || !data.reportStatus || data.reportStatus.id != 5)
                                     return ''
                                 return `<a class="text-success m-0" href="{% url 'requests' %}/new?type=1&carryoverId=${data.id}" title="Создать заявку для переходящего остатка в ${data.distribCarryover} руб." onclick="return confirm('Создать заявку для переходящего остатка в ${data.distribCarryover} руб.?');"><i class="fa-duotone fa-file-signature fa-xl"></i></a>`
                             }

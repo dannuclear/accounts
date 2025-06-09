@@ -105,6 +105,16 @@ class Prepayment(models.Model):
     # Уровень блокировки 0 или нет - Разблокирован, 1 - заблокирован, возможно снятие, 2 - выгружен в файл, разблокировка невозможна
     lockLevel = models.SmallIntegerField(db_column="lock_level", blank=True, null=True)
 
+    # ТЗ-2
+    # внесенные изменения в приказ» допускается ручной ввод (символьный, буквенный, цифровой (до 20 знаков))
+    orderChanges = models.CharField(db_column='order_changes', max_length=100, blank=True, null=True)
+
+    # поле «номер приказа»
+    orderChangeNum = models.CharField(db_column='order_change_num', max_length=50, blank=True, null=True)
+
+    # поле «дата приказа» дата получения утверждения приказа
+    orderChangeDate = models.DateField(db_column='order_change_date', blank=True, null=True)
+
     class Meta:
         db_table = 'prepayment'
         verbose_name = 'Аванс'

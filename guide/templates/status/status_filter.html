@@ -12,8 +12,22 @@
 <script type="text/javascript">
     const statusFilter = $("#status-filter")
     $(document).ready(function () {
+        const storedValue = localStorage.getItem('statusFilter');
+        if (storedValue) {
+            statusFilter.val(storedValue);
+        }
+
         $("#status-filter-reset").on('click', function(e) {
             statusFilter.val('').change()
+            localStorage.setItem('statusFilter', '');
         })
+        
+        statusFilter.on('change', function () {
+            const val = statusFilter.val();
+            if (val)
+                localStorage.setItem('statusFilter', val);
+            else
+                localStorage.setItem('statusFilter', '');
+        });
     })
 </script>

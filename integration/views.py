@@ -145,6 +145,15 @@ def createPrepaymentFromOrder(request, id):
     if document is None:
         return HttpResponseBadRequest('Тип документа \'' + order.orderName + '\' не найден в справочнике')
 
+    if order.orderIdUpd:
+        exists_prepayment = prepaymentModels.Prepayment.objects.filter(wc07pOrder=order.orderIdUpd).first()
+        if exists_prepayment is not None:
+            exists_prepayment.orderChangeNum = order.orderNum
+            exists_prepayment.orderChangeDate = order.orderDate
+            exists_prepayment.save()
+            return HttpResponse('Приказ изменяет уже существующий, выданный под отчет аванс был обновлен')
+        return HttpResponse('Приказ изменяет уже существующий, не найден исходный документ')
+
     employee = Employee.objects.filter(Q(empOrgNo=order.empOrgNo) | Q(empOrgNo__endswith=order.empOrgNo)).first()
 
     #Если сотрудник не найден, то фактический табельный номер должен состоять из 8 цифр

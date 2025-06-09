@@ -89,10 +89,15 @@ def editRequest(request, id):
         carryover_prepayment_id = request.GET.get('carryoverId', None)
         if carryover_prepayment_id is not None:
             prepayment = Prepayment.objects.select_related('request').get(pk=carryover_prepayment_id)
+            exist_request = Request.objects.filter(carryOverPrepayment=prepayment).first()
+            if exist_request is not None:
+                return render(request, 'main/error.html', {'message': 'Заявка с переходящим остатком по данному АО, уже существует'})
             employee = Employee.objects.filter(empOrgNo=prepayment.empNum).first()
+            prepaymentRequest.createDate = prepayment.approveDate if prepayment.approveDate is not None else datetime.now()
             prepaymentRequest.applicant = employee
             prepaymentRequest.applicantPhone = prepayment.phone
             prepaymentRequest.carryOverPrepayment_id = prepayment.id
+            prepaymentRequest.issuedSum = prepayment.distribCarryover
     else:
         prepaymentRequest = Request.objects.get(id=id)
 
@@ -183,6 +188,11 @@ def createPrepayment(request, id):
     prep.empFullName = '%s %s %s' % (applicant.pfnSurname, applicant.pfnName, applicant.pfnPatronymic)
     prep.empProfName = applicant.profName
     prep.imprestAccount = req.imprestAccount
+    carry_over_prepayment = req.carryOverPrepayment
+    if carry_over_prepayment is not None:
+        prep.carryOverSum = carry_over_prepayment.distribCarryover
+        prep.carryOverAdvanceReportNum = carry_over_prepayment.distribCarryoverReportNum
+        prep.carryOverAdvanceReportDate = carry_over_prepayment.approveDate
     prep.totalSum = req.issuedSum
     status = Status.objects.first()
     prep.status = status

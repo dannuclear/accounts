@@ -11,9 +11,9 @@
   $(document).ready( function () {
     const storedValues = localStorage.getItem('periodFilter');
     if (storedValues) {
-      const { from, to } = JSON.parse(storedValues);
-      $('#period-from').val(from);
-      $('#period-to').val(to);
+      const result = JSON.parse(storedValues);
+      $('#period-from').val(result.from);
+      $('#period-to').val(result.to);
     }
 
     periodFilter.find('input').on('change', function () {
