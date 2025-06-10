@@ -174,7 +174,8 @@ def createPrepaymentFromOrder(request, id):
     prep.status_id = 1
     prep.save()
 
-    intPrep = Prepayment.objects.filter(xv26eiId=order.estimateId, empOrgNo=empOrgNo).first()
+    #intPrep = Prepayment.objects.filter(xv26eiId=order.estimateId, empOrgNo=empOrgNo).first()
+    intPrep = Prepayment.objects.filter(orderId=order.id).first()
     if intPrep is not None:
         obtain_method = ObtainMethod.objects.filter(bik=intPrep.bic).first()
         prepItem = prepaymentModels.PrepaymentItem()
