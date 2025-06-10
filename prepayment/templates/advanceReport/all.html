@@ -33,7 +33,6 @@
 
             <th scope="col" rowspan="2" data-dt-order="disable">Код учета</th>
             <th scope="col" rowspan="2" data-dt-order="disable">Назначение аванса</th>
-            <th scope="col" rowspan="2" data-dt-order="disable">Счет/Субсчет</th>
             <th scope="col" rowspan="2" data-dt-order="disable">Место командирования</th>
 
             <th scope="col" rowspan="2" data-dt-order="disable" class="text-center" data-width="60px">Подотчетная сумма (аванс)</th>
@@ -138,7 +137,6 @@
                         { data: 'empFullName', orderable: false },
                         { data: 'accountCodes', orderable: false, defaultContent: "" },
                         { data: 'prepaidDestList', orderable: false, searchable: false },
-                        { data: null, orderable: false, defaultContent: "", searchable: false },
                         { data: 'missionDestList', orderable: false, searchable: false, visible: (['7101', '7102', '7103', '7105', '7108'].includes(imprestAccount))},
                         { data: 'totalSum', orderable: false, className: 'text-right', searchable: false, render: $.fn.dataTable.render.number( ' ', ',', 2 ) },
                         { data: 'spendedSum', orderable: false, defaultContent: "", className: 'text-right', searchable: false, render: $.fn.dataTable.render.number( ' ', ',', 2 ) },

@@ -14,7 +14,7 @@
         font-size: 14px;
       }
       table {
-        font-size: 18px;
+        font-size: 20px;
       }
       
       @media print {
@@ -89,7 +89,7 @@
             {% endif %}
             <tr>
               <td></td>
-              <td class="text-center" colspan="2">
+              <td class="text-left" colspan="2">
                 {% if req.type == 0 %}
                   Начальнику финансового отдела<br />Полякову А.Л.
                 {% elif req.type|stringformat:'\d' in '12' %}
@@ -106,7 +106,7 @@
                     работника структурного подразделения № <u>{{ applicant.divNo|zfill:3|default_if_none:'' }}</u>
                   {% endif %}
                   {% if req.type != 2 %}
-                    <br /><u>{{ applicant.profName }}</u>
+                    <u>{{ applicant.profName }}</u>
                   {% endif %}<br />{{ applicant.pfnSurname|add:' '|add:applicant.pfnName|add:' '|add:applicant.pfnPatronymic|default_if_none:'' }}
                 </td>
               </tr>
@@ -139,13 +139,13 @@
                 <tr>
                   <td></td>
                   <td class="text-center" style="font-size: 0.8em;"></td>
-                  <td class="text-center" style="font-size: 0.8em;">(рабочий телефон)</td>
+                  <td class="text-center" style="font-size: 0.8em;">(контактный телефон)</td>
                 </tr>
               {% else %}
                 <tr>
                   <td></td>
                   <td class="text-center">
-                    (табельный № <u>{{ applicant.empOrgNo|default_if_none:'' }}</u>; раб.тел. <u>{{ req.applicantPhone|default_if_none:'&nbsp;' }}</u>)
+                    (табельный № <u>{{ applicant.empOrgNo|default_if_none:'' }}</u>; контактный тел. <u>{{ req.applicantPhone|default_if_none:'&nbsp;' }}</u>)
                   </td>
                 </tr>
               {% endif %}
@@ -180,19 +180,24 @@
 
             {% if req.type != 2 %}
               <tr>
-                <td colspan="1" rowspan="2" class="text-left align-bottom">
+                <td colspan="1" rowspan="1" class="text-left align-bottom">
                   Прошу выдать мне под отчет{% if req.type == 0 %}
 
                   {% elif req.type == 1 %}
                     аванс на приобретение ГСМ для заправки служебных автомобилей в сумме
                   {% endif %}
                 </td>
-                <td colspan="2" rowspan="1" class="text-center border-bottom border-dark" style="font-size: 0.8em;">
+                {% comment %} <td colspan="2" rowspan="1" class="text-center border-bottom border-dark" style="font-size: 0.8em;">
+                  <strong>{{ issuedSumIntString }} ({{ req.issuedSum|default_if_none:'' }}) руб.</strong>
+                </td> {% endcomment %}
+              </tr>
+              <tr>
+                <td colspan="3" rowspan="1" class="text-center border-bottom border-dark" style="font-size: 0.8em;">
                   <strong>{{ issuedSumIntString }} ({{ req.issuedSum|default_if_none:'' }}) руб.</strong>
                 </td>
               </tr>
               <tr>
-                <td colspan="2" rowspan="1" class="text-center" style="font-size: 0.8em;">(сумма в рублях прописью, в круглых скобках - цифрами)</td>
+                <td colspan="3" rowspan="1" class="text-center" style="font-size: 0.8em;">(сумма в рублях прописью, в круглых скобках - цифрами)</td>
               </tr>
             {% else %}
               <tr>
