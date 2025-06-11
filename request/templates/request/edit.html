@@ -62,7 +62,11 @@
       </div>
 
       <div class="col-4">
-        {% include 'main/input_group.html' with field=form.issuedSum inputClass='issued-sum' %}
+        {% if type == 1 %}
+          {% include 'main/input_group.html' with field=form.issuedSum inputClass='issued-sum' %}
+        {% else %}
+          {% include 'main/input_group.html' with field=form.issuedSum inputClass='issued-sum bg-body-secondary' inputAttr='readonly' %}
+        {% endif %}
       </div>
 
       <div class="col-4">

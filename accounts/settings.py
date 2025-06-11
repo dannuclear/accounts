@@ -149,6 +149,7 @@ DATE_INPUT_FORMATS = ( ('%d.%m.%Y'),)
 DATETIME_FORMAT = (( 'd.m.Y H:i' ))
 DATETIME_INPUT_FORMATS = (('%d.%m.%Y %H:%i'),)
 
+#USE_THOUSAND_SEPARATOR = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 

@@ -151,6 +151,16 @@ def createPrepaymentFromOrder(request, id):
             exists_prepayment.orderChangeNum = order.orderNum
             exists_prepayment.orderChangeDate = order.orderDate
             exists_prepayment.save()
+
+            intPrep = Prepayment.objects.filter(orderId=order.orderId).first()
+            if intPrep is not None:
+                obtain_method = ObtainMethod.objects.filter(bik=intPrep.bic).first()
+                prepItem = prepaymentModels.PrepaymentItem()
+                prepItem.prepayment = exists_prepayment
+                prepItem.value = intPrep.sum
+                prepItem.date = intPrep.orderDate
+                prepItem.obtainMethod = obtain_method
+                prepItem.save()
             return HttpResponse('Приказ изменяет уже существующий, выданный под отчет аванс был обновлен')
         return HttpResponse('Приказ изменяет уже существующий, не найден исходный документ')
 

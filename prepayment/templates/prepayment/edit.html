@@ -91,21 +91,21 @@
           <div class="col-2">
             <div class="input-group input-group-sm">
               <span class="input-group-text">{{ form.empDivNum.label }}</span>
-              <input id="emp-div-num" type="text" class="h5 text-center mb-0 form-control {% if form.empDivNum.errors %} is-invalid {% endif %}" name="{{ form.empDivNum.name }}" value="{{ form.empDivNum.value|zfill:3|default_if_none:'' }}" />
+              <input id="emp-div-num" type="text" class="h5 text-center mb-0 form-control {% if form.empDivNum.errors %} is-invalid {% endif %} bg-body-secondary" name="{{ form.empDivNum.name }}" value="{{ form.empDivNum.value|zfill:3|default_if_none:'' }}" readonly />
             </div>
           </div>
 
           <div class="col-3">
             <div class="input-group input-group-sm">
               <span class="input-group-text">{{ form.empFullName.label }}</span>
-              <input id="emp-full-name" type="text" class="mb-0 form-control {% if form.empFullName.errors %} is-invalid {% endif %}" name="{{ form.empFullName.name }}" value="{{ form.empFullName.value|default_if_none:'' }}" />
+              <input id="emp-full-name" type="text" class="mb-0 form-control {% if form.empFullName.errors %} is-invalid {% endif %} bg-body-secondary" name="{{ form.empFullName.name }}" value="{{ form.empFullName.value|default_if_none:'' }}" readonly />
             </div>
           </div>
 
           <div class="col-5">
             <div class="input-group input-group-sm">
               <span class="input-group-text">{{ form.empProfName.label }}</span>
-              <input id="emp-prof-name" type="text" class="mb-0 form-control form-control-sm {% if form.empProfName.errors %} is-invalid {% endif %}" name="{{ form.empProfName.name }}" value="{{ form.empProfName.value|default_if_none:'' }}" />
+              <input id="emp-prof-name" type="text" class="mb-0 form-control form-control-sm {% if form.empProfName.errors %} is-invalid {% endif %} bg-body-secondary" name="{{ form.empProfName.name }}" value="{{ form.empProfName.value|default_if_none:'' }}" readonly />
             </div>
           </div>
         </div>

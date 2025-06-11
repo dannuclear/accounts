@@ -140,6 +140,9 @@ class RequestInventoryForm (forms.ModelForm):
 class RequestTravelExpenseForm (forms.ModelForm):
     expenseRate = ExpenseRateChoiceField(queryset=ExpenseRate.objects.all(), required=False, empty_label='Не выбран')
 
+    # Надо JavaScript править
+    #sum = forms.DecimalField(localize=True, required=True)
+
     def has_changed(self):
         if 'type' in self.changed_data:
             self.changed_data.remove('type')

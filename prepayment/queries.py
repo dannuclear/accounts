@@ -69,7 +69,7 @@ GET_ADVANCE_REPORT_ITEMS_FOR_REPORT = '''
 	FROM advance_report_item item 
 	LEFT JOIN document ON item.approve_document_id = document.id
 	LEFT JOIN expense_category ON item.expense_category_id = expense_category.id
-	WHERE item.prepayment_id = %s and item.item_type = ANY(%s)'''
+	WHERE item.prepayment_id = %s and item.item_type = ANY(%s) ORDER BY item.id'''
 
 GET_ACCOUNTING_CERT_ROW = '''
 	SELECT debit_account, debit_extra, credit_account, credit_extra, sum (accounting_sum) FROM (
