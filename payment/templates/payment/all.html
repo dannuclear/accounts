@@ -1,0 +1,80 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+  Реестры на банк
+{% endblock %}
+
+{% block content %}
+  <div class="alert alert-primary" role="alert" style="display: none;"></div>
+
+  <div class="row">
+    <div class="col-3">  
+        {% include 'main/filters/period_filter.html' %}
+    </div>
+    {% if statuses %}
+        <div class="col-3">
+            {% include 'status/status_filter.html' with options=statuses %}
+        </div>
+    {% endif %}
+  </div>
+
+  <table id="payment-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100">
+    <thead>
+      <tr>
+        <th scope="col" data-dt-order="disable" style="width: 40px;">№</th>
+        <th scope="col" data-dt-order="disable" style="width: 90px;">Дата</th>
+        <th scope="col" data-dt-order="disable" style="width: 90%;">Наименование</th>
+
+        <th scope="col" data-dt-order="disable" style="width: 35px;"></th>
+        <th scope="col" data-dt-order="disable" style="width: 35px;"></th>
+      </tr>
+    </thead>
+  </table>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+
+        var paymentTable = $('#payment-table').DataTable({
+            ajax: {
+                url: '{% url "payment-list" %}?format=datatables',
+                data: function (d) {
+                    if ($('#period-from').val())
+                        d.periodFrom=$('#period-from').val()
+                    if ($('#period-to').val())
+                        d.periodTo=$('#period-to').val()
+                }
+            },
+            rowId: 'id',
+            order: [],
+            columns: [
+                { data: 'id', orderable: false },
+                { data: 'createDate', orderable: false },
+                { data: 'name', orderable: false },
+  
+                editColumn('{% url "payments" %}', null),
+                deleteColumn('{% url "payments" %}', null, 'Удалить реестр?')
+            ],
+            buttons: [
+                {
+                    text: '<i class="fa-light fa-octagon-plus me-2"></i>&nbsp;СОЗДАТЬ НОВЫЙ РЕЕСТР',
+                    className: 'btn btn-success btn-sm',
+                    action: function (e, dt, node, config) {
+                        window.location.href = "{% url 'payments' %}/add"
+                    }
+                }
+            ]
+        });
+    
+      periodFilter
+        .find('.datepeeker')
+        .datepicker()
+        .on('change', function (e) {
+          paymentTable.ajax.reload()
+        })
+
+      periodFilter.find('button').on('click', function (e) {
+        paymentTable.ajax.reload()
+      })
+    })
+  </script>
+{% endblock %}

@@ -192,7 +192,7 @@
                 </td> {% endcomment %}
               </tr>
               <tr>
-                <td colspan="3" rowspan="1" class="text-center border-bottom border-dark" style="font-size: 0.8em;">
+                <td colspan="3" rowspan="1" class="text-center border-bottom border-dark" style="font-size: 1.0em;">
                   <strong>{{ issuedSumIntString }} ({{ req.issuedSum|default_if_none:'' }}) руб.</strong>
                 </td>
               </tr>
@@ -202,7 +202,7 @@
             {% else %}
               <tr>
                 <td colspan="2" class="text-left align-bottom">
-                  Прошу выдать мне под отчет аванс на командировочные расходы путем путем{% if req.obtainMethod.source == 0 %}
+                  Прошу выдать мне под отчет аванс на командировочные расходы путем {% if req.obtainMethod.source == 0 %}
                     его выдачи через кассу
                   {% else %}
                     его перечисления на карту банка <u>{{ req.obtainMethod.name }}</u>
@@ -337,7 +337,7 @@
                   <table class="w-100">
                     <tbody>
                       {% include 'request/signRow.html' with title='Работник' %}
-                      {% include 'request/signRow.html' with title='Руководитель ораганизации' %}
+                      {% include 'request/signRow.html' with title='Руководитель организации' %}
                     </tbody>
                   </table>
                 </td>
