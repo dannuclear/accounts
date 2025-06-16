@@ -7,4 +7,4 @@ class PaymentSerializer (serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id', 'name')
+        datatables_always_serialize = ('id', 'name', 'lockLevel')

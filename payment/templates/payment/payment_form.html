@@ -6,17 +6,16 @@
 {% endblock %}
 
 {% block content %}
-  <form method="post" class="container">
+  <form action="#" method="post" class="container">
     {% csrf_token %}
 
     <input id="action" type="hidden" name="action" />
-    <input id="element_type" type="hidden" name="element-type" />
 
     {% url 'payments' as back_url %}
     {% include 'main/save_cancel.html' with path=back_url %}
 
     {{ form.errors }}
-    <input type="hidden" name="id" value="{{ form.id.value }}" />
+    {{ form.id }}
 
     <div class="row g-1">
       <div class="col-3">
@@ -24,14 +23,132 @@
       </div>
 
       <div class="col-12">
-        {% include 'main/input_group.html' with field=form.name label='Наименование' inputClass='text-center' labelStyle='width:130px' %}
+        {% include 'main/input_group.html' with field=form.name label='Наименование' labelStyle='width:130px' %}
+      </div>
+
+      <div class="col-12 text-center">
+        <h5>Отбор выданных авансов</h5>
+        <div class="row">
+          <div class="col-4">
+            {% include 'main/filters/period_filter.html' %}
+          </div>
+          <div class="col-4">
+            {% include 'imprestAccount/filter.html' with options=imprestAccounts %}
+          </div>
+        </div>
       </div>
     </div>
   </form>
 
+  <div class="container pt-1">
+    <div class="row">
+      <div class="col">
+        <table id="prepayment-table" class="table table-sm table-bordered table-hover dtr-inline w-100 table-header-sm" style="font-size: 0.8em;">
+          <thead>
+            <tr>
+              <th scope="col" colspan="3" data-dt-order="disable">Документ</th>
+              <th scope="col" colspan="3" data-dt-order="disable">Подотчетное лицо</th>
+
+              <th scope="col" rowspan="2" data-dt-order="disable">Код учета</th>
+
+              <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Сумма</th>
+              <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Бух. справка</th>
+              <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Срок АО</th>
+
+              <th scope="col" rowspan="2" data-dt-order="disable" style="width: 35px;"></th>
+            </tr>
+            <tr>
+              <th scope="col" data-dt-order="disable">Тип</th>
+              <th scope="col" data-dt-order="disable">Номер</th>
+              <th scope="col" data-dt-order="disable" style="width: 40%px;">Дата</th>
+
+              <th scope="col" data-dt-order="disable">Подр.</th>
+              <th scope="col" data-dt-order="disable">Таб.</th>
+              <th scope="col" data-dt-order="disable" data-width="40%">ФИО</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <script type="text/javascript">
     $(document).ready(function () {
       $('.datepeeker').datepicker()
+    
+      var prepaymentTable = $('#prepayment-table').DataTable({
+        ajax: {
+          url: '{% url "prepayment-list" %}',
+          data: function (d) {
+            d.format = 'datatables'
+            console.log(imprestAccountFilter.val())
+            if (imprestAccountFilter && imprestAccountFilter.val()) d.imprestAccount = imprestAccountFilter.val()
+            if (periodFilter.find('#period-from').val()) d.periodFrom = periodFilter.find('#period-from').val()
+            if (periodFilter.find('#period-to').val()) d.periodTo = periodFilter.find('#period-to').val()
+          }
+        },
+        rowId: 'id',
+        order: [],
+        columns: [
+          {
+            data: null,
+            orderable: false,
+            searchable: false,
+            render: function (data, type, row, meta) {
+              return data.document ? data.document.name : ''
+            }
+          },
+          {
+            data: null,
+            orderable: false,
+            searchable: false,
+            render: function (data, type, row, meta) {
+              if (data.wc07pOrder) return data.wc07pOrder.orderNum
+              else return data.docNum
+            }
+          },
+          {
+            data: null,
+            orderable: false,
+            searchable: false,
+            render: function (data, type, row, meta) {
+              if (data.wc07pOrder) return data.wc07pOrder.orderDate
+              else return data.docDate
+            }
+          },
+          {
+            data: 'empDivNum',
+            orderable: false,
+            render: function (data, type, row) {
+              return String(data).padStart(3, '0')
+            }
+          },
+          { data: 'empNum', orderable: false },
+          { data: 'empFullName', orderable: false },
+    
+          { data: 'imprestAccount.account', orderable: false, defaultContent: '', searchable: false },
+          { data: 'totalSum', orderable: false, searchable: false, className: 'text-right text-nowrap', render: $.fn.dataTable.render.number(' ', ',', 2) },
+          { data: 'reportAccountingNum', orderable: false, defaultContent: '', searchable: false },
+          { data: 'deadline', orderable: false, defaultContent: '', searchable: false },
+    
+          deleteColumn("{% url 'prepayments' %}", null, 'Удалить аванс из реестра?')
+        ]
+      })
+    
+      periodFilter
+        .find('.datepeeker')
+        .datepicker()
+        .on('change', function (e) {
+          prepaymentTable.ajax.reload()
+        })
+    
+      periodFilter.find('button').on('click', function (e) {
+        prepaymentTable.ajax.reload()
+      })
+    
+      imprestAccountFilter.on('change', function (e) {
+        prepaymentTable.ajax.reload()
+      })
     })
   </script>
 {% endblock %}

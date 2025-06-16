@@ -18,6 +18,10 @@ class Payment(models.Model):
     # Уровень блокировки 0 или нет - Разблокирован, 1 - заблокирован
     lockLevel = models.SmallIntegerField(db_column="lock_level", blank=False, null=False, default=0)
 
+    totalCount = models.IntegerField(db_column="total_count", blank=False, null=False, default=0)
+
+    totalSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="total_sum", blank=False, null=False, default=0)
+
     class Meta:
         db_table = 'payment'
         verbose_name = 'Выплата'

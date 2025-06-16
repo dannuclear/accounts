@@ -1,0 +1,33 @@
+<div class="input-group input-group-sm">
+    <span class="input-group-text">Код учета</span>
+    <select id="imprest-account-filter" class="form-select filter-input" >
+        <option value="">Все</option>
+        {% for opt in options %}
+            <option value="{{ opt.account }}">{{ opt.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="button" id="imprest-account-filter-reset" class="btn btn-sm btn-outline-success">X</button>
+</div>
+
+<script type="text/javascript">
+    const imprestAccountFilter = $("#imprest-account-filter")
+    $(document).ready(function () {
+        const storedValue = localStorage.getItem('imprestAccountFilter');
+        if (storedValue) {
+            imprestAccountFilter.val(storedValue);
+        }
+
+        $("#imprest-account-filter-reset").on('click', function(e) {
+            imprestAccountFilter.val('').change()
+            localStorage.setItem('imprestAccountFilter', '');
+        })
+        
+        imprestAccountFilter.on('change', function () {
+            const val = imprestAccountFilter.val();
+            if (val)
+                localStorage.setItem('imprestAccountFilter', val);
+            else
+                localStorage.setItem('imprestAccountFilter', '');
+        });
+    })
+</script>
