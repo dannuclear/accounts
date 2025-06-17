@@ -55,6 +55,8 @@
               <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Сумма</th>
               <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Бух. справка</th>
 
+              <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Лицевой счет</th>
+
               {% comment %} <th scope="col" rowspan="2" data-dt-order="disable" style="width: 35px;"></th> {% endcomment %}
             </tr>
             <tr>
@@ -137,6 +139,7 @@
           { data: 'prepayment.imprestAccount.account', orderable: false, defaultContent: '', searchable: false },
           { data: 'prepayment.totalSum', orderable: false, searchable: false, className: 'text-right text-nowrap', render: $.fn.dataTable.render.number(' ', ',', 2) },
           { data: 'prepayment.reportAccountingNum', orderable: false, defaultContent: '', searchable: false },
+          { data: 'accountNumber', orderable: false, defaultContent: '', searchable: false },
     
           //deleteColumn("{% url 'prepayments' %}", null, 'Удалить аванс из реестра?')
         ]

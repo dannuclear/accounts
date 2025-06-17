@@ -34,7 +34,7 @@ class PaymentViewSet (viewsets.ModelViewSet):
             queryset = DatatablesFilterBackend().filter_queryset(request, queryset, self)
             filtered_ids = []
         else:
-            queryset = queryset.filter(payment__isnull=True)
+            queryset = queryset.filter(payment__isnull=True, accountNumber__isnull=False)
             if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
                 queryset = UniversalPeriodFilter(field_name='prepayment__docDate').filter_queryset(request, queryset, self)
             if 'imprestAccount' in self.request.query_params:

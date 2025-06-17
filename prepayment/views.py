@@ -6,6 +6,7 @@ from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm, Ad
 from datetime import datetime, timedelta
 from guide.models import Status, ExpenseItem, ExpenseCategory, AccountingCert, Department, Document
 from guide.filters import StatusFilter
+from payment.models import PaymentPrepayment
 from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
@@ -176,6 +177,8 @@ def editPrepayment(request, id):
                 prepayment.updatedByAccountant = userFullName if userFullName else request.user.username
 
             prepayment = form.save()
+            if prepayment.status_id == 5 and not PaymentPrepayment.objects.filter(prepayment=prepayment).exists():
+                PaymentPrepayment(prepayment=prepayment, status=0).save()
             for item in itemFormSet.save(commit=False):
                 item.save()
             for deletedItem in itemFormSet.deleted_forms:

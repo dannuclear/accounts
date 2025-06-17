@@ -21,9 +21,11 @@
   <table id="payment-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100">
     <thead>
       <tr>
+        <th scope="col" data-dt-order="disable" style="width: 38px;"></th>
+
         <th scope="col" data-dt-order="disable" style="width: 40px;">№</th>
         <th scope="col" data-dt-order="disable" style="width: 90px;">Дата</th>
-        <th scope="col" data-dt-order="disable" style="width: 75%;">Наименование</th>
+        <th scope="col" data-dt-order="disable" style="width: 70%;">Наименование</th>
 
         <th scope="col" data-dt-order="disable" style="width: 100px;">Кол-во</th>
         <th scope="col" data-dt-order="disable" style="width: 200px;">Сумма</th>
@@ -50,6 +52,16 @@
             rowId: 'id',
             order: [],
             columns: [
+                {
+                    data: null,
+                    defaultContent: '',
+                    orderable: false,
+                    searchable: false,
+                    className: 'text-center align-middle px-1',
+                    render: function (data, type, row) {
+                        return `<a href="{% url 'payments' %}/${data.id}/html" class="text-success" target="_blank"><i class="fa-duotone fa-print fa-xl"></i></a>`
+                    }
+                },
                 { data: 'id', orderable: false },
                 { data: 'createDate', orderable: false },
                 { data: 'name', orderable: false },
