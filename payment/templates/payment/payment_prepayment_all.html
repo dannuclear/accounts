@@ -21,6 +21,17 @@
         {% include 'status/status_filter.html' with options=statuses %}
       </div>
     {% endif %}
+    <div class="col-3">
+      <fieldset class="input-group-sm btn-group btn-group-sm mb-1" aria-label="Статус" role="group">
+        <span class="input-group-text">Статус:</span>
+        <input type="radio" class="btn-check" name="archive-radio" id="archive-radio1" autocomplete="off" value="" checked="" />
+        <label class="btn btn-outline-success" for="archive-radio1" title="Все">ВСЕ</label>
+        <input type="radio" class="btn-check" name="archive-radio" id="archive-radio2" autocomplete="off" value="False" />
+        <label class="btn btn-outline-success" for="archive-radio2" title="Только архивные">АРХ</label>
+        <input type="radio" class="btn-check" name="archive-radio" id="archive-radio3" autocomplete="off" value="True" />
+        <label class="btn btn-outline-success" for="archive-radio3" title="Только не архивные">НЕ АРХ</label>
+      </fieldset>
+    </div>
   </div>
 
   <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm" style="font-size: 0.9em;">
@@ -66,15 +77,22 @@
                             let imprestAccount = urlParams.get("imprestAccount")
                             if (imprestAccount)
                                 d.imprestAccount=imprestAccount
-                            if ($('#period-from').val())
+                            if ($('#period-from').val()) {
                                 d.periodFieldName = 'prepayment__docDate'
                                 d.periodFrom=$('#period-from').val()
-                            if ($('#period-to').val())
+                            }
+                            if ($('#period-to').val()) {
                                 d.periodFieldName = 'prepayment__docDate'
                                 d.periodTo=$('#period-to').val()
-                            if (statusFilter && statusFilter.val())
+                            }
+                            if (statusFilter && statusFilter.val()) {
                                 d.statusField = 'prepayment__status__id'
                                 d.statusFilter = statusFilter.val()
+                            }
+                            const archiveFilterValue = $('input[name="archive-radio"]:checked').val();
+                            if (archiveFilterValue != '') {
+                                d.hasPayment = archiveFilterValue
+                            }
                             
                             d.columns.push({data: 'prepayment__wc07pOrder.orderNum', searchable: true})
                             d.columns.push({data: 'prepayment__imprestAccount.account', searchable: true})
@@ -129,7 +147,7 @@
                         { data: 'accountNumber', orderable: false, defaultContent: "", searchable: false },
                         { data: 'payment.id', orderable: false, defaultContent: "", searchable: false },
 
-                        editColumn("{% url 'payment_prepayments' %}", null),
+                        editColumn("{% url 'payment_prepayments' %}", function(data) {return data.payment == null}),
                     ]
                 });
 
@@ -148,6 +166,10 @@
             periodFilter.find('button').on('click', function (e) {
                 requestTable.ajax.reload()
             })
+
+            $('input[type="radio"]').click(function() {
+                requestTable.ajax.reload()
+            });
         }
     );
 </script>

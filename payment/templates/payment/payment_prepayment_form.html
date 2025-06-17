@@ -11,7 +11,7 @@
     {% url 'payment_prepayments' as back_url %}
     {% include 'main/save_cancel.html' with path=back_url %}
 
-    {% comment %} {{ form.errors }} {% endcomment %}
+    {{ form.non_field_errors }}
     {{ form.id }}
 
     <div class="row g-1">

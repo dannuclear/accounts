@@ -1,13 +1,14 @@
+from guide.filters import ImprestAccountFilter, StatusFilter
+from main.filters import UniversalPeriodFilter
+from prepayment.models import Prepayment
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from guide.filters import ImprestAccountFilter, StatusFilter
+from rest_framework_datatables.filters import DatatablesFilterBackend
+
 from .filters import PaymentFilter, PeriodFilter
-from main.filters import UniversalPeriodFilter
 from .models import Payment, PaymentPrepayment
 from .serializers import PaymentPrepaymentSerializer, PaymentSerializer
-from prepayment.models import Prepayment
-from rest_framework_datatables.filters import DatatablesFilterBackend
 
 
 class PaymentViewSet (viewsets.ModelViewSet):
@@ -25,22 +26,22 @@ class PaymentViewSet (viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def prepayments(self, request, pk):
+        queryset = PaymentPrepayment.objects.select_related('prepayment__status').select_related('prepayment__document').select_related('prepayment__imprestAccount').select_related('prepayment__wc07pOrder').select_related('prepayment__reportStatus').order_by('id')
         if pk and pk != 'add':
             payment = self.get_object()
-            queryset = PaymentPrepayment.objects.filter(payment=payment).select_related('prepayment__status').select_related('prepayment__document').select_related('prepayment__imprestAccount').select_related('prepayment__wc07pOrder').select_related('prepayment__reportStatus').order_by('id')
+            queryset = queryset.filter(payment=payment)
             self.queryset = queryset
             queryset = DatatablesFilterBackend().filter_queryset(request, queryset, self)
             filtered_ids = []
         else:
-            queryset = Prepayment.objects.filter(paymentprepayment__isnull=True).select_related('status').select_related('imprestAccount').select_related('document').select_related('wc07pOrder').select_related('reportStatus').order_by('id')
+            queryset = queryset.filter(payment__isnull=True)
             if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
-                queryset = UniversalPeriodFilter(field_name='docDate').filter_queryset(request, queryset, self)
+                queryset = UniversalPeriodFilter(field_name='prepayment__docDate').filter_queryset(request, queryset, self)
             if 'imprestAccount' in self.request.query_params:
-                queryset = ImprestAccountFilter(field_name="imprestAccount").filter_queryset(request, queryset, self)
+                queryset = ImprestAccountFilter(field_name="prepayment__imprestAccount").filter_queryset(request, queryset, self)
             filtered_ids = list(queryset.values_list('pk', flat=True))
             self.queryset = queryset
             queryset = DatatablesFilterBackend().filter_queryset(request, queryset, self)
-            queryset = [PaymentPrepayment(prepayment=p) for p in queryset.all()]
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -60,7 +61,7 @@ class PaymentPrepaymentViewSet (viewsets.ModelViewSet):
     def filter_queryset(self, queryset):
         self.filter_backends = [*self.filter_backends]
 
-        if 'payment' in self.request.query_params:
+        if 'hasPayment' in self.request.query_params or 'paymentId' in self.request.query_params:
             self.filter_backends.insert(0, PaymentFilter)
         if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
             self.filter_backends.insert(0, UniversalPeriodFilter)

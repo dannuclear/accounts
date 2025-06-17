@@ -47,16 +47,16 @@ class PaymentCreateView(CreateView):
         payment = form.instance
         if 'add_ids' in self.request.POST and self.request.POST['add_ids']:
             ids = self.request.POST.get('add_ids', '').split(',')
-            prepayments = Prepayment.objects.filter(pk__in=ids)
+            payment_prepayments = PaymentPrepayment.objects.filter(pk__in=ids).select_related('prepayment')
             total_count = 0
             total_sum = 0
-            data = []
-            for prepayment in prepayments:
+            for payment_prepayment in payment_prepayments:
                 total_count += 1
-                if prepayment.totalSum is not None:
-                    total_sum += prepayment.totalSum
-                data.append(PaymentPrepayment(prepayment=prepayment, payment=payment, status=0))
-            PaymentPrepayment.objects.bulk_create(data)
+                if payment_prepayment.prepayment.totalSum is not None:
+                    total_sum += payment_prepayment.prepayment.totalSum
+                payment_prepayment.payment = payment
+                payment_prepayment.status = 0
+            PaymentPrepayment.objects.bulk_update(payment_prepayments, fields=['payment', 'status'])
             payment.totalSum = total_sum
             payment.totalCount = total_count
             payment.save()
@@ -78,7 +78,6 @@ def delete_payment(request, pk):
     payment = Payment.objects.get(pk=pk)
     if payment.lockLevel > 0:
         return render(request, 'main/error.html', {'message': 'Не могу удалить реестр, он заблокирован'})
-    PaymentPrepayment.objects.filter(payment=payment).delete()
     payment.delete()
     return redirect('/payments')
 

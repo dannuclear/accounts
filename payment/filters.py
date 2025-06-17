@@ -9,9 +9,9 @@ class PaymentFilter(BaseFilterBackend):
         has_payment = request.query_params.get("hasPayment")
 
         if payment_id is not None:
-            queryset = queryset.filter(paymentprepayment__payment=payment_id)
+            queryset = queryset.filter(payment__payment=payment_id)
         if has_payment is not None:
-            queryset = queryset.filter(paymentprepayment__isnull=has_payment)
+            queryset = queryset.filter(payment__isnull=(True if has_payment == 'True' else False))
 
         return queryset
 
