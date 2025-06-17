@@ -92,3 +92,23 @@ class PaymentPrepaymentUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         context['imprestAccounts'] = ImprestAccount.objects.all()
         return context
+
+
+
+def html_report(request, pk):
+    payment  = Payment.objects.get(pk=pk)
+    #for inv in req.requestinventory_set.all():
+    #    for item in inv.requestinventoryitem_set.all():
+    #        print (item.id)
+
+    #travel_expense_sum = decimal.Decimal(0)
+    #req.travelexpenses = req.requesttravelexpense_set.order_by('type')
+    #for te in req.travelexpenses:
+    #    travel_expense_sum += te.sum
+    payment.prepayments = payment.paymentprepayment_set.all()
+    context = {
+        'payment': payment,
+        #'issuedSumIntString': issuedSumIntString,
+        #'travelExpenseSum': travel_expense_sum
+    }
+    return render(request, 'payment/report.html', context)

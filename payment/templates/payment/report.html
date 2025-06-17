@@ -1,0 +1,183 @@
+{% load prepayment_extras %}
+{% load static %}
+<html>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <link rel="stylesheet" type="text/css" href="{% static 'main/css/bootstrap4.min.css' %}" />
+    <style type="text/css">
+      @font-face {
+        font-family: TimesNewRoman;
+        src: url(/static/main/fonts/times.ttf);
+      }
+      body {
+        font-family: TimesNewRoman;
+        font-size: 14px;
+      }
+      table {
+        font-size: 20px;
+      }
+      
+      @media print {
+        @page {
+          size: auto; /*auto is the initial value */
+          margin: 0mm; /* this affects the margin in the printer settings */
+        }
+      
+        #printPageButton {
+          display: none;
+        }
+      
+        body {
+          font-size: 14pt;
+          margin: 10mm;
+        }
+      
+        body > .container {
+          width: 100% !important;
+          margin: 0px !important;
+          max-width: 100% !important;
+        }
+      }
+      
+      table.header-table {
+        border-collapse: separate;
+        border-spacing: 10px 2px;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid gainsboro;
+      }
+      th {
+        font-weight: lighter;
+      }
+      
+      td.border-top2-bottom1,
+      th.border-top2-bottom1 {
+        border-top: 2px solid black !important;
+        border-bottom: 1px solid black;
+      }
+      
+      td.border-top1-bottom2,
+      th.border-top1-bottom2 {
+        border-top: 1px solid black;
+        border-bottom: 2px solid black !important;
+      }
+      
+      .table-bordered td,
+      .table-bordered th {
+        border: 1px solid rgb(0, 0, 0);
+      }
+      .table-bordered thead th {
+        vertical-align: bottom;
+        border-bottom: 2px solid rgb(0, 0, 0);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container p-4">
+      <div class="row">
+        <div class="col-12">
+          <table class="w-100 header-table">
+            <tr>
+              <td style="width: 33.3%;">ФГУП "Комбинат "Электрохимприбор"</td>
+              <td style="width: 33.3%;"></td>
+              <td class="text-right">Страница 1 из 1</td>
+            </tr>
+            <tr>
+              <td colspan="3" class="text-center font-weight-bold">Суммы для перечисления в банк</td>
+            </tr>
+            <tr>
+              <td colspan="3" class="font-weight-lighter" style="font-size: 0.8em;">Документ получен</td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <table class="w-100" style="font-size: 0.9em;">
+                  <thead class="font-weight-bold text-center">
+                    <tr>
+                      <td rowspan="2">№<br/>п/п</td>
+                      <td rowspan="2">бал.<br/>счет</td>
+                      <td rowspan="2">цех</td>
+                      <td rowspan="2">таб. №</td>
+                      <td rowspan="2" style="width: 30%;">ФИО</td>
+                      <td rowspan="2">сумма<br/>аванса, руб.</td>
+                      <td colspan="2">приказ</td>
+                      <td colspan="2">банк</td>
+                    </tr>
+                    <tr>
+                      <td>№</td>
+                      <td>дата</td>
+                      <td>наименование</td>
+                      <td>№ карты</td>
+                    </tr>
+                    <tr>
+                      {% for i in 'x'|rjust:'10'|make_list %}
+                        <th scope="col" style="font-size: 0.7em; padding: 0 !important;">{{ forloop.counter }}</th>
+                      {% endfor %}
+                    </tr>
+                  </thead>
+                  <tbody class="text-center">
+                    {% for pp in payment.prepayments %}
+                      <td>{{ forloop.counter }}</td>
+                      <td>{{ pp.prepayment.imprestAccount.account|default_if_none:"" }}</td>
+                      <td>{{ pp.prepayment.empDivName|default_if_none:"" }}</td>
+                      <td>{{ pp.prepayment.empNum|default_if_none:"" }}</td>
+                      <td>{{ pp.prepayment.empFullName|default_if_none:"" }}</td>
+                      <td>{{ pp.prepayment.totalSum|default_if_none:"" }}</td>
+                      <td>{{ pp.prepayment.docNum|default_if_none:"" }}</td>
+                      <td>{{ pp.prepayment.docDate|date:"d.m.Y"|default_if_none:"" }}</td>
+                      <td></td>
+                      <td>{{ pp.accountNumber|default_if_none:"" }}</td>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+
+{% comment %} 
+            <tr>
+              <td colspan="2">
+                <table class="table table-sm table-bordered">
+                  <thead class="text-center">
+                    <tr>
+                      <th class="text-center font-weight-bold" colspan="2">наименование расхода</th>
+                      <th class="text-center font-weight-bold" style="width: 15%;">сумма, в руб.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for te in req.travelexpenses %}
+                      {% if te.type == 2 %}
+                        {% include 'request/report/travel_row.html' with label='Проезд' text=te.name fromDate=te.dateFrom toDate=te.dateTo sum=te.sum %}
+                      {% endif %}
+                      {% if te.type == 0 %}
+                        {% include 'request/report/travel_row.html' with label='Суточные' text=te.name fromDate=te.dateFrom toDate=te.dateTo sum=te.sum %}
+                      {% endif %}
+                      {% if te.type == 1 %}
+                        {% include 'request/report/travel_row.html' with label='Проживание' text=te.name sum=te.sum fromDate=te.dateFrom toDate=te.dateTo %}
+                      {% endif %}
+                      {% if te.type == 3 %}
+                        {% include 'request/report/travel_row.html' with label='Подотчет по распоряжению' labelColspan=2 sum=te.sum %}
+                      {% endif %}
+                      {% if te.type == 4 %}
+                        {% include 'request/report/travel_row.html' with label='Подотчет водителю цеха 013 на приобретение ГСМ' labelColspan=2 sum=te.sum %}
+                      {% endif %}
+                    {% endfor %}
+                    {% include 'request/report/travel_row.html' with label='Провоз и упаковка багажа, услуги камеры хранения' labelColspan=2 sum='' %}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td class="text-left font-weight-bold" colspan="2">Итого</td>
+                      <td class="text-right font-weight-bold">{{ travelExpenseSum }}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </td>
+            </tr> {% endcomment %}
+
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -11,6 +11,7 @@ urlpatterns = [
     path('payments/add/', views.PaymentCreateView.as_view(), name='payment_add'),
     path('payments/<int:pk>/', views.PaymentUpdateView.as_view(), name='payment_edit'),
     path('payments/<int:pk>/delete', views.delete_payment, name='payment_delete'),
+    path('payments/<int:pk>/html', views.html_report, name='payment_report'),
 
     path('payment-prepayments', views.PaymentPrepaymentAllView.as_view(), name='payment_prepayments'),
     path('payment-prepayments/<int:pk>/', views.PaymentPrepaymentUpdateView.as_view(), name='payment_prepayment_edit'),
