@@ -1,0 +1,29 @@
+{% extends 'main/base.html' %}
+{% load widget_tweaks %}
+{% block title %}
+  Сумма на банк
+{% endblock %}
+
+{% block content %}
+  <form action="#" method="post" class="container">
+    {% csrf_token %}
+
+    {% url 'payment_prepayments' as back_url %}
+    {% include 'main/save_cancel.html' with path=back_url %}
+
+    {% comment %} {{ form.errors }} {% endcomment %}
+    {{ form.id }}
+
+    <div class="row g-1">
+      <div class="col-5">
+        {% include 'main/input_group.html' with field=form.accountNumber inputClass='text-center' %}
+      </div>
+
+      {% comment %} <div class="col-12">
+        {% include 'main/input_group.html' with field=form.name label='Наименование' labelStyle='width:130px' %}
+      </div> {% endcomment %}
+    </div>
+  </form>
+
+  <script type="text/javascript"></script>
+{% endblock %}

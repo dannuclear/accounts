@@ -38,9 +38,11 @@ class PaymentPrepayment(models.Model):
     id = models.AutoField(primary_key=True, blank=False)
 
     # Реестр, по которому производится выплата
-    payment = models.ForeignKey(Payment, db_column='payment_id', on_delete=models.PROTECT, blank=False, null=False)
+    payment = models.ForeignKey(Payment, db_column='payment_id', on_delete=models.PROTECT, blank=True, null=True)
     # Выплачиваемый аванс
     prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.PROTECT, blank=False, null=False)
+
+    accountNumber = models.CharField(max_length=20, verbose_name="Номер лицевого счета", blank=True, null=True)
 
     # Статус выплаченного аванса (0 - успешно, 1 - неоплата)
     status = models.SmallIntegerField(db_column="status", blank=False, null=False)

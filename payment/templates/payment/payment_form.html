@@ -9,7 +9,8 @@
   <form action="#" method="post" class="container">
     {% csrf_token %}
 
-    <input id="action" type="hidden" name="action" />
+    <input id="add_ids" type="hidden" name="add_ids" />
+    <input id="delete_ids" type="hidden" name="delete_ids" />
 
     {% url 'payments' as back_url %}
     {% include 'main/save_cancel.html' with path=back_url %}
@@ -43,7 +44,7 @@
   <div class="container pt-1">
     <div class="row">
       <div class="col">
-        <table id="prepayment-table" class="table table-sm table-bordered table-hover dtr-inline w-100 table-header-sm" style="font-size: 0.8em;">
+        <table id="prepayment-table" class="table table-sm table-bordered table-hover dtr-inline w-100 table-header-sm" style="font-size: 1em;">
           <thead>
             <tr>
               <th scope="col" colspan="3" data-dt-order="disable">Документ</th>
@@ -53,9 +54,8 @@
 
               <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Сумма</th>
               <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Бух. справка</th>
-              <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Срок АО</th>
 
-              <th scope="col" rowspan="2" data-dt-order="disable" style="width: 35px;"></th>
+              {% comment %} <th scope="col" rowspan="2" data-dt-order="disable" style="width: 35px;"></th> {% endcomment %}
             </tr>
             <tr>
               <th scope="col" data-dt-order="disable">Тип</th>
@@ -73,6 +73,9 @@
   </div>
 
   <script type="text/javascript">
+    const addIdsInput = $('#add_ids')
+    const deleteIdsInput = $('#delete_ids')
+
     $(document).ready(function () {
       $('.datepeeker').datepicker()
     
@@ -85,8 +88,13 @@
             if (imprestAccountFilter && imprestAccountFilter.val()) d.imprestAccount = imprestAccountFilter.val()
             if (periodFilter.find('#period-from').val()) d.periodFrom = periodFilter.find('#period-from').val()
             if (periodFilter.find('#period-to').val()) d.periodTo = periodFilter.find('#period-to').val()
+          },
+          dataSrc: function (json) {
+            addIdsInput.val(json.ids)
+            return json.data;
           }
         },
+        stateSave: false,
         rowId: 'id',
         order: [],
         columns: [
@@ -95,7 +103,7 @@
             orderable: false,
             searchable: false,
             render: function (data, type, row, meta) {
-              return data.document ? data.document.name : ''
+              return data.prepayment.document ? data.prepayment.document.name : ''
             }
           },
           {
@@ -103,8 +111,8 @@
             orderable: false,
             searchable: false,
             render: function (data, type, row, meta) {
-              if (data.wc07pOrder) return data.wc07pOrder.orderNum
-              else return data.docNum
+              if (data.prepayment.wc07pOrder) return data.prepayment.wc07pOrder.orderNum
+              else return data.prepayment.docNum
             }
           },
           {
@@ -112,26 +120,25 @@
             orderable: false,
             searchable: false,
             render: function (data, type, row, meta) {
-              if (data.wc07pOrder) return data.wc07pOrder.orderDate
-              else return data.docDate
+              if (data.prepayment.wc07pOrder) return data.prepayment.wc07pOrder.orderDate
+              else return data.prepayment.docDate
             }
           },
           {
-            data: 'empDivNum',
+            data: 'prepayment.empDivNum',
             orderable: false,
             render: function (data, type, row) {
               return String(data).padStart(3, '0')
             }
           },
-          { data: 'empNum', orderable: false },
-          { data: 'empFullName', orderable: false },
+          { data: 'prepayment.empNum', orderable: false },
+          { data: 'prepayment.empFullName', orderable: false },
     
-          { data: 'imprestAccount.account', orderable: false, defaultContent: '', searchable: false },
-          { data: 'totalSum', orderable: false, searchable: false, className: 'text-right text-nowrap', render: $.fn.dataTable.render.number(' ', ',', 2) },
-          { data: 'reportAccountingNum', orderable: false, defaultContent: '', searchable: false },
-          { data: 'deadline', orderable: false, defaultContent: '', searchable: false },
+          { data: 'prepayment.imprestAccount.account', orderable: false, defaultContent: '', searchable: false },
+          { data: 'prepayment.totalSum', orderable: false, searchable: false, className: 'text-right text-nowrap', render: $.fn.dataTable.render.number(' ', ',', 2) },
+          { data: 'prepayment.reportAccountingNum', orderable: false, defaultContent: '', searchable: false },
     
-          deleteColumn("{% url 'prepayments' %}", null, 'Удалить аванс из реестра?')
+          //deleteColumn("{% url 'prepayments' %}", null, 'Удалить аванс из реестра?')
         ]
       })
     

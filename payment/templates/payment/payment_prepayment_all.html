@@ -1,0 +1,154 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+  Реестр авансовых сумм, перечисленных на банки
+{% endblock %}
+
+{% block content %}
+  <style>
+    .table-warning {
+      background-color: #f2c464;
+    }
+  </style>
+  <div class="alert alert-primary" role="alert" style="display: none;"></div>
+
+  <div class="row">
+    <div class="col-3">
+      {% include 'main/filters/period_filter.html' %}
+    </div>
+    {% if statuses %}
+      <div class="col-3">
+        {% include 'status/status_filter.html' with options=statuses %}
+      </div>
+    {% endif %}
+  </div>
+
+  <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm" style="font-size: 0.9em;">
+    <thead>
+      <tr>
+        <th scope="col" colspan="3" data-dt-order="disable">Документ</th>
+        <th scope="col" colspan="3" data-dt-order="disable">Подотчетное лицо</th>
+
+        <th scope="col" rowspan="2" data-dt-order="disable">Код учета</th>
+
+        <th scope="col" rowspan="2" data-dt-order="disable" data-width="60px">Сумма</th>
+        <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Статус</th>
+        <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Бух. справка</th>
+        <th scope="col" rowspan="2" data-dt-order="disable" style="width: 110px;">Лицевой счет</th>
+        <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Реестр №</th>
+
+        <th scope="col" rowspan="2" data-dt-order="disable" style="width: 35px;"></th>
+      </tr>
+      <tr>
+        <th scope="col" data-dt-order="disable">Тип</th>
+        <th scope="col" data-dt-order="disable">Номер</th>
+        <th scope="col" data-dt-order="disable" style="width: 80px;">Дата</th>
+
+        <th scope="col" data-dt-order="disable">Подр.</th>
+        <th scope="col" data-dt-order="disable">Табельный</th>
+        <th scope="col" data-dt-order="disable" style="width: 40%;">ФИО</th>
+      </tr>
+    </thead>
+  </table>
+
+  <script type="text/javascript">
+    let urlParams = new URLSearchParams(document.location.search)
+    const isAdminOrAccountant = {{ isAdminOrAccountant|yesno:"true,false" }}
+
+    $(document).ready(
+        function () {
+            var requestTable = $('#request-table').DataTable(
+                {
+                    ajax: {
+                        url: '{% url "paymentprepayment-list" %}',
+                        data: function (d) {
+                            d.format = 'datatables'
+                            let imprestAccount = urlParams.get("imprestAccount")
+                            if (imprestAccount)
+                                d.imprestAccount=imprestAccount
+                            if ($('#period-from').val())
+                                d.periodFieldName = 'prepayment__docDate'
+                                d.periodFrom=$('#period-from').val()
+                            if ($('#period-to').val())
+                                d.periodFieldName = 'prepayment__docDate'
+                                d.periodTo=$('#period-to').val()
+                            if (statusFilter && statusFilter.val())
+                                d.statusField = 'prepayment__status__id'
+                                d.statusFilter = statusFilter.val()
+                            
+                            d.columns.push({data: 'prepayment__wc07pOrder.orderNum', searchable: true})
+                            d.columns.push({data: 'prepayment__imprestAccount.account', searchable: true})
+                            d.columns.push({data: 'prepayment__docNum', searchable: true})
+                        }
+                    },
+                    rowId: 'id',
+                    order: [],
+                    rowCallback: function(row, data) {/*
+                        const deadline = new parseDate(data.deadline);
+                        if (!deadline) return;
+                        const today = new Date();
+                        const twoDaysFromNow = new Date(today);
+                        twoDaysFromNow.setDate(today.getDate() - 2);
+                        if (deadline >= twoDaysFromNow && deadline <= today) {
+                            $(row).addClass('table-warning');
+                        }
+                        if(data.status && data.status.id == 1) {
+                            $(row).addClass('fw-bold');
+                        }*/
+                    },
+                    columns: [
+                        { data: null, orderable: false, searchable: false, render: function (data, type, row, meta) {
+                                return data.prepayment.document?data.prepayment.document.name:'';
+                            }
+                        },
+                        { data: null, orderable: false, searchable: false, render: function (data, type, row, meta) {
+                                if (data.prepayment.wc07pOrder)
+                                    return data.prepayment.wc07pOrder.orderNum
+                                else 
+                                    return data.prepayment.docNum;
+                            }
+                        },
+                        { data: null, orderable: false, searchable: false, render: function (data, type, row, meta) {
+                                if (data.prepayment.wc07pOrder)
+                                    return data.prepayment.wc07pOrder.orderDate
+                                else 
+                                    return data.prepayment.docDate;
+                            }
+                        },
+                        { data: 'prepayment.empDivNum', orderable: false, render: function (data, type, row) {
+                                return String(data).padStart(3, '0');
+                            }  
+                        },
+                        { data: 'prepayment.empNum', orderable: false },
+                        { data: 'prepayment.empFullName', orderable: false },
+
+                        { data: 'prepayment.imprestAccount.account', orderable: false, defaultContent: "", searchable: false },
+                        { data: 'prepayment.totalSum', orderable: false, searchable: false, className: 'text-right text-nowrap', render: $.fn.dataTable.render.number( ' ', ',', 2 )  },
+                        { data: 'prepayment.status.name', orderable: false, className: 'text-center', defaultContent: "Не установлен", searchable: false },
+                        { data: 'prepayment.reportAccountingNum', orderable: false, defaultContent: "", searchable: false },
+                        { data: 'accountNumber', orderable: false, defaultContent: "", searchable: false },
+                        { data: 'payment.id', orderable: false, defaultContent: "", searchable: false },
+
+                        editColumn("{% url 'payment_prepayments' %}", null),
+                    ]
+                });
+
+            $('#request-table').on('click', 'tbody td .print', function(e){
+                printDialog.dialog('open')
+            })
+
+            periodFilter.find('.datepeeker').datepicker().on('change', function (e) {
+                requestTable.ajax.reload()
+            })
+            
+            statusFilter.on('change', function (e) {
+                requestTable.ajax.reload()
+            })
+
+            periodFilter.find('button').on('click', function (e) {
+                requestTable.ajax.reload()
+            })
+        }
+    );
+</script>
+{% endblock %}

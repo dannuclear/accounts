@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Payment, PaymentPrepayment
-from integration.serializers import EmployeeSerializer
+from prepayment.serializers import SimplePrepaymentSerializer
 
 
 class PaymentSerializer (serializers.ModelSerializer):
@@ -10,6 +10,10 @@ class PaymentSerializer (serializers.ModelSerializer):
         datatables_always_serialize = ('id', 'name', 'lockLevel')
 
 class PaymentPrepaymentSerializer (serializers.ModelSerializer):
+    prepayment = SimplePrepaymentSerializer(read_only=True, many=False)
+
+    payment = PaymentSerializer(read_only=True, many=False)
+
     class Meta:
         model = PaymentPrepayment
         fields = serializers.ALL_FIELDS

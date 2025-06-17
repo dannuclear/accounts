@@ -23,10 +23,10 @@
       <tr>
         <th scope="col" data-dt-order="disable" style="width: 40px;">№</th>
         <th scope="col" data-dt-order="disable" style="width: 90px;">Дата</th>
-        <th scope="col" data-dt-order="disable" style="width: 80%;">Наименование</th>
+        <th scope="col" data-dt-order="disable" style="width: 75%;">Наименование</th>
 
         <th scope="col" data-dt-order="disable" style="width: 100px;">Кол-во</th>
-        <th scope="col" data-dt-order="disable" style="width: 100px;">Сумма</th>
+        <th scope="col" data-dt-order="disable" style="width: 200px;">Сумма</th>
 
         <th scope="col" data-dt-order="disable" style="width: 35px;"></th>
         <th scope="col" data-dt-order="disable" style="width: 35px;"></th>
@@ -54,7 +54,7 @@
                 { data: 'createDate', orderable: false },
                 { data: 'name', orderable: false },
                 { data: 'totalCount', orderable: false },
-                { data: 'totalSum', orderable: false },
+                { data: 'totalSum', orderable: false, render: $.fn.dataTable.render.number(' ', ',', 2) },
                 editColumn('{% url "payments" %}', null),
                 deleteColumn('{% url "payments" %}', null, 'Удалить реестр?')
             ],

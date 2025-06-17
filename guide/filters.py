@@ -2,13 +2,19 @@ from rest_framework.filters import BaseFilterBackend
 from datetime import datetime
 
 class ImprestAccountFilter(BaseFilterBackend):
+    def __init__(self, field_name="itemType", *args, **kwargs):
+        self.field_name = field_name
 
     def filter_queryset(self, request, queryset, view):
-        imprestAccount = request.query_params.get("imprestAccount")
+        field_name = request.query_params.get("imprestAccountFieldName", self.field_name)
+        imprest_account_value = request.query_params.get("imprestAccount")
 
-        if imprestAccount:
-            queryset = queryset.filter(itemType=imprestAccount)
+        filter_kwargs = {}
+        if imprest_account_value:
+            filter_kwargs[field_name] = imprest_account_value
     
+        if filter_kwargs:
+            queryset = queryset.filter(**filter_kwargs)
         return queryset
 
 class ExpenseTypeFilter(BaseFilterBackend):

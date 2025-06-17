@@ -1,76 +1,28 @@
-from django.shortcuts import render, redirect
-from .models import Payment, PaymentPrepayment
-from rest_framework import viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from .serializers import PaymentSerializer, PaymentPrepaymentSerializer
-from django.views.generic.base import TemplateView, View
-from django.views.generic.edit import CreateView, UpdateView
-from django.forms.models import ALL_FIELDS
-from rest_framework.filters import BaseFilterBackend
-from django.urls import reverse_lazy
-from datetime import datetime
-from guide.models import ImprestAccount
-from prepayment.models import Prepayment
 import locale
+from datetime import datetime
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
+from django.views.generic.base import TemplateView
+from django.views.generic.edit import CreateView, UpdateView
+from guide.models import ImprestAccount, Status
+from .models import Payment, PaymentPrepayment
+from prepayment.models import Prepayment
+from .forms import PaymentPrepaymentForm
+
 # Create your views here.
-
-
-class PeriodFilter(BaseFilterBackend):
-
-    def filter_queryset(self, request, queryset, view):
-        period_from = request.query_params.get("periodFrom")
-        period_to = request.query_params.get("periodTo")
-
-        if period_from is not None:
-            queryset = queryset.filter(createDate__gte=datetime.strptime(period_from, '%d.%m.%Y'))
-        if period_to is not None:
-            queryset = queryset.filter(createDate__lte=datetime.strptime(period_to, '%d.%m.%Y'))
-        return queryset
-    
-class PaymentFilter(BaseFilterBackend):
-    def filter_queryset(self, request, queryset, view):
-        payment = request.query_params.get("payment")
-
-        if payment is not None:
-            queryset = queryset.filter(payment=payment)
-        return queryset
-
-class PaymentPrepaymentViewSet (viewsets.ModelViewSet):
-    queryset = PaymentPrepayment.objects.order_by('id')
-    serializer_class = PaymentPrepaymentSerializer
-
-    def filter_queryset(self, queryset):
-        self.filter_backends = [*self.filter_backends]
-
-        if 'payment' in self.request.query_params:
-            self.filter_backends.insert(0, PaymentFilter)
-
-        return super().filter_queryset(queryset)
-
-class PaymentViewSet (viewsets.ModelViewSet):
-    queryset = Payment.objects.order_by('-createDate')
-    serializer_class = PaymentSerializer
-
-    def filter_queryset(self, queryset):
-        self.filter_backends = [*self.filter_backends]
-        #q = Prepayment.objects.filter(paymentprepayment__isnull=True)
-        #q = Prepayment.objects.filter(paymentprepayment__payment=1)
-        if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
-            self.filter_backends.insert(0, PeriodFilter)
-
-        return super().filter_queryset(queryset)
-
-    @action(detail=True, methods=['get'])
-    def prepayments(self, request, pk):
-        payment = self.get_object()
-        prepayments = PaymentPrepayment.objects.filter(payment=payment)
-        serializer = PaymentPrepaymentSerializer(prepayments, many=True)
-        return Response(serializer.data)
 
 
 class PaymentAllView(TemplateView):
     template_name = 'payment/all.html'
+
+
+class PaymentPrepaymentAllView(TemplateView):
+    template_name = 'payment/payment_prepayment_all.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['statuses'] = Status.objects.all()
+        return context
 
 
 class PaymentCreateView(CreateView):
@@ -84,11 +36,31 @@ class PaymentCreateView(CreateView):
         locale.setlocale(category=locale.LC_ALL, locale="ru_RU")
         initial['name'] = 'Реестр выдачи денежных средств на банк за ' + datetime.now().strftime('%B %Y')
         return initial
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['imprestAccounts'] = ImprestAccount.objects.all()
         return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        payment = form.instance
+        if 'add_ids' in self.request.POST and self.request.POST['add_ids']:
+            ids = self.request.POST.get('add_ids', '').split(',')
+            prepayments = Prepayment.objects.filter(pk__in=ids)
+            total_count = 0
+            total_sum = 0
+            data = []
+            for prepayment in prepayments:
+                total_count += 1
+                if prepayment.totalSum is not None:
+                    total_sum += prepayment.totalSum
+                data.append(PaymentPrepayment(prepayment=prepayment, payment=payment, status=0))
+            PaymentPrepayment.objects.bulk_create(data)
+            payment.totalSum = total_sum
+            payment.totalCount = total_count
+            payment.save()
+        return response
 
 
 class PaymentUpdateView(UpdateView):
@@ -109,3 +81,15 @@ def delete_payment(request, pk):
     PaymentPrepayment.objects.filter(payment=payment).delete()
     payment.delete()
     return redirect('/payments')
+
+
+class PaymentPrepaymentUpdateView(UpdateView):
+    template_name = 'payment/payment_prepayment_form.html'
+    model = PaymentPrepayment
+    form_class = PaymentPrepaymentForm
+    success_url = reverse_lazy('payment_prepayments')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['imprestAccounts'] = ImprestAccount.objects.all()
+        return context
