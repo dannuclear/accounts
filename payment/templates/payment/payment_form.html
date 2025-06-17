@@ -78,7 +78,7 @@
     
       var prepaymentTable = $('#prepayment-table').DataTable({
         ajax: {
-          url: '{% url "prepayment-list" %}',
+          url: '{% url "payment-prepayments" pk=form.instance.id|default:"add" %}',
           data: function (d) {
             d.format = 'datatables'
             console.log(imprestAccountFilter.val())
