@@ -34,30 +34,36 @@
     </div>
   </div>
 
-  <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm" style="font-size: 0.9em;">
+  <table id="request-table" class="table table-sm table-bordered table-hover dtr-inline w-100 table-header-sm text-center" style="font-size: 0.9em;">
     <thead>
       <tr>
-        <th scope="col" colspan="3" data-dt-order="disable">Документ</th>
-        <th scope="col" colspan="3" data-dt-order="disable">Подотчетное лицо</th>
-
         <th scope="col" rowspan="2" data-dt-order="disable">Код учета</th>
 
-        <th scope="col" rowspan="2" data-dt-order="disable" data-width="60px">Сумма</th>
-        <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Статус</th>
-        <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Бух. справка</th>
-        <th scope="col" rowspan="2" data-dt-order="disable" style="width: 110px;">Лицевой счет</th>
-        <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Реестр №</th>
+        <th scope="col" colspan="3" data-dt-order="disable" style="width: 20%;">Подотчетное лицо</th>
+        <th scope="col" rowspan="2" data-dt-order="disable" data-width="5%;">Сумма</th>
+        <th scope="col" colspan="3" data-dt-order="disable">Документ</th>
+        <th scope="col" colspan="2" data-dt-order="disable">Банк</th>
+
+        <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Срок</th>
+
+        <th scope="col" colspan="2" data-dt-order="disable" style="width: 80px;">Реестр</th>
 
         <th scope="col" rowspan="2" data-dt-order="disable" style="width: 35px;"></th>
       </tr>
       <tr>
+        <th scope="col" data-dt-order="disable">Подр.</th>
+        <th scope="col" data-dt-order="disable">Табельный</th>
+        <th scope="col" data-dt-order="disable" style="width: 40%;">ФИО</th>
+
         <th scope="col" data-dt-order="disable">Тип</th>
         <th scope="col" data-dt-order="disable">Номер</th>
         <th scope="col" data-dt-order="disable" style="width: 80px;">Дата</th>
 
-        <th scope="col" data-dt-order="disable">Подр.</th>
-        <th scope="col" data-dt-order="disable">Табельный</th>
-        <th scope="col" data-dt-order="disable" style="width: 40%;">ФИО</th>
+        <th scope="col" data-dt-order="disable">Наименование</th>
+        <th scope="col" data-dt-order="disable" style="width: 100px;">Лицевой счет</th>
+
+        <th scope="col" data-dt-order="disable">№</th>
+        <th scope="col" data-dt-order="disable" style="width: 80px;">Дата</th>
       </tr>
     </thead>
   </table>
@@ -101,7 +107,7 @@
                     },
                     rowId: 'id',
                     order: [],
-                    rowCallback: function(row, data) {/*
+                    rowCallback: function(row, data) {
                         const deadline = new parseDate(data.deadline);
                         if (!deadline) return;
                         const today = new Date();
@@ -110,11 +116,17 @@
                         if (deadline >= twoDaysFromNow && deadline <= today) {
                             $(row).addClass('table-warning');
                         }
-                        if(data.status && data.status.id == 1) {
-                            $(row).addClass('fw-bold');
-                        }*/
                     },
                     columns: [
+                        { data: 'prepayment.imprestAccount.account', orderable: false, defaultContent: "", searchable: false },
+                        { data: 'prepayment.empDivNum', orderable: false, render: function (data, type, row) {
+                                return String(data).padStart(3, '0');
+                            }  
+                        },
+                        { data: 'prepayment.empNum', orderable: false },
+                        { data: 'prepayment.empFullName', orderable: false, className: 'text-start' },
+                        { data: 'prepayment.totalSum', orderable: false, searchable: false, className: 'text-right text-nowrap', render: $.fn.dataTable.render.number( ' ', ',', 2 )  },
+
                         { data: null, orderable: false, searchable: false, render: function (data, type, row, meta) {
                                 return data.prepayment.document?data.prepayment.document.name:'';
                             }
@@ -133,20 +145,13 @@
                                     return data.prepayment.docDate;
                             }
                         },
-                        { data: 'prepayment.empDivNum', orderable: false, render: function (data, type, row) {
-                                return String(data).padStart(3, '0');
-                            }  
-                        },
-                        { data: 'prepayment.empNum', orderable: false },
-                        { data: 'prepayment.empFullName', orderable: false },
 
-                        { data: 'prepayment.imprestAccount.account', orderable: false, defaultContent: "", searchable: false },
-                        { data: 'prepayment.totalSum', orderable: false, searchable: false, className: 'text-right text-nowrap', render: $.fn.dataTable.render.number( ' ', ',', 2 )  },
-                        { data: 'prepayment.status.name', orderable: false, className: 'text-center', defaultContent: "Не установлен", searchable: false },
-                        { data: 'prepayment.reportAccountingNum', orderable: false, defaultContent: "", searchable: false },
+
+                        { data: 'obtainMethod.name', orderable: false, defaultContent: "", searchable: false },
                         { data: 'accountNumber', orderable: false, defaultContent: "", searchable: false },
+                        { data: 'deadline', orderable: false, defaultContent: "", searchable: false },
                         { data: 'payment.id', orderable: false, defaultContent: "", searchable: false },
-
+                        { data: 'payment.createDate', orderable: false, defaultContent: "", searchable: false },
                         editColumn("{% url 'payment_prepayments' %}", function(data) {return data.payment == null}),
                     ]
                 });

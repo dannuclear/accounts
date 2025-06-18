@@ -36,7 +36,9 @@ function deleteColumn(path, predicate, confirmText = 'Удалить?', getRowId
 		searchable: false,
 		className: 'text-center align-middle px-1',
 		render: function (data, type, row) {
-			return `<a href="${path}/${getRowId(data)}/delete" class="text-danger m-0" onclick="return confirm('${confirmText}');"><i class="fa-light fa-trash fa-xl"></i></a>`
+			if (!predicate || predicate(data))
+				return `<a href="${path}/${getRowId(data)}/delete" class="text-danger m-0" onclick="return confirm('${confirmText}');"><i class="fa-light fa-trash fa-xl"></i></a>`
+			return ''
 		}
 	})
 }

@@ -1,0 +1,35 @@
+<div class="input-group input-group-sm">
+    <span class="input-group-text">Способ получения</span>
+    <select id="obtain-method-filter" class="form-select filter-input" >
+        <option value="">Все</option>
+        {% for opt in options %}
+            <option value="{{ opt.id }}">{{ opt.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="button" id="obtain-method-filter-reset" class="btn btn-sm btn-outline-success">X</button>
+</div>
+
+<script type="text/javascript">
+    const obtainMethodFilter = $("#obtain-method-filter")
+    $(document).ready(function () {
+        {% if storeValue|default:True %}
+            const storedValue = localStorage.getItem('obtainMethodFilter');
+            if (storedValue) {
+                obtainMethodFilter.val(storedValue);
+            }
+
+            $("#obtain-method-filter-reset").on('click', function(e) {
+                obtainMethodFilter.val('').change()
+                localStorage.setItem('obtainMethodFilter', '');
+            })
+            
+            obtainMethodFilter.on('change', function () {
+                const val = obtainMethodFilter.val();
+                if (val)
+                    localStorage.setItem('obtainMethodFilter', val);
+                else
+                    localStorage.setItem('obtainMethodFilter', '');
+            });
+        {% endif %}
+    })
+</script>

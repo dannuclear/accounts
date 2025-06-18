@@ -27,3 +27,12 @@ class PeriodFilter(BaseFilterBackend):
         if period_to is not None:
             queryset = queryset.filter(createDate__lte=datetime.strptime(period_to, '%d.%m.%Y'))
         return queryset
+
+class LockLevelFilter(BaseFilterBackend):
+
+    def filter_queryset(self, request, queryset, view):
+        lock_level_value = request.query_params.get("lockLevelValue")
+
+        if lock_level_value:
+            queryset = queryset.filter(lockLevel=lock_level_value)
+        return queryset

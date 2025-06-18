@@ -36,6 +36,9 @@
           <div class="col-4">
             {% include 'imprestAccount/filter.html' with options=imprestAccounts %}
           </div>
+          <div class="col-4">
+            {% include 'obtainMethod/filter.html' with options=obtainMethods %}
+          </div>
         </div>
       </div>
     </div>
@@ -44,29 +47,29 @@
   <div class="container pt-1">
     <div class="row">
       <div class="col">
-        <table id="prepayment-table" class="table table-sm table-bordered table-hover dtr-inline w-100 table-header-sm" style="font-size: 1em;">
+        <table id="prepayment-table" class="table table-sm table-bordered dtr-inline w-100 table-header-sm" style="font-size: 1em;">
           <thead>
             <tr>
-              <th scope="col" colspan="3" data-dt-order="disable">Документ</th>
-              <th scope="col" colspan="3" data-dt-order="disable">Подотчетное лицо</th>
-
               <th scope="col" rowspan="2" data-dt-order="disable">Код учета</th>
+              <th scope="col" colspan="3" data-dt-order="disable">Подотчетное лицо</th>
+              <th scope="col" colspan="3" data-dt-order="disable">Документ</th>
 
               <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Сумма</th>
-              <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Бух. справка</th>
-
-              <th scope="col" rowspan="2" data-dt-order="disable" style="width: 80px;">Лицевой счет</th>
+              <th scope="col" colspan="2" data-dt-order="disable">Банк</th>
 
               {% comment %} <th scope="col" rowspan="2" data-dt-order="disable" style="width: 35px;"></th> {% endcomment %}
             </tr>
             <tr>
+              <th scope="col" data-dt-order="disable">Подр.</th>
+              <th scope="col" data-dt-order="disable">Таб.</th>
+              <th scope="col" data-dt-order="disable" data-width="40%">ФИО</th>
+
               <th scope="col" data-dt-order="disable">Тип</th>
               <th scope="col" data-dt-order="disable">Номер</th>
               <th scope="col" data-dt-order="disable" style="width: 40%px;">Дата</th>
 
-              <th scope="col" data-dt-order="disable">Подр.</th>
-              <th scope="col" data-dt-order="disable">Таб.</th>
-              <th scope="col" data-dt-order="disable" data-width="40%">ФИО</th>
+              <th scope="col" data-dt-order="disable" style="width: 80px;">Наименование</th>
+              <th scope="col" data-dt-order="disable" style="width: 80px;">Лицевой счет</th>
             </tr>
           </thead>
         </table>
@@ -77,7 +80,7 @@
   <script type="text/javascript">
     const addIdsInput = $('#add_ids')
     const deleteIdsInput = $('#delete_ids')
-
+    
     $(document).ready(function () {
       $('.datepeeker').datepicker()
     
@@ -86,20 +89,32 @@
           url: '{% url "payment-prepayments" pk=form.instance.id|default:"add" %}',
           data: function (d) {
             d.format = 'datatables'
-            console.log(imprestAccountFilter.val())
+            if (obtainMethodFilter && obtainMethodFilter.val()) d.obtainMethod = obtainMethodFilter.val()
             if (imprestAccountFilter && imprestAccountFilter.val()) d.imprestAccount = imprestAccountFilter.val()
             if (periodFilter.find('#period-from').val()) d.periodFrom = periodFilter.find('#period-from').val()
             if (periodFilter.find('#period-to').val()) d.periodTo = periodFilter.find('#period-to').val()
           },
           dataSrc: function (json) {
             addIdsInput.val(json.ids)
-            return json.data;
+            return json.data
           }
         },
         stateSave: false,
         rowId: 'id',
         order: [],
         columns: [
+          { data: 'prepayment.imprestAccount.account', orderable: false, defaultContent: '', searchable: false },
+    
+          {
+            data: 'prepayment.empDivNum',
+            orderable: false,
+            render: function (data, type, row) {
+              return String(data).padStart(3, '0')
+            }
+          },
+          { data: 'prepayment.empNum', orderable: false },
+          { data: 'prepayment.empFullName', orderable: false },
+    
           {
             data: null,
             orderable: false,
@@ -126,20 +141,10 @@
               else return data.prepayment.docDate
             }
           },
-          {
-            data: 'prepayment.empDivNum',
-            orderable: false,
-            render: function (data, type, row) {
-              return String(data).padStart(3, '0')
-            }
-          },
-          { data: 'prepayment.empNum', orderable: false },
-          { data: 'prepayment.empFullName', orderable: false },
     
-          { data: 'prepayment.imprestAccount.account', orderable: false, defaultContent: '', searchable: false },
           { data: 'prepayment.totalSum', orderable: false, searchable: false, className: 'text-right text-nowrap', render: $.fn.dataTable.render.number(' ', ',', 2) },
-          { data: 'prepayment.reportAccountingNum', orderable: false, defaultContent: '', searchable: false },
-          { data: 'accountNumber', orderable: false, defaultContent: '', searchable: false },
+          { data: 'obtainMethod.name', orderable: false, defaultContent: '', searchable: false },
+          { data: 'accountNumber', orderable: false, defaultContent: '', searchable: false }
     
           //deleteColumn("{% url 'prepayments' %}", null, 'Удалить аванс из реестра?')
         ]
@@ -157,6 +162,10 @@
       })
     
       imprestAccountFilter.on('change', function (e) {
+        prepaymentTable.ajax.reload()
+      })
+
+      obtainMethodFilter.on('change', function (e) {
         prepaymentTable.ajax.reload()
       })
     })

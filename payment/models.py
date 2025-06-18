@@ -1,5 +1,6 @@
 from django.db import models
 from prepayment.models import Prepayment
+from guide.models import ObtainMethod
 
 # Create your models here.
 
@@ -42,12 +43,15 @@ class PaymentPrepayment(models.Model):
     # Выплачиваемый аванс
     prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.PROTECT, blank=False, null=False)
 
+    obtainMethod = models.ForeignKey(ObtainMethod, db_column='obtain_method_id', on_delete=models.PROTECT, blank=True, null=True)
     accountNumber = models.CharField(max_length=20, db_column='account_number', verbose_name="Номер лицевого счета", blank=True, null=True)
-
+    cardNumber = models.CharField(max_length=16, db_column='card_number', verbose_name="Номер карты", blank=True, null=True)
     # Статус выплаченного аванса (0 - успешно, 1 - неоплата)
     status = models.SmallIntegerField(db_column="status", blank=False, null=False)
 
     comment = models.CharField(db_column="comment", blank=True, max_length=100)
+
+    deadline = models.DateField(db_column="deadline", blank=True, null=True)
 
     class Meta:
         db_table = 'payment_prepayment'

@@ -1,0 +1,11 @@
+<div class="list-group">
+  {% for el in elements %}
+    <a href="#" class="list-group-item list-group-item-action py-1">
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">{{ el.obtainMethod__name }}</h5>
+        <small class="text-body-secondary">Количество: {{ el.total_count }}</small>
+      </div>
+      <small class="text-body-secondary">На сумму: {{ el.total_sum }}</small>
+    </a>
+  {% endfor %}
+</div>

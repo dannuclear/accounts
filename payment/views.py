@@ -1,13 +1,17 @@
+import decimal
 import locale
 from datetime import datetime
+
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
-from guide.models import ImprestAccount, Status
-from .models import Payment, PaymentPrepayment
+from guide.models import ImprestAccount, Status, ObtainMethod
 from prepayment.models import Prepayment
+from django.http.response import HttpResponse, HttpResponseBadRequest
 from .forms import PaymentPrepaymentForm
+from .models import Payment, PaymentPrepayment
+from django.db.models import Count, Sum, Avg, Max, Min
 
 # Create your views here.
 
@@ -40,6 +44,7 @@ class PaymentCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['imprestAccounts'] = ImprestAccount.objects.all()
+        context['obtainMethods'] = ObtainMethod.objects.all()
         return context
 
     def form_valid(self, form):
@@ -71,6 +76,7 @@ class PaymentUpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['imprestAccounts'] = ImprestAccount.objects.all()
+        context['obtainMethods'] = ObtainMethod.objects.all()
         return context
 
 
@@ -94,21 +100,36 @@ class PaymentPrepaymentUpdateView(UpdateView):
         return context
 
 
-
 def html_report(request, pk):
-    payment  = Payment.objects.get(pk=pk)
-    #for inv in req.requestinventory_set.all():
-    #    for item in inv.requestinventoryitem_set.all():
-    #        print (item.id)
-
-    #travel_expense_sum = decimal.Decimal(0)
-    #req.travelexpenses = req.requesttravelexpense_set.order_by('type')
-    #for te in req.travelexpenses:
-    #    travel_expense_sum += te.sum
+    payment = Payment.objects.get(pk=pk)
     payment.prepayments = payment.paymentprepayment_set.all()
+    total_sum = decimal.Decimal(0)
+    for p in payment.prepayments:
+        total_sum += p.prepayment.totalSum
     context = {
         'payment': payment,
-        #'issuedSumIntString': issuedSumIntString,
-        #'travelExpenseSum': travel_expense_sum
+        'totalSum': total_sum,
     }
     return render(request, 'payment/report.html', context)
+
+
+def toggle_lock(request, pk):
+    payment = Payment.objects.get(pk=pk)
+    if payment.lockLevel > 0:
+        payment.lockLevel = 0
+    else:
+        payment.lockLevel = 1
+    payment.save()
+    return redirect('payments')
+
+
+def downloads(request):
+    ids_param = request.GET.get('ids', '')
+    if not ids_param:
+        return HttpResponseBadRequest('ids не указаны')
+    ids = ids_param.split(',')
+    elements = PaymentPrepayment.objects.filter(payment_id__in=ids).values('obtainMethod__id', 'obtainMethod__name').annotate(total_count=Count('id'), total_sum=Sum('prepayment__totalSum'))
+    context = {
+        'elements': elements,
+    }
+    return render(request, 'payment/downloads.html', context)

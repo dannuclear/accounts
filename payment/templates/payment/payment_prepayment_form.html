@@ -15,15 +15,25 @@
     {{ form.id }}
 
     <div class="row g-1">
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.obtainMethod label='Банк' inputClass='form-select' %}
+      </div>
+
       <div class="col-5">
         {% include 'main/input_group.html' with field=form.accountNumber inputClass='text-center' %}
       </div>
 
-      {% comment %} <div class="col-12">
-        {% include 'main/input_group.html' with field=form.name label='Наименование' labelStyle='width:130px' %}
-      </div> {% endcomment %}
+      <div class="col-4"></div>
+
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.deadline label='Срок перечисления' inputClass='datepeeker' %}
+      </div>
     </div>
   </form>
 
-  <script type="text/javascript"></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $('.datepeeker').datepicker()
+    })
+  </script>
 {% endblock %}

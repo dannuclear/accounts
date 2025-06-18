@@ -1,11 +1,20 @@
 from django import forms
 from .models import PaymentPrepayment
+from guide.models import ObtainMethod
+
+
+class NamedChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.name
 
 
 class PaymentPrepaymentForm(forms.ModelForm):
+
+    obtainMethod = NamedChoiceField(queryset=ObtainMethod.objects.order_by('id'), label='Банк', required=False, empty_label='Не установлен')
+
     class Meta:
         model = PaymentPrepayment
-        fields = ['accountNumber']
+        fields = ['accountNumber', 'obtainMethod', 'deadline']
 
     def clean(self):
         cleaned_data = super().clean()

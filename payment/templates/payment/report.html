@@ -1,4 +1,4 @@
-{% load prepayment_extras %}
+{% load humanize %}
 {% load static %}
 <html>
   <head>
@@ -46,7 +46,7 @@
       table,
       th,
       td {
-        border: 1px solid gainsboro;
+        /*border: 1px solid gainsboro;*/
       }
       th {
         font-weight: lighter;
@@ -80,35 +80,43 @@
         <div class="col-12">
           <table class="w-100 header-table">
             <tr>
-              <td style="width: 33.3%;">ФГУП "Комбинат "Электрохимприбор"</td>
-              <td style="width: 33.3%;"></td>
-              <td class="text-right">Страница 1 из 1</td>
+              <th scope="col" style="width: 33.3%;">ФГУП «Комбинат «Электрохимприбор»</th>
+              <th scope="col" style="width: 33.3%;"></th>
+              <th scope="col" class="text-right">Страница 1 из 1</th>
             </tr>
             <tr>
-              <td colspan="3" class="text-center font-weight-bold">Суммы для перечисления в банк</td>
+              <th scope="col" colspan="3" class="text-center font-weight-bold">Суммы для перечисления в банк</th>
             </tr>
             <tr>
-              <td colspan="3" class="font-weight-lighter" style="font-size: 0.8em;">Документ получен</td>
+              <th scope="col" colspan="3" class="font-weight-lighter" style="font-size: 0.8em;">
+                Документ получен&nbsp;{% now '01.m.Y' %}
+              </th>
             </tr>
             <tr>
               <td colspan="3">
-                <table class="w-100" style="font-size: 0.9em;">
+                <table class="w-100 table-bordered" style="font-size: 0.9em;">
                   <thead class="font-weight-bold text-center">
                     <tr>
-                      <td rowspan="2">№<br/>п/п</td>
-                      <td rowspan="2">бал.<br/>счет</td>
-                      <td rowspan="2">цех</td>
-                      <td rowspan="2">таб. №</td>
-                      <td rowspan="2" style="width: 30%;">ФИО</td>
-                      <td rowspan="2">сумма<br/>аванса, руб.</td>
+                      <td rowspan="2" style="width: 40px;">
+                        №<br />п/п
+                      </td>
+                      <td rowspan="2" style="width: 50px;">
+                        бал.<br />счет
+                      </td>
+                      <td rowspan="2" style="width: 40px;">цех</td>
+                      <td rowspan="2" style="width: 90px;">таб. №</td>
+                      <td rowspan="2">ФИО</td>
+                      <td rowspan="2" style="width: 110px;">
+                        сумма<br />аванса, руб.
+                      </td>
                       <td colspan="2">приказ</td>
                       <td colspan="2">банк</td>
                     </tr>
                     <tr>
-                      <td>№</td>
-                      <td>дата</td>
-                      <td>наименование</td>
-                      <td>№ карты</td>
+                      <td style="width: 80px;">№</td>
+                      <td style="width: 90px;">дата</td>
+                      <td style="width: 130px;">наименование</td>
+                      <td style="width: 100px;">№ карты</td>
                     </tr>
                     <tr>
                       {% for i in 'x'|rjust:'10'|make_list %}
@@ -118,63 +126,30 @@
                   </thead>
                   <tbody class="text-center">
                     {% for pp in payment.prepayments %}
-                      <td>{{ forloop.counter }}</td>
-                      <td>{{ pp.prepayment.imprestAccount.account|default_if_none:"" }}</td>
-                      <td>{{ pp.prepayment.empDivName|default_if_none:"" }}</td>
-                      <td>{{ pp.prepayment.empNum|default_if_none:"" }}</td>
-                      <td>{{ pp.prepayment.empFullName|default_if_none:"" }}</td>
-                      <td>{{ pp.prepayment.totalSum|default_if_none:"" }}</td>
-                      <td>{{ pp.prepayment.docNum|default_if_none:"" }}</td>
-                      <td>{{ pp.prepayment.docDate|date:"d.m.Y"|default_if_none:"" }}</td>
-                      <td></td>
-                      <td>{{ pp.accountNumber|default_if_none:"" }}</td>
+                      <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ pp.prepayment.imprestAccount.account|default_if_none:'' }}</td>
+                        <td>{{ pp.prepayment.empDivNum|stringformat:"03d"|default_if_none:'' }}</td>
+                        <td>{{ pp.prepayment.empNum|default_if_none:'' }}</td>
+                        <td class="text-left">{{ pp.prepayment.empFullName|default_if_none:'' }}</td>
+                        <td class="text-right">{{ pp.prepayment.totalSum|intcomma|default_if_none:'' }}</td>
+                        <td>{{ pp.prepayment.docNum|default_if_none:'' }}</td>
+                        <td>{{ pp.prepayment.docDate|date:'d.m.Y'|default_if_none:'' }}</td>
+                        <td></td>
+                        <td>****{{ pp.accountNumber|slice:'-4:'|default_if_none:'' }}</td>
+                      </tr>
                     {% endfor %}
-                  </tbody>
-                </table>
-              </td>
-            </tr>
-
-
-{% comment %} 
-            <tr>
-              <td colspan="2">
-                <table class="table table-sm table-bordered">
-                  <thead class="text-center">
-                    <tr>
-                      <th class="text-center font-weight-bold" colspan="2">наименование расхода</th>
-                      <th class="text-center font-weight-bold" style="width: 15%;">сумма, в руб.</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for te in req.travelexpenses %}
-                      {% if te.type == 2 %}
-                        {% include 'request/report/travel_row.html' with label='Проезд' text=te.name fromDate=te.dateFrom toDate=te.dateTo sum=te.sum %}
-                      {% endif %}
-                      {% if te.type == 0 %}
-                        {% include 'request/report/travel_row.html' with label='Суточные' text=te.name fromDate=te.dateFrom toDate=te.dateTo sum=te.sum %}
-                      {% endif %}
-                      {% if te.type == 1 %}
-                        {% include 'request/report/travel_row.html' with label='Проживание' text=te.name sum=te.sum fromDate=te.dateFrom toDate=te.dateTo %}
-                      {% endif %}
-                      {% if te.type == 3 %}
-                        {% include 'request/report/travel_row.html' with label='Подотчет по распоряжению' labelColspan=2 sum=te.sum %}
-                      {% endif %}
-                      {% if te.type == 4 %}
-                        {% include 'request/report/travel_row.html' with label='Подотчет водителю цеха 013 на приобретение ГСМ' labelColspan=2 sum=te.sum %}
-                      {% endif %}
-                    {% endfor %}
-                    {% include 'request/report/travel_row.html' with label='Провоз и упаковка багажа, услуги камеры хранения' labelColspan=2 sum='' %}
                   </tbody>
                   <tfoot>
-                    <tr>
-                      <td class="text-left font-weight-bold" colspan="2">Итого</td>
-                      <td class="text-right font-weight-bold">{{ travelExpenseSum }}</td>
+                    <tr class="font-weight-bold" style="background-color: rgb(218, 218, 218)">
+                      <td colspan="5">всего по ведомости</td>
+                      <td class="text-right">{{ totalSum|intcomma }}</td>
+                      <td colspan="4"></td>
                     </tr>
                   </tfoot>
                 </table>
               </td>
-            </tr> {% endcomment %}
-
+            </tr>
           </table>
         </div>
       </div>

@@ -16,20 +16,50 @@
             {% include 'status/status_filter.html' with options=statuses %}
         </div>
     {% endif %}
+    <div class="col-3">
+      <fieldset class="input-group-sm btn-group btn-group-sm mb-1" aria-label="Статус" role="group">
+        <span class="input-group-text">Статус:</span>
+        <input type="radio" class="btn-check" name="archive-radio" id="archive-radio1" autocomplete="off" value="" />
+        <label class="btn btn-outline-success" for="archive-radio1" title="Все">ВСЕ</label>
+        <input type="radio" class="btn-check" name="archive-radio" id="archive-radio2" autocomplete="off" value="1" />
+        <label class="btn btn-outline-success" for="archive-radio2" title="Только архивные">АРХ</label>
+        <input type="radio" class="btn-check" name="archive-radio" id="archive-radio3" autocomplete="off" value="0" checked=""/>
+        <label class="btn btn-outline-success" for="archive-radio3" title="Только не архивные">НЕ АРХ</label>
+      </fieldset>
+    </div>
+  </div>
+
+  <div class="modal fade" id="payment-download-dialog" tabindex="-1" aria-labelledby="payment-download-label" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="payment-download-label">Выгрузка</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <table id="payment-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100">
     <thead>
       <tr>
         <th scope="col" data-dt-order="disable" style="width: 38px;"></th>
+        <th scope="col" data-dt-order="disable" style="width: 38px;"></th>
 
         <th scope="col" data-dt-order="disable" style="width: 40px;">№</th>
         <th scope="col" data-dt-order="disable" style="width: 90px;">Дата</th>
-        <th scope="col" data-dt-order="disable" style="width: 70%;">Наименование</th>
+        <th scope="col" data-dt-order="disable" style="width: 65%;">Наименование</th>
 
         <th scope="col" data-dt-order="disable" style="width: 100px;">Кол-во</th>
         <th scope="col" data-dt-order="disable" style="width: 200px;">Сумма</th>
 
+        <th scope="col" data-dt-order="disable" style="width: 35px;"></th>
         <th scope="col" data-dt-order="disable" style="width: 35px;"></th>
         <th scope="col" data-dt-order="disable" style="width: 35px;"></th>
       </tr>
@@ -38,7 +68,7 @@
 
   <script type="text/javascript">
     $(document).ready(function () {
-
+        const downloadModal = $('#payment-download-dialog')
         var paymentTable = $('#payment-table').DataTable({
             ajax: {
                 url: '{% url "payment-list" %}?format=datatables',
@@ -47,11 +77,23 @@
                         d.periodFrom=$('#period-from').val()
                     if ($('#period-to').val())
                         d.periodTo=$('#period-to').val()
+                    const lockLevelValue = $('input[name="archive-radio"]:checked').val();
+                    if (lockLevelValue != '') {
+                        d.lockLevelValue = lockLevelValue
+                    }
                 }
             },
             rowId: 'id',
             order: [],
+            select: {selector: 'td:first-child', style: 'multi'},
             columns: [
+                {
+                    data: null,
+                    defaultContent: '',
+                    className: 'select-checkbox',
+                    orderable: false,
+                    width: '50px'
+                },
                 {
                     data: null,
                     defaultContent: '',
@@ -67,8 +109,21 @@
                 { data: 'name', orderable: false },
                 { data: 'totalCount', orderable: false },
                 { data: 'totalSum', orderable: false, render: $.fn.dataTable.render.number(' ', ',', 2) },
-                editColumn('{% url "payments" %}', null),
-                deleteColumn('{% url "payments" %}', null, 'Удалить реестр?')
+                {
+                  data: null,
+                  defaultContent: '',
+                  orderable: false,
+                  searchable: false,
+                  className: 'text-center align-middle px-1',
+                  render: function (data, type, row) {
+                    let addClass = 'fa-lock'
+                    if (data.lockLevel == 0)
+                      addClass = 'fa-unlock'
+                    return `<a href="{% url 'payments' %}/${data.id}/toggle-lock" class="text-success m-0"><i class="fa-light ${addClass} fa-xl"></i></a>`
+                  }	
+                },
+                editColumn('{% url "payments" %}', function(data) { return data.lockLevel == 0 }),
+                deleteColumn('{% url "payments" %}', function(data) { return data.lockLevel == 0 }, 'Удалить реестр?')
             ],
             buttons: [
                 {
@@ -76,6 +131,14 @@
                     className: 'btn btn-success btn-sm',
                     action: function (e, dt, node, config) {
                         window.location.href = "{% url 'payments' %}/add"
+                    }
+                },
+                {
+                    text: '<i class="fa-light fa-download me-2"></i>&nbsp;ВЫПЛАТНЫЕ ДОКУМЕНТЫ',
+                    className: 'btn btn-warning btn-sm',
+                    attr: {
+                        "data-bs-toggle": "modal",
+                        "data-bs-target": "#payment-download-dialog"
                     }
                 }
             ]
@@ -88,8 +151,29 @@
           paymentTable.ajax.reload()
         })
 
+      $('input[type="radio"]').click(function() {
+        paymentTable.ajax.reload()
+      });
+
       periodFilter.find('button').on('click', function (e) {
         paymentTable.ajax.reload()
+      })
+
+      // Обработчик отображения диалога вариантов загрузки
+      downloadModal.on('show.bs.modal', function (event) {
+        const selectedIds = paymentTable.rows('.selected').ids().toArray()
+        const modalBody = downloadModal.find('.modal-body')
+        modalBody.html('')
+        if (selectedIds.length == 0) {
+          modalBody.html('Не выбраны реестры')
+          return
+        }
+        $.get(`{% url "payment_downloads" %}?ids=${selectedIds}`, function (data) {
+          modalBody.html(data)
+        })
+        .fail(function (e) {
+          modalBody.html('Ошибка')
+        })
       })
     })
   </script>

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Payment, PaymentPrepayment
 from prepayment.serializers import SimplePrepaymentSerializer
+from guide.serializers import ObtainMethodSerializer
 
 
 class PaymentSerializer (serializers.ModelSerializer):
@@ -13,6 +14,8 @@ class PaymentPrepaymentSerializer (serializers.ModelSerializer):
     prepayment = SimplePrepaymentSerializer(read_only=True, many=False)
 
     payment = PaymentSerializer(read_only=True, many=False)
+
+    obtainMethod = ObtainMethodSerializer(read_only=True, many=False)
 
     class Meta:
         model = PaymentPrepayment

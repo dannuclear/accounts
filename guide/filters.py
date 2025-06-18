@@ -17,6 +17,22 @@ class ImprestAccountFilter(BaseFilterBackend):
             queryset = queryset.filter(**filter_kwargs)
         return queryset
 
+class ObtainMethodFilter(BaseFilterBackend):
+    def __init__(self, field_name="obtainMethod", *args, **kwargs):
+        self.field_name = field_name
+
+    def filter_queryset(self, request, queryset, view):
+        field_name = request.query_params.get("obtainMethodFieldName", self.field_name)
+        obtain_method_value = request.query_params.get("obtainMethod")
+
+        filter_kwargs = {}
+        if obtain_method_value:
+            filter_kwargs[field_name] = obtain_method_value
+    
+        if filter_kwargs:
+            queryset = queryset.filter(**filter_kwargs)
+        return queryset
+
 class ExpenseTypeFilter(BaseFilterBackend):
 
     def filter_queryset(self, request, queryset, view):
