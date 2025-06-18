@@ -85,7 +85,7 @@ def delete_payment(request, pk):
     if payment.lockLevel > 0:
         return render(request, 'main/error.html', {'message': 'Не могу удалить реестр, он заблокирован'})
     payment.delete()
-    return redirect('/payments')
+    return redirect('payments')
 
 
 class PaymentPrepaymentUpdateView(UpdateView):
@@ -122,6 +122,19 @@ def toggle_lock(request, pk):
     payment.save()
     return redirect('payments')
 
+def payment_prepayment_unpay(request, pk):
+    payment_prepayment = PaymentPrepayment.objects.get(pk=pk)
+    payment_prepayment.payment = None
+    payment_prepayment.id = None
+    payment_prepayment.save()
+    return redirect('payment_prepayments')
+
+def delete_payment_prepayment(request, pk):
+    payment_prepayment = PaymentPrepayment.objects.select_related('payment').get(pk=pk)
+    if payment_prepayment.payment is not None:
+        return render(request, 'main/error.html', {'message': 'Не могу удалить выплату, она в ведомости'})
+    payment_prepayment.delete()
+    return redirect('payment_prepayments')
 
 def downloads(request):
     ids_param = request.GET.get('ids', '')

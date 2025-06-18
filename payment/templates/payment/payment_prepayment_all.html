@@ -49,6 +49,8 @@
         <th scope="col" colspan="2" data-dt-order="disable" style="width: 80px;">Реестр</th>
 
         <th scope="col" rowspan="2" data-dt-order="disable" style="width: 35px;"></th>
+        <th scope="col" rowspan="2" data-dt-order="disable" style="width: 35px;"></th>
+        <th scope="col" rowspan="2" data-dt-order="disable" style="width: 35px;"></th>
       </tr>
       <tr>
         <th scope="col" data-dt-order="disable">Подр.</th>
@@ -108,6 +110,8 @@
                     rowId: 'id',
                     order: [],
                     rowCallback: function(row, data) {
+                        if (data.payment != null)
+                          return
                         const deadline = new parseDate(data.deadline);
                         if (!deadline) return;
                         const today = new Date();
@@ -152,7 +156,20 @@
                         { data: 'deadline', orderable: false, defaultContent: "", searchable: false },
                         { data: 'payment.id', orderable: false, defaultContent: "", searchable: false },
                         { data: 'payment.createDate', orderable: false, defaultContent: "", searchable: false },
+                        {
+                          data: null,
+                          defaultContent: '',
+                          orderable: false,
+                          searchable: false,
+                          className: 'text-center align-middle px-1',
+                          render: function (data, type, row) {
+                            if (data.payment != null)
+                              return `<a href="{% url 'payment_prepayments' %}/${data.id}/unpay" class="text-success m-0" title='Ввести неоплату' onclick="return confirm('Создать неоплату по данной выплате?');"><i class="fa-light fa-repeat fa-xl"></i></a>`
+                            return ''
+                          }	
+                        },
                         editColumn("{% url 'payment_prepayments' %}", function(data) {return data.payment == null}),
+                        deleteColumn("{% url 'payment_prepayments' %}", function(data) {return data.payment == null}, 'Удалить подготовленную сумму?'),
                     ]
                 });
 

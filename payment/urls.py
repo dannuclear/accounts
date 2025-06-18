@@ -17,4 +17,7 @@ urlpatterns = [
 
     path('payment-prepayments', views.PaymentPrepaymentAllView.as_view(), name='payment_prepayments'),
     path('payment-prepayments/<int:pk>/', views.PaymentPrepaymentUpdateView.as_view(), name='payment_prepayment_edit'),
+    path('payment-prepayments/<int:pk>/unpay', views.payment_prepayment_unpay, name='payment_prepayment_unpay'),
+    path('payment-prepayments/<int:pk>/delete', views.delete_payment_prepayment, name='payment_prepayment_delete'),
+
 ]
