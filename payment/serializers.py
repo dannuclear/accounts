@@ -20,4 +20,4 @@ class PaymentPrepaymentSerializer (serializers.ModelSerializer):
     class Meta:
         model = PaymentPrepayment
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id')
+        datatables_always_serialize = ('id', 'repeatNext')

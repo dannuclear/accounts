@@ -127,6 +127,7 @@ def payment_prepayment_unpay(request, pk):
     payment_prepayment.payment = None
     payment_prepayment.id = None
     payment_prepayment.save()
+    PaymentPrepayment.objects.filter(pk=pk).update(repeatNext=payment_prepayment)
     return redirect('payment_prepayments')
 
 def delete_payment_prepayment(request, pk):

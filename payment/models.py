@@ -53,6 +53,8 @@ class PaymentPrepayment(models.Model):
 
     deadline = models.DateField(db_column="deadline", blank=True, null=True)
 
+    repeatNext = models.ForeignKey('self', db_column='repeat_next_id', on_delete=models.SET_NULL, blank=True, null=True)
+
     class Meta:
         db_table = 'payment_prepayment'
         unique_together = (('payment', 'prepayment'),)

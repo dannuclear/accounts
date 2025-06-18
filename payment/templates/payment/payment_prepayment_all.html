@@ -110,6 +110,8 @@
                     rowId: 'id',
                     order: [],
                     rowCallback: function(row, data) {
+                        if (data.repeatNext != null)
+                          $(row).addClass('text-decoration-line-through');
                         if (data.payment != null)
                           return
                         const deadline = new parseDate(data.deadline);
