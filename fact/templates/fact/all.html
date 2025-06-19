@@ -28,11 +28,11 @@
       </tr>
     </thead>
     <tfoot>
-        <tr>
-            <th scope="col" colspan="6" class="text-left">Итого:</th>
-            <th scope="col"></th>
-            <th scope="col"></th>
-        </tr>
+      <tr>
+        <th scope="col" colspan="6" class="text-left">Итого:</th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+      </tr>
     </tfoot>
   </table>
 
@@ -79,6 +79,13 @@
           { data: 'pdSource', orderable: false },
           { data: 'sumFact', orderable: false },
           { data: 'sumDelta', orderable: false }
+        ],
+        buttons: [
+          {
+            extend: 'excel',
+            text: '<i class="fa-light fa-file-xls"></i>&nbsp;Excel',
+            className: 'btn-primary btn-sm'
+          }
         ]
       })
     

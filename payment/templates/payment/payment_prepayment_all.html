@@ -172,6 +172,13 @@
                         },
                         editColumn("{% url 'payment_prepayments' %}", function(data) {return data.payment == null}),
                         deleteColumn("{% url 'payment_prepayments' %}", function(data) {return data.payment == null}, 'Удалить подготовленную сумму?'),
+                    ],
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            text: '<i class="fa-light fa-file-xls"></i>&nbsp;Excel',
+                            className: 'btn-primary btn-sm'
+                        },
                     ]
                 });
 

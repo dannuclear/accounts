@@ -167,6 +167,13 @@
                                 }
                         },
                         editColumn("/advanceReports", function(d){ return isAdminOrAccountant || d.reportStatus == null || [1,2,4].includes(d.reportStatus.id) })
+                    ],
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            text: '<i class="fa-light fa-file-xls"></i>&nbsp;Excel',
+                            className: 'btn-primary btn-sm'
+                        }
                     ]
                 });
 

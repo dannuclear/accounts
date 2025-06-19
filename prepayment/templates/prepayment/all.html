@@ -164,6 +164,11 @@
                             action: function (e, dt, node, config) {
                                 window.location.href = "{% url 'prepayments' %}/new"
                             }
+                        },
+                        {
+                            extend: 'excel',
+                            text: '<i class="fa-light fa-file-xls"></i>&nbsp;Excel',
+                            className: 'btn-primary btn-sm'
                         }
                     ]
                 });

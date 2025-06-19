@@ -74,6 +74,7 @@ $.extend(true, $.fn.dataTable.defaults, {
 	serverSide: true,
 	stateSave: true,
 	fixedHeader: true,
+	buttons:[],
 	select: {info: false, style: 'single'},
 	pagingType: 'first_last_numbers',
 	dom: "<'row mt-2 justify-content-between'<'d-md-flex justify-content-between align-items-center dt-layout-start col-md-auto me-auto'B><'d-md-flex justify-content-between align-items-center dt-layout-end col-md-auto ms-auto'f>>" +
