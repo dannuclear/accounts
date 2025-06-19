@@ -4,10 +4,10 @@
  *
  * To rebuild or modify this file with the latest versions of the included
  * software please visit:
- *   https://datatables.net/download/#bs5-5.3.0/jq-3.7.0/dt-2.3.2/b-3.2.3/fh-4.0.3/sl-3.0.1
+ *   https://datatables.net/download/#bs5-5.3.0/jq-3.7.0/dt-2.3.0/b-3.2.3/fh-4.0.1/sl-3.0.0
  *
  * Included libraries:
- *   Bootstrap 5 5.3.0, jQuery 3.7.0, DataTables 2.3.2, Buttons 3.2.3, FixedHeader 4.0.3, Select 3.0.1
+ *   Bootstrap 5 5.3.0, jQuery 3.7.0, DataTables 2.3.0, Buttons 3.2.3, FixedHeader 4.0.1, Select 3.0.0
  */
 
 /*!
@@ -17024,7 +17024,7 @@ return jQuery;
 //# sourceMappingURL=bootstrap.bundle.js.map
 
 
-/*! DataTables 2.3.2
+/*! DataTables 2.3.0
  * © SpryMedia Ltd - datatables.net/license
  */
 
@@ -17138,7 +17138,7 @@ return jQuery;
 			_fnCamelToHungarian( defaults.column, defaults.column, true );
 			
 			/* Setting up the initialisation object */
-			_fnCamelToHungarian( defaults, $.extend( oInit, _fnEscapeObject($this.data()) ), true );
+			_fnCamelToHungarian( defaults, $.extend( oInit, $this.data() ), true );
 			
 			
 			
@@ -17527,7 +17527,7 @@ return jQuery;
 		 *
 		 *  @type string
 		 */
-		builder: "bs5-5.3.0/jq-3.7.0/dt-2.3.2/b-3.2.3/fh-4.0.3/sl-3.0.1",
+		builder: "bs5-5.3.0/jq-3.7.0/dt-2.3.0/b-3.2.3/fh-4.0.1/sl-3.0.0",
 	
 		/**
 		 * Buttons. For use with the Buttons extension for DataTables. This is
@@ -17568,11 +17568,6 @@ return jQuery;
 		 */
 		errMode: "alert",
 	
-		/** HTML entity escaping */
-		escape: {
-			/** When reading data-* attributes for initialisation options */
-			attributes: false
-		},
 	
 		/**
 		 * Legacy so v1 plug-ins don't throw js errors on load
@@ -18936,10 +18931,6 @@ return jQuery;
 		else if (init.bSort === false) {
 			init.orderIndicators = false;
 			init.orderHandler = false;
-		}
-		else if (init.bSort === true) {
-			init.orderIndicators = true;
-			init.orderHandler = true;
 		}
 	
 		// Which cells are the title cells?
@@ -20608,9 +20599,7 @@ return jQuery;
 	
 		_fnDraw( settings );
 	
-		settings.api.one('draw', function () {
-			settings._drawHold = false;
-		});
+		settings._drawHold = false;
 	}
 	
 	
@@ -21044,7 +21033,7 @@ return jQuery;
 					if ( write ) {
 						if (unique) {
 							// Allow column options to be set from HTML attributes
-							_fnColumnOptions( settings, shifted, _fnEscapeObject(jqCell.data()) );
+							_fnColumnOptions( settings, shifted, jqCell.data() );
 							
 							// Get the width for the column. This can be defined from the
 							// width attribute, style attribute or `columns.width` option
@@ -21290,7 +21279,7 @@ return jQuery;
 			// to the object for the callback.
 			var empty = {};
 	
-			_fnAjaxDataSrc(oSettings, empty, []);
+			DataTable.util.set(ajax.dataSrc)(empty, []);
 			callback(empty);
 		}
 		else {
@@ -22818,11 +22807,9 @@ return jQuery;
 			var run = false;
 			var columns = column === undefined
 				? _fnColumnsFromHeader( e.target )
-				: typeof column === 'function'
-					? column()
-					: Array.isArray(column)
-						? column
-						: [column];
+				: Array.isArray(column)
+					? column
+					: [column];
 	
 			if ( columns.length ) {
 				for ( var i=0, ien=columns.length ; i<ien ; i++ ) {
@@ -23885,19 +23872,6 @@ return jQuery;
 		for (i=0 ; i<src.length ; i++) {
 			that.on(name + '.dt', src[i]);
 		}
-	}
-	
-	/**
-	 * Escape HTML entities in strings, in an object
-	 */
-	function _fnEscapeObject(obj) {
-		if (DataTable.ext.escape.attributes) {
-			$.each(obj, function (key, val) {
-				obj[key] = _escapeHtml(val);
-			})
-		}
-	
-		return obj;
 	}
 	
 	
@@ -27245,7 +27219,7 @@ return jQuery;
 	 *  @type string
 	 *  @default Version number
 	 */
-	DataTable.version = "2.3.2";
+	DataTable.version = "2.3.0";
 	
 	/**
 	 * Private data store, containing all of the settings objects that are
@@ -34285,7 +34259,7 @@ return DataTable;
 }));
 
 
-/*! FixedHeader 4.0.3
+/*! FixedHeader 4.0.1
  * © SpryMedia Ltd - datatables.net/license
  */
 
@@ -34340,7 +34314,7 @@ var DataTable = $.fn.dataTable;
  * @summary     FixedHeader
  * @description Fix a table's header or footer, so it is always visible while
  *              scrolling
- * @version     4.0.3
+ * @version     4.0.1
  * @author      SpryMedia Ltd
  * @contact     datatables.net
  *
@@ -34408,41 +34382,20 @@ var FixedHeader = function (dt, config) {
 		tfoot: $(dt.table().footer()),
 		header: {
 			host: null,
-			scrollAdjust: null,
 			floating: null,
-			floatingParent: $(
-				'<div class="dtfh-floatingparent">' + // location
-					'<div class="dtfh-floating-limiter">' + // hidden overflow / scrolling
-						'<div></div>' + // adjustment for scrollbar (padding)
-					'</div>' + 
-				'</div>'),
-			limiter: null,
+			floatingParent: $('<div class="dtfh-floatingparent"><div></div></div>'),
 			placeholder: null
 		},
 		footer: {
 			host: null,
-			scrollAdjust: null,
 			floating: null,
-			floatingParent: $(
-				'<div class="dtfh-floatingparent">' +
-					'<div class="dtfh-floating-limiter">' +
-						'<div></div>' +
-					'</div>' + 
-				'</div>'),
-			limiter: null,
+			floatingParent: $('<div class="dtfh-floatingparent"><div></div></div>'),
 			placeholder: null
 		}
 	};
 
-	var dom = this.dom;
-
-	dom.header.host = dom.thead.parent();
-	dom.header.limiter = dom.header.floatingParent.children();
-	dom.header.scrollAdjust = dom.header.limiter.children();
-
-	dom.footer.host = dom.tfoot.parent();
-	dom.footer.limiter = dom.footer.floatingParent.children();
-	dom.footer.scrollAdjust = dom.footer.limiter.children();
+	this.dom.header.host = this.dom.thead.parent();
+	this.dom.footer.host = this.dom.tfoot.parent();
 
 	var dtSettings = dt.settings()[0];
 	if (dtSettings._fixedHeader) {
@@ -34673,6 +34626,7 @@ $.extend(FixedHeader.prototype, {
 					itemDom.placeholder.remove();
 				}
 
+				itemDom.floating.children().detach();
 				itemDom.floating.remove();
 			}
 
@@ -34691,6 +34645,8 @@ $.extend(FixedHeader.prototype, {
 			itemDom.floatingParent
 				.css({
 					width: scrollBody[0].offsetWidth,
+					overflow: 'hidden',
+					height: 'fit-content',
 					position: 'fixed',
 					left: scrollEnabled
 						? tableNode.offset().left + scrollBody.scrollLeft()
@@ -34714,16 +34670,7 @@ $.extend(FixedHeader.prototype, {
 				)
 				.appendTo('body')
 				.children()
-				.eq(0);
-
-			itemDom.limiter
-				.css({
-					width: '100%',
-					overflow: 'hidden',
-					height: 'fit-content'
-			});
-
-			itemDom.scrollAdjust
+				.eq(0)
 				.append(itemDom.floating);
 
 			this._stickyPosition(itemDom.floating, '-');
@@ -34731,7 +34678,7 @@ $.extend(FixedHeader.prototype, {
 			var scrollLeftUpdate = function () {
 				var scrollLeft = scrollBody.scrollLeft();
 				that.s.scrollLeft = { footer: scrollLeft, header: scrollLeft };
-				itemDom.limiter.scrollLeft(that.s.scrollLeft.header);
+				itemDom.floatingParent.scrollLeft(that.s.scrollLeft.header);
 			};
 
 			scrollLeftUpdate();
@@ -34739,7 +34686,7 @@ $.extend(FixedHeader.prototype, {
 
 			// Need padding on the header's container to allow for a scrollbar,
 			// just like how DataTables handles it
-			itemDom.scrollAdjust.css({
+			itemDom.floatingParent.children().css({
 				width: 'fit-content',
 				paddingRight: that.s.dt.settings()[0].oBrowser.barWidth
 			});
@@ -34850,7 +34797,6 @@ $.extend(FixedHeader.prototype, {
 	 * @private
 	 */
 	_modeChange: function (mode, item, forceChange) {
-		var dt = this.s.dt;
 		var itemDom = this.dom[item];
 		var position = this.s.position;
 
@@ -34888,13 +34834,11 @@ $.extend(FixedHeader.prototype, {
 				itemDom.placeholder = null;
 			}
 
-			if (!$.contains(itemDom.host[0], tablePart[0])) {
-				if (item === 'header') {
-					itemDom.host.prepend(tablePart);
-				}
-				else {
-					itemDom.host.append(tablePart);
-				}
+			if (item === 'header') {
+				itemDom.host.prepend(tablePart);
+			}
+			else {
+				itemDom.host.append(tablePart);
 			}
 
 			if (itemDom.floating) {
@@ -35003,8 +34947,6 @@ $.extend(FixedHeader.prototype, {
 		this.s.scrollLeft.header = -1;
 		this.s.scrollLeft.footer = -1;
 		this.s[item + 'Mode'] = mode;
-
-		dt.trigger('fixedheader-mode', [mode, item]);
 	},
 
 	/**
@@ -35125,17 +35067,14 @@ $.extend(FixedHeader.prototype, {
 					forceChange = true;
 				}
 				else {
-					var child = this.dom.header.floatingParent
+					this.dom.header.floatingParent
 						.css({
 							top: this.c.headerOffset,
 							position: 'fixed'
 						})
 						.children()
-						.eq(0);
-
-					if (child.find(this.dom.header.floating).length === 0) {
-						child.append(this.dom.header.floating);
-					}
+						.eq(0)
+						.append(this.dom.header.floating);
 				}
 			}
 			// Anything else and the view is below the table
@@ -35377,7 +35316,7 @@ $.extend(FixedHeader.prototype, {
  * @type {String}
  * @static
  */
-FixedHeader.version = '4.0.3';
+FixedHeader.version = '4.0.1';
 
 /**
  * Defaults
@@ -35489,7 +35428,7 @@ return DataTable;
 }));
 
 
-/*! Select for DataTables 3.0.1
+/*! Select for DataTables 3.0.0
  * © SpryMedia Ltd - datatables.net/license/mit
  */
 
@@ -35547,7 +35486,7 @@ DataTable.select.classes = {
 	checkbox: 'dt-select-checkbox'
 };
 
-DataTable.select.version = '3.0.1';
+DataTable.select.version = '3.0.0';
 
 DataTable.select.init = function (dt) {
 	var ctx = dt.settings()[0];
@@ -36132,14 +36071,7 @@ function initCheckboxHeader( dt, headerCheckbox ) {
 		if (! isCheckboxColumn(col)) {
 			return;
 		}
-
 		var header = dt.column(idx).header();
-		var liner = $('div.dt-column-header', header);
-
-		// DataTables 2.3 as an extra wrapper element
-		if (liner.length) {
-			header = liner;
-		}
 
 		if (! $('input', header).length) {
 			// If no checkbox yet, insert one
