@@ -13,7 +13,9 @@ urlpatterns = [
     path('payments/<int:pk>/delete', views.delete_payment, name='payment_delete'),
     path('payments/<int:pk>/html', views.html_report, name='payment_report'),
     path('payments/<int:pk>/toggle-lock', views.toggle_lock, name='payment_toggle_lock'),
-    path('payments/downloads', views.downloads, name='payment_downloads'),
+    path('payments/lock', views.lock_payments, name='payments_lock'),
+    path('payments/download-menu', views.download_menu, name='payment_download_menu'),
+    path('payments/download', views.download, name='payments_download'),
 
     path('payment-prepayments', views.PaymentPrepaymentAllView.as_view(), name='payment_prepayments'),
     path('payment-prepayments/<int:pk>/', views.PaymentPrepaymentUpdateView.as_view(), name='payment_prepayment_edit'),

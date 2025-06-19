@@ -19,6 +19,8 @@ class Settings(models.Model):
     accountEntryFileTemplate = models.CharField(max_length=50, db_column='account_entry_file_template')
     factFileTemplate = models.CharField(max_length=50, db_column='fact_file_template')
 
+    gpbClientNumber = models.CharField(max_length=10, db_column='gpb_client_number', blank=True)
+
     class Meta:
         db_table = 'settings'
 
@@ -37,6 +39,8 @@ class SettingsForm (ModelForm):
 
     accountEntryFileTemplate = forms.CharField(label='Шаблон файла бухгалтерских проводок', required=False, empty_value='ГГГГ-ММ-ДД_ЧЧННСС_account_entry.csv')
     factFileTemplate = forms.CharField(label='Шаблон файла подтвержденных командировочных расходов', required=False, empty_value='ГГГГ-ММ-ДД_fact.csv')
+
+    gpbClientNumber = forms.CharField(label='ГПБ Номер клиента', required=False)
 
     class Meta:
         model = Settings

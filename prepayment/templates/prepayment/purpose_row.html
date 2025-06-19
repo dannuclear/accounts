@@ -1,14 +1,14 @@
 {% load prepayment_extras %}
 {% load widget_tweaks %}
 
-<tr class="purpose-form" data-prefix="{{ form.prefix }}">
+<tr class="purpose-form align-middle" data-prefix="{{ form.prefix }}">
   {{ form.id }}
   <td>
     <button class="btn btn-sm btn-outline-primary clone-purpose" data-prefix="{{ form.prefix }}"><i class="fa-duotone fa-copy"></i></button>
   </td>
-  <td>{{ form.prepaidDest|add_class:'form-select' }}</td>
+  <td>{{ form.prepaidDest|add_class:'form-select form-select-sm' }}</td>
   <td>{{ form.deptExpense|add_class:'form-control form-control-sm dept-exp'|attr:'autocomplete:off' }}</td>
-  <td>{{ form.expenseCode|add_class:'form-select' }}</td>
+  <td>{{ form.expenseCode|add_class:'form-select form-select-sm' }}</td>
   <td>{{ form.account|add_class:'form-control form-control-sm purpose-account'|attr:'autocomplete:off' }}</td>
   <td>{{ form.expenditure|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</td>
   <td>

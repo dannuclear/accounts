@@ -27,20 +27,22 @@
         {% include 'main/input_group.html' with field=form.name label='Наименование' labelStyle='width:130px' %}
       </div>
 
-      <div class="col-12 text-center">
-        <h5>Отбор выданных авансов</h5>
-        <div class="row">
-          <div class="col-4">
-            {% include 'main/filters/period_filter.html' %}
-          </div>
-          <div class="col-4">
-            {% include 'imprestAccount/filter.html' with options=imprestAccounts %}
-          </div>
-          <div class="col-4">
-            {% include 'obtainMethod/filter.html' with options=obtainMethods %}
+      {% if form.instance.id is None %}
+        <div class="col-12 text-center">
+          <h5>Отбор выданных авансов</h5>
+          <div class="row">
+            <div class="col-4">
+              {% include 'main/filters/period_filter.html' %}
+            </div>
+            <div class="col-4">
+              {% include 'imprestAccount/filter.html' with options=imprestAccounts %}
+            </div>
+            <div class="col-4">
+              {% include 'obtainMethod/filter.html' with options=obtainMethods %}
+            </div>
           </div>
         </div>
-      </div>
+      {% endif %}
     </div>
   </form>
 
@@ -89,15 +91,22 @@
           url: '{% url "payment-prepayments" pk=form.instance.id|default:"add" %}',
           data: function (d) {
             d.format = 'datatables'
-            if (obtainMethodFilter && obtainMethodFilter.val()) d.obtainMethod = obtainMethodFilter.val()
-            if (imprestAccountFilter && imprestAccountFilter.val()) d.imprestAccount = imprestAccountFilter.val()
-            if (periodFilter.find('#period-from').val()) d.periodFrom = periodFilter.find('#period-from').val()
-            if (periodFilter.find('#period-to').val()) d.periodTo = periodFilter.find('#period-to').val()
+            {% if form.instance.id is None %}
+              if (obtainMethodFilter && obtainMethodFilter.val()) d.obtainMethod = obtainMethodFilter.val()
+              if (imprestAccountFilter && imprestAccountFilter.val()) d.imprestAccount = imprestAccountFilter.val()
+              if (periodFilter.find('#period-from').val()) d.periodFrom = periodFilter.find('#period-from').val()
+              if (periodFilter.find('#period-to').val()) d.periodTo = periodFilter.find('#period-to').val()
+            {% endif %}
+            d.columns.push({data: 'repeatNext', searchable: false})
           },
           dataSrc: function (json) {
             addIdsInput.val(json.ids)
             return json.data
           }
+        },
+        rowCallback: function(row, data) {
+          if (data.repeatNext != null)
+            $(row).addClass('text-decoration-line-through');
         },
         stateSave: false,
         rowId: 'id',
@@ -150,24 +159,26 @@
         ]
       })
     
-      periodFilter
-        .find('.datepeeker')
-        .datepicker()
-        .on('change', function (e) {
+      {% if form.instance.id is None %}
+        periodFilter
+          .find('.datepeeker')
+          .datepicker()
+          .on('change', function (e) {
+            prepaymentTable.ajax.reload()
+          })
+      
+        periodFilter.find('button').on('click', function (e) {
           prepaymentTable.ajax.reload()
         })
-    
-      periodFilter.find('button').on('click', function (e) {
-        prepaymentTable.ajax.reload()
-      })
-    
-      imprestAccountFilter.on('change', function (e) {
-        prepaymentTable.ajax.reload()
-      })
+      
+        imprestAccountFilter.on('change', function (e) {
+          prepaymentTable.ajax.reload()
+        })
 
-      obtainMethodFilter.on('change', function (e) {
-        prepaymentTable.ajax.reload()
-      })
+        obtainMethodFilter.on('change', function (e) {
+          prepaymentTable.ajax.reload()
+        })
+      {% endif %}
     })
   </script>
 {% endblock %}

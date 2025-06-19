@@ -163,17 +163,19 @@ class PrepaymentItemForm(forms.ModelForm):
 class PrepaymentPurposeForm(forms.ModelForm):
     # id = forms.IntegerField(widget = forms.HiddenInput(), required = False)
 
-    prepaidDest = WC07POrderChoiceField(queryset=PrepaidDest.objects.order_by('id'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), label='Назначение аванса', required=False, empty_label=None)
+    prepaidDest = WC07POrderChoiceField(queryset=PrepaidDest.objects.order_by('id'), label='Назначение аванса', required=False, empty_label=None)
 
-    expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), label='Коды расхода', required=False, empty_label=None)
+    expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), label='Коды расхода', required=False, empty_label=None)
 
     missionFromDate = MyDateField(label='Командировка с', localize=True, required=False)
 
     missionToDate = MyDateField(label='Командировка по', localize=True, required=False)
 
     reportDeadline = MyDateField(label='Предельный срок предоставления АО (дата)', localize=True, required=False)
+
+    missionDest = forms.CharField(widget=forms.Textarea(attrs={'rows': 2}), required=False)
+    # Цель командировки
+    missionPurpose = forms.CharField(widget=forms.Textarea(attrs={'rows': 2}), required=False)
 
     class Meta:
         model = PrepaymentPurpose
@@ -429,7 +431,7 @@ AttachmentFormSet = forms.inlineformset_factory(Prepayment, Attachment, form=Att
 AdvanceReportItemEntityFormset = forms.inlineformset_factory(AdvanceReportItem, AdvanceReportItemEntity, formset=CachedBaseInlineFormSet, extra=0, form=AdvanceReportItemEntityForm)
 AdvanceReportInventoryItemEntityFormset = forms.inlineformset_factory(AdvanceReportInventoryItem, AdvanceReportItemEntity, formset=CachedBaseInlineFormSet, extra=0, form=AdvanceReportItemEntityForm)
 
-AdvanceReportInventoryItemFormset = forms.inlineformset_factory(AdvanceReportItem, AdvanceReportInventoryItem, formset=CachedBaseInlineFormSet, extra=0, form=AdvanceReportInventoryItemForm)
+AdvanceReportInventoryItemFormset = forms.inlineformset_factory(AdvanceReportItem, AdvanceReportInventoryItem, formset=CachedBaseInlineFormSet, extra=0, form=AdvanceReportInventoryItemForm, min_num=1)
 
 
 # class BaseAdvanceReportItemFormset (forms.BaseInlineFormSet):

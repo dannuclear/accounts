@@ -231,7 +231,14 @@ class ObtainMethod(models.Model):
     name = models.CharField(db_column="name", blank=False, null=False, max_length=50, verbose_name="Наименование")
     source = models.SmallIntegerField(db_column="source", blank=True, null=True, verbose_name="Источник")
     bik = models.IntegerField(db_column="bik", blank=True, null=True, verbose_name="БИК")
+    clientNumber = models.CharField(db_column="client_number", blank=True, null=True, max_length=10, verbose_name="Номер клиента")
+    registerCounter = models.IntegerField(db_column="register_counter", blank=True, null=True, verbose_name="Номер реестра")
 
+    clientContractNumber = models.CharField(db_column="client_contract_number", blank=True, null=True, max_length=50, verbose_name="Номер договора")
+    clientContractDate = models.DateField(db_column="client_contract_date", blank=True, null=True, verbose_name="Дата договора")
+    clientFullName = models.CharField(db_column="client_full_name", blank=True, null=True, max_length=200, verbose_name="Наименование организации")
+    clientINN = models.CharField(db_column="client_inn", blank=True, null=True, max_length=10, verbose_name="ИНН организации")
+    clientAccountNumber = models.CharField(db_column="client_account_number", blank=True, null=True, max_length=20, verbose_name="Расчетный счет организации")
     class Meta:
         db_table = 'obtain_method'
         verbose_name = 'Способ получения'
