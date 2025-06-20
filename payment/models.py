@@ -23,6 +23,17 @@ class Payment(models.Model):
 
     totalSum = models.DecimalField(max_digits=10, decimal_places=2, db_column="total_sum", blank=False, null=False, default=0)
 
+    obtainMethod = models.ForeignKey(ObtainMethod, db_column='obtain_method_id', on_delete=models.PROTECT, blank=False, null=False)
+
+    # Имя файла
+    fileName = models.CharField(db_column='file_name', max_length=50, blank=True, null=True)
+    # Когда создан
+    fileDateTime = models.DateTimeField(db_column='file_date_time', blank=True, null=True)
+    # Кем создан
+    createdBy = models.CharField(db_column='created_by', max_length=200)
+    # Когда создан
+    createdAt = models.DateTimeField(db_column='created_at')
+
     class Meta:
         db_table = 'payment'
         verbose_name = 'Выплата'
@@ -35,11 +46,42 @@ class Payment(models.Model):
         ]
 
 
+# class PaymentFile(models.Model):
+#     id = models.AutoField(primary_key=True, blank=False)
+
+#     num = models.IntegerField(db_column="num", blank=False, null=False)
+#     # Банк
+#     obtainMethod = models.ForeignKey(ObtainMethod, db_column='obtain_method_id', on_delete=models.PROTECT, blank=False, null=False)
+
+#     # Дата создания файла
+#     createDate = models.DateField(db_column="create_date", blank=False, null=False)
+#     # Имя файла
+#     fileName = models.CharField(db_column='file_name', max_length=50, blank=False, null=False)
+
+#     # Кем создан
+#     createdBy = models.CharField(db_column='created_by', max_length=200)
+#     # Когда создан
+#     createdAt = models.DateTimeField(db_column='created_at')
+
+#     class Meta:
+#         db_table = 'payment_file'
+#         verbose_name = 'Файл выгрузки реестров'
+#         verbose_name_plural = 'Файлы выгрузки реестров'
+#         default_permissions = ()
+#         permissions = [
+#             ("view_payment_file", "Просмотр"),
+#             ("edit_payment_file", "Редактирование")
+#         ]
+
+
 class PaymentPrepayment(models.Model):
     id = models.AutoField(primary_key=True, blank=False)
 
     # Реестр, по которому производится выплата
     payment = models.ForeignKey(Payment, db_column='payment_id', on_delete=models.SET_NULL, blank=True, null=True)
+    # Файл выгрузки
+    # paymentFile = models.ForeignKey(PaymentFile, db_column='payment_file_id', on_delete=models.SET_NULL, blank=True, null=True)
+
     # Выплачиваемый аванс
     prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.PROTECT, blank=False, null=False)
 

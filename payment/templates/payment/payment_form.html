@@ -37,9 +37,14 @@
             <div class="col-4">
               {% include 'imprestAccount/filter.html' with options=imprestAccounts %}
             </div>
+
             <div class="col-4">
-              {% include 'obtainMethod/filter.html' with options=obtainMethods %}
+              {% include 'main/input_group.html' with field=form.obtainMethod inputClass='form-select' %}
             </div>
+
+            {% comment %} <div class="col-4">
+              {% include 'obtainMethod/filter.html' with options=obtainMethods %}
+            </div> {% endcomment %}
           </div>
         </div>
       {% endif %}
@@ -84,6 +89,7 @@
     const deleteIdsInput = $('#delete_ids')
     
     $(document).ready(function () {
+      obtainMethodFilter = $('#id_obtainMethod')
       $('.datepeeker').datepicker()
     
       var prepaymentTable = $('#prepayment-table').DataTable({

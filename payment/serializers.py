@@ -5,6 +5,9 @@ from guide.serializers import ObtainMethodSerializer
 
 
 class PaymentSerializer (serializers.ModelSerializer):
+
+    obtainMethod = ObtainMethodSerializer(read_only=True, many=False)
+    
     class Meta:
         model = Payment
         fields = serializers.ALL_FIELDS
@@ -21,3 +24,9 @@ class PaymentPrepaymentSerializer (serializers.ModelSerializer):
         model = PaymentPrepayment
         fields = serializers.ALL_FIELDS
         datatables_always_serialize = ('id', 'repeatNext')
+
+# class PaymentFileSerializer (serializers.ModelSerializer):
+#     class Meta:
+#         model = PaymentFile
+#         fields = serializers.ALL_FIELDS
+#         datatables_always_serialize = ('id', 'fileName')

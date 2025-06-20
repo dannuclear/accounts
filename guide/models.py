@@ -239,6 +239,14 @@ class ObtainMethod(models.Model):
     clientFullName = models.CharField(db_column="client_full_name", blank=True, null=True, max_length=200, verbose_name="Наименование организации")
     clientINN = models.CharField(db_column="client_inn", blank=True, null=True, max_length=10, verbose_name="ИНН организации")
     clientAccountNumber = models.CharField(db_column="client_account_number", blank=True, null=True, max_length=20, verbose_name="Расчетный счет организации")
+    
+    inn = models.CharField(db_column="inn", blank=True, null=True, max_length=10, verbose_name="ИНН банка")
+    kpp = models.CharField(db_column="kpp", blank=True, null=True, max_length=9, verbose_name="КПП банка")
+    printName = models.CharField(db_column="print_name", blank=True, null=True, max_length=40, verbose_name="Для печати")
+    corrAccount = models.CharField(db_column="corr_account", blank=True, null=True, max_length=20, verbose_name="Кор. счет")
+    currentAccount = models.CharField(db_column="current_account", blank=True, null=True, max_length=20, verbose_name="Р/счет")
+    bAccount = models.CharField(db_column="b_account", blank=True, null=True, max_length=10, verbose_name="Б/счет")
+
     class Meta:
         db_table = 'obtain_method'
         verbose_name = 'Способ получения'

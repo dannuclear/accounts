@@ -9,15 +9,19 @@ from django.views.generic.edit import CreateView, UpdateView
 from guide.models import ImprestAccount, Status, ObtainMethod
 from prepayment.models import Prepayment
 from django.http.response import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse
-from .forms import PaymentPrepaymentForm
+from .forms import PaymentPrepaymentForm, PaymentForm
 from .models import Payment, PaymentPrepayment
 from django.db.models import Count, Sum, Avg, Max, Min
 import xml.etree.ElementTree as ET
+from num2words import num2words
 # Create your views here.
 
 
 class PaymentAllView(TemplateView):
     template_name = 'payment/all.html'
+
+# class PaymentFileAllView(TemplateView):
+#     template_name = 'payment/payment_file_all.html'
 
 
 class PaymentPrepaymentAllView(TemplateView):
@@ -31,23 +35,25 @@ class PaymentPrepaymentAllView(TemplateView):
 
 class PaymentCreateView(CreateView):
     model = Payment
-    fields = ['name', 'createDate']
+    form_class = PaymentForm
     success_url = reverse_lazy('payments')
 
     def get_initial(self):
         initial = super().get_initial()
         initial['createDate'] = datetime.now()
         locale.setlocale(category=locale.LC_ALL, locale="ru_RU")
-        initial['name'] = 'Реестр выдачи денежных средств на банк за ' + datetime.now().strftime('%B %Y')
+        initial['name'] = datetime.now().strftime('%B %Y')
         return initial
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['imprestAccounts'] = ImprestAccount.objects.all()
-        context['obtainMethods'] = ObtainMethod.objects.all()
         return context
 
     def form_valid(self, form):
+        user_full_name = ('%s %s' % (self.request.user.last_name, self.request.user.first_name)).strip()
+        form.instance.createdAt = datetime.now()
+        form.instance.createdBy = user_full_name if user_full_name else self.request.user.username
         response = super().form_valid(form)
         payment = form.instance
         if 'add_ids' in self.request.POST and self.request.POST['add_ids']:
@@ -76,7 +82,6 @@ class PaymentUpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['imprestAccounts'] = ImprestAccount.objects.all()
-        context['obtainMethods'] = ObtainMethod.objects.all()
         return context
 
 
@@ -120,6 +125,17 @@ def html_report(request, pk):
         'totalSum': total_sum,
     }
     return render(request, 'payment/report.html', context)
+
+def payment_certificate(request, pk):
+    payment = Payment.objects.get(pk=pk)
+    totalSumIntString = num2words(int(payment.totalSum), lang='ru')
+
+    context = {
+        'payment': payment,
+        'bank': payment.obtainMethod,
+        'totalSumIntString': totalSumIntString
+    }
+    return render(request, 'payment/certificate.html', context)
 
 
 def toggle_lock(request, pk):
@@ -172,20 +188,25 @@ def download(request):
 
     ids = payment_ids_string.split(',')
 
-    date = datetime.now()
+    payments = Payment.objects.filter(pk__in=ids).all()
+    if len(payments) > 1:
+        return HttpResponseBadRequest('Можно выбрать только один реестр')
+    payment = payments[0]
+
     obtain_method = ObtainMethod.objects.get(pk=obtain_method_id)
     queryset = PaymentPrepayment.objects.filter(payment_id__in=ids, obtainMethod=obtain_method_id)
     client_number = obtain_method.clientNumber
     if not client_number:
         return render(request, 'main/error.html', {'message': 'Укажите номер клиента банка в справочнике способов получения'})
-
+    filename = payment.fileName
+    date = payment.fileDateTime or datetime.now()
     if obtain_method_id == '2':    # Газпромбанк
         queryset = queryset.values('prepayment__empFullName', 'accountNumber').annotate(total_count=Count('id'), total_sum=Sum('prepayment__totalSum'))
         response = StreamingHttpResponse(
             gpb_file_generator(date, queryset),
             content_type='text/plain; charset=cp1251'
         )
-        filename = '%s_%s.txt' % (client_number, date.strftime('%Y%m%d%H%M%S'))
+        filename = filename or '%s_%s.txt' % (client_number, date.strftime('%Y%m%d%H%M%S'))
 
     elif obtain_method_id == '3' or obtain_method_id == '5':    # Сбербанк, УБРиР
         if not obtain_method.clientContractNumber or not obtain_method.clientContractDate or not obtain_method.clientFullName or not obtain_method.clientINN or not obtain_method.clientAccountNumber or not obtain_method.bik:
@@ -209,9 +230,9 @@ def download(request):
             queryset)
         response = HttpResponse(xml_result, content_type='application/xml; charset=cp1251')
         if obtain_method_id == '3':  # Сбербанк
-            filename = '%s%03dz.xml' % (client_number, register_counter)
+            filename = filename or '%s%03dz.xml' % (client_number, register_counter)
         elif obtain_method_id == '5':  # УБРиР
-            filename = '%s_%d.xml' % (client_number, register_counter)
+            filename = filename or '%s_%d.xml' % (client_number, register_counter)
         obtain_method.save(update_fields=['registerCounter'])
     elif obtain_method_id == '4':  # ВТБ
         if not obtain_method.clientFullName:
@@ -227,10 +248,14 @@ def download(request):
             content_type='text/plain; charset=cp1251'
         )
 
-        filename = 'Z_%s_%s_%03d_001.txt' % (client_number, date.strftime('%Y%m%d'), register_counter)
+        filename = filename or 'Z_%s_%s_%03d_001.txt' % (client_number, date.strftime('%Y%m%d'), register_counter)
         obtain_method.save(update_fields=['registerCounter'])
     else:
         return render(request, 'main/error.html', {'message': 'Не настроен формат файла выгрузки для данного способа получения'})
+
+    payment.fileName = filename
+    payment.fileDateTime = date
+    payment.save(update_fields=['fileName', 'fileDateTime'])
     response['Content-Disposition'] = 'attachment; filename="%s"' % filename
     return response
 

@@ -1,0 +1,63 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+  Файлы, выгрузки реестров
+{% endblock %}
+
+{% block content %}
+  <div class="alert alert-primary" role="alert" style="display: none;"></div>
+
+  <div class="row">
+
+  </div>
+
+  <table id="payment-file-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100">
+    <thead>
+      <tr>
+        <th scope="col" data-dt-order="disable" style="width: 38px;"></th>
+
+        <th scope="col" data-dt-order="disable" style="width: 40px;">№</th>
+        <th scope="col" data-dt-order="disable" style="width: 90px;">Дата</th>
+        <th scope="col" data-dt-order="disable" style="width: 65%;">Наименование</th>
+
+        {% comment %} <th scope="col" data-dt-order="disable" style="width: 100px;">Кол-во</th>
+        <th scope="col" data-dt-order="disable" style="width: 200px;">Сумма</th> {% endcomment %}
+
+        <th scope="col" data-dt-order="disable" style="width: 35px;"></th>
+      </tr>
+    </thead>
+  </table>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+        var paymentFileTable = $('#payment-file-table').DataTable({
+            ajax: {
+                url: '{% url "paymentfile-list" %}',
+                data: function (d) {
+                  d.format='datatables'
+                }
+            },
+            rowId: 'id',
+            order: [],
+            columns: [
+                {
+                    data: null,
+                    defaultContent: '',
+                    orderable: false,
+                    searchable: false,
+                    className: 'text-center align-middle px-1',
+                    render: function (data, type, row) {
+                        return `<a href="{% url 'payment_files' %}/${data.id}/download" class="text-success" target="_blank"><i class="fa-duotone fa-download fa-xl"></i></a>`
+                    }
+                },
+                { data: 'id', orderable: false },
+                { data: 'createDate', orderable: false },
+                { data: 'fileName', orderable: false },
+                //{ data: 'totalCount', orderable: false },
+                //{ data: 'totalSum', orderable: false, render: $.fn.dataTable.render.number(' ', ',', 2) },
+                deleteColumn('{% url "payment_files" %}', function(data) { return data.lockLevel == 0 }, 'Удалить реестр?')
+            ],
+        });
+    })
+  </script>
+{% endblock %}

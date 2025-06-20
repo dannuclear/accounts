@@ -46,6 +46,23 @@
     </div>
   </div>
 
+  <div class="modal fade" id="payment-print-dialog" tabindex="-1" aria-labelledby="payment-print-label" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="payment-print-label">Печать</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <table id="payment-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100">
     <thead>
       <tr>
@@ -53,8 +70,10 @@
         <th scope="col" data-dt-order="disable" style="width: 38px;"></th>
 
         <th scope="col" data-dt-order="disable" style="width: 40px;">№</th>
+        <th scope="col" data-dt-order="disable" style="width: 40px;">Банк</th>
         <th scope="col" data-dt-order="disable" style="width: 90px;">Дата</th>
-        <th scope="col" data-dt-order="disable" style="width: 65%;">Наименование</th>
+        <th scope="col" data-dt-order="disable" style="width: 40%;">Наименование</th>
+        <th scope="col" data-dt-order="disable" style="width: 20%;">Имя файла</th>
 
         <th scope="col" data-dt-order="disable" style="width: 100px;">Кол-во</th>
         <th scope="col" data-dt-order="disable" style="width: 200px;">Сумма</th>
@@ -85,7 +104,7 @@
             },
             rowId: 'id',
             order: [],
-            select: {selector: 'td:first-child', style: 'multi'},
+            //select: {selector: 'td:first-child', style: 'single'},
             columns: [
                 {
                     data: null,
@@ -101,12 +120,18 @@
                     searchable: false,
                     className: 'text-center align-middle px-1',
                     render: function (data, type, row) {
-                        return `<a href="{% url 'payments' %}/${data.id}/html" class="text-success" target="_blank"><i class="fa-duotone fa-print fa-xl"></i></a>`
+                        return `<a class="text-success m-0" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa-duotone fa-print fa-xl"></i></a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url 'payments' %}/${data.id}/html" target="_blank">Суммы для перечисления в банк</a>
+                            <a class="dropdown-item" href="{% url 'payments' %}/${data.id}/certificate/html" target="_blank">Справка</a>
+                        </div>`
                     }
                 },
                 { data: 'id', orderable: false },
+                { data: 'obtainMethod.name', orderable: false },
                 { data: 'createDate', orderable: false },
                 { data: 'name', orderable: false },
+                { data: 'fileName', orderable: false },
                 { data: 'totalCount', orderable: false },
                 { data: 'totalSum', orderable: false, render: $.fn.dataTable.render.number(' ', ',', 2) },
                 {
@@ -134,7 +159,7 @@
                     }
                 },
                 {
-                    text: '<i class="fa-light fa-download me-2"></i>&nbsp;ВЫПЛАТНЫЕ ДОКУМЕНТЫ',
+                    text: '<i class="fa-light fa-download me-2"></i>&nbsp;ВЫГРУЗКА',
                     className: 'btn btn-warning btn-sm',
                     attr: {
                         "data-bs-toggle": "modal",
@@ -142,7 +167,15 @@
                     }
                 },
                 {
-                    text: '<i class="fa-light fa-lock me-2"></i>&nbsp;ЗАКРЫТЬ ВЕДОМОСТИ',
+                    text: '<i class="fa-light fa-print me-2"></i>&nbsp;ПЕЧАТЬ ДОКУМЕНТОВ',
+                    className: 'btn btn-info btn-sm',
+                    attr: {
+                        "data-bs-toggle": "modal",
+                        "data-bs-target": "#payment-print-dialog"
+                    }
+                },
+                {
+                    text: '<i class="fa-light fa-lock me-2"></i>&nbsp;ЗАКРЫТЬ РЕЕСТРЫ',
                     className: 'btn btn-danger btn-sm',
                     action: function (e, dt, node, config) {
                         const selectedIds = paymentTable.rows('.selected').ids().toArray()

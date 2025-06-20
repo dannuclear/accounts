@@ -1,0 +1,167 @@
+{% load humanize %}
+{% load static %}
+<html>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <link rel="stylesheet" type="text/css" href="{% static 'main/css/bootstrap4.min.css' %}" />
+    <style type="text/css">
+      @font-face {
+        font-family: TimesNewRoman;
+        src: url(/static/main/fonts/times.ttf);
+      }
+      body {
+        font-family: TimesNewRoman;
+        font-size: 14px;
+      }
+      table {
+        font-size: 20px;
+      }
+      
+      @media print {
+        @page {
+          size: auto; /*auto is the initial value */
+          margin: 0mm; /* this affects the margin in the printer settings */
+        }
+      
+        #printPageButton {
+          display: none;
+        }
+      
+        body {
+          font-size: 14pt;
+          margin: 10mm;
+        }
+      
+        body > .container {
+          width: 100% !important;
+          margin: 0px !important;
+          max-width: 100% !important;
+        }
+      }
+      
+      table.header-table {
+        border-collapse: separate;
+        border-spacing: 10px 2px;
+      }
+      table,
+      th,
+      td {
+        /*border: 1px solid gainsboro;*/
+      }
+      th {
+        font-weight: lighter;
+      }
+      
+      td.border-top2-bottom1,
+      th.border-top2-bottom1 {
+        border-top: 2px solid black !important;
+        border-bottom: 1px solid black;
+      }
+      
+      td.border-top1-bottom2,
+      th.border-top1-bottom2 {
+        border-top: 1px solid black;
+        border-bottom: 2px solid black !important;
+      }
+      
+      .table-bordered td,
+      .table-bordered th {
+        border: 1px solid rgb(0, 0, 0);
+      }
+      .table-bordered thead th {
+        vertical-align: bottom;
+        border-bottom: 2px solid rgb(0, 0, 0);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container p-4">
+      <div class="row">
+        <div class="col-12">
+          <table class="w-100 header-table">
+            <tr>
+              <th scope="col" colspan="2" class="text-center" style="width: 40%;">Картинка</th>
+              <th scope="col" style="width: 20%;"></th>
+              <th scope="col" class="text-right" style="width: 40%;"></th>
+            </tr>
+            <tr>
+              <th scope="col" colspan="2" class="text-center font-weight-bold">
+                Федеральное государственное унитарное предприятие «Комбинат «Электрохимприбор»<br />(ФГУП «Комбинат «Электрохимприбор») Бухгалтерия 054
+              </th>
+              <th scope="col"></th>
+              <th scope="col" class="text-right">В финансовый отдел</th>
+            </tr>
+            <tr>
+              <th scope="col" colspan="2" class="text-left font-weight-bold border-bottom border-dark">
+                {% now 't.m.Y' %}
+              </th>
+              <th colspan="2" scope="col"></th>
+            </tr>
+            <tr>
+              <th scope="col" colspan="2" class="text-left font-weight-bold border-bottom border-dark">На №</th>
+              <th colspan="2" scope="col"></th>
+            </tr>
+            <tr>
+              <th scope="col" colspan="4" class="text-center font-weight-bold text-uppercase">Справка</th>
+            </tr>
+            <tr>
+              <th scope="col" colspan="4">
+                на перечисление командировочных расходов за{% now 't.m.Y' %}на счета международных дебетовых карт.
+              </th>
+            </tr>
+
+            <tr>
+              <th scope="col" colspan="4">
+                Получатель: {{ bank.printName|default_if_none:'' }}<br />
+                ИНН/КПП {{ bank.inn|default_if_none:'' }}/{{ bank.kpp|default_if_none:'' }}<br />
+                БИК {{ bank.bik|default_if_none:'' }}<br />
+                Кор/счет {{ bank.corrAccount|default_if_none:'' }}<br />
+                Р/счет {{ bank.currentAccount|default_if_none:'' }}<br />
+                Б/счет {{ bank.bAccount|default_if_none:'' }}&nbsp;Д/пр. 0<br />
+                <span class="font-weight-bold">на сумму {{ payment.totalSum|floatformat:'0'|intcomma|default_if_none:'' }} руб. {{ payment.totalSum|floatformat:'2'|slice:'-2:'|default_if_none:'' }} коп.</span><br />
+                <span class="font-weight-bold">{{ totalSumIntString }} руб. {{ payment.totalSum|floatformat:'2'|slice:'-2:'|default_if_none:'' }} коп.</span>
+              </th>
+            </tr>
+
+            <tr>
+              <th scope="col" colspan="4">
+                <span class="font-weight-bold">Назначение платежа:&nbsp;</span>Перевод командировочных расходов за 02 месяц 2025 года на счета международных дебетовых карт по реестру <span class="font-weight-bold">{{ payment.fileName }} от {{ payment.fileDateTime|date:'d.m.Yг.'|default_if_none:'' }}.</span>Код вида дохода 2.
+              </th>
+            </tr>
+
+            <tr style="height: 100px;">
+              <th scope="col" colspan="2" class="text-left font-weight-bold">Главный бухгалтер</th>
+              <th scope="col"></th>
+              <th scope="col" class="text-right font-weight-bold">Е.Г. Жиделева</th>
+            </tr>
+
+            <tr>
+              <th scope="col" style="writing-mode: sideways-lr; text-orientation: upright; font-size: 0.8em; width: 1%;">СТО Ж1.1. 001.5-201.1. форма 4</th>
+              <th scope="col" colspan="3" class="align-bottom">
+                С.В. Соколик<br />
+                9-55-47<br />
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Отчет о выполнении:</th>
+                      <th style="width: 25%;">
+                        В дело: ___________<br />
+                        Подпись __________<br />
+                        «__»________ 202_г.
+                      </th>
+                      <th style="width: 25%;">
+                        Вх. №: ___прил. ___<br />
+                        Осн. _____________<br />
+                        «__»________ 202_г.
+                      </th>
+                    </tr>
+                  </thead>
+                </table>
+              </th>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

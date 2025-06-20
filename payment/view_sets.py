@@ -12,7 +12,7 @@ from .serializers import PaymentPrepaymentSerializer, PaymentSerializer
 
 
 class PaymentViewSet (viewsets.ModelViewSet):
-    queryset = Payment.objects.order_by('-createDate')
+    queryset = Payment.objects.select_related('obtainMethod').order_by('-createDate')
     serializer_class = PaymentSerializer
 
     def filter_queryset(self, queryset):
@@ -73,3 +73,12 @@ class PaymentPrepaymentViewSet (viewsets.ModelViewSet):
             self.filter_backends.insert(0, StatusFilter)
 
         return super().filter_queryset(queryset)
+
+# class PaymentFileViewSet (viewsets.ModelViewSet):
+#     queryset = PaymentFile.objects.all()
+#     serializer_class = PaymentFileSerializer
+
+#     def filter_queryset(self, queryset):
+#         self.filter_backends = [*self.filter_backends]
+
+#         return super().filter_queryset(queryset)
