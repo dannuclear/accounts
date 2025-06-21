@@ -105,9 +105,7 @@
               <th scope="col" colspan="4" class="text-center font-weight-bold text-uppercase">Справка</th>
             </tr>
             <tr>
-              <th scope="col" colspan="4">
-                на перечисление командировочных расходов за{% now 't.m.Y' %}на счета международных дебетовых карт.
-              </th>
+              <th scope="col" colspan="4">на перечисление командировочных расходов за {{ payment.createDate|date:'d.m.Y' }} на счета международных дебетовых карт.</th>
             </tr>
 
             <tr>
@@ -125,7 +123,7 @@
 
             <tr>
               <th scope="col" colspan="4">
-                <span class="font-weight-bold">Назначение платежа:&nbsp;</span>Перевод командировочных расходов за 02 месяц 2025 года на счета международных дебетовых карт по реестру <span class="font-weight-bold">{{ payment.fileName }} от {{ payment.fileDateTime|date:'d.m.Yг.'|default_if_none:'' }}.</span>Код вида дохода 2.
+                <span class="font-weight-bold">Назначение платежа:&nbsp;</span>Перевод командировочных расходов за {{ payment.createDate|date:'m месяц Y года' }} на счета международных дебетовых карт по реестру <span class="font-weight-bold">{{ payment.fileName }} от {{ payment.fileDateTime|date:'d.m.Yг.'|default_if_none:'' }}.</span>Код вида дохода 2.
               </th>
             </tr>
 
@@ -136,28 +134,40 @@
             </tr>
 
             <tr>
-              <th scope="col" style="writing-mode: sideways-lr; text-orientation: upright; font-size: 0.8em; width: 1%;">СТО Ж1.1. 001.5-201.1. форма 4</th>
-              <th scope="col" colspan="3" class="align-bottom">
+              <th scope="col" colspan="4">
+                <div class="d-flex">
+                  <svg height="240" width="30" style="font-size: 0.8em;">
+                    <text x="80" y="170" transform="rotate(-90, 25, 180)" text-anchor="middle">СТО Ж1.1. 001.5-201.1. форма 4</text>
+                  </svg>
+                  <div class="w-100 d-flex align-items-end">
+                    <div class="w-100">
+                      С.В. Соколик<br />
+                      9-55-47<br />
+                      <table class="table table-bordered m-0">
+                        <tbody>
+                          <tr>
+                            <th class="align-top">Отчет о выполнении:</th>
+                            <th style="width: 25%;">
+                              В дело: ___________<br />
+                              Подпись __________<br />
+                              «__»________ 202_г.
+                            </th>
+                            <th style="width: 25%;">
+                              Вх. №: ___прил. ___<br />
+                              Осн. _____________<br />
+                              «__»________ 202_г.
+                            </th>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </th>
+              {% comment %} <th scope="col" colspan="3" class="align-bottom w-100">
                 С.В. Соколик<br />
                 9-55-47<br />
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th>Отчет о выполнении:</th>
-                      <th style="width: 25%;">
-                        В дело: ___________<br />
-                        Подпись __________<br />
-                        «__»________ 202_г.
-                      </th>
-                      <th style="width: 25%;">
-                        Вх. №: ___прил. ___<br />
-                        Осн. _____________<br />
-                        «__»________ 202_г.
-                      </th>
-                    </tr>
-                  </thead>
-                </table>
-              </th>
+              </th> {% endcomment %}
             </tr>
           </table>
         </div>
