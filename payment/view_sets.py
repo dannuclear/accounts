@@ -12,7 +12,7 @@ from .serializers import PaymentPrepaymentSerializer, PaymentSerializer
 
 
 class PaymentViewSet (viewsets.ModelViewSet):
-    queryset = Payment.objects.select_related('obtainMethod').order_by('-createDate')
+    queryset = Payment.objects.select_related('obtainMethod').select_related('prepaidDest').order_by('-createDate')
     serializer_class = PaymentSerializer
 
     def filter_queryset(self, queryset):

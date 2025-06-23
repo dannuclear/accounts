@@ -245,7 +245,8 @@ class ObtainMethod(models.Model):
     printName = models.CharField(db_column="print_name", blank=True, null=True, max_length=40, verbose_name="Для печати")
     corrAccount = models.CharField(db_column="corr_account", blank=True, null=True, max_length=20, verbose_name="Кор. счет")
     currentAccount = models.CharField(db_column="current_account", blank=True, null=True, max_length=20, verbose_name="Р/счет")
-    bAccount = models.CharField(db_column="b_account", blank=True, null=True, max_length=10, verbose_name="Б/счет")
+    # Балансовый счет
+    bAccount = models.CharField(db_column="b_account", blank=True, null=True, max_length=10, verbose_name="Бал./счет")
 
     class Meta:
         db_table = 'obtain_method'

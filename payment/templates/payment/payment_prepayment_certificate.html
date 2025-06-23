@@ -114,51 +114,25 @@
                 ИНН/КПП {{ bank.inn|default_if_none:'' }}/{{ bank.kpp|default_if_none:'' }}<br />
                 БИК {{ bank.bik|default_if_none:'' }}<br />
                 Кор/счет {{ bank.corrAccount|default_if_none:'' }}<br />
-                Р/счет {{ bank.currentAccount|default_if_none:'' }}<br />
+                Л/счет {{ paymentPrepayment.accountNumber|default_if_none:'' }}<br />
                 Б/счет {{ bank.bAccount|default_if_none:'' }}&nbsp;Д/пр. 0<br />
-                <span class="font-weight-bold">на сумму {{ payment.totalSum|floatformat:'0'|intcomma|default_if_none:'' }} руб. {{ payment.totalSum|floatformat:'2'|slice:'-2:'|default_if_none:'' }} коп.</span><br />
-                <span class="font-weight-bold">{{ totalSumIntString }} руб. {{ payment.totalSum|floatformat:'2'|slice:'-2:'|default_if_none:'' }} коп.</span>
+                <span class="font-weight-bold">на сумму {{ paymentPrepayment.prepayment.totalSum|floatformat:'0'|intcomma|default_if_none:'' }} руб. {{ paymentPrepayment.prepayment.totalSum|floatformat:'2'|slice:'-2:'|default_if_none:'' }} коп.</span><br />
+                <span class="font-weight-bold">{{ totalSumIntString }} руб. {{ paymentPrepayment.prepayment.totalSum|floatformat:'2'|slice:'-2:'|default_if_none:'' }} коп.</span>
               </th>
             </tr>
 
             <tr>
               <th scope="col" colspan="4">
-                <span class="font-weight-bold">Назначение платежа:&nbsp;</span>Перевод <span class="font-weight-bold">{{ payment.prepaidDest.name }}</span> за {{ payment.createDate|date:'m месяц Y года' }} на счета международных дебетовых карт по реестру <span class="font-weight-bold">{{ payment.fileName }} от {{ payment.fileDateTime|date:'d.m.Yг.'|default_if_none:'' }}</span>{% if bank.clientContractNumber is not None %}
-                  В соответствии с договором <span class="font-weight-bold">№{{ bank.clientContractNumber }}</span> от <span class="font-weight-bold">{{ bank.clientContractDate|date:'d.m.Y.'|default_if_none:'' }}</span>
+                {% if payment.prepaidDest %}
+                  <span class="font-weight-bold">Назначение платежа:&nbsp;</span>Перевод <span class="font-weight-bold">{{ payment.prepaidDest.name }}</span>
+                {% endif %}на лиц. счет <span class="font-weight-bold">{{ paymentPrepayment.accountNumber }}</span>, получатель <span class="font-weight-bold">{{ paymentPrepayment.prepayment.empFullName }}</span> за {{ payment.createDate|date:'m месяц Y года' }} на счета международных дебетовых карт{% if bank.fileName %}
+                  &nbsp;по реестру <span class="font-weight-bold">{{ payment.fileName }} от {{ payment.fileDateTime|date:'d.m.Yг.'|default_if_none:'' }}</span>
+                {% endif %}
+                {% if bank.clientContractNumber %}
+                  &nbsp;В соответствии с договором <span class="font-weight-bold">№{{ bank.clientContractNumber }}</span> от <span class="font-weight-bold">{{ bank.clientContractDate|date:'d.m.Yг.'|default_if_none:'' }}</span>
                 {% endif %}Код вида дохода 2.
               </th>
             </tr>
-
-            {% if prepayments %}
-              <tr style="height: 100px;">
-                <th scope="col" colspan="4">
-                  <table class="table table-bordered table-sm text-center mt-4">
-                    <thead>
-                      <tr>
-                        <th>Сумма платежа</th>
-                        <th>Лицевой счет</th>
-                        <th>Получатель платежа</th>
-                        <th>Код вида дохода</th>
-                        <th>ВЗС</th>
-                        <th>№ пл. поручения</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for p in prepayments %}
-                        <tr>
-                            <td class="text-right">{{ p.prepayment.totalSum|intcomma|default_if_none:''  }}</td>
-                            <td>{{ p.accountNumber|default_if_none:''  }}</td>
-                            <td class="text-left">{{ p.prepayment.empFullName|default_if_none:''  }}</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </th>
-              </tr>
-            {% endif %}
 
             <tr style="height: 100px;">
               <th scope="col" colspan="2" class="text-left font-weight-bold">Главный бухгалтер</th>

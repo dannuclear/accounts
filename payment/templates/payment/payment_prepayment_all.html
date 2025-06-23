@@ -37,6 +37,7 @@
   <table id="request-table" class="table table-sm table-bordered table-hover dtr-inline w-100 table-header-sm text-center" style="font-size: 0.9em;">
     <thead>
       <tr>
+        <th scope="col" rowspan="2" data-dt-order="disable" style="width: 35px;"></th>
         <th scope="col" rowspan="2" data-dt-order="disable">Код учета</th>
 
         <th scope="col" colspan="3" data-dt-order="disable" style="width: 20%;">Подотчетное лицо</th>
@@ -124,6 +125,19 @@
                         }
                     },
                     columns: [
+                        {
+                            data: null,
+                            defaultContent: '',
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center align-middle px-1',
+                            render: function (data, type, row) {
+                                return `<a class="text-success m-0" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa-duotone fa-print fa-xl"></i></a>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="{% url 'payment_prepayments' %}/${data.id}/certificate/html" target="_blank">Справка</a>
+                                </div>`
+                            }
+                        },
                         { data: 'prepayment.imprestAccount.account', orderable: false, defaultContent: "", searchable: false },
                         { data: 'prepayment.empDivNum', orderable: false, render: function (data, type, row) {
                                 return String(data).padStart(3, '0');

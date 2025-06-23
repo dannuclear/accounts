@@ -1,6 +1,6 @@
 from django.db import models
 from prepayment.models import Prepayment
-from guide.models import ObtainMethod
+from guide.models import ObtainMethod, PrepaidDest
 
 # Create your models here.
 
@@ -25,6 +25,7 @@ class Payment(models.Model):
 
     obtainMethod = models.ForeignKey(ObtainMethod, db_column='obtain_method_id', on_delete=models.PROTECT, blank=False, null=False)
 
+    prepaidDest = models.ForeignKey(PrepaidDest, db_column='prepaid_dest_id', on_delete=models.PROTECT, blank=False, null=False)
     # Имя файла
     fileName = models.CharField(db_column='file_name', max_length=50, blank=True, null=True)
     # Когда создан

@@ -127,15 +127,31 @@ def html_report(request, pk):
     return render(request, 'payment/report.html', context)
 
 def payment_certificate(request, pk):
-    payment = Payment.objects.get(pk=pk)
-    totalSumIntString = num2words(int(payment.totalSum), lang='ru')
+    payment = Payment.objects.select_related('obtainMethod').select_related('prepaidDest').get(pk=pk)
+    total_sum_string = num2words(int(payment.totalSum), lang='ru')
+    prepayments = None
+    if 'with_register' in request.GET:
+        prepayments = PaymentPrepayment.objects.select_related('prepayment').all()
 
     context = {
         'payment': payment,
         'bank': payment.obtainMethod,
-        'totalSumIntString': totalSumIntString
+        'totalSumIntString': total_sum_string,
+        'prepayments': prepayments,
     }
     return render(request, 'payment/certificate.html', context)
+
+def payment_prepayment_certificate(request, pk):
+    paymentPrepayment = PaymentPrepayment.objects.select_related('prepayment').select_related('payment__obtainMethod').select_related('payment__prepaidDest').get(pk=pk)
+    totalSumIntString = num2words(int(paymentPrepayment.prepayment.totalSum), lang='ru')
+
+    context = {
+        'paymentPrepayment': paymentPrepayment,
+        'payment': paymentPrepayment.payment,
+        'bank': paymentPrepayment.payment.obtainMethod,
+        'totalSumIntString': totalSumIntString
+    }
+    return render(request, 'payment/payment_prepayment_certificate.html', context)
 
 
 def toggle_lock(request, pk):

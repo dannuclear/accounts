@@ -1,24 +1,31 @@
 from django import forms
 from .models import Payment, PaymentPrepayment
-from guide.models import ObtainMethod
+from guide.models import ObtainMethod, PrepaidDest
 
 
 class NamedChoiceField(forms.ModelChoiceField):
+    def __init__(self, *args, **kwargs):
+        kwargs['empty_label']='Не установлен'
+        super().__init__(*args, **kwargs)
+
     def label_from_instance(self, obj):
         return obj.name
 
+
 class PaymentForm(forms.ModelForm):
 
-    obtainMethod = NamedChoiceField(queryset=ObtainMethod.objects.order_by('id'), label='Банк', required=True, empty_label='Не установлен')
+    obtainMethod = NamedChoiceField(queryset=ObtainMethod.objects.order_by('id'), label='Банк', required=True)
+
+    prepaidDest = NamedChoiceField(queryset=PrepaidDest.objects.order_by('id'), label='Назначение', required=True)
 
     class Meta:
         model = Payment
-        fields = ['name', 'createDate', 'obtainMethod']
+        fields = ['name', 'createDate', 'obtainMethod', 'prepaidDest']
 
 
 class PaymentPrepaymentForm(forms.ModelForm):
 
-    obtainMethod = NamedChoiceField(queryset=ObtainMethod.objects.order_by('id'), label='Банк', required=False, empty_label='Не установлен')
+    obtainMethod = NamedChoiceField(queryset=ObtainMethod.objects.order_by('id'), label='Банк', required=False)
 
     class Meta:
         model = PaymentPrepayment

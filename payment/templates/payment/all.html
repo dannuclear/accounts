@@ -124,6 +124,7 @@
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="{% url 'payments' %}/${data.id}/html" target="_blank">Суммы для перечисления в банк</a>
                             <a class="dropdown-item" href="{% url 'payments' %}/${data.id}/certificate/html" target="_blank">Справка</a>
+                            <a class="dropdown-item" href="{% url 'payments' %}/${data.id}/certificate/html?with_register" target="_blank">Справка с реестром</a>
                         </div>`
                     }
                 },
