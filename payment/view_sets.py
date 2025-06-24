@@ -28,7 +28,7 @@ class PaymentViewSet (viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def prepayments(self, request, pk):
-        queryset = PaymentPrepayment.objects.select_related('obtainMethod').select_related('prepayment__status').select_related('prepayment__document').select_related('prepayment__imprestAccount').select_related('prepayment__wc07pOrder').select_related('prepayment__reportStatus').order_by('id')
+        queryset = PaymentPrepayment.objects.select_related('obtainMethod').select_related('prepaymentItem__prepayment__status').select_related('prepaymentItem__prepayment__document').select_related('prepaymentItem__prepayment__imprestAccount').select_related('prepaymentItem__prepayment__wc07pOrder').select_related('prepaymentItem__prepayment__reportStatus').order_by('id')
         if pk and pk != 'add':
             payment = self.get_object()
             queryset = queryset.filter(payment=payment)
@@ -38,9 +38,9 @@ class PaymentViewSet (viewsets.ModelViewSet):
         else:
             queryset = queryset.filter(payment__isnull=True, accountNumber__isnull=False)
             if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
-                queryset = UniversalPeriodFilter(field_name='prepayment__docDate').filter_queryset(request, queryset, self)
+                queryset = UniversalPeriodFilter(field_name='prepaymentItem__prepayment__docDate').filter_queryset(request, queryset, self)
             if 'imprestAccount' in self.request.query_params:
-                queryset = ImprestAccountFilter(field_name="prepayment__imprestAccount").filter_queryset(request, queryset, self)
+                queryset = ImprestAccountFilter(field_name="prepaymentItem__prepayment__imprestAccount").filter_queryset(request, queryset, self)
             if 'obtainMethod' in self.request.query_params:
                 queryset = ObtainMethodFilter().filter_queryset(request, queryset, self)
             filtered_ids = list(queryset.values_list('pk', flat=True))
@@ -59,7 +59,7 @@ class PaymentViewSet (viewsets.ModelViewSet):
 
 
 class PaymentPrepaymentViewSet (viewsets.ModelViewSet):
-    queryset = PaymentPrepayment.objects.select_related('payment').select_related('obtainMethod').select_related('prepayment__status').select_related('prepayment__imprestAccount').select_related('prepayment__document').select_related('prepayment__wc07pOrder').select_related('prepayment__reportStatus').order_by('id')
+    queryset = PaymentPrepayment.objects.select_related('payment').select_related('obtainMethod').select_related('prepaymentItem__prepayment__status').select_related('prepaymentItem__prepayment__imprestAccount').select_related('prepaymentItem__prepayment__document').select_related('prepaymentItem__prepayment__wc07pOrder').select_related('prepaymentItem__prepayment__reportStatus').order_by('id')
     serializer_class = PaymentPrepaymentSerializer
 
     def filter_queryset(self, queryset):

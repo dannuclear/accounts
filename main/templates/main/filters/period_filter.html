@@ -1,31 +1,36 @@
 <div id="period-filter" class="input-group input-group-sm">
   <span class="input-group-text">Период с</span>
-  <input id="period-from" value={% now '01.m.Y' %} class="form-control text-center datepeeker" />
+  <input id="period-from" value={% if period_from %}{{ period_from|date:'d.m.Y' }}{% else %}{% now '01.m.Y' %}{% endif %} class="form-control text-center datepeeker" />
   <span class="input-group-text">по</span>
-  <input id="period-to" value={% now 't.m.Y' %} class="form-control text-center datepeeker" />
+  <input id="period-to" value={% if period_to %}{{ period_to|date:'d.m.Y' }}{% else %}{% now 't.m.Y' %}{% endif %} class="form-control text-center datepeeker" />
   <button type="button" class="btn btn-sm btn-outline-success">X</button>
 </div>
 <script type="text/javascript">
   const periodFilter = $('#period-filter')
 
   $(document).ready( function () {
-    const storedValues = localStorage.getItem('periodFilter');
-    if (storedValues) {
-      const result = JSON.parse(storedValues);
-      $('#period-from').val(result.from);
-      $('#period-to').val(result.to);
-    }
+    {% if save_state|default_if_none:True %}
+      const storedValues = localStorage.getItem('periodFilter');
+      if (storedValues) {
+        const result = JSON.parse(storedValues);
+        $('#period-from').val(result.from);
+        $('#period-to').val(result.to);
+      }
 
-    periodFilter.find('input').on('change', function () {
-      const from = $('#period-from').val();
-      const to = $('#period-to').val();
-      localStorage.setItem('periodFilter', JSON.stringify({ from, to }));
-    });
+      periodFilter.find('input').on('change', function () {
+        const from = $('#period-from').val();
+        const to = $('#period-to').val();
+        localStorage.setItem('periodFilter', JSON.stringify({ from, to }));
+      });
 
-    periodFilter.find('button').on('click', function (e) {
-      periodFilter.find('input').val('')
-      localStorage.setItem('periodFilter', JSON.stringify({ from:'', to:'' }));
-    })
-
+      periodFilter.find('button').on('click', function (e) {
+        periodFilter.find('input').val('')
+        localStorage.setItem('periodFilter', JSON.stringify({ from:'', to:'' }));
+      })
+    {% else %}
+      periodFilter.find('button').on('click', function (e) {
+        periodFilter.find('input').val('')
+      })
+    {% endif %}
   })
 </script>

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Prepayment
+from .models import Prepayment, PrepaymentItem
 from integration.serializers import EmployeeSerializer, WC07POrderSerializer
 from guide.serializers import StatusSerializer, ImprestAccountSerializer, DocumentSerializer
 from django.utils.formats import number_format
@@ -58,3 +58,12 @@ class SimplePrepaymentSerializer (serializers.ModelSerializer):
         model = Prepayment
         fields = serializers.ALL_FIELDS
         datatables_always_serialize = ('id', 'document', 'wc07pOrder', 'docNum', 'docDate', 'createdByFullName', 'updatedByAccountant', 'createdBy', 'distribCarryover')
+
+class PrepaymentItemSerializer (serializers.ModelSerializer):
+
+    prepayment = SimplePrepaymentSerializer(read_only=True, many=False)
+
+    class Meta:
+        model = PrepaymentItem
+        fields = serializers.ALL_FIELDS
+        datatables_always_serialize = ('id')

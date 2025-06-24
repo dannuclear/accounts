@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Payment, PaymentPrepayment
-from prepayment.serializers import SimplePrepaymentSerializer
+from prepayment.serializers import SimplePrepaymentSerializer, PrepaymentItemSerializer
 from guide.serializers import ObtainMethodSerializer
 
 
@@ -14,11 +14,13 @@ class PaymentSerializer (serializers.ModelSerializer):
         datatables_always_serialize = ('id', 'name', 'lockLevel')
 
 class PaymentPrepaymentSerializer (serializers.ModelSerializer):
-    prepayment = SimplePrepaymentSerializer(read_only=True, many=False)
+    #prepayment = SimplePrepaymentSerializer(read_only=True, many=False)
 
     payment = PaymentSerializer(read_only=True, many=False)
 
     obtainMethod = ObtainMethodSerializer(read_only=True, many=False)
+
+    prepaymentItem = PrepaymentItemSerializer(read_only=True, many=False)
 
     class Meta:
         model = PaymentPrepayment

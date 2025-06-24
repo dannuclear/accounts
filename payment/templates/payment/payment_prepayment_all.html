@@ -73,8 +73,6 @@
 
   <script type="text/javascript">
     let urlParams = new URLSearchParams(document.location.search)
-    const isAdminOrAccountant = {{ isAdminOrAccountant|yesno:"true,false" }}
-
     $(document).ready(
         function () {
             var requestTable = $('#request-table').DataTable(
@@ -87,15 +85,15 @@
                             if (imprestAccount)
                                 d.imprestAccount=imprestAccount
                             if ($('#period-from').val()) {
-                                d.periodFieldName = 'prepayment__docDate'
+                                d.periodFieldName = 'prepaymentItem__prepayment__docDate'
                                 d.periodFrom=$('#period-from').val()
                             }
                             if ($('#period-to').val()) {
-                                d.periodFieldName = 'prepayment__docDate'
+                                d.periodFieldName = 'prepaymentItem__prepayment__docDate'
                                 d.periodTo=$('#period-to').val()
                             }
                             if (statusFilter && statusFilter.val()) {
-                                d.statusField = 'prepayment__status__id'
+                                d.statusField = 'prepaymentItem__prepayment__status__id'
                                 d.statusFilter = statusFilter.val()
                             }
                             const archiveFilterValue = $('input[name="archive-radio"]:checked').val();
@@ -103,9 +101,9 @@
                                 d.hasPayment = archiveFilterValue
                             }
                             
-                            d.columns.push({data: 'prepayment__wc07pOrder.orderNum', searchable: true})
-                            d.columns.push({data: 'prepayment__imprestAccount.account', searchable: true})
-                            d.columns.push({data: 'prepayment__docNum', searchable: true})
+                            d.columns.push({data: 'prepaymentItem__prepayment__wc07pOrder.orderNum', searchable: true})
+                            d.columns.push({data: 'prepaymentItem__prepayment__imprestAccount.account', searchable: true})
+                            d.columns.push({data: 'prepaymentItem__prepayment__docNum', searchable: true})
                         }
                     },
                     rowId: 'id',
@@ -138,31 +136,31 @@
                                 </div>`
                             }
                         },
-                        { data: 'prepayment.imprestAccount.account', orderable: false, defaultContent: "", searchable: false },
-                        { data: 'prepayment.empDivNum', orderable: false, render: function (data, type, row) {
+                        { data: 'prepaymentItem.prepayment.imprestAccount.account', orderable: false, defaultContent: "", searchable: false },
+                        { data: 'prepaymentItem.prepayment.empDivNum', orderable: false, render: function (data, type, row) {
                                 return String(data).padStart(3, '0');
                             }  
                         },
-                        { data: 'prepayment.empNum', orderable: false },
-                        { data: 'prepayment.empFullName', orderable: false, className: 'text-start' },
-                        { data: 'prepayment.totalSum', orderable: false, searchable: false, className: 'text-right text-nowrap', render: $.fn.dataTable.render.number( ' ', ',', 2 )  },
+                        { data: 'prepaymentItem.prepayment.empNum', orderable: false },
+                        { data: 'prepaymentItem.prepayment.empFullName', orderable: false, className: 'text-start' },
+                        { data: 'prepaymentItem.value', orderable: false, searchable: false, className: 'text-right text-nowrap', render: $.fn.dataTable.render.number( ' ', ',', 2 )  },
 
                         { data: null, orderable: false, searchable: false, render: function (data, type, row, meta) {
-                                return data.prepayment.document?data.prepayment.document.name:'';
+                                return data.prepaymentItem.prepayment.document?data.prepaymentItem.prepayment.document.name:'';
                             }
                         },
                         { data: null, orderable: false, searchable: false, render: function (data, type, row, meta) {
-                                if (data.prepayment.wc07pOrder)
-                                    return data.prepayment.wc07pOrder.orderNum
+                                if (data.prepaymentItem.prepayment.wc07pOrder)
+                                    return data.prepaymentItem.prepayment.wc07pOrder.orderNum
                                 else 
-                                    return data.prepayment.docNum;
+                                    return data.prepaymentItem.prepayment.docNum;
                             }
                         },
                         { data: null, orderable: false, searchable: false, render: function (data, type, row, meta) {
-                                if (data.prepayment.wc07pOrder)
-                                    return data.prepayment.wc07pOrder.orderDate
+                                if (data.prepaymentItem.prepayment.wc07pOrder)
+                                    return data.prepaymentItem.prepayment.wc07pOrder.orderDate
                                 else 
-                                    return data.prepayment.docDate;
+                                    return data.prepaymentItem.prepayment.docDate;
                             }
                         },
 

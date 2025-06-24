@@ -32,7 +32,7 @@
           <h5>Отбор выданных авансов</h5>
           <div class="row g-1">
             <div class="col-4">
-              {% include 'main/filters/period_filter.html' %}
+              {% include 'main/filters/period_filter.html' with save_state=False period_from=form.createDate.value period_to=form.createDate.value %}
             </div>
             <div class="col-4">
               {% include 'imprestAccount/filter.html' with options=imprestAccounts %}
@@ -127,24 +127,24 @@
         rowId: 'id',
         order: [],
         columns: [
-          { data: 'prepayment.imprestAccount.account', orderable: false, defaultContent: '', searchable: false },
+          { data: 'prepaymentItem.prepayment.imprestAccount.account', orderable: false, defaultContent: '', searchable: false },
     
           {
-            data: 'prepayment.empDivNum',
+            data: 'prepaymentItem.prepayment.empDivNum',
             orderable: false,
             render: function (data, type, row) {
               return String(data).padStart(3, '0')
             }
           },
-          { data: 'prepayment.empNum', orderable: false },
-          { data: 'prepayment.empFullName', orderable: false },
+          { data: 'prepaymentItem.prepayment.empNum', orderable: false },
+          { data: 'prepaymentItem.prepayment.empFullName', orderable: false },
     
           {
             data: null,
             orderable: false,
             searchable: false,
             render: function (data, type, row, meta) {
-              return data.prepayment.document ? data.prepayment.document.name : ''
+              return data.prepaymentItem.prepayment.document ? data.prepaymentItem.prepayment.document.name : ''
             }
           },
           {
@@ -152,8 +152,8 @@
             orderable: false,
             searchable: false,
             render: function (data, type, row, meta) {
-              if (data.prepayment.wc07pOrder) return data.prepayment.wc07pOrder.orderNum
-              else return data.prepayment.docNum
+              if (data.prepaymentItem.prepayment.wc07pOrder) return data.prepaymentItem.prepayment.wc07pOrder.orderNum
+              else return data.prepaymentItem.prepayment.docNum
             }
           },
           {
@@ -161,12 +161,12 @@
             orderable: false,
             searchable: false,
             render: function (data, type, row, meta) {
-              if (data.prepayment.wc07pOrder) return data.prepayment.wc07pOrder.orderDate
-              else return data.prepayment.docDate
+              if (data.prepaymentItem.prepayment.wc07pOrder) return data.prepaymentItem.prepayment.wc07pOrder.orderDate
+              else return data.prepaymentItem.prepayment.docDate
             }
           },
     
-          { data: 'prepayment.totalSum', orderable: false, searchable: false, className: 'text-right text-nowrap', render: $.fn.dataTable.render.number(' ', ',', 2) },
+          { data: 'prepaymentItem.prepayment.totalSum', orderable: false, searchable: false, className: 'text-right text-nowrap', render: $.fn.dataTable.render.number(' ', ',', 2) },
           { data: 'obtainMethod.name', orderable: false, defaultContent: '', searchable: false },
           { data: 'accountNumber', orderable: false, defaultContent: '', searchable: false }
     

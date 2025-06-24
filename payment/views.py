@@ -41,7 +41,10 @@ class PaymentCreateView(CreateView):
     def get_initial(self):
         initial = super().get_initial()
         initial['createDate'] = datetime.now()
-        locale.setlocale(category=locale.LC_ALL, locale="ru_RU")
+        try:
+            locale.setlocale(category=locale.LC_TIME, locale="ru_RU.UTF-8")
+        except:
+            pass 
         initial['name'] = datetime.now().strftime('%B %Y')
         return initial
 
