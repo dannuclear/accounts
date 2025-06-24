@@ -64,6 +64,11 @@
                   <a class="dropdown-item" href="{% url 'accountingEntries' %}">Массив проводок для выгрузки в баланс</a>
                 </li>
               {% endif %}
+              {% if perms.accountingEntry.view_accounting_entry %}
+                <li>
+                  <a class="dropdown-item" href="{% url 'accountingEntries' %}">Массив проводок по перечислению в банки</a>
+                </li>
+              {% endif %}
               {% if perms.prepayment.view_inventories %}
                 <li>
                   <a class="dropdown-item" href="{% url 'inventories' %}">Опись массива авансовых отчетов за период</a>

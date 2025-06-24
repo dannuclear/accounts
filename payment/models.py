@@ -1,5 +1,5 @@
 from django.db import models
-from prepayment.models import Prepayment
+from prepayment.models import Prepayment, PrepaymentItem
 from guide.models import ObtainMethod, PrepaidDest
 
 # Create your models here.
@@ -85,6 +85,8 @@ class PaymentPrepayment(models.Model):
 
     # Выплачиваемый аванс
     prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.PROTECT, blank=False, null=False)
+    # Выплачиваемый аванс (пункт) так как приказом может добавится еще один, и не учитывать переходящий
+    prepaymentItem = models.ForeignKey(PrepaymentItem, db_column='prepayment_item_id', on_delete=models.PROTECT, blank=True, null=True)
 
     obtainMethod = models.ForeignKey(ObtainMethod, db_column='obtain_method_id', on_delete=models.PROTECT, blank=True, null=True)
     accountNumber = models.CharField(max_length=20, db_column='account_number', verbose_name="Номер лицевого счета", blank=True, null=True)

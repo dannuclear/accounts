@@ -130,6 +130,16 @@
                                   <td class="text-right ">{{ entry.ae_sum|default_if_none:" " }}</td>
                               </tr>
                           {% endfor %}
+                          {% if prepaymentGroup.org_expense_sum %}
+                              <tr>
+                                  <td class="text-left ">Расходы оплаченные организацией</td>
+                                  <td class="text-center "></td>
+                                  <td class="text-center "></td>
+                                  <td class="text-center "></td>
+                                  <td class="text-center "></td>
+                                  <td class="text-right ">{{ prepaymentGroup.org_expense_sum|default_if_none:" " }}</td>
+                              </tr>
+                          {% endif %}
                           <tr>
                               <td colspan="5" class="text-left h6" style="border-bottom: 1px dashed black;">итого по проводке №: {{ prepaymentGroup.prepayment__reportAccountingNum|zfill:6 }}</td>
                               <td colspan="1" class="text-right h6" style="border-bottom: 1px dashed black; border-top: 1px dashed black;">{{ prepaymentGroup.prepaymentSum }}</td>
