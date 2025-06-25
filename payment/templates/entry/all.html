@@ -1,0 +1,231 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+Массив проводок для выгрузки в баланс
+{% endblock %}
+
+{% block content %}
+<div class="alert alert-primary" role="alert" style="display: none;">
+
+</div>
+
+<div class="row">
+    <div class="col-3">  
+        {% include 'main/filters/period_filter.html' %}
+    </div>
+    <div class="col-3">
+        <div class="form-check pt-1">
+            <input id="group-checkbox" class="form-check-input" type="checkbox" value="" id="flexCheckIndeterminate">
+            <label class="form-check-label" for="flexCheckIndeterminate">
+              Группировать
+            </label>
+          </div>
+    </div>
+</div>
+
+<div class="modal fade" id="periodModal" tabindex="-1" aria-labelledby="periodModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Подтвердить проводки</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body container-fluid">
+            <div class="row p-1">
+                <div class="col-12">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text">Месяц, год выгрузки</span>
+                        <input type="text" class="mb-0 form-control form-control-sm datepeeker period-date" />
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" form="mainForm" class="btn btn-primary ok-button">Ок</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm" style="font-size: 0.9em;">
+    <thead>
+        <tr>
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 40px">АО</th>
+
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 40px">Месяц</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 40px">Год</th>
+
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 70px">Таб. №</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 15%">ФИО</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 50px">Подр-е</th>
+
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 50px">№ проводки</th>
+
+            <th scope="col" rowspan="1" colspan="4" data-dt-order="disable" style="width: 60px">Дебет</th>
+            <th scope="col" rowspan="1" colspan="4" data-dt-order="disable" style="width: 60px">Кредит</th>
+
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 130px">Сумма</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 50px">Признак подтверждения</th>
+            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 70px">Дата подтверждения</th>
+        </tr>
+        <tr>
+            <th scope="col" data-dt-order="disable" style="width: 50px">счет/субсчет</th>
+            <th scope="col" colspan="2" data-dt-order="disable" style="width: 80px">КАУ</th>
+            <th scope="col" data-dt-order="disable" style="width: 100px">ДП</th>
+
+            <th scope="col" data-dt-order="disable" style="width: 50px">счет/субсчет</th>
+            <th scope="col" colspan="2" data-dt-order="disable" style="width: 80px">КАУ</th>
+            <th scope="col" data-dt-order="disable" style="width: 100px">ДП</th>
+        </tr>
+        <tr>
+          {% for i in 'x'|rjust:'18'|make_list %}
+            {% if forloop.counter0 > 0 %}
+                <th scope="col" style="font-size: 0.7em; padding: 0 !important;">{{ forloop.counter0}}</th>
+            {% else %}
+                <th scope="col"></th>
+            {% endif %}
+          {% endfor %}
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <th scope="col" colspan="15" class="text-left">Итого:</th>
+            <th scope="col"></th>
+            <th scope="col" colspan="2"></th>
+        </tr>
+    </tfoot>
+</table>
+
+<script type="text/javascript">
+    const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ']
+    const groupCheckbox = $('#group-checkbox')
+    let urlParams = new URLSearchParams(document.location.search)
+
+    $('.datepeeker').datepicker({
+        beforeShow: function() {
+          setTimeout(function(){
+              $('.ui-datepicker').css('z-index', 99999999999999);
+          }, 0);
+        }
+    })
+
+    // Принятие проводок
+    $('#periodModal').on('click', '.ok-button', function(e){
+        var modal = $(e.delegateTarget)
+        const modalDateInput = modal.find("input.period-date")
+        if (modalDateInput.val())
+            window.open(`/accountingEntries/download?toDate=${modalDateInput.val()}`, '_blank').focus();
+      })
+
+    $(document).ready(
+        function () {
+            var requestTable = $('#request-table').DataTable(
+                {
+                    ajax: {
+                        url: '{% url "paymentprepayment-list" %}',
+                        data: function (d) {
+                            d.format = 'datatables'
+                            let imprestAccount = urlParams.get("imprestAccount")
+                            if (imprestAccount)
+                                d.imprestAccount=imprestAccount
+                            if ($('#period-from').val())
+                                d.periodFrom=$('#period-from').val()
+                            if ($('#period-to').val())
+                                d.periodTo=$('#period-to').val()
+                            if (groupCheckbox.is(':checked'))
+                                d.group=true
+                            d.columns.push({data: 'acplAccountDebit', searchable: true})
+                            d.columns.push({data: 'acplSubaccountDebit', searchable: true})
+                            d.columns.push({data: 'acplAccountCredit', searchable: true})
+                            d.columns.push({data: 'acplSubaccountCredit', searchable: true})
+                        }
+                    },
+                    rowId: 'id',
+                    pagingType: 'first_last_numbers',
+                    order: [],
+                    footerCallback: function(row, data, start, end, display) {
+                        var intVal = function(i) {
+                          return typeof i === 'string' ? i.replace(/,/g, '.').replace(/ /g, '') * 1 : typeof i === 'number' ? i : 0;
+                        };
+              
+                        var total = 0;
+                        var api = this.api();
+              
+                        api.cells(null, 15, { page: 'current' }).nodes().each(function(n) {
+                            total += intVal($(n).text());
+                        })
+              
+                        $(api.column(15).footer()).html(total.toFixed(2));
+                    },
+                    columns: [
+                        {
+                            data: null,
+                            orderable: false,
+                            width: '1rem',
+                            className: 'text-center',
+                            searchable: false,
+                            render: function (data, type, row, meta) {
+                                return `<a role="button" href="/advanceReports/${data.prepayment.id}"><i class="text-danger fa-light fa-left h5 m-0"></i></a>`
+                            },
+                        },
+                        { data: 'month', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'year', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'prepayment.empNum', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'prepayment.empFullName', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'prepayment.empDivNum', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'aeNo', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'debitAccountSubaccount', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'acplCodeAnaliticDebit1', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'acplCodeAnaliticDebit2', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'acplAddSignDebit', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'creditAccountSubaccount', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'acplCodeAnaliticCredit1', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'acplCodeAnaliticCredit2', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'acplAddSignCredit', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'aeSum', orderable: false, defaultContent: "", className: 'text-right', render: $.fn.dataTable.render.number( ' ', ',', 2 ) },
+                        { data: null, orderable: false, searchable: false, defaultContent: "", className: 'text-center', render: function (data, type, row, meta) {
+                                if (data.prepayment && data.prepayment.lockLevel == 1)
+                                    return '<span style="font-weight: bold;">v<span>'
+                                else if (data.prepayment && data.prepayment.lockLevel == 2)
+                                    return '<span style="color: blue; font-weight: bold;">v<span>'
+                                else 
+                                    return null
+                            }
+                        },
+                        { data: 'prepayment.approveActionDate', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
+                    ],
+                    buttons: [
+                        {
+                            text: '<i class="fa-light fa-file-export me-2"></i>&nbsp;Сформировать файл выгрузки',
+                            className: 'btn btn-success btn-sm',
+                            attr: {
+                                "data-bs-toggle": "modal",
+                                "data-bs-target": "#periodModal"
+                            }
+                        },
+                        {
+                            extend: 'excel',
+                            text: '<i class="fa-light fa-file-xls"></i>&nbsp;Excel',
+                            className: 'btn-primary btn-sm'
+                        }
+                    ]
+                });
+            periodFilter
+                .find('.datepeeker')
+                .datepicker()
+                .on('change', function (e) {
+                requestTable.ajax.reload()
+                })
+
+            groupCheckbox.on('change', function() {
+                requestTable.ajax.reload()
+            })
+            periodFilter.find('button').on('click', function (e) {
+                periodFilter.find('input').val('')
+                requestTable.ajax.reload()
+            })
+        }
+    );
+</script>
+{% endblock %}

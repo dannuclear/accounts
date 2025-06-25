@@ -20,6 +20,9 @@ from num2words import num2words
 class PaymentAllView(TemplateView):
     template_name = 'payment/all.html'
 
+class EntryAllView(TemplateView):
+    template_name = 'entry/all.html'
+
 # class PaymentFileAllView(TemplateView):
 #     template_name = 'payment/payment_file_all.html'
 
