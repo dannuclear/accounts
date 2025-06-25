@@ -42,7 +42,7 @@ class PaymentCreateView(CreateView):
         initial = super().get_initial()
         initial['createDate'] = datetime.now()
         try:
-            locale.setlocale(category=locale.LC_TIME, locale="ru_RU.UTF-8")
+            locale.setlocale(category=locale.LC_ALL, locale="ru_RU.UTF-8")
         except:
             pass 
         initial['name'] = datetime.now().strftime('%B %Y')
@@ -61,13 +61,13 @@ class PaymentCreateView(CreateView):
         payment = form.instance
         if 'add_ids' in self.request.POST and self.request.POST['add_ids']:
             ids = self.request.POST.get('add_ids', '').split(',')
-            payment_prepayments = PaymentPrepayment.objects.filter(pk__in=ids).select_related('prepayment')
+            payment_prepayments = PaymentPrepayment.objects.filter(pk__in=ids).select_related('prepaymentItem__prepayment')
             total_count = 0
             total_sum = 0
             for payment_prepayment in payment_prepayments:
                 total_count += 1
-                if payment_prepayment.prepayment.totalSum is not None:
-                    total_sum += payment_prepayment.prepayment.totalSum
+                if payment_prepayment.prepaymentItem.value is not None:
+                    total_sum += payment_prepayment.prepaymentItem.value
                 payment_prepayment.payment = payment
                 payment_prepayment.status = 0
             PaymentPrepayment.objects.bulk_update(payment_prepayments, fields=['payment', 'status'])
@@ -119,10 +119,10 @@ class PaymentPrepaymentUpdateView(UpdateView):
 
 def html_report(request, pk):
     payment = Payment.objects.get(pk=pk)
-    payment.prepayments = payment.paymentprepayment_set.all()
+    payment.prepayments = PaymentPrepayment.objects.filter(payment=payment).select_related('prepaymentItem__obtainMethod').select_related('prepaymentItem__prepayment__imprestAccount').all()
     total_sum = decimal.Decimal(0)
     for p in payment.prepayments:
-        total_sum += p.prepayment.totalSum
+        total_sum += p.prepaymentItem.value
     context = {
         'payment': payment,
         'totalSum': total_sum,
@@ -134,7 +134,7 @@ def payment_certificate(request, pk):
     total_sum_string = num2words(int(payment.totalSum), lang='ru')
     prepayments = None
     if 'with_register' in request.GET:
-        prepayments = PaymentPrepayment.objects.select_related('prepayment').all()
+        prepayments = PaymentPrepayment.objects.select_related('prepaymentItem__prepayment').all()
 
     context = {
         'payment': payment,
@@ -145,8 +145,8 @@ def payment_certificate(request, pk):
     return render(request, 'payment/certificate.html', context)
 
 def payment_prepayment_certificate(request, pk):
-    paymentPrepayment = PaymentPrepayment.objects.select_related('prepayment').select_related('payment__obtainMethod').select_related('payment__prepaidDest').get(pk=pk)
-    totalSumIntString = num2words(int(paymentPrepayment.prepayment.totalSum), lang='ru')
+    paymentPrepayment = PaymentPrepayment.objects.select_related('prepaymentItem__prepayment').select_related('payment__obtainMethod').select_related('payment__prepaidDest').get(pk=pk)
+    totalSumIntString = num2words(int(paymentPrepayment.prepaymentItem.value), lang='ru')
 
     context = {
         'paymentPrepayment': paymentPrepayment,
@@ -189,7 +189,7 @@ def download_menu(request):
     if not ids_param:
         return HttpResponseBadRequest('ids не указаны')
     ids = ids_param.split(',')
-    elements = PaymentPrepayment.objects.filter(payment_id__in=ids).values('obtainMethod__id', 'obtainMethod__name').annotate(total_count=Count('id'), total_sum=Sum('prepayment__totalSum'))
+    elements = PaymentPrepayment.objects.filter(payment_id__in=ids).values('prepaymentItem__obtainMethod__id', 'prepaymentItem__obtainMethod__name').annotate(total_count=Count('id'), total_sum=Sum('prepaymentItem__value'))
     context = {
         'elements': elements,
         'payment_ids': ids_param
@@ -213,14 +213,14 @@ def download(request):
     payment = payments[0]
 
     obtain_method = ObtainMethod.objects.get(pk=obtain_method_id)
-    queryset = PaymentPrepayment.objects.filter(payment_id__in=ids, obtainMethod=obtain_method_id)
+    queryset = PaymentPrepayment.objects.filter(payment_id__in=ids, prepaymentItem__obtainMethod=obtain_method_id)
     client_number = obtain_method.clientNumber
     if not client_number:
         return render(request, 'main/error.html', {'message': 'Укажите номер клиента банка в справочнике способов получения'})
     filename = payment.fileName
     date = payment.fileDateTime or datetime.now()
     if obtain_method_id == '2':    # Газпромбанк
-        queryset = queryset.values('prepayment__empFullName', 'accountNumber').annotate(total_count=Count('id'), total_sum=Sum('prepayment__totalSum'))
+        queryset = queryset.values('prepaymentItem__prepayment__empFullName', 'accountNumber').annotate(total_count=Count('id'), total_sum=Sum('prepaymentItem__value'))
         response = StreamingHttpResponse(
             gpb_file_generator(date, queryset),
             content_type='text/plain; charset=cp1251'
@@ -234,7 +234,7 @@ def download(request):
         if register_counter is None:
             register_counter = 1
         obtain_method.registerCounter = register_counter + 1
-        queryset = queryset.values('prepayment__empFullName', 'prepayment__empSurname', 'prepayment__empName', 'prepayment__empPatronymic', 'accountNumber').annotate(total_count=Count('id'), total_sum=Sum('prepayment__totalSum'))
+        queryset = queryset.values('prepaymentItem__prepayment__empFullName', 'prepaymentItem__prepayment__empSurname', 'prepaymentItem__prepayment__empName', 'prepaymentItem__prepayment__empPatronymic', 'accountNumber').annotate(total_count=Count('id'), total_sum=Sum('prepaymentItem__value'))
         xml_result = sbp_file_generator(
             obtain_method_id,
             date,
@@ -261,7 +261,7 @@ def download(request):
             register_counter = 1
         obtain_method.registerCounter = register_counter + 1
 
-        queryset = queryset.values('prepayment__empFullName', 'accountNumber').annotate(total_count=Count('id'), total_sum=Sum('prepayment__totalSum'))
+        queryset = queryset.values('prepaymentItem__prepayment__empFullName', 'accountNumber').annotate(total_count=Count('id'), total_sum=Sum('prepaymentItem__value'))
         response = StreamingHttpResponse(
             vtb_file_generator(date, obtain_method.clientFullName, queryset),
             content_type='text/plain; charset=cp1251'
@@ -285,7 +285,7 @@ def gpb_file_generator(date, items):
     total = 0
     for item in items:
         total += item['total_sum']
-        yield '%s,%s,%.2f,%.2f\n' % (item['accountNumber'], item['prepayment__empFullName'], item['total_sum'], 0)
+        yield '%s,%s,%.2f,%.2f\n' % (item['accountNumber'], item['prepaymentItem__prepayment__empFullName'], item['total_sum'], 0)
     yield 'Итого:%.2f' % (total)
 
 
@@ -295,7 +295,7 @@ def vtb_file_generator(date, client_name, items):
     total = 0
     for item in items:
         total += item['total_sum']
-        yield '%s;%.2f;%s\n' % (item['accountNumber'], item['total_sum'], item['prepayment__empFullName'])
+        yield '%s;%.2f;%s\n' % (item['accountNumber'], item['total_sum'], item['prepaymentItem__prepayment__empFullName'])
     yield 'END;%s;%.2f;RUR' % (len(items), total)
 
 
@@ -321,11 +321,11 @@ def sbp_file_generator(bank_type, date, register_counter, client_number, contrac
         employee = ET.SubElement(salary_payment, 'Сотрудник')
         employee.set('Нпп', str(counter))
 
-        full_name_parts = item.get('prepayment__empFullName', '').split()
+        full_name_parts = item.get('prepaymentItem__prepayment__empFullName', '').split()
 
-        ET.SubElement(employee, 'Фамилия').text = item.get('prepayment__empSurname') or full_name_parts[0]
-        ET.SubElement(employee, 'Имя').text = item.get('prepayment__empName') or full_name_parts[1]
-        ET.SubElement(employee, 'Отчество').text = item.get('prepayment__empPatronymic') or full_name_parts[2]
+        ET.SubElement(employee, 'Фамилия').text = item.get('prepaymentItem__prepayment__empSurname') or full_name_parts[0]
+        ET.SubElement(employee, 'Имя').text = item.get('prepaymentItem__prepayment__empName') or full_name_parts[1]
+        ET.SubElement(employee, 'Отчество').text = item.get('prepaymentItem__prepayment__empPatronymic') or full_name_parts[2]
         if bank_type == 3: # Сбербанк
             ET.SubElement(employee, 'ОтделениеБанка').text = client_number
         ET.SubElement(employee, 'ЛицевойСчет').text = item['accountNumber']

@@ -20,7 +20,9 @@
     </div>
 
     <div class="col-auto">
-      <button class="btn btn-sm btn-outline-danger delete-item" data-prefix="{{ form.prefix }}"><i class="fa-duotone fa-trash"></i></button>
+      {% if not form.value.field.disabled %}
+        <button class="btn btn-sm btn-outline-danger delete-item" data-prefix="{{ form.prefix }}"><i class="fa-duotone fa-trash"></i></button>
+      {% endif %}
     </div>
   </div>
 </div>

@@ -84,11 +84,11 @@ class PaymentPrepayment(models.Model):
     # paymentFile = models.ForeignKey(PaymentFile, db_column='payment_file_id', on_delete=models.SET_NULL, blank=True, null=True)
 
     # Выплачиваемый аванс
-    prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.PROTECT, blank=False, null=False)
+    # prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.PROTECT, blank=False, null=False)
     # Выплачиваемый аванс (пункт) так как приказом может добавится еще один, и не учитывать переходящий
     prepaymentItem = models.ForeignKey(PrepaymentItem, db_column='prepayment_item_id', on_delete=models.PROTECT, blank=True, null=True)
 
-    obtainMethod = models.ForeignKey(ObtainMethod, db_column='obtain_method_id', on_delete=models.PROTECT, blank=True, null=True)
+    # obtainMethod = models.ForeignKey(ObtainMethod, db_column='obtain_method_id', on_delete=models.PROTECT, blank=True, null=True)
     accountNumber = models.CharField(max_length=20, db_column='account_number', verbose_name="Номер лицевого счета", blank=True, null=True)
     cardNumber = models.CharField(max_length=16, db_column='card_number', verbose_name="Номер карты", blank=True, null=True)
     # Статус выплаченного аванса (0 - успешно, 1 - неоплата)
@@ -96,13 +96,13 @@ class PaymentPrepayment(models.Model):
 
     comment = models.CharField(db_column="comment", blank=True, max_length=100)
 
-    deadline = models.DateField(db_column="deadline", blank=True, null=True)
+    # deadline = models.DateField(db_column="deadline", blank=True, null=True)
 
     repeatNext = models.ForeignKey('self', db_column='repeat_next_id', on_delete=models.SET_NULL, blank=True, null=True)
 
     class Meta:
         db_table = 'payment_prepayment'
-        unique_together = (('payment', 'prepayment'),)
+        unique_together = (('payment', 'prepaymentItem'),)
         verbose_name = 'Выданный аванс в реестре'
         verbose_name_plural = 'Выданные авансы в реестре'
         default_permissions = ()

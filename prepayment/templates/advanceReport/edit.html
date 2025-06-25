@@ -225,29 +225,29 @@
         <ul class="nav nav-tabs w-100" id="myTab" style="font-size: 0.8em;" role="tablist">
           {% if form.instance.imprestAccount_id != 7104 and form.instance.imprestAccount_id != 7106 %}
             <li class="nav-item" role="presentation">
-              <button class="nav-link active h-100" id="tab-1" data-bs-toggle="tab" data-bs-target="#tab-content-1" type="button" role="tab" aria-controls="tab-content-1" aria-selected="true">Командировочные расходы</button>
+              <button class="nav-link active h-100 me-1 {% if travelExpenses|length %}bg-success-subtle{% endif %}" id="tab-1" data-bs-toggle="tab" data-bs-target="#tab-content-1" type="button" role="tab" aria-controls="tab-content-1" aria-selected="true">Командировочные расходы</button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link h-100" id="tab-2" data-bs-toggle="tab" data-bs-target="#tab-content-2" type="button" role="tab" aria-controls="tab-content-2" aria-selected="false">Расходы, оплаченные организацией за услуги проезда,<br />проживания подотчетного лица и пр.услуги</button>
+              <button class="nav-link h-100 me-1 {% if orgServices|length %}bg-success-subtle{% endif %}" id="tab-2" data-bs-toggle="tab" data-bs-target="#tab-content-2" type="button" role="tab" aria-controls="tab-content-2" aria-selected="false">Расходы, оплаченные организацией за услуги проезда,<br />проживания подотчетного лица и пр.услуги</button>
             </li>
           {% endif %}
           <li class="nav-item" role="presentation">
-            <button class="nav-link h-100 {% if form.instance.imprestAccount_id == 7104 or form.instance.imprestAccount_id == 7106 %} active {% endif %}" id="tab-3" data-bs-toggle="tab" data-bs-target="#tab-content-3" type="button" role="tab" aria-controls="tab-content-3" aria-selected="false">Приобретение ТМЦ</button>
+            <button class="nav-link h-100 me-1 {% if iventoryItems|length %}bg-success-subtle{% endif %} {% if form.instance.imprestAccount_id == 7104 or form.instance.imprestAccount_id == 7106 %} active {% endif %}" id="tab-3" data-bs-toggle="tab" data-bs-target="#tab-content-3" type="button" role="tab" aria-controls="tab-content-3" aria-selected="false">Приобретение ТМЦ</button>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link h-100" id="tab-4" data-bs-toggle="tab" data-bs-target="#tab-content-4" type="button" role="tab" aria-controls="tab-content-4" aria-selected="false">Оплата работ, услуг</button>
+            <button class="nav-link h-100 me-1 {% if services|length %}bg-success-subtle{% endif %}" id="tab-4" data-bs-toggle="tab" data-bs-target="#tab-content-4" type="button" role="tab" aria-controls="tab-content-4" aria-selected="false">Оплата работ, услуг</button>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link h-100" id="tab-5" data-bs-toggle="tab" data-bs-target="#tab-content-5" type="button" role="tab" aria-controls="tab-content-5" aria-selected="false">Представительские расходы</button>
+            <button class="nav-link h-100 me-1 {% if presentationExpenses|length %}bg-success-subtle{% endif %}" id="tab-5" data-bs-toggle="tab" data-bs-target="#tab-content-5" type="button" role="tab" aria-controls="tab-content-5" aria-selected="false">Представительские расходы</button>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link h-100" id="tab-6" data-bs-toggle="tab" data-bs-target="#tab-content-6" type="button" role="tab" aria-controls="tab-content-6" aria-selected="false">Оплата заказ-наряда</button>
+            <button class="nav-link h-100 me-1 {% if purchaseOrderExpenses|length %}bg-success-subtle{% endif %}" id="tab-6" data-bs-toggle="tab" data-bs-target="#tab-content-6" type="button" role="tab" aria-controls="tab-content-6" aria-selected="false">Оплата заказ-наряда</button>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link h-100" id="tab-7" data-bs-toggle="tab" data-bs-target="#tab-content-7" type="button" role="tab" aria-controls="tab-content-7" aria-selected="false">Приложение</button>
+            <button class="nav-link h-100 me-1" id="tab-7" data-bs-toggle="tab" data-bs-target="#tab-content-7" type="button" role="tab" aria-controls="tab-content-7" aria-selected="false">Приложение</button>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link h-100" id="tab-8" data-bs-toggle="tab" data-bs-target="#tab-content-8" type="button" role="tab" aria-controls="tab-content-8" aria-selected="false">Сообщение</button>
+            <button class="nav-link h-100 me-1" id="tab-8" data-bs-toggle="tab" data-bs-target="#tab-content-8" type="button" role="tab" aria-controls="tab-content-8" aria-selected="false">Сообщение</button>
           </li>
         </ul>
         <div class="tab-content border" id="tabContent">
@@ -629,6 +629,7 @@
         modal.find('#approve-doc select').remove()
         var documentSelectClone = rowDocumentSelect.clone()
         documentSelectClone.appendTo(modal.find('#approve-doc'))
+        console.log(documentSelectClone)
         
         // Выставляем значения из редактируемой строки
         documentSelectClone.val(rowDocumentSelect.val())

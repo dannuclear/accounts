@@ -15,8 +15,8 @@
     {{ form.id }}
 
     <div class="row g-1">
-      <div class="col-3">
-        {% include 'main/input_group.html' with field=form.obtainMethod label='Банк' inputClass='form-select' %}
+      <div class="col-2">
+        Банк {{ form.instance.prepaymentItem.obtainMethod.name}}
       </div>
 
       <div class="col-5">
@@ -26,7 +26,7 @@
       <div class="col-4"></div>
 
       <div class="col-3">
-        {% include 'main/input_group.html' with field=form.deadline label='Срок перечисления' inputClass='datepeeker' %}
+        Срок перечисления {{ form.instance.prepaymentItem.date}}
       </div>
     </div>
   </form>

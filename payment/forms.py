@@ -25,11 +25,9 @@ class PaymentForm(forms.ModelForm):
 
 class PaymentPrepaymentForm(forms.ModelForm):
 
-    obtainMethod = NamedChoiceField(queryset=ObtainMethod.objects.order_by('id'), label='Банк', required=False)
-
     class Meta:
         model = PaymentPrepayment
-        fields = ['accountNumber', 'obtainMethod', 'deadline']
+        fields = ['accountNumber']
 
     def clean(self):
         cleaned_data = super().clean()

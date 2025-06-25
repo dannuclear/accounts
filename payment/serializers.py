@@ -18,7 +18,7 @@ class PaymentPrepaymentSerializer (serializers.ModelSerializer):
 
     payment = PaymentSerializer(read_only=True, many=False)
 
-    obtainMethod = ObtainMethodSerializer(read_only=True, many=False)
+    #obtainMethod = ObtainMethodSerializer(read_only=True, many=False)
 
     prepaymentItem = PrepaymentItemSerializer(read_only=True, many=False)
 

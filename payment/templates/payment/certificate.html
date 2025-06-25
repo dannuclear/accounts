@@ -146,9 +146,9 @@
                     <tbody>
                       {% for p in prepayments %}
                         <tr>
-                            <td class="text-right">{{ p.prepayment.totalSum|intcomma|default_if_none:''  }}</td>
+                            <td class="text-right">{{ p.prepaymentItem.value|intcomma|default_if_none:''  }}</td>
                             <td>{{ p.accountNumber|default_if_none:''  }}</td>
-                            <td class="text-left">{{ p.prepayment.empFullName|default_if_none:''  }}</td>
+                            <td class="text-left">{{ p.prepaymentItem.prepayment.empFullName|default_if_none:''  }}</td>
                             <td></td>
                             <td></td>
                             <td></td>

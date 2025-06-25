@@ -188,9 +188,9 @@ def editPrepayment(request, id):
                 if deletedPurpose.instance.id is not None:
                     deletedPurpose.instance.delete()
             # Создаем PaymentPrepayment для каждого PrepaymentItem
-            if prepayment.status_id == 5 and not PaymentPrepayment.objects.filter(prepayment=prepayment).exists():
+            if prepayment.status_id == 5:
                 for item in PrepaymentItem.objects.filter(prepayment=prepayment, paymentprepayment__isnull=True).all():
-                    PaymentPrepayment(prepayment=prepayment, prepaymentItem=item, status=0, obtainMethod_id=item.obtainMethod_id, deadline=item.date).save()
+                    PaymentPrepayment (prepaymentItem=item, status=0).save()
             return HttpResponseRedirect('/prepayments')
     if request.method == 'GET':
         form = PrepaymentForm(instance=prepayment, user=request.user)

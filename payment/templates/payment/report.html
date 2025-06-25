@@ -128,14 +128,14 @@
                     {% for pp in payment.prepayments %}
                       <tr>
                         <td>{{ forloop.counter }}</td>
-                        <td>{{ pp.prepayment.imprestAccount.account|default_if_none:'' }}</td>
-                        <td>{{ pp.prepayment.empDivNum|stringformat:"03d"|default_if_none:'' }}</td>
-                        <td>{{ pp.prepayment.empNum|default_if_none:'' }}</td>
-                        <td class="text-left">{{ pp.prepayment.empFullName|default_if_none:'' }}</td>
-                        <td class="text-right">{{ pp.prepayment.totalSum|intcomma|default_if_none:'' }}</td>
-                        <td>{{ pp.prepayment.docNum|default_if_none:'' }}</td>
-                        <td>{{ pp.prepayment.docDate|date:'d.m.Y'|default_if_none:'' }}</td>
-                        <td></td>
+                        <td>{{ pp.prepaymentItem.prepayment.imprestAccount.account|default_if_none:'' }}</td>
+                        <td>{{ pp.prepaymentItem.prepayment.empDivNum|stringformat:"03d"|default_if_none:'' }}</td>
+                        <td>{{ pp.prepaymentItem.prepayment.empNum|default_if_none:'' }}</td>
+                        <td class="text-left">{{ pp.prepaymentItem.prepayment.empFullName|default_if_none:'' }}</td>
+                        <td class="text-right">{{ pp.prepaymentItem.prepayment.totalSum|intcomma|default_if_none:'' }}</td>
+                        <td>{{ pp.prepaymentItem.prepayment.docNum|default_if_none:'' }}</td>
+                        <td>{{ pp.prepaymentItem.prepayment.docDate|date:'d.m.Y'|default_if_none:'' }}</td>
+                        <td>{{ pp.prepaymentItem.obtainMethod.name|default_if_none:'' }}</td>
                         <td>****{{ pp.accountNumber|slice:'-4:'|default_if_none:'' }}</td>
                       </tr>
                     {% endfor %}

@@ -122,7 +122,7 @@
           {% comment %} {% if lockLevel %}
             <input type="text" class="form-control form-control-sm" value="{{ item.instance.approveDocument.name|default_if_none:'' }}" readonly/>
           {% else %} {% endcomment %}
-            {{ item.approveDocument|add_class:'form-control form-select form-select-sm' }}
+            {{ item.approveDocument|add_class:'form-control form-select form-select-sm approve-doc' }}
           {% comment %} {% endif %} {% endcomment %}
         </td>
         <td>

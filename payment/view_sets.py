@@ -28,7 +28,7 @@ class PaymentViewSet (viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def prepayments(self, request, pk):
-        queryset = PaymentPrepayment.objects.select_related('obtainMethod').select_related('prepaymentItem__prepayment__status').select_related('prepaymentItem__prepayment__document').select_related('prepaymentItem__prepayment__imprestAccount').select_related('prepaymentItem__prepayment__wc07pOrder').select_related('prepaymentItem__prepayment__reportStatus').order_by('id')
+        queryset = PaymentPrepayment.objects.select_related('prepaymentItem__obtainMethod').select_related('prepaymentItem__prepayment__status').select_related('prepaymentItem__prepayment__document').select_related('prepaymentItem__prepayment__imprestAccount').select_related('prepaymentItem__prepayment__wc07pOrder').select_related('prepaymentItem__prepayment__reportStatus').order_by('id')
         if pk and pk != 'add':
             payment = self.get_object()
             queryset = queryset.filter(payment=payment)
@@ -42,7 +42,7 @@ class PaymentViewSet (viewsets.ModelViewSet):
             if 'imprestAccount' in self.request.query_params:
                 queryset = ImprestAccountFilter(field_name="prepaymentItem__prepayment__imprestAccount").filter_queryset(request, queryset, self)
             if 'obtainMethod' in self.request.query_params:
-                queryset = ObtainMethodFilter().filter_queryset(request, queryset, self)
+                queryset = ObtainMethodFilter(field_name="prepaymentItem__obtainMethod").filter_queryset(request, queryset, self)
             filtered_ids = list(queryset.values_list('pk', flat=True))
             self.queryset = queryset
             queryset = DatatablesFilterBackend().filter_queryset(request, queryset, self)
@@ -59,7 +59,7 @@ class PaymentViewSet (viewsets.ModelViewSet):
 
 
 class PaymentPrepaymentViewSet (viewsets.ModelViewSet):
-    queryset = PaymentPrepayment.objects.select_related('payment').select_related('obtainMethod').select_related('prepaymentItem__prepayment__status').select_related('prepaymentItem__prepayment__imprestAccount').select_related('prepaymentItem__prepayment__document').select_related('prepaymentItem__prepayment__wc07pOrder').select_related('prepaymentItem__prepayment__reportStatus').order_by('id')
+    queryset = PaymentPrepayment.objects.select_related('payment').select_related('prepaymentItem__obtainMethod').select_related('prepaymentItem__prepayment__status').select_related('prepaymentItem__prepayment__imprestAccount').select_related('prepaymentItem__prepayment__document').select_related('prepaymentItem__prepayment__wc07pOrder').select_related('prepaymentItem__prepayment__reportStatus').order_by('id')
     serializer_class = PaymentPrepaymentSerializer
 
     def filter_queryset(self, queryset):

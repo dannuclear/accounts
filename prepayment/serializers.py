@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Prepayment, PrepaymentItem
 from integration.serializers import EmployeeSerializer, WC07POrderSerializer
-from guide.serializers import StatusSerializer, ImprestAccountSerializer, DocumentSerializer
+from guide.serializers import StatusSerializer, ImprestAccountSerializer, DocumentSerializer, ObtainMethodSerializer
 from django.utils.formats import number_format
 from decimal import Decimal
 
@@ -62,6 +62,8 @@ class SimplePrepaymentSerializer (serializers.ModelSerializer):
 class PrepaymentItemSerializer (serializers.ModelSerializer):
 
     prepayment = SimplePrepaymentSerializer(read_only=True, many=False)
+
+    obtainMethod = ObtainMethodSerializer(read_only=True, many=False)
 
     class Meta:
         model = PrepaymentItem

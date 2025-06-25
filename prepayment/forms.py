@@ -159,6 +159,14 @@ class PrepaymentItemForm(forms.ModelForm):
         fields = ALL_FIELDS
         exclude = ['prepayment']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.id is not None:
+            count = self.instance.paymentprepayment_set.filter(payment__isnull=False).count()
+            if count > 0:
+                for field_name in self.fields:
+                    self.fields[field_name].disabled = True
+
 
 class PrepaymentPurposeForm(forms.ModelForm):
     # id = forms.IntegerField(widget = forms.HiddenInput(), required = False)

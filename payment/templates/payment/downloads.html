@@ -1,8 +1,8 @@
 <div class="list-group">
   {% for el in elements %}
-    <a href="{% url 'payments_download' %}?obtainMethod={{ el.obtainMethod__id }}&amp;ids={{ payment_ids }}" class="list-group-item list-group-item-action py-1" target="_blank">
+    <a href="{% url 'payments_download' %}?obtainMethod={{ el.prepaymentItem__obtainMethod__id }}&amp;ids={{ payment_ids }}" class="list-group-item list-group-item-action py-1" target="_blank">
       <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1">{{ el.obtainMethod__name }}</h5>
+        <h5 class="mb-1">{{ el.prepaymentItem__obtainMethod__name }}</h5>
         <small class="text-body-secondary">Количество: {{ el.total_count }}</small>
       </div>
       <small class="text-body-secondary">На сумму: {{ el.total_sum }}</small>
