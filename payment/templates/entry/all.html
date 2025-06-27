@@ -51,8 +51,6 @@
 <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm" style="font-size: 0.9em;">
     <thead>
         <tr>
-            <th scope="col" rowspan="2" data-dt-order="disable" style="width: 40px">АО</th>
-
             <th scope="col" rowspan="2" data-dt-order="disable" style="width: 40px">Месяц</th>
             <th scope="col" rowspan="2" data-dt-order="disable" style="width: 40px">Год</th>
 
@@ -79,7 +77,7 @@
             <th scope="col" data-dt-order="disable" style="width: 100px">ДП</th>
         </tr>
         <tr>
-          {% for i in 'x'|rjust:'18'|make_list %}
+          {% for i in 'x'|rjust:'17'|make_list %}
             {% if forloop.counter0 > 0 %}
                 <th scope="col" style="font-size: 0.7em; padding: 0 !important;">{{ forloop.counter0}}</th>
             {% else %}
@@ -123,7 +121,7 @@
             var requestTable = $('#request-table').DataTable(
                 {
                     ajax: {
-                        url: '{% url "paymentprepayment-list" %}',
+                        url: '{% url "paymententry-list" %}',
                         data: function (d) {
                             d.format = 'datatables'
                             let imprestAccount = urlParams.get("imprestAccount")
@@ -134,7 +132,7 @@
                             if ($('#period-to').val())
                                 d.periodTo=$('#period-to').val()
                             if (groupCheckbox.is(':checked'))
-                                d.group=true
+                                d.group=true 
                             d.columns.push({data: 'acplAccountDebit', searchable: true})
                             d.columns.push({data: 'acplSubaccountDebit', searchable: true})
                             d.columns.push({data: 'acplAccountCredit', searchable: true})
@@ -159,21 +157,11 @@
                         $(api.column(15).footer()).html(total.toFixed(2));
                     },
                     columns: [
-                        {
-                            data: null,
-                            orderable: false,
-                            width: '1rem',
-                            className: 'text-center',
-                            searchable: false,
-                            render: function (data, type, row, meta) {
-                                return `<a role="button" href="/advanceReports/${data.prepayment.id}"><i class="text-danger fa-light fa-left h5 m-0"></i></a>`
-                            },
-                        },
                         { data: 'month', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
                         { data: 'year', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
-                        { data: 'prepayment.empNum', orderable: false, defaultContent: "", className: 'text-center' },
-                        { data: 'prepayment.empFullName', orderable: false, defaultContent: "", className: 'text-center' },
-                        { data: 'prepayment.empDivNum', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'paymentPrepayment.prepaymentItem.prepayment.empNum', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'paymentPrepayment.prepaymentItem.prepayment.empFullName', orderable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'paymentPrepayment.prepaymentItem.prepayment.empDivNum', orderable: false, defaultContent: "", className: 'text-center' },
                         { data: 'aeNo', orderable: false, defaultContent: "", className: 'text-center' },
                         { data: 'debitAccountSubaccount', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
                         { data: 'acplCodeAnaliticDebit1', orderable: false, defaultContent: "", className: 'text-center' },
@@ -185,15 +173,16 @@
                         { data: 'acplAddSignCredit', orderable: false, defaultContent: "", className: 'text-center' },
                         { data: 'aeSum', orderable: false, defaultContent: "", className: 'text-right', render: $.fn.dataTable.render.number( ' ', ',', 2 ) },
                         { data: null, orderable: false, searchable: false, defaultContent: "", className: 'text-center', render: function (data, type, row, meta) {
-                                if (data.prepayment && data.prepayment.lockLevel == 1)
+                            return ''/*    
+                            if (data.prepayment && data.prepayment.lockLevel == 1)
                                     return '<span style="font-weight: bold;">v<span>'
                                 else if (data.prepayment && data.prepayment.lockLevel == 2)
                                     return '<span style="color: blue; font-weight: bold;">v<span>'
                                 else 
-                                    return null
+                                    return null*/
                             }
                         },
-                        { data: 'prepayment.approveActionDate', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
+                        { data: 'paymentPrepayment.prepaymentItem.prepayment.approveActionDate', orderable: false, searchable: false, defaultContent: "", className: 'text-center' },
                     ],
                     buttons: [
                         {

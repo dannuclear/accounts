@@ -14,6 +14,8 @@ from .models import Payment, PaymentPrepayment
 from django.db.models import Count, Sum, Avg, Max, Min
 import xml.etree.ElementTree as ET
 from num2words import num2words
+from django.db import connection
+from .queries import ADD_PAYMENT_ENTRIES
 # Create your views here.
 
 
@@ -167,6 +169,7 @@ def toggle_lock(request, pk):
     else:
         payment.lockLevel = 1
     payment.save()
+    create_entries([payment.id])
     return redirect('payments')
 
 
@@ -357,3 +360,12 @@ def sbp_file_generator(bank_type, date, register_counter, client_number, contrac
     xml_string = ET.tostring(root, encoding='cp1251', method='xml').decode('cp1251')
 
     return xml_string
+
+
+def create_entries(payment_ids, delete=True):
+    if payment_ids is None or len(payment_ids) == 0:
+        return
+    cursor = connection.cursor()
+    if delete:
+        cursor.execute('DELETE FROM payment_entry WHERE payment_prepayment_id in (SELECT id FROM payment_prepayment WHERE payment_id in %s)',  (tuple(payment_ids),))
+    cursor.execute(ADD_PAYMENT_ENTRIES, (tuple(payment_ids),))

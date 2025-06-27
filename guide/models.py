@@ -248,6 +248,18 @@ class ObtainMethod(models.Model):
     # Балансовый счет
     bAccount = models.CharField(db_column="b_account", blank=True, null=True, max_length=10, verbose_name="Бал./счет")
 
+    # Кредит. Счет
+    creditAccount = models.CharField(db_column='credit_account', max_length=2, blank=True, null=True)
+    # Кредит. Субсчет
+    creditSubaccount = models.CharField(db_column='credit_subaccount', max_length=2, blank=True, null=True)
+
+    # Кредит. КАУ_1
+    creditKAU1 = models.CharField(db_column="credit_kau_1", max_length=10, blank=True, null=True)
+    # Кредит. КАУ_2
+    creditKAU2 = models.CharField(db_column="credit_kau_2", max_length=10, blank=True, null=True)
+    # Дебет. Доп.признак
+    creditExtra = models.CharField(db_column="credit_extra", max_length=10, blank=True, null=True)
+
     class Meta:
         db_table = 'obtain_method'
         verbose_name = 'Способ получения'

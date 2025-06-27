@@ -5,6 +5,7 @@ from rest_framework import routers
 paymentRouter = routers.DefaultRouter()
 paymentRouter.register(r'payments', view_sets.PaymentViewSet)
 paymentRouter.register(r'paymentPayments', view_sets.PaymentPrepaymentViewSet)
+paymentRouter.register(r'paymentEntries', view_sets.PaymentEntryViewSet)
 # paymentRouter.register(r'paymentFiles', view_sets.PaymentFileViewSet)
 
 urlpatterns = [

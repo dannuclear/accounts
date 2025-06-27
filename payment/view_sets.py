@@ -7,8 +7,8 @@ from rest_framework.response import Response
 from rest_framework_datatables.filters import DatatablesFilterBackend
 
 from .filters import PaymentFilter, PeriodFilter, LockLevelFilter
-from .models import Payment, PaymentPrepayment
-from .serializers import PaymentPrepaymentSerializer, PaymentSerializer
+from .models import Payment, PaymentPrepayment, PaymentEntry
+from .serializers import PaymentPrepaymentSerializer, PaymentSerializer, PaymentEntrySerializer
 
 
 class PaymentViewSet (viewsets.ModelViewSet):
@@ -82,3 +82,19 @@ class PaymentPrepaymentViewSet (viewsets.ModelViewSet):
 #         self.filter_backends = [*self.filter_backends]
 
 #         return super().filter_queryset(queryset)
+
+class PaymentEntryViewSet (viewsets.ModelViewSet):
+    queryset = PaymentEntry.objects.select_related('paymentPrepayment__prepaymentItem__prepayment').order_by('id')
+    serializer_class = PaymentEntrySerializer
+
+    def filter_queryset(self, queryset):
+        self.filter_backends = [*self.filter_backends]
+
+        if 'hasPayment' in self.request.query_params or 'paymentId' in self.request.query_params:
+            self.filter_backends.insert(0, PaymentFilter)
+        if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
+            self.filter_backends.insert(0, UniversalPeriodFilter)
+        if 'statusFilter' in self.request.query_params:
+            self.filter_backends.insert(0, StatusFilter)
+
+        return super().filter_queryset(queryset)

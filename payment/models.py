@@ -110,3 +110,37 @@ class PaymentPrepayment(models.Model):
             ("view_payment_prepayment", "Просмотр"),
             ("edit_payment_prepayment", "Редактирование")
         ]
+
+class PaymentEntry (models.Model):
+    id = models.AutoField(primary_key=True, blank=False)
+
+    aePeriod = models.DateField(db_column="ae_period", blank=False, null=False)
+    aeNo = models.IntegerField(db_column="ae_no", blank=False, null=False)
+
+    acplAccountDebit = models.SmallIntegerField(db_column="acpl_account_debit", blank=False, null=False)
+    acplSubaccountDebit = models.SmallIntegerField(db_column="acpl_subaccount_debit", blank=False, null=False)
+    acplCodeAnaliticDebit = models.CharField(db_column="acpl_code_analitic_debit", max_length=6, blank=False, null=False)
+    acplCodeAnaliticDebit1 = models.CharField(db_column="acpl_code_analitic_debit_1", max_length=3, blank=False, null=False)
+    acplCodeAnaliticDebit2 = models.CharField(db_column="acpl_code_analitic_debit_2", max_length=3, blank=False, null=False)
+    acplAddSignDebit = models.CharField(db_column="acpl_add_sign_debit", max_length=10, blank=False, null=False)
+
+    acplAccountCredit = models.SmallIntegerField(db_column="acpl_account_credit", blank=False, null=False)
+    acplSubaccountCredit = models.SmallIntegerField(db_column="acpl_subaccount_credit", blank=False, null=False)
+    acplCodeAnaliticCredit = models.CharField(db_column="acpl_code_analitic_credit", max_length=6, blank=False, null=False)
+    acplCodeAnaliticCredit1 = models.CharField(db_column="acpl_code_analitic_credit_1", max_length=3, blank=False, null=False)
+    acplCodeAnaliticCredit2 = models.CharField(db_column="acpl_code_analitic_credit_2", max_length=3, blank=False, null=False)
+    acplAddSignCredit = models.CharField(db_column="acpl_add_sign_credit", max_length=10, blank=False, null=False)
+
+    aeSum = models.DecimalField(max_digits=19, decimal_places=2, db_column="ae_sum", blank=False, null=False)
+
+    paymentPrepayment = models.ForeignKey(PaymentPrepayment, db_column='payment_prepayment_id', on_delete=models.PROTECT, blank=False, null=False)
+    
+    class Meta:
+        db_table = 'payment_entry'
+        verbose_name = 'Проводка по выплате'
+        verbose_name_plural = 'Проводки по выплате'
+        default_permissions = ()
+        permissions = [
+            ("view_payment_entry", "Просмотр"),
+            ("edit_payment_entry", "Редактирование")
+        ]
