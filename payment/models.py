@@ -134,7 +134,11 @@ class PaymentEntry (models.Model):
     aeSum = models.DecimalField(max_digits=19, decimal_places=2, db_column="ae_sum", blank=False, null=False)
 
     paymentPrepayment = models.ForeignKey(PaymentPrepayment, db_column='payment_prepayment_id', on_delete=models.PROTECT, blank=False, null=False)
-    
+
+    status = models.SmallIntegerField(db_column="status", blank=True, null=True)
+    approveDate = models.DateField(db_column="approve_date", blank=True, null=True)
+    approveBy = models.CharField(db_column="approve_by", max_length=50, blank=True, null=True)
+
     class Meta:
         db_table = 'payment_entry'
         verbose_name = 'Проводка по выплате'

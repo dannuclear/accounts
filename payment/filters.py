@@ -4,17 +4,23 @@ from rest_framework.filters import BaseFilterBackend
 
 
 class PaymentFilter(BaseFilterBackend):
+    def __init__(self, field_name="payment", *args, **kwargs):
+        self.field_name = field_name
+
     def filter_queryset(self, request, queryset, view):
+        field_name = request.query_params.get("paymentFieldName", self.field_name)
         payment_id = request.query_params.get("paymentId")
         has_payment = request.query_params.get("hasPayment")
 
+        filter_kwargs = {}
         if payment_id is not None:
-            queryset = queryset.filter(payment__payment=payment_id)
+            filter_kwargs["%s" % (field_name)] = payment_id
         if has_payment is not None:
-            queryset = queryset.filter(payment__isnull=(True if has_payment == 'True' else False))
+            filter_kwargs["%s__isnull" % (field_name)] = (True if has_payment == 'True' else False)
 
+        if filter_kwargs:
+            queryset = queryset.filter(**filter_kwargs)
         return queryset
-
 
 class PeriodFilter(BaseFilterBackend):
 

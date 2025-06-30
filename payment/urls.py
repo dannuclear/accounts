@@ -27,6 +27,9 @@ urlpatterns = [
     path('payment-prepayments/<int:pk>/certificate/html', views.payment_prepayment_certificate, name='payment_prepayment_certificate'),
 
     path('payment-entries', views.EntryAllView.as_view(), name='payment_entries'),
+    path('payment-entries/approve', views.approve_entries, name='payment_entries_approve'),
+    path('payment-entries/unapprove', views.unapprove_entries, name='payment_entries_unapprove'),
+    
     # path('payment-files', views.PaymentFileAllView.as_view(), name='payment_files'),
     # path('payment-files/<int:pk>/unpay', views.payment_prepayment_unpay, name='payment_prepayment_unpay'),
     # path('payment-files/<int:pk>/download', views.delete_payment_prepayment, name='payment_prepayment_delete'),

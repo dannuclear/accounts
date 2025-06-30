@@ -55,4 +55,4 @@ class PaymentEntrySerializer (serializers.ModelSerializer):
     class Meta:
         model = PaymentEntry
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id')
+        datatables_always_serialize = ('id', 'status')

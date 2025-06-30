@@ -20,7 +20,7 @@ class UniversalPeriodFilter(BaseFilterBackend):
             filter_kwargs["%s__gte" % (field_name)] = date_from
         if period_to:
             date_to = datetime.strptime(period_to, self.DATE_FORMAT)
-            filter_kwargs[f"{field_name}__lte"] = date_to
+            filter_kwargs["%s__lte" % (field_name)] = date_to
 
         if filter_kwargs:
             queryset = queryset.filter(**filter_kwargs)

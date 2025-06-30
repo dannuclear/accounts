@@ -10,12 +10,13 @@ from guide.models import ImprestAccount, Status, ObtainMethod
 from prepayment.models import Prepayment
 from django.http.response import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse
 from .forms import PaymentPrepaymentForm, PaymentForm
-from .models import Payment, PaymentPrepayment
+from .models import Payment, PaymentPrepayment, PaymentEntry
 from django.db.models import Count, Sum, Avg, Max, Min
 import xml.etree.ElementTree as ET
 from num2words import num2words
 from django.db import connection
 from .queries import ADD_PAYMENT_ENTRIES
+from django.views.decorators.http import require_POST
 # Create your views here.
 
 
@@ -24,6 +25,11 @@ class PaymentAllView(TemplateView):
 
 class EntryAllView(TemplateView):
     template_name = 'entry/all.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['payments'] = Payment.objects.order_by('-id').all()[0:10]
+        return context
 
 # class PaymentFileAllView(TemplateView):
 #     template_name = 'payment/payment_file_all.html'
@@ -369,3 +375,21 @@ def create_entries(payment_ids, delete=True):
     if delete:
         cursor.execute('DELETE FROM payment_entry WHERE payment_prepayment_id in (SELECT id FROM payment_prepayment WHERE payment_id in %s)',  (tuple(payment_ids),))
     cursor.execute(ADD_PAYMENT_ENTRIES, (tuple(payment_ids),))
+
+@require_POST
+def approve_entries(request):
+    payment_ids = request.POST.getlist('payment_ids')
+    approve_date = request.POST.get('approve_date')
+    if payment_ids is None or len(payment_ids) == 0 or approve_date is None:
+        return HttpResponseBadRequest('Не выбраны реестры')
+    parsed = datetime.strptime(approve_date, '%d.%m.%Y')
+    PaymentEntry.objects.filter(paymentPrepayment__payment__in=payment_ids, status__lt=1).update(status=1, approveDate=parsed, approveBy=request.user.username)
+    return HttpResponse('success')
+
+@require_POST
+def unapprove_entries(request):
+    payment_ids = request.POST.getlist('payment_ids')
+    if payment_ids is None or len(payment_ids) == 0:
+        return HttpResponseBadRequest('Не выбраны реестры')
+    PaymentEntry.objects.filter(paymentPrepayment__payment__in=payment_ids, status=1).update(status=0, approveDate=None, approveBy=request.user.username)
+    return HttpResponse('success')

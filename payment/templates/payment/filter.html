@@ -1,0 +1,40 @@
+<div class="input-group input-group-sm">
+    <span class="input-group-text">Реестр</span>
+    <select id="payment-filter" class="form-select filter-input" >
+        <option value="">Все</option>
+        {% for opt in options %}
+            <option value="{{ opt.id }}">{{opt.id}} - {{ opt.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="button" id="payment-filter-reset" class="btn btn-sm btn-outline-success">X</button>
+</div>
+
+<script type="text/javascript">
+    const paymentFilter = $("#payment-filter")
+    $(document).ready(function () {
+        {% if save_state|default_if_none:True %}
+            const storedValue = localStorage.getItem('paymentFilter');
+            if (storedValue) {
+                paymentFilter.val(storedValue);
+            }
+
+            $("#payment-filter-reset").on('click', function(e) {
+                paymentFilter.val('').change()
+                localStorage.setItem('paymentFilter', '');
+            })
+            
+            paymentFilter.on('change', function () {
+                const val = paymentFilter.val();
+                if (val)
+                    localStorage.setItem('paymentFilter', val);
+                else
+                    localStorage.setItem('paymentFilter', '');
+            });
+        {% else %}
+            periodFilter.find('button').on('click', function (e) {
+                periodFilter.find('input').val('')
+            })
+        {% endif %}
+    })
+
+</script>

@@ -84,7 +84,14 @@ class PaymentPrepaymentViewSet (viewsets.ModelViewSet):
 #         return super().filter_queryset(queryset)
 
 class PaymentEntryViewSet (viewsets.ModelViewSet):
-    queryset = PaymentEntry.objects.select_related('paymentPrepayment__prepaymentItem__prepayment').order_by('id')
+    queryset = PaymentEntry.objects.select_related(
+        'paymentPrepayment__prepaymentItem__obtainMethod',
+        'paymentPrepayment__prepaymentItem__prepayment__document',
+        'paymentPrepayment__prepaymentItem__prepayment__imprestAccount',
+        'paymentPrepayment__prepaymentItem__prepayment__status',
+        'paymentPrepayment__prepaymentItem__prepayment__reportStatus',
+        'paymentPrepayment__payment__obtainMethod'
+    ).order_by('id')
     serializer_class = PaymentEntrySerializer
 
     def filter_queryset(self, queryset):
