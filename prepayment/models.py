@@ -335,7 +335,7 @@ class AdvanceReportInventoryItem (models.Model):
     invAnalysisWarehouseNum = models.SmallIntegerField(db_column="inv_analysis_warehouse_num", blank=True, null=True)
 
     # Приходный ордер на склад/номер. поле «номер приходного ордера на склад» заполняется ручным вводом в цифровом формате (содержит 14 знаков);
-    whOrderNum = models.BigIntegerField(db_column="wh_order_num", blank=True, null=True)
+    whOrderNum = models.CharField(db_column="wh_order_num", max_length=14, blank=True, null=True)
     # Приходный ордер на склад/дата. поле «оприходовано» подлежит заполнению путем назначения даты из календаря за текущий год или путем ручного ввода в формате «DD.MM.YYYY»;
     whOrderDate = models.DateTimeField(db_column="wh_order_date", blank=True, null=True)
     # Приходный ордер на склад/Сумма. поле «сумма итоговая из приходного ордера на склад» заполняется ручным вводом в виде числа с разделителем группы разрядов и десятичных знаков 2 после запятой;

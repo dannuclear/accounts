@@ -418,11 +418,14 @@ def pdfAdvanceReport(request, id):
 def htmlAccountingCert(request, id):
     prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')), days=Subquery(purposesSubquery.values('days'))).select_related('status').select_related(
     'imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
-    
+    if prepayment.approveDate is None:
+        return render(request, 'main/error.html', {'message': 'Проводки по данному авансовому отчету должны быть подтверждены'})
+
     # Если номер авансового отчета не присвоен
     if prepayment.reportAccountingNum is None:
         now = datetime.now()
-        maxReportAccountingNum = Prepayment.objects.filter(docDate__month = now.month, docDate__year = now.year).aggregate(Max('reportAccountingNum'))['reportAccountingNum__max']
+        #maxReportAccountingNum = Prepayment.objects.filter(docDate__month = now.month, docDate__year = now.year).aggregate(Max('reportAccountingNum'))['reportAccountingNum__max']
+        maxReportAccountingNum = Prepayment.objects.filter(approveDate__month = prepayment.approveDate.month, approveDate__year = prepayment.approveDate.year).aggregate(Max('reportAccountingNum'))['reportAccountingNum__max']
         startValue = AccountingCert.objects.filter(account = prepayment.imprestAccount_id).values_list('num', flat=True).first()
         nextVal = max(int(maxReportAccountingNum) if maxReportAccountingNum is not None else 0, int(startValue) if startValue is not None else 0) + 1
         Prepayment.objects.filter(pk = prepayment.id).update(reportAccountingNum = nextVal)
