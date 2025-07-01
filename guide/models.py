@@ -358,7 +358,7 @@ class ProductionCalendar(models.Model):
         ]
     
     def __str__(self):
-        return f"{self.date.strftime('%d.%m.%Y')} - {self.get_day_type_display()}"
+        return "%s - %s" % (self.date.strftime('%d.%m.%Y'), self.get_day_type_display())
     
     @property
     def year(self):
