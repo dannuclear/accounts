@@ -16,6 +16,7 @@ guideRouter.register(r'departmentAccounts', views.DepartmentAccountViewSet)
 guideRouter.register(r'obtainMethods', views.ObtainMethodViewSet)
 guideRouter.register(r'prepaidDests', views.PrepaidDestViewSet)
 guideRouter.register(r'refundExpenses', views.RefundExpenseViewSet)
+guideRouter.register(r'productionCalendar', views.ProductionCalendarViewSet)
 
 urlpatterns = [
     path('imprestAccounts', views.imprestAccounts, name='imprestAccounts'),
@@ -66,4 +67,8 @@ urlpatterns = [
     path('refundExpenses', views.refundExpenses, name='refundExpenses'),
     path('refundExpenses/<id>', views.editRefundExpense, name='editRefundExpense'),
     path('refundExpenses/<id>/delete', views.deleteRefundExpense, name='deleteRefundExpense'),
+
+    path('productionCalendars', views.productionCalendar, name='productionCalendars'),
+    path('productionCalendars/<id>', views.editProductionCalendar, name='editProductionCalendar'),
+    path('productionCalendars/<id>/delete', views.deleteProductionCalendar, name='deleteProductionCalendar'),
 ]

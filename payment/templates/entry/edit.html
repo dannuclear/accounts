@@ -1,0 +1,109 @@
+{% extends 'main/base.html' %}
+{% load prepayment_extras %}
+{% load widget_tweaks %}
+{% block title %}
+  Проводка на банк
+{% endblock %}
+
+{% block content %}
+  <form action="#" method="post" class="container">
+    {% csrf_token %}
+
+    {% url 'payment_entries' as back_url %}
+    {% include 'main/save_cancel.html' with path=back_url %}
+
+    {{ form.errors }}
+    {{ form.id }}
+    <div class="row mt-1">
+      <div class="col-5">
+        <table class="w-100">
+          <thead class="border-top border-start border-end text-center">
+            <tr>
+              <th scope="col" colspan="5">дебет</th>
+            </tr>
+            <tr>
+              <th scope="col" style="width: 80px;">Счет</th>
+              <th scope="col" style="width: 80px;">Суб.счет</th>
+              <th scope="col" colspan="2" style="width: 100px;">КАУ</th>
+              <th scope="col" style="width: 150px;">Доп. признак</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <input type="text" name="{{ form.acplAccountDebit.html_name }}" value="{{ form.acplAccountDebit.value|stringformat:'02d' }}" class="form-control form-control-sm text-center" />
+              </td>
+              <td>
+                <input type="text" name="{{ form.acplSubaccountDebit.html_name }}" value="{{ form.acplSubaccountDebit.value|stringformat:'02d' }}" class="form-control form-control-sm text-center" />
+              </td>
+              <td style="width: 100px;">
+                <input type="text" name="{{ form.acplCodeAnaliticDebit1.html_name }}" value="{{ form.acplCodeAnaliticDebit1.value }}" class="form-control form-control-sm text-center" />
+              </td>
+              <td style="width: 100px;">
+                <input type="text" name="{{ form.acplCodeAnaliticDebit2.html_name }}" value="{{ form.acplCodeAnaliticDebit2.value }}" class="form-control form-control-sm text-center" />
+              </td>
+              <td>
+                <input type="text" name="{{ form.acplAddSignDebit.html_name }}" value="{{ form.acplAddSignDebit.value }}" class="form-control form-control-sm text-center" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-5">
+        <table class="w-100">
+          <thead class="border-top border-start border-end text-center">
+            <tr>
+              <th scope="col" colspan="5">кредит</th>
+            </tr>
+            <tr>
+              <th scope="col" style="width: 80px;">Счет</th>
+              <th scope="col" style="width: 80px;">Суб.счет</th>
+              <th scope="col" colspan="2" style="width: 100px;">КАУ</th>
+              <th scope="col" style="width: 150px;">Доп. признак</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <input type="text" value="{{ form.instance.acplAccountCredit|stringformat:'02d' }}" class="form-control form-control-sm text-center" disabled />
+              </td>
+              <td>
+                <input type="text" value="{{ form.instance.acplSubaccountCredit|stringformat:'02d' }}" class="form-control form-control-sm text-center" disabled />
+              </td>
+              <td style="width: 100px;">
+                <input type="text" value="{{ form.instance.acplCodeAnaliticCredit1 }}" class="form-control form-control-sm text-center" disabled />
+              </td>
+              <td style="width: 100px;">
+                <input type="text" value="{{ form.instance.acplCodeAnaliticCredit2 }}" class="form-control form-control-sm text-center" disabled />
+              </td>
+              <td>
+                <input type="text" value="{{ form.instance.acplAddSignCredit }}" class="form-control form-control-sm text-center" disabled />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col">
+        <table class="w-100">
+          <thead class="border-top border-start border-end text-center">
+            <tr>
+              <th scope="col">&nbsp;</th>
+            </tr>
+            <tr>
+              <th scope="col">сумма</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <input type="text" value="{{ form.instance.aeSum|stringformat:'02d' }}" class="form-control form-control-sm text-center" disabled />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </form>
+
+  <script type="text/javascript"></script>
+{% endblock %}

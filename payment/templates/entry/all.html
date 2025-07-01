@@ -23,6 +23,8 @@
   <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm" style="font-size: 0.9em;">
     <thead>
       <tr>
+        <th scope="col" rowspan="2" data-dt-order="disable" style="width: 38px;"></th>
+
         <th scope="col" rowspan="2" data-dt-order="disable" style="width: 40px">Месяц</th>
         <th scope="col" rowspan="2" data-dt-order="disable" style="width: 40px">Год</th>
 
@@ -39,6 +41,7 @@
         <th scope="col" rowspan="2" data-dt-order="disable" style="width: 50px">Подтверждены</th>
         <th scope="col" rowspan="2" data-dt-order="disable" style="width: 70px">Дата</th>
         <th scope="col" rowspan="2" data-dt-order="disable" style="width: 70px">Кем</th>
+        <th scope="col" rowspan="2" data-dt-order="disable" style="width: 35px;"></th>
       </tr>
       <tr>
         <th scope="col" data-dt-order="disable" style="width: 50px">счет/субсчет</th>
@@ -50,7 +53,7 @@
         <th scope="col" data-dt-order="disable" style="width: 100px">ДП</th>
       </tr>
       <tr>
-        {% for i in 'x'|rjust:'18'|make_list %}
+        {% for i in 'x'|rjust:'20'|make_list %}
           {% if forloop.counter0 > 0 %}
             <th scope="col" style="font-size: 0.7em; padding: 0 !important;">{{ forloop.counter0 }}</th>
           {% else %}
@@ -63,7 +66,7 @@
       <tr>
         <th scope="col" colspan="14" class="text-left">Итого:</th>
         <th scope="col"></th>
-        <th scope="col" colspan="3"></th>
+        <th scope="col" colspan="4"></th>
       </tr>
     </tfoot>
   </table>
@@ -83,7 +86,8 @@
     $('#periodModal').on('click', '.ok-button', function (e) {
       var modal = $(e.delegateTarget)
       const modalDateInput = modal.find('input.period-date')
-      if (modalDateInput.val()) window.open(`/accountingEntries/download?toDate=${modalDateInput.val()}`, '_blank').focus()
+      if (modalDateInput.val())
+        window.open(`{% url "payment_entries_download" %}?toDate=${modalDateInput.val()}`, '_blank').focus()
     })
     
     $(document).ready(function () {
@@ -131,6 +135,19 @@
           $(api.column(14).footer()).html(total.toFixed(2))
         },
         columns: [
+          {
+            data: null,
+            defaultContent: '',
+            orderable: false,
+            searchable: false,
+            className: 'text-center align-middle px-1',
+            render: function (data, type, row) {
+                return `<a class="text-success m-0" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa-duotone fa-print fa-xl"></i></a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{% url 'payment_entries' %}/${data.id}/certificate/html" target="_blank">Справка бухгалтерская</a>
+                </div>`
+            }
+          },
           { data: 'month', orderable: false, searchable: false, defaultContent: '', className: 'text-center' },
           { data: 'year', orderable: false, searchable: false, defaultContent: '', className: 'text-center' },
           { data: 'paymentPrepayment.prepaymentItem.prepayment.empNum', orderable: false, defaultContent: '', className: 'text-center' },
@@ -160,7 +177,8 @@
             }
           },
           { data: 'approveDate', orderable: false, searchable: false, defaultContent: '', className: 'text-center' },
-          { data: 'approveBy', orderable: false, searchable: false, defaultContent: '', className: 'text-center' }
+          { data: 'approveBy', orderable: false, searchable: false, defaultContent: '', className: 'text-center' },
+          editColumn('{% url "payment_entries" %}', function(data) { return data.status < 2 }),
         ],
         buttons: [
           {

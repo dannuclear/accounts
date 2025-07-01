@@ -1,10 +1,11 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from rest_framework import viewsets
+from datetime import datetime
 
-from .forms import ExpenseCodeForm, ImprestAccountForm, ExpenseRateForm, DocumentForm, ExpenseItemForm, StatusForm, ExpenseCategoryForm, DepartmentForm, DepartmentAccountForm, RefundExpenseForm, AccountingCertForm, ObtainMethodForm
-from .models import ExpenseCode, ImprestAccount, ExpenseRate, ExpenseItem, Document, AccountingCert, Status, Department, DepartmentAccount, ObtainMethod, PrepaidDest, RefundExpense, ExpenseCategory
-from .serializers import AccountingCertSerializer, ExpenseCodeSerializer, ImprestAccountSerializer, ExpenseRateSerializer, ExpenseItemSerializer, DocumentSerializer, StatusSerializer, DepartmentSerializer, DepartmentAccountSerializer, ObtainMethodSerializer, PrepaidDestSerializer, RefundExpenseSerializer, ExpenseCategorySerializer
+from .forms import ExpenseCodeForm, ImprestAccountForm, ExpenseRateForm, DocumentForm, ExpenseItemForm, StatusForm, ExpenseCategoryForm, DepartmentForm, DepartmentAccountForm, RefundExpenseForm, AccountingCertForm, ObtainMethodForm, ProductionCalendarForm
+from .models import ExpenseCode, ImprestAccount, ExpenseRate, ExpenseItem, Document, AccountingCert, Status, Department, DepartmentAccount, ObtainMethod, PrepaidDest, RefundExpense, ExpenseCategory, ProductionCalendar
+from .serializers import AccountingCertSerializer, ExpenseCodeSerializer, ImprestAccountSerializer, ExpenseRateSerializer, ExpenseItemSerializer, DocumentSerializer, StatusSerializer, DepartmentSerializer, DepartmentAccountSerializer, ObtainMethodSerializer, PrepaidDestSerializer, RefundExpenseSerializer, ExpenseCategorySerializer, ProductionCalendarSerializer
 from .filters import ImprestAccountFilter, ExpenseTypeFilter, DepartmentFilter, ExactNameFilter
 # Create your views here.
 
@@ -55,6 +56,9 @@ def obtainMethods(request):
 def prepaidDests(request):
     return render(request, 'prepaidDest/all.html')
 
+def productionCalendar(request):
+    return render(request, 'productionCalendar/all.html')
+
 class ImprestAccountViewSet (viewsets.ModelViewSet):
     #queryset = ImprestAccount.objects.all().order_by('id')
     queryset = ImprestAccount.objects.all().order_by('account')
@@ -65,6 +69,9 @@ class ExpenseCodeViewSet (viewsets.ModelViewSet):
     queryset = ExpenseCode.objects.all().order_by('code')
     serializer_class = ExpenseCodeSerializer
 
+class ProductionCalendarViewSet (viewsets.ModelViewSet):
+    queryset = ProductionCalendar.objects.all().order_by('date')
+    serializer_class = ProductionCalendarSerializer
 
 class ExpenseRateViewSet (viewsets.ModelViewSet):
     queryset = ExpenseRate.objects.all().order_by('id')
@@ -148,6 +155,25 @@ def editDepartment(request, id):
         form = DepartmentForm(instance=department)
     return render(request, 'department/edit.html', {'form': form, 'title': 'Подразделение'})
 
+def editProductionCalendar(request, id):
+    calendar = ProductionCalendar() if id == 'new' else ProductionCalendar.objects.get(pk=datetime.strptime(id, '%d.%m.%Y'))
+
+    if request.method == 'POST':
+        form = ProductionCalendarForm(request.POST, instance=calendar)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/productionCalendars')
+    if request.method == 'GET':
+        form = ProductionCalendarForm(instance=calendar)
+    return render(request, 'productionCalendar/edit.html', {'form': form, 'title': 'Производственый календарь'})
+
+def deleteProductionCalendar(request, id):
+    calendar = ProductionCalendar.objects.get(pk=datetime.strptime(id, '%d.%m.%Y'))
+    redirect = HttpResponseRedirect('/productionCalendars')
+    if request.method == 'GET':
+        calendar.delete()
+    return redirect
+
 def editDepartmentAccount(request, id):
     departmentAccount = DepartmentAccount() if id == 'new' else DepartmentAccount.objects.get(pk=id)
 
@@ -201,7 +227,7 @@ def editObtainMethod(request, id):
             return HttpResponseRedirect('/obtainMethods')
     if request.method == 'GET':
         form = ObtainMethodForm(instance=obtainMethod)
-    return render(request, 'common/guide_common_edit_page.html', {'form': form, 'title': 'Способ получения'})
+    return render(request, 'obtainMethod/edit.html', {'form': form, 'title': 'Способ получения'})
 
 def deleteObtainMethod(request, id):
     ObtainMethod.objects.get(pk=id).delete()

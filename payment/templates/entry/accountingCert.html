@@ -1,0 +1,170 @@
+{% load static %}
+<html>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <link rel="stylesheet" type="text/css" href="{% static 'main/css/bootstrap4.min.css' %}" />
+    <style type="text/css">
+      @font-face {
+        font-family: TimesNewRoman;
+        src: url(/static/main/fonts/times.ttf);
+      }
+      body {
+        font-family: TimesNewRoman;
+      }
+      
+      @media print {
+        @page {
+          size: auto; /*auto is the initial value */
+          margin: 0mm; /* this affects the margin in the printer settings */
+        }
+      
+        #printPageButton {
+          display: none;
+        }
+      
+        body {
+          font-size: 12pt;
+          margin: 10mm;
+        }
+      
+        body > .container {
+          width: 100% !important;
+          margin: 0px !important;
+          max-width: 100% !important;
+        }
+      }
+      
+      table.header-table {
+        border-collapse: separate;
+        border-spacing: 10px 2px;
+      }
+      table,
+      th,
+      td {
+        /* border: 1px solid gainsboro; */
+      }
+      th {
+        font-weight: lighter;
+      }
+      
+      td.border-top2-bottom1,
+      th.border-top2-bottom1 {
+        border-top: 2px solid black !important;
+        border-bottom: 1px solid black;
+      }
+      
+      td.border-top1-bottom2,
+      th.border-top1-bottom2 {
+        border-top: 1px solid black;
+        border-bottom: 2px solid black !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container p-4">
+      <div class="row">
+        <div class="col-12">
+          <table class="w-100 header-table">
+            <tr>
+              <td class="text-left" style="width: 30%;">ФГУП "Комбинат "Электрохимприбор"</td>
+              <td class="text-right">регистр бухгалтерского учета</td>
+            </tr>
+
+            <tr style="height: 30px;">
+              <td colspan="2" class="text-center font-weight-bold align-bottom">
+                <h3>Бухгалтерская справка</h3>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="text-center">Авансы по командировкам на банковские карты</td>
+              <td>
+                <table class="w-100 text-center">
+                  <thead class="border-top border-dark">
+                    <tr>
+                      <th>Работа</th>
+                      <th>Макет</th>
+                      <th>Предпр</th>
+                      <th>Пачка</th>
+                      <th>Месяц</th>
+                      <th>Число</th>
+                    </tr>
+                  </thead>
+                  <tbody class="border border-dark">
+                    <tr>
+                      <td class="border-right border-dark"></td>
+                      <td>XV26P</td>
+                      <td>054</td>
+                      <td></td>
+                      <td>{{ entry.aePeriod|date:'m.Y' }}</td>
+                      <td>
+                        {% now 'd.m.Y' %}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td colspan="2">
+                <table class="w-100 text-center">
+                  <thead class="table table-bordered">
+                    <tr>
+                      <th class="border-dark">код затрат дебетовый</th>
+                      <th class="border-dark">доп. признак дебетовый</th>
+                      <th class="border-dark">код затрат кредитовый</th>
+                      <th class="border-dark">доп. признак кредитовый</th>
+                      <th class="border-dark">сумма, руб.</th>
+                    </tr>
+                  </thead>
+                  <tbody class="border-bottom border-dark">
+                    <tr>
+                      <td>{{ entry.acplAccountDebit|stringformat:'02d' }} {{ entry.acplSubaccountDebit|stringformat:'02d' }} {{ entry.acplCodeAnaliticDebit1 }} {{ entry.acplCodeAnaliticDebit2 }}</td>
+                      <td>{{ entry.acplAddSignDebit }}</td>
+                      <td>{{ entry.acplAccountCredit|stringformat:'02d' }} {{ entry.acplSubaccountCredit|stringformat:'02d' }} {{ entry.acplCodeAnaliticCredit1 }} {{ entry.acplCodeAnaliticCredit2 }}</td>
+                      <td>{{ entry.acplAddSignCredit }}</td>
+                      <td class="text-right">{{ entry.aeSum }}</td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="3" class="text-right">Итого:</td>
+                      <td></td>
+                      <td class="text-right">{{ entry.aeSum }}</td>
+                    </tr>
+                    <tr>
+                      <td colspan="3" class="text-right">Всего записей:</td>
+                      <td></td>
+                      <td class="text-right">1</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <table class="w-50" style="margin: 0 auto;">
+                  <tbody>
+                    <tr style="height: 30px;">
+                      <td class="text-center" style="width: 80px;">Бухгалтер</td>
+                      <td class="border-bottom border-dark" style="width: 130px;"></td>
+                      <td style="width: 10px;"></td>
+                      <td class="border-bottom border-dark" style="width: 130px;"></td>
+                    </tr>
+                    <tr style="line-height: 12px;">
+                      <td></td>
+                      <td class="text-center" style="font-size: 0.8em;">подпись</td>
+                      <td></td>
+                      <td class="text-center" style="font-size: 0.8em;">расшифровка подписи</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

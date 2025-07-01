@@ -115,6 +115,30 @@ class Prepayment(models.Model):
     # поле «дата приказа» дата получения утверждения приказа
     orderChangeDate = models.DateField(db_column='order_change_date', blank=True, null=True)
 
+    # Распределение остатка. На карту банка. Дата перечисления
+    distribBankDate = models.DateField(db_column="distrib_bank_date", blank=True, null=True)
+
+    # Распределение остатка. Внесен в кассу по ПКО
+    distribPKO = models.DecimalField(max_digits=10, decimal_places=2, db_column="distrib_pko", blank=True, null=True)
+    # Распределение остатка. Внесен в кассу по ПКО от
+    distribPKODate = models.DateField(db_column="distrib_pko_date", blank=True, null=True)
+    # Распределение остатка. Внесен в кассу по ПКО номер
+    distribPKONum = models.CharField(db_column="distrib_pko_num",max_length=20, blank=True, null=True)
+
+    # Распределение остатка. Внесен на расч.счет комбината по документу
+    distribCombinat = models.DecimalField(max_digits=10, decimal_places=2, db_column="distrib_combinat", blank=True, null=True)
+    # Распределение остатка. Внесен на расч.счет комбината по документу от
+    distribCombinatDate = models.DateField(db_column="distrib_combinat_date", blank=True, null=True)
+    # Распределение остатка. Внесен на расч.счет комбината по документу номер
+    distribCombinatNum = models.CharField(db_column="distrib_combinat_num",max_length=20, blank=True, null=True)
+
+    # Распределение остатка. (перерасход) выдан в кассе по РКО
+    distribRKO = models.DecimalField(max_digits=10, decimal_places=2, db_column="distrib_rko", blank=True, null=True)
+    # Распределение остатка. (перерасход) выдан в кассе по РКО от
+    distribRKODate = models.DateField(db_column="distrib_rko_date", blank=True, null=True)
+    # Распределение остатка. (перерасход) выдан в кассе по РКО номер
+    distribRKONum = models.CharField(db_column="distrib_rko_num",max_length=20, blank=True, null=True)
+
     class Meta:
         db_table = 'prepayment'
         verbose_name = 'Аванс'

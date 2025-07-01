@@ -7,29 +7,44 @@
 
 {% block body %}
   <div class="row g-1">
-    <div class="col-2">Остаток сумме</div>
-    <div class="col-2">
-      <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribSalary.name }}" value="{{ form.distribSalary.value|default_if_none:'' }}" />
-    </div>
-    <div class="col-5">Внесен в массив удержаний из зарплаты за</div>
-    <div class="col-3">
-      <input type="text" class="mb-0 form-control form-control-sm datepeeker" name="{{ form.distribSalaryDate.name }}" value="{{ form.distribSalaryDate.value|default_if_none:'' }}" />
-    </div>
+    <div class="col-1">Остаток</div>
+    <div class="col-2">{{ form.distribSalary|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</div>
+    <div class="col-4 text-end">Внесен в массив удержаний из зарплаты за</div>
+    <div class="col-2">{{ form.distribSalaryDate|add_class:'form-control form-control-sm datepeeker text-center' }}</div>
+    <div class="col-3"></div>
 
-    <div class="col-2"></div>
-    <div class="col-2">
-      <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribBank.name }}" value="{{ form.distribBank.value|default_if_none:'' }}" />
-    </div>
-    <div class="col-5">(перерасход) перечислен на карту банка</div>
-    <div class="col-3">{{ form.distribBankMethod|add_class:'form-select' }}</div>
+    <div class="col-1"></div>
+    <div class="col-2">{{ form.distribBank|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</div>
+    <div class="col-4 text-end">(перерасход) перечислен на карту банка</div>
+    <div class="col-2">{{ form.distribBankMethod|add_class:'form-select form-select-sm' }}</div>
+    <div class="col-1 text-end">Выплата</div>
+    <div class="col-2">{{ form.distribBankDate|add_class:'form-control form-control-sm datepeeker text-center' }}</div>
 
-    <div class="col-2"></div>
-    <div class="col-2">
-      <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribCarryover.name }}" value="{{ form.distribCarryover.value|default_if_none:'' }}" />
-    </div>
-    <div class="col-5">переходящий остаток. Номер А.О.:</div>
-    <div class="col-3">
-      <input type="text" class="mb-0 form-control form-control-sm" name="{{ form.distribCarryoverReportNum.name }}" value="{{ form.distribCarryoverReportNum.value|default_if_none:'' }}" />
-    </div>
+    <div class="col-1"></div>
+    <div class="col-2">{{ form.distribCarryover|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</div>
+    <div class="col-4 text-end">переходящий остаток. Номер А.О.</div>
+    <div class="col-2">{{ form.distribCarryoverReportNum|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</div>
+    <div class="col-3"></div>
+
+    <div class="col-1"></div>
+    <div class="col-2">{{ form.distribPKO|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</div>
+    <div class="col-4 text-end">Внесен в кассу по ПКО №</div>
+    <div class="col-2">{{ form.distribPKONum|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</div>
+    <div class="col-1 text-end">Дата ПКО</div>
+    <div class="col-2">{{ form.distribPKODate|add_class:'form-control form-control-sm datepeeker text-center' }}</div>
+
+    <div class="col-1"></div>
+    <div class="col-2">{{ form.distribCombinat|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</div>
+    <div class="col-4 text-end">Внесен на расч.счет комбината по документу №</div>
+    <div class="col-2">{{ form.distribCombinatNum|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</div>
+    <div class="col-1 text-end">Дата док.</div>
+    <div class="col-2">{{ form.distribCombinatDate|add_class:'form-control form-control-sm datepeeker text-center' }}</div>
+
+    <div class="col-1"></div>
+    <div class="col-2">{{ form.distribRKO|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</div>
+    <div class="col-4 text-end">(перерасход) выдан в кассе по РКО №</div>
+    <div class="col-2">{{ form.distribRKONum|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</div>
+    <div class="col-1 text-end">Дата РКО</div>
+    <div class="col-2">{{ form.distribRKODate|add_class:'form-control form-control-sm datepeeker text-center' }}</div>
   </div>
 {% endblock %}

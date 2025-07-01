@@ -33,7 +33,7 @@ class EmployeeSerializer (serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ('persId', 'empOrgNo', 'divNo', 'pfnSurname', 'pfnName', 'pfnPatronymic', 'pqlfName', 'profName', 'empChangesDate', 'empDismissDate', 'fullName', 'empOrgNoWithfullName', 'empOrgNoWithfullNameAndPost')
+        fields = ('persId', 'empOrgNo', 'divNo', 'pfnSurname', 'pfnName', 'pfnPatronymic', 'pqlfName', 'profName', 'empChangesDate', 'empDismissDate', 'fullName', 'empOrgNoWithfullName', 'empOrgNoWithfullNameAndPost','snils', 'accountNumber')
         datatables_always_serialize = ('persId', 'pfnSurname', 'pfnName', 'pfnPatronymic')
 
 class PrepaymentSerializer (serializers.ModelSerializer):

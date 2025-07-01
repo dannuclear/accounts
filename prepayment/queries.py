@@ -42,7 +42,8 @@ SELECT
 FROM prepayment p
 INNER JOIN advance_report_item item ON item.prepayment_id = p.id
 INNER JOIN advance_report_item_entity entity ON entity.advance_report_item_id = item.id 
-WHERE 	p.approve_date IS NOT NULL 
+LEFT JOIN accounting_entry ON accounting_entry.advance_report_item_entity_id = entity.id
+WHERE 	p.approve_date IS NOT NULL AND accounting_entry.id is NULL
 	AND p.report_accounting_num IS NOT NULL 
 	AND CASE WHEN item.item_type IN (0, 5) THEN entity.debit_expense_item::text ELSE entity.debit_kau_1::text END IS NOT NULL 
 	AND CASE WHEN item.item_type IN (0, 5) THEN entity.debit_expense_workshop::text ELSE entity.debit_kau_2::text END IS NOT NULL 

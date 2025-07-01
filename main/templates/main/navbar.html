@@ -293,6 +293,12 @@
                       <a class="dropdown-item" href="{% url 'expenseCategories' %}"><i class="fa-duotone fa-input-text"></i>&nbsp;Наименование категорий расхода</a>
                     </li>
                   {% endif %}
+
+                  {% if perms.guide.view_production_calendar or perms.guide.edit_production_calendar %}
+                    <li>
+                      <a class="dropdown-item" href="{% url 'productionCalendars' %}"><i class="fa-duotone fa-calendar"></i>&nbsp;Производственный календарь</a>
+                    </li>
+                  {% endif %}
                 </ul>
               </li>
             </ul>

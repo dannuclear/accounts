@@ -88,34 +88,14 @@ class PrepaymentForm (forms.ModelForm):
 
     # «приказ», «заявление», «авансовый отчет», «электронный документ» справочника «Список документов»
     document = DocumentChoiceField(queryset=Document.objects.filter(pk__in=[5, 14, 15, 16]).order_by('id'), label='Наименование', required=False)
-
-    wc07pOrder = WC07POrderChoiceField(queryset=WC07POrder.objects.order_by('orderId'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Номер', required=False, empty_label=None)
-
-    # Табельный
-    # empNum = forms.IntegerField(label='Табельный')
-    # Фамилия
-    # empSurname = forms.CharField(label='Фамилия', required=False)
-    # Имя
-    # empName = forms.CharField(label='Имя', required=False)
-    # Отчество
-    # empPatronymic = forms.CharField(label='Отчество', required=False)
-    # Профессия
-    # empProfName = forms.CharField(label='Профессия', required=False)
-    # Подразделение номер
-    # empDivNum = forms.IntegerField(label='Номер подразделения', required=False)
-    # Подразделение наименование
-    # empDivName = forms.CharField(label='Наименование', required=False)
     # Итоговая сумма
     totalSum = forms.DecimalField(label='Подотчетная сумма', localize=True, required=True)
 
     carryOverSum = forms.DecimalField(label='Сумма, руб.', localize=True, required=False)
 
-    status = StatusChoiceField(queryset=Status.objects.order_by('id'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Статус', required=True, empty_label=None)
+    status = StatusChoiceField(queryset=Status.objects.order_by('id'), label='Статус', required=True, empty_label=None)
 
-    imprestAccount = ImprestAccountChoiceField(queryset=ImprestAccount.objects.order_by('account'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Код учета', required=True, empty_label='Не указан')
+    imprestAccount = ImprestAccountChoiceField(queryset=ImprestAccount.objects.order_by('account'), label='Код учета', required=True, empty_label='Не указан')
 
     comment = forms.CharField(label='Приложения', required=False)
 
@@ -123,9 +103,8 @@ class PrepaymentForm (forms.ModelForm):
 
     class Meta:
         model = Prepayment
-        fields = ALL_FIELDS
-        exclude = ['createdBy', 'createdAt', 'wc07pOrder', 'request', 'iPrepayment', 'reportAccountingNum', 'reportAccountingSum',
-                   'reportNum', 'reportDate', 'reportComment', 'reportStatus', 'empDivName', 'accountCodes', 'approveDate', 'lockLevel', 'factDate', 'approveActionDate', 'createdByFullName', 'updatedByAccountant', 'contractIdentifier']
+        fields = ['id', 'document', 'docNum', 'docDate', 'empNum', 'empSurname', 'empName', 'empPatronymic', 'empFullName', 'empProfName', 'empDivNum', 'phone', 'totalSum', 'carryOverSum', 'carryOverAdvanceReportNum', 'carryOverAdvanceReportDate', 'imprestAccount', 'status', 'orderChanges', 'orderChangeNum', 'orderChangeDate']
+        #exclude = ['createdBy', 'createdAt', 'wc07pOrder', 'request', 'iPrepayment', 'reportAccountingNum', 'reportAccountingSum', 'reportNum', 'reportDate', 'reportComment', 'reportStatus', 'empDivName', 'accountCodes', 'approveDate', 'lockLevel', 'factDate', 'approveActionDate', 'createdByFullName', 'updatedByAccountant', 'contractIdentifier']
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
@@ -197,8 +176,7 @@ class AdvanceReportForm (forms.ModelForm):
     reportNum = forms.IntegerField(label='Номер', required=False)
     reportDate = MyDateField(label='Дата утв. АО', localize=True, required=False)
 
-    reportStatus = StatusChoiceField(queryset=Status.objects.order_by('id'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Статус', required=False, empty_label='Не установлен')
+    reportStatus = StatusChoiceField(queryset=Status.objects.order_by('id'), label='Статус', required=False, empty_label='Не установлен')
 
     comment = forms.CharField(label='Приложения', required=False)
 
@@ -214,11 +192,16 @@ class AdvanceReportForm (forms.ModelForm):
     # Распределение остатка. На карту банка
     distribBank = forms.DecimalField(localize=True, required=False)
     # Распределение остатка. На карту банка. Способ получения
-    distribBankMethod = ObtainMethodChoiceField(queryset=ObtainMethod.objects.order_by('id'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1em + .75rem + 2px); line-height: 1;'}), label='Способ получения', required=False, empty_label="")
+    distribBankMethod = ObtainMethodChoiceField(queryset=ObtainMethod.objects.order_by('id'), label='Способ получения', required=False, empty_label="")
 
     # Распределение остатка. Переходящий остаток
     distribCarryover = forms.DecimalField(localize=True, required=False)
+    # Распределение остатка. Внесен в кассу по ПКО
+    distribPKO = forms.DecimalField(localize=True, required=False)
+    # Распределение остатка. Внесен на расч.счет комбината по документу
+    distribCombinat = forms.DecimalField(localize=True, required=False)
+    # Распределение остатка. (перерасход) выдан в кассе по РКО
+    distribRKO = forms.DecimalField(localize=True, required=False)
     # Распределение остатка. Переходящий остаток
     # distribCarryoverReportNum = models.CharField(db_column='distrib_carryover_report_num', max_length=50, blank=True, null=True, verbose_name='Номер А.О.')
 
@@ -241,9 +224,8 @@ class AdvanceReportForm (forms.ModelForm):
     class Meta:
         model = Prepayment
         fields = ['reportStatus', 'empDivName', 'reportAccountingNum', 'spendedSum', 'reportAccountingSum', 'reportComment', 'phone', 'distribSalary',
-                  'distribSalaryDate', 'distribBank', 'distribBankMethod', 'distribCarryover', 'distribCarryoverReportNum', 'approveDate', 'factDate', 'approveActionDate', 'contractIdentifier']
+                  'distribSalaryDate', 'distribBank', 'distribBankMethod', 'distribCarryover', 'distribCarryoverReportNum', 'approveDate', 'factDate', 'approveActionDate', 'contractIdentifier', 'distribBankDate', 'distribPKO', 'distribPKODate', 'distribPKONum', 'distribCombinat', 'distribCombinatDate', 'distribCombinatNum', 'distribRKO', 'distribRKODate', 'distribRKONum']
         exclude = ['createdByFullName', 'updatedByAccountant']
-
 
 class AdvanceReportItemForm(forms.ModelForm):
 

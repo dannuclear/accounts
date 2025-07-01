@@ -1,0 +1,52 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+  Производственный календарь
+{% endblock %}
+
+{% block content %}
+  <div class="alert alert-primary" role="alert" style="display: none;"></div>
+  <table id="document-table" class="table table-sm table-bordered table-striped table-hover">
+    <thead>
+      <tr>
+        <th style="width: 5%">Дата</th>
+        <th style="width: 5%">Тип</th>
+        <th style="width: 90%">Наименование</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+  </table>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $('#document-table').DataTable({
+        ajax: {
+          url: "{% url 'productioncalendar-list' %}",
+          data: function (d) {
+            d.format = 'datatables'
+          }
+        },
+        rowId: 'date',
+        columns: [
+          {
+            data: 'date'
+          },
+          {
+            data: 'day_type'
+          },
+          {
+            data: 'description'
+          },
+          editColumn("{% url 'productionCalendars' %}", null, function (data) {
+            return data.date
+          }),
+          deleteColumn("{% url 'productionCalendars' %}", null, 'Удалить дату?', function (data) {
+            return data.date
+          })
+        ],
+        buttons: [addButton("{% url 'productionCalendars' %}")]
+      })
+    })
+  </script>
+{% endblock %}

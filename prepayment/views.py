@@ -317,11 +317,12 @@ def editAdvanceReport(request, id):
                 # Если отчет согласован, заполняем ФАКТЫ и проводки только если нажата кнопка подтвердить проводки(lock=1)
                 if prepayment.reportStatus_id == 3 and prepayment.lockLevel == 1:
                     # cursor.execute('DELETE FROM fact WHERE prepayment_id = %s', [prepayment.id])
-                    cursor.execute(ADD_FACTS, [prepayment.id])
+                    cursor.execute(ADD_FACTS, [prepayment.id]) # генерацию фактов тоже бы к сторно добавить но надо исключить уже имеющиеся
 
                     # cursor.execute('DELETE FROM accounting_entry WHERE prepayment_id = %s', [prepayment.id])
                     cursor.execute(ADD_ACCOUNTING_ENTRIES, [prepayment.id])
-
+                elif prepayment.reportStatus_id == 5: # Генерируем проводки для сторно, исправил ADD_ACCOUNTING_ENTRIES, ислючив уже сгенерированные.
+                    cursor.execute(ADD_ACCOUNTING_ENTRIES, [prepayment.id])
                 return HttpResponseRedirect('/advanceReports?imprestAccount=%s' % (prepayment.imprestAccount_id))
 
     if request.method == 'GET':

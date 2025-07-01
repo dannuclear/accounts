@@ -9,6 +9,10 @@ class ImprestAccount(models.Model):
     account = models.IntegerField(db_column="account", primary_key=True, blank=False)
     # Наименование
     name = models.CharField(db_column="name", max_length=500, blank=True, null=True)
+    # Для печати. ФИО руководителя
+    printChiefFullName = models.CharField(db_column="print_chief_full_name", max_length=100, blank=True, null=True)
+    # Для печати. Должность руководителя
+    printChiefPost = models.CharField(db_column="print_chief_post", max_length=150, blank=True, null=True)
 
     def __str__(self):
         return u'%s'%self.account
@@ -306,3 +310,88 @@ class RefundExpense(models.Model):
             ("view_refund_expenses", "Просмотр"),
             ("edit_refund_expenses", "Редактирование")
         ]
+
+# Производственный календарь
+class ProductionCalendar(models.Model):
+    """Модель производственного календаря"""
+    
+    DAY_TYPE_CHOICES = [
+        ('workday', 'Рабочий день'),
+        ('weekend', 'Выходной'),
+        ('holiday', 'Праздничный'),
+        ('shortened', 'Сокращенный день'),
+    ]
+    
+    date = models.DateField(primary_key=True, unique=True, verbose_name='Дата')
+    day_type = models.CharField(
+        max_length=10,
+        choices=DAY_TYPE_CHOICES,
+        default='workday',
+        verbose_name='Тип дня'
+    )
+    description = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name='Описание (праздник и т.д.)'
+    )
+    working_hours = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        default=8.0,
+        verbose_name='Количество рабочих часов'
+    )
+    
+    class Meta:
+        db_table = 'production_calendar'
+        verbose_name = 'Производственный календарь'
+        verbose_name_plural = 'Производственный календарь'
+        ordering = ['date']
+        indexes = [
+            models.Index(fields=['date']),
+            models.Index(fields=['day_type']),
+        ]
+        default_permissions = ()
+        permissions = [
+            ("view_production_calendar", "Просмотр"),
+            ("edit_production_calendar", "Редактирование")
+        ]
+    
+    def __str__(self):
+        return f"{self.date.strftime('%d.%m.%Y')} - {self.get_day_type_display()}"
+    
+    @property
+    def year(self):
+        return self.date.year
+    
+    @property
+    def month(self):
+        return self.date.month
+    
+    @property
+    def day(self):
+        return self.date.day
+    
+    @property
+    def is_workday(self):
+        return self.day_type == 'workday'
+    
+    @property
+    def is_weekend(self):
+        return self.day_type in ('weekend', 'holiday')
+    
+    @property
+    def is_holiday(self):
+        return self.day_type == 'holiday'
+    
+    @property
+    def is_shortened(self):
+        return self.day_type == 'shortened'
+    
+    @classmethod
+    def is_holiday_by_date(cls, date):
+        """Проверяет, является ли дата праздником"""
+        try:
+            return cls.objects.get(date=date).is_holiday
+        except cls.DoesNotExist:
+            return False

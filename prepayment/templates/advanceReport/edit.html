@@ -572,6 +572,7 @@
 
       // Принятие проводки
       $('#entityApproveModal').on('click', '.ok-button', function(e){
+        e.preventDefault()
         var modal = $(e.delegateTarget)
         const modalDateInput = modal.find("input.approve-date")
         const approveDateInput = editRow.find("input.entity-approve-date")

@@ -1,0 +1,99 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+  Способ получения
+{% endblock %}
+
+{% block content %}
+  <form method="post" class="container-fluid">
+    {% csrf_token %}
+
+    <div class="row g-1">
+      <div class="col d-flex">
+        <button type="submit" class="btn btn-success btn-sm ms-auto me-1"><i class="fa-light fa-floppy-disk pe-2"></i>Сохранить</button>
+        <button type="button" class="btn btn-danger btn-sm" onclick="history.back()">Отменить</button>
+      </div>
+    </div>
+
+    <div class="row g-1 pt-1">
+      <div class="col-6">
+        {% include 'main/input_group.html' with field=form.name label='Наименование' %}
+      </div>
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.source label='Источник' %}
+      </div>
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.bik label='БИК' %}
+      </div>
+    </div>
+
+    <div class="row g-1 pt-1">
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.clientNumber label='Номер клиента' %}
+      </div>
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.registerCounter label='Номер реестра' %}
+      </div>
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.clientContractNumber label='Номер договора' %}
+      </div>
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.clientContractDate label='Дата договора' %}
+      </div>
+    </div>
+
+    <div class="row g-1 pt-1">
+      <div class="col-6">
+        {% include 'main/input_group.html' with field=form.clientFullName label='Наименование организации' %}
+      </div>
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.clientINN label='ИНН организации' %}
+      </div>
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.clientAccountNumber label='Расчетный счет организации' %}
+      </div>
+    </div>
+
+    <div class="row g-1 pt-1">
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.inn label='ИНН банка' %}
+      </div>
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.kpp label='КПП банка' %}
+      </div>
+      <div class="col-6">
+        {% include 'main/input_group.html' with field=form.printName label='Для печати' %}
+      </div>
+    </div>
+
+    <div class="row g-1 pt-1">
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.corrAccount label='Кор. счет' %}
+      </div>
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.currentAccount label='Р/счет' %}
+      </div>
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.bAccount label='Бал./счет' %}
+      </div>
+    </div>
+
+    <div class="row g-1 pt-1">
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.creditAccount label='Кредит. Счет' %}
+      </div>
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.creditSubaccount label='Кредит. Субсчет' %}
+      </div>
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.creditKAU1 label='Кредит. КАУ_1' %}
+      </div>
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.creditKAU2 label='Кредит. КАУ_2' %}
+      </div>
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.creditExtra label='Кредит. Доп.признак' %}
+      </div>
+    </div>
+  </form>
+{% endblock %}

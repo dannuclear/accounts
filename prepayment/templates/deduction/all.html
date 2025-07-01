@@ -20,6 +20,7 @@
         <th style="width: 10%">Подразделение</th>
         <th style="width: 10%">Табельный</th>
         <th style="width: 10%">ФИО</th>
+        <th style="width: 10%">Период удержания</th>
         <th style="width: 10%">Сумма</th>
       </tr>
     </thead>
@@ -44,10 +45,17 @@
         pagingType: 'first_last_numbers',
         order: [],
         columns: [
-          { data: 'id', orderable: false, searchable: false, defaultContent: '' },
+          {
+              data: null,
+              render: function (data, type, row, meta) {
+                  return meta.row + 1; // Starts from 1 instead of 0
+              }
+          },
+          //{ data: 'id', orderable: false, searchable: false, defaultContent: '' },
           { data: 'empDivNum', orderable: false, defaultContent: '' },
           { data: 'empNum', orderable: false, defaultContent: '' },
           { data: 'empFullName', orderable: false, defaultContent: '' },
+          { data: 'distribSalaryDate', orderable: false, defaultContent: '' },
           { data: 'distribSalary', orderable: false, defaultContent: '' }
         ],
         buttons: [

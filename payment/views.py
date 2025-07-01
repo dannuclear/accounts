@@ -9,7 +9,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from guide.models import ImprestAccount, Status, ObtainMethod
 from prepayment.models import Prepayment
 from django.http.response import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse
-from .forms import PaymentPrepaymentForm, PaymentForm
+from .forms import PaymentPrepaymentForm, PaymentForm, PaymentEntryForm
 from .models import Payment, PaymentPrepayment, PaymentEntry
 from django.db.models import Count, Sum, Avg, Max, Min
 import xml.etree.ElementTree as ET
@@ -17,6 +17,7 @@ from num2words import num2words
 from django.db import connection
 from .queries import ADD_PAYMENT_ENTRIES
 from django.views.decorators.http import require_POST
+import csv
 # Create your views here.
 
 
@@ -97,6 +98,12 @@ class PaymentUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         context['imprestAccounts'] = ImprestAccount.objects.all()
         return context
+
+class PaymentEntryUpdateView(UpdateView):
+    model = PaymentEntry
+    template_name = 'entry/edit.html'
+    form_class = PaymentEntryForm
+    success_url = reverse_lazy('payment_entries')
 
 
 def delete_payment(request, pk):
@@ -393,3 +400,52 @@ def unapprove_entries(request):
         return HttpResponseBadRequest('Не выбраны реестры')
     PaymentEntry.objects.filter(paymentPrepayment__payment__in=payment_ids, status=1).update(status=0, approveDate=None, approveBy=request.user.username)
     return HttpResponse('success')
+
+def download_entries(request):
+    if 'toDate' not in request.GET:
+        return HttpResponseBadRequest('Месяц, год выгрузки не указан')
+    toDate = request.GET['toDate']
+    toDateParsed = datetime.strptime(toDate, '%d.%m.%Y')
+
+    entries = PaymentEntry.objects.all().select_related(
+        'paymentPrepayment'
+    ).filter(aePeriod__month=toDateParsed.month, aePeriod__year=toDateParsed.year, status=1).all()
+
+    file_name = '%s_%s_account_entry.csv' % (toDateParsed.strftime("%Y-%m-%d"), datetime.now().strftime("%H%M%S"))
+    response = HttpResponse()
+    response['Content-type'] = 'text/csv'
+    response['Content-Disposition'] = 'attachment; filename=' + file_name
+    writer = csv.writer(response, delimiter='\t')
+    ids = set()
+    for ae in entries:
+        writer.writerow([ae.aePeriod.strftime("%m-%Y"), 
+                        ('%05d' % ae.aeNo), 
+                        ('%02d' % ae.acplAccountDebit), 
+                        ('%02d' % ae.acplSubaccountDebit), 
+                        (ae.acplCodeAnaliticDebit.zfill(6)),
+                        (ae.acplAddSignDebit.zfill(10)),
+                        ('%02d' % ae.acplAccountCredit), 
+                        ('%02d' % ae.acplSubaccountCredit), 
+                        (ae.acplCodeAnaliticCredit.zfill(6)),
+                        (ae.acplAddSignCredit.zfill(10)),
+                        ae.aeSum])
+        ids.add(ae.id)
+
+    PaymentEntry.objects.filter(status=1, id__in=ids).update(status=2)
+    return response
+
+
+def entry_certificate_html(request, pk):
+    entry = PaymentEntry.objects.filter(pk=pk).select_related(
+        'paymentPrepayment__prepaymentItem__obtainMethod',
+        'paymentPrepayment__prepaymentItem__prepayment__document',
+        'paymentPrepayment__prepaymentItem__prepayment__imprestAccount',
+        'paymentPrepayment__prepaymentItem__prepayment__status',
+        'paymentPrepayment__prepaymentItem__prepayment__reportStatus',
+        'paymentPrepayment__payment__obtainMethod'
+    ).order_by('id').get()
+
+    context = {
+        'entry': entry,
+    }
+    return render(request, 'entry/accountingCert.html', context)

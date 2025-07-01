@@ -44,7 +44,7 @@
       table,
       th,
       td {
-        /* border: 1px solid gainsboro; */
+         /*border: 1px solid gainsboro; */
       }
       th {
         font-weight: lighter;
@@ -146,7 +146,7 @@
               <td>
                 <div class="d-flex align-items-end">
                   <div class="font-weight-bold pr-1">Руководитель</div>
-                  <div class="border-bottom border-dark flex-grow-1">начальник финансового отдела</div>
+                  <div class="border-bottom border-dark flex-grow-1 text-center">{{ report.imprestAccount.printChiefPost|default_if_none:"начальник финансового отдела" }}</div>
                 </div>
               </td>
             </tr>
@@ -179,7 +179,7 @@
                         <table class="w-100">
                           <tbody>
                             <tr>
-                              <td class="border-bottom border-dark"></td>
+                              <td class="border-bottom border-dark">&nbsp;</td>
                             </tr>
                             <tr>
                               <td style="font-size: 0.8em;" class="text-center">подпись</td>
@@ -191,7 +191,7 @@
                         <table class="w-100">
                           <tbody>
                             <tr>
-                              <td class="border-bottom border-dark"></td>
+                              <td class="border-bottom border-dark text-center">{{ report.imprestAccount.printChiefFullName|default_if_none:"" }}</td>
                             </tr>
                             <tr>
                               <td style="font-size: 0.8em;" class="text-center">расшифровка подписи</td>
@@ -537,6 +537,7 @@
                       <td class="text-right" style="width: 30px;">20</td>
                       <td class="border-bottom border-dark text-left" style="width: 30px;">{{ report.distribSalaryDate|date:"y" }}</td>
                       <td class="text-center" style="width: 10px;">г.</td>
+                      <td colspan="2"></td>
                     </tr>
                     <tr>
                       <td colspan="10"></td>
@@ -546,7 +547,48 @@
                       <td class="border border-dark text-center" style="width: 100px;">{{ report.distribBank|default_if_none:"" }}</td>
                       <td class="text-center" style="width: 300px;">(перерасход) перечислен на карту банка</td>
                       <td colspan="4" class="border-bottom border-dark text-center"></td>
+                      <td>Дата</td>
+                      <td class="border border-dark text-center">{{ report.distribBankDate|date:'d.m.Y'|default_if_none:"" }}</td>
                     </tr>
+                    {% if report.distribPKO is not None %}
+                      <tr>
+                        <td colspan="10"></td>
+                      </tr>
+                      <tr style="height: 30px;">
+                        <td></td>
+                        <td class="border border-dark text-center" style="width: 100px;">{{ report.distribPKO|default_if_none:"" }}</td>
+                        <td class="text-center" style="width: 300px;">Внесен в кассу по ПКО от</td>
+                        <td colspan="4" class="border border-dark text-center">{{ report.distribPKODate|date:'d.m.Y'|default_if_none:"" }}</td>
+                        <td>Номер</td>
+                        <td class="border border-dark text-center">{{ report.distribPKONum|default_if_none:"" }}</td>
+                      </tr>
+                    {% endif %}
+                    {% if report.distribCombinat is not None %}
+                      <tr>
+                        <td colspan="10"></td>
+                      </tr>
+                      <tr style="height: 30px;">
+                        <td></td>
+                        <td class="border border-dark text-center" style="width: 100px;">{{ report.distribCombinat|default_if_none:"" }}</td>
+                        <td class="text-center" style="width: 300px; text-wrap: nowrap;">Внесен на расч.счет комбината по документу от</td>
+                        <td colspan="4" class="border border-dark text-center">{{ report.distribCombinatDate|date:'d.m.Y'|default_if_none:"" }}</td>
+                        <td>Номер</td>
+                        <td class="border border-dark text-center">{{ report.distribCombinatNum|default_if_none:"" }}</td>
+                      </tr>
+                    {% endif %}
+                    {% if report.distribRKO is not None %}
+                      <tr>
+                        <td colspan="10"></td>
+                      </tr>
+                      <tr style="height: 30px;">
+                        <td></td>
+                        <td class="border border-dark text-center" style="width: 100px;">{{ report.distribRKO|default_if_none:"" }}</td>
+                        <td class="text-center" style="width: 300px;">(перерасход) выдан в кассе по РКО от</td>
+                        <td colspan="4" class="border border-dark text-center">{{ report.distribRKODate|date:'d.m.Y'|default_if_none:"" }}</td>
+                        <td>Номер</td>
+                        <td class="border border-dark text-center">{{ report.distribRKONum|default_if_none:"" }}</td>
+                      </tr>
+                    {% endif %}
                     <tr style="height: 30px;">
                       <td class="border-bottom border-dark text-center" colspan="10">{{ report.distribBankMethod.name }}</td>
                     </tr>
