@@ -272,12 +272,14 @@ def editAdvanceReport(request, id):
                 #    maxNumDict = Prepayment.objects.filter(imprestAccount_id=prepayment.imprestAccount_id, approveDate__year=datetime.now().year).aggregate(Max('reportNum'))
                 #    prepayment.reportNum = 1 if maxNumDict['reportNum__max'] is None else maxNumDict['reportNum__max'] + 1
                 # Если статус авансового отчета "Удтвержден" и даты нет присваиваем
-                if prepayment.reportStatus_id == 5 and prepayment.reportDate is None:
-                    prepayment.status_id = 5
-                    prepayment.reportDate = datetime.now()
+                #if prepayment.reportStatus_id == 5 and prepayment.reportDate is None:
+                #    prepayment.status_id = 5
+                #    prepayment.reportDate = datetime.now()
                 # Если статус авансового отчета "Согласован" и даты нет присваиваем
                 if prepayment.reportStatus_id == 3:
                     prepayment.status_id = 3
+                    if prepayment.reportDate is None: # На данную дату опирается бух справка, по договоренности 2025.07.02 сделали когда согласован
+                        prepayment.reportDate = datetime.now()
                     if prepayment.approveDate is None:
                         prepayment.approveDate = datetime.now()
                     # СОМНИТЕЛЬНО !!! генерацию номера по дате согласования
@@ -418,14 +420,13 @@ def pdfAdvanceReport(request, id):
 def htmlAccountingCert(request, id):
     prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')), days=Subquery(purposesSubquery.values('days'))).select_related('status').select_related(
     'imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
-    if prepayment.approveDate is None:
-        return render(request, 'main/error.html', {'message': 'Проводки по данному авансовому отчету должны быть подтверждены'})
+    if prepayment.reportDate is None:
+        return render(request, 'main/error.html', {'message': 'Дата авансового отчета не присвоена'})
 
     # Если номер авансового отчета не присвоен
     if prepayment.reportAccountingNum is None:
-        now = datetime.now()
         #maxReportAccountingNum = Prepayment.objects.filter(docDate__month = now.month, docDate__year = now.year).aggregate(Max('reportAccountingNum'))['reportAccountingNum__max']
-        maxReportAccountingNum = Prepayment.objects.filter(approveDate__month = prepayment.approveDate.month, approveDate__year = prepayment.approveDate.year).aggregate(Max('reportAccountingNum'))['reportAccountingNum__max']
+        maxReportAccountingNum = Prepayment.objects.filter(reportDate__month = prepayment.reportDate.month, reportDate__year = prepayment.reportDate.year, imprestAccount=prepayment.imprestAccount_id).aggregate(Max('reportAccountingNum'))['reportAccountingNum__max']
         startValue = AccountingCert.objects.filter(account = prepayment.imprestAccount_id).values_list('num', flat=True).first()
         nextVal = max(int(maxReportAccountingNum) if maxReportAccountingNum is not None else 0, int(startValue) if startValue is not None else 0) + 1
         Prepayment.objects.filter(pk = prepayment.id).update(reportAccountingNum = nextVal)

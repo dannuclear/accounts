@@ -323,7 +323,7 @@
                   путем{% if req.obtainMethod.source == 0 %}
                     его выдачу через кассу
                   {% else %}
-                    его перечисления на карту банка
+                    его перечисления на карту банка ({{ req.obtainMethod.name }})
                   {% endif %}
                 </td>
               </tr>
