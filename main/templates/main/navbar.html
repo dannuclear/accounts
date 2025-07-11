@@ -106,16 +106,20 @@
           </li>
         {% endif %}
 
-        {% if perms.accountingEntry %}
+        {% if perms.payment %}
           <li class="nav-item dropdown active">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="fa-duotone fa-building-columns"></i>&nbsp;Перечисление ДС</a>
             <ul class="dropdown-menu">
-              <li>
-                <a class="dropdown-item" href="{% url 'payment_prepayments' %}">Реестры авансовых сумм, перечисленных на банки</a>
-              </li>
-              <li>
-                <a class="dropdown-item" href="{% url 'payments' %}">Реестры для банков</a>
-              </li>
+              {% if perms.payment.view_payment_prepayment or perms.payment.edit_payment_prepayment %}
+                <li>
+                  <a class="dropdown-item" href="{% url 'payment_prepayments' %}">Реестры авансовых сумм, перечисленных на банки</a>
+                </li>
+              {% endif %}
+              {% if perms.payment.view_payment or perms.payment.edit_payment %}
+                <li>
+                  <a class="dropdown-item" href="{% url 'payments' %}">Реестры для банков</a>
+                </li>
+              {% endif %}
               {% comment %} <li>
                 <a class="dropdown-item" href="{% url 'payment_files' %}">Файлы выгрузок реестров</a>
               </li> {% endcomment %}
