@@ -173,7 +173,7 @@ class WC07POrder(models.Model):
         db_column="pay_doc", max_length=100, blank=True, null=True)
     # документ_ID_меняемый
     orderIdUpd = models.CharField(
-        db_column="order_id_upd", max_length=20, blank=True, null=True)
+        db_column="order_id_upd", max_length=40, blank=True, null=True)
 
     class Meta:
         db_table = 'wc07p_order'

@@ -40,7 +40,10 @@ def load(path, _type):
             data['snils'] = data['snils'].replace('-', '').replace(' ', '')
 
     with open(path, encoding="utf-8", mode='r') as file:
-        dialect = csv.Sniffer().sniff(file.read(4048), delimiters='\t')
+        sample = file.read(4048)
+        if not sample:
+            raise Exception('Файл %s пустой' % path)
+        dialect = csv.Sniffer().sniff(sample, delimiters='\t')
         dialect.delimiter = '\t'
         file.seek(0)
         fields = get_fields(_type)
