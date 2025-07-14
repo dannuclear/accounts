@@ -243,7 +243,7 @@
                           {% include 'request/report/travel_row.html' with label='Подотчет водителю цеха 013 на приобретение ГСМ' labelColspan=2 sum=te.sum %}
                         {% endif %}
                       {% endfor %}
-                      {% include 'request/report/travel_row.html' with label='Провоз и упаковка багажа, услуги камеры хранения' labelColspan=2 sum='' %}
+                      {% comment %} {% include 'request/report/travel_row.html' with label='Провоз и упаковка багажа, услуги камеры хранения' labelColspan=2 sum='' %} {% endcomment %}
                     </tbody>
                     <tfoot>
                       <tr>
@@ -353,7 +353,7 @@
                   <table class="w-100">
                     <tbody>
                       {% include 'request/signRow.html' with title='Работник' %}
-                      {% include 'request/signRow.html' with title='Руководитель ораганизации' %}
+                      {% include 'request/signRow.html' with title='Руководитель организации' %}
                     </tbody>
                   </table>
                 </td>

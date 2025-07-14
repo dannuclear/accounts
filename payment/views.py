@@ -248,7 +248,7 @@ def download(request):
 
     elif obtain_method_id == '3' or obtain_method_id == '5':    # Сбербанк, УБРиР
         if not obtain_method.clientContractNumber or not obtain_method.clientContractDate or not obtain_method.clientFullName or not obtain_method.clientINN or not obtain_method.clientAccountNumber or not obtain_method.bik:
-            return render(request, 'main/error.html', {'message': 'Укажите номер договора, дату договора, наименование орагнизации, ИНН, расчетный счет, бик'})
+            return render(request, 'main/error.html', {'message': 'Укажите номер договора, дату договора, наименование организации, ИНН, расчетный счет, бик'})
         register_counter = obtain_method.registerCounter
         if register_counter is None:
             register_counter = 1
@@ -274,7 +274,7 @@ def download(request):
         obtain_method.save(update_fields=['registerCounter'])
     elif obtain_method_id == '4':  # ВТБ
         if not obtain_method.clientFullName:
-            return render(request, 'main/error.html', {'message': 'Укажите наименование орагнизации'})
+            return render(request, 'main/error.html', {'message': 'Укажите наименование организации'})
         register_counter = obtain_method.registerCounter
         if register_counter is None:
             register_counter = 1
