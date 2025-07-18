@@ -206,7 +206,7 @@
         </div>
       </div>
 
-      {% if form.instance.reportStatus_id == 3 and lockLevel|stringformat:"s" in '10' %}
+      {% if form.instance.reportStatus_id == 3 and lockLevel|stringformat:"s" in '10' and iventoryItems.form_kwargs.accounting %}
         <div class="col-12 border rounded p-1">
           <div class="row g-1">
             <div class="col">
@@ -389,7 +389,7 @@
                       </td>
                       <td>
                         {% if attachment.file.value is not None %}
-                          <a href="{{ attachment.file.file.url }}" target="__blank" title="{{ attachment.file.value }}">Просмотр</a>
+                          <a href="{{ attachment.file.value.url }}" target="__blank" title="{{ attachment.file.value }}">Просмотр</a>
                         {% endif %}
                       </td>
                       <td>
