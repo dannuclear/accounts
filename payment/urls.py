@@ -11,6 +11,7 @@ paymentRouter.register(r'paymentEntries', view_sets.PaymentEntryViewSet)
 urlpatterns = [
     path('payments', views.PaymentAllView.as_view(), name='payments'),
     path('payments/add/', views.PaymentCreateView.as_view(), name='payment_add'),
+    path('payments/add_all/', views.payments_add_all, name='payment_add_all'),
     path('payments/<int:pk>/', views.PaymentUpdateView.as_view(), name='payment_edit'),
     path('payments/<int:pk>/delete', views.delete_payment, name='payment_delete'),
     path('payments/<int:pk>/html', views.html_report, name='payment_report'),

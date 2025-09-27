@@ -148,8 +148,7 @@
                   </svg>
                   <div class="w-100 d-flex align-items-end">
                     <div class="w-100">
-                      С.В. Соколик<br />
-                      9-55-47<br />
+                      {{ payment.executor|default_if_none:''  }}
                       <table class="table table-bordered m-0">
                         <tbody>
                           <tr>

@@ -53,6 +53,7 @@ class PaymentCreateView(CreateView):
     def get_initial(self):
         initial = super().get_initial()
         initial['createDate'] = datetime.now()
+        initial['executor'] = Payment.objects.latest('id').executor
         try:
             locale.setlocale(category=locale.LC_ALL, locale="ru_RU.UTF-8")
         except:
@@ -88,10 +89,30 @@ class PaymentCreateView(CreateView):
             payment.save()
         return response
 
+def payments_add_all(request):
+    user_full_name = ('%s %s' % (request.user.last_name, request.user.first_name)).strip()
+    queryset = PaymentPrepayment.objects.filter(payment__isnull=True)
+    payment_prepayment_groups = queryset.values('prepaymentItem__prepayment__imprestAccount', 'prepaymentItem__obtainMethod').annotate(sum=Sum('prepaymentItem__value'), count=Count('prepaymentItem__prepayment'))
+    current_date = datetime.now()
+    for gr in payment_prepayment_groups:
+        payment_prepayments = queryset.filter(prepaymentItem__prepayment__imprestAccount=gr['prepaymentItem__prepayment__imprestAccount'], prepaymentItem__obtainMethod=gr['prepaymentItem__obtainMethod'])
+        payment = Payment()
+        payment.createDate = current_date
+        payment.name = current_date.strftime('%d.%m.%Y')
+        payment.createdAt = current_date
+        payment.createdBy = user_full_name if user_full_name else request.user.username
+        payment.totalSum = gr['sum']
+        payment.totalCount = gr['count']
+        payment.obtainMethod_id = gr['prepaymentItem__obtainMethod']
+        payment.prepaidDest_id = 1
+        payment.save()
+        payment_prepayments.update(payment=payment)
+        print(gr)
+    return redirect('payments')
 
 class PaymentUpdateView(UpdateView):
     model = Payment
-    fields = ['name', 'createDate']
+    fields = ['name', 'createDate', 'executor']
     success_url = reverse_lazy('payments')
 
     def get_context_data(self, **kwargs):

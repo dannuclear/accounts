@@ -41,10 +41,10 @@
             <th scope="col" rowspan="2" data-dt-order="disable" data-width="1%">Статус</th>
             <th scope="col" rowspan="2" data-dt-order="disable">Бухгалтерская справка</th>
             <th scope="col" rowspan="2" data-dt-order="disable">Дата принятия на учет АО</th>
-            <th scope="col" rowspan="2" data-dt-order="disable">Создатель/Исполнитель</th>
 
             <th scope="col" rowspan="2" data-dt-order="disable" data-width="1%"></th>
             <th scope="col" rowspan="2" data-dt-order="disable" data-width="1%"></th>
+            <th scope="col" rowspan="2" data-dt-order="disable">Создатель/Исполнитель</th>
         </tr>
         <tr>
             <th scope="col" data-dt-order="disable">Номер</th>
@@ -102,7 +102,9 @@
                                 return `<a class="text-success m-0" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa-duotone fa-print fa-xl"></i></a>
                                             <div class="dropdown-menu">
                                                 <a class="dropdown-item" href="/advanceReports/${data.id}/html" target="_blank">Авансовый отчет</a>
-                                                <a class="dropdown-item" href="/advanceReports/${data.id}/accountingCert/html" target="_blank">Бухгалтерская справка</a>
+                                                {% if isAdminOrAccountant%}
+                                                    <a class="dropdown-item" href="/advanceReports/${data.id}/accountingCert/html" target="_blank">Бухгалтерская справка</a>
+                                                {% endif %}
                                             </div>`
                             }
                         },
@@ -143,17 +145,7 @@
                         { data: 'diffSum', orderable: false, className: 'text-right', defaultContent: "", searchable: false, render: $.fn.dataTable.render.number( ' ', ',', 2 ) },
                         { data: 'reportStatus.name', orderable: false, className: 'text-center', defaultContent: "Не установлен", searchable: false },
                         { data: 'reportAccountingNum', orderable: false, defaultContent: "", searchable: false },
-                        { data: 'reportDate', orderable: false, defaultContent: "", searchable: false },
-                        {
-                            data: null,
-                            orderable: false,
-                            width: '1rem',
-                            className: 'text-center',
-                            searchable: false,
-                            render: function (data, type, row, meta) {
-                                return `<small style="font-size:0.8em;">${data.createdBy || ''}/${data.updatedByAccountant || ''}</small>`;
-                            },
-                        },
+                        { data: 'approveDate', orderable: false, defaultContent: "", searchable: false },
                         {
                             data: null,
                             defaultContent: '',
@@ -166,7 +158,17 @@
                                         </a>`
                                 }
                         },
-                        editColumn("/advanceReports", function(d){ return isAdminOrAccountant || d.reportStatus == null || [1,2,4].includes(d.reportStatus.id) })
+                        editColumn("/advanceReports", function(d){ return isAdminOrAccountant || d.reportStatus == null || [1,2,4].includes(d.reportStatus.id) }),
+                        {
+                            data: null,
+                            orderable: false,
+                            width: '1rem',
+                            className: 'text-center',
+                            searchable: false,
+                            render: function (data, type, row, meta) {
+                                return `<small style="font-size:0.8em;">${data.createdBy || ''}/${data.updatedByAccountant || ''}</small>`;
+                            },
+                        },
                     ],
                     buttons: [
                         {

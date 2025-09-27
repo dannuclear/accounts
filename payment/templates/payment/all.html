@@ -160,6 +160,13 @@
                     }
                 },
                 {
+                    text: '<i class="fa-light fa-octagon-plus me-2"></i>&nbsp;СОЗДАТЬ ВСЕ РЕЕСТРЫ',
+                    className: 'btn btn-danger btn-sm',
+                    action: function (e, dt, node, config) {
+                        window.location.href = "{% url 'payments' %}/add_all"
+                    }
+                },
+                {
                     text: '<i class="fa-light fa-download me-2"></i>&nbsp;ВЫГРУЗКА',
                     className: 'btn btn-warning btn-sm',
                     attr: {

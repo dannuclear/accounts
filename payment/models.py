@@ -13,6 +13,9 @@ class Payment(models.Model):
     # Наименование
     name = models.CharField(db_column="name", blank=True, max_length=200)
 
+    # Наименование
+    executor = models.CharField(db_column="executor", blank=True, max_length=200)
+
     # Дата формирования реестра
     createDate = models.DateField(db_column="create_date", blank=True, null=True)
 

@@ -23,6 +23,10 @@
         {% include 'main/input_group.html' with field=form.createDate label='Дата создания' inputClass='text-center datepeeker' labelStyle='width:130px' %}
       </div>
 
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.executor label='Исполнитель' %}
+      </div>
+
       <div class="col-12">
         {% include 'main/input_group.html' with field=form.name label='Наименование' labelStyle='width:130px' %}
       </div>

@@ -301,7 +301,7 @@
                   <table class="w-100">
                     <tbody>
                       {% with receivingDate=req.receivingDate|date:'d.m.Y'|default_if_none:'' %}
-                        {% include 'request/signRow.html' with signUnder='(подпись подотчетного лица)' showDate='n' title='Предполагаемая дата получения денежных средств: '|add:receivingDate %}
+                        {% include 'request/signRow.html' with signUnder='(подпись подотчетного лица)' showDate='n' title='Предполагаемая дата получения денежных средств: '|add:receivingDate|add:' Способ получения: '|add:req.obtainMethod.name %}
                       {% endwith %}
                       {% with divNo=req.applicant.divNo|stringformat:'03d'|default_if_none:'___' %}
                         {% include 'request/signRow.html' with title='Решение начальника структурного подразделения № '|add:divNo|add:'   __________________________________' %}

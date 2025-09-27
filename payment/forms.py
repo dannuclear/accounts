@@ -20,7 +20,7 @@ class PaymentForm(forms.ModelForm):
 
     class Meta:
         model = Payment
-        fields = ['name', 'createDate', 'obtainMethod', 'prepaidDest']
+        fields = ['name', 'createDate', 'obtainMethod', 'prepaidDest', 'executor']
 
 
 class PaymentPrepaymentForm(forms.ModelForm):

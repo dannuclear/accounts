@@ -71,7 +71,8 @@ GET_ADVANCE_REPORT_ITEMS_FOR_REPORT = '''
 	LEFT JOIN document ON item.approve_document_id = document.id
 	LEFT JOIN expense_category ON item.expense_category_id = expense_category.id
 	WHERE item.prepayment_id = %s and item.item_type = ANY(%s) ORDER BY item.id'''
-
+	
+# 26 сентября на встрече в МИФИ сказали что в бух справке должны быть и отрицательные суммы
 GET_ACCOUNTING_CERT_ROW = '''
 	SELECT debit_account, debit_extra, credit_account, credit_extra, sum (accounting_sum) FROM (
 	SELECT
@@ -97,4 +98,4 @@ GET_ACCOUNTING_CERT_ROW = '''
 		entity.id as entity_id
 	FROM advance_report_item_entity entity
 	INNER JOIN advance_report_item item ON item.id = entity.advance_report_item_id
-	WHERE item.prepayment_id = %s AND entity.accounting_sum > 0) t1 GROUP BY debit_account, debit_extra, credit_account, credit_extra ORDER BY MIN(entity_id) asc'''
+	WHERE item.prepayment_id = %s AND entity.accounting_sum <> 0) t1 GROUP BY debit_account, debit_extra, credit_account, credit_extra ORDER BY MIN(entity_id) asc'''
