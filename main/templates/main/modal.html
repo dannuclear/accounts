@@ -16,7 +16,9 @@
         {% if render_cancel|default_if_none:True %}
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
         {% endif %}
-        <button type="{% if submit_form_id is None %}button{% else %}submit{% endif %}" form="{{ submit_form_id }}" class="btn btn-primary ok-button" data-bs-dismiss="modal">Ок</button>
+        {% if render_ok|default_if_none:True and not hide_ok|default_if_none:False %}
+          <button type="{% if submit_form_id is None %}button{% else %}submit{% endif %}" form="{{ submit_form_id }}" class="btn btn-primary ok-button" data-bs-dismiss="modal">Ок</button>
+        {% endif %}
       </div>
     </div>
   </div>

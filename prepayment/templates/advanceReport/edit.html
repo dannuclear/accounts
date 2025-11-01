@@ -428,11 +428,11 @@
 
   {% include 'advanceReport/approveModal.html' with modal_id='entityApproveModal' submit_form_id='mainForm' modal_size='xs' %}
 
-  {% include 'advanceReport/serviceModal.html' with modal_id='serviceModal' %}
+  {% include 'advanceReport/serviceModal.html' with modal_id='serviceModal' hide_ok=lockLevel %}
 
-  {% include 'advanceReport/presentationModal.html' with modal_id='presentationModal' %}
+  {% include 'advanceReport/presentationModal.html' with modal_id='presentationModal' hide_ok=lockLevel %}
 
-  {% include 'advanceReport/purchaseOrderModal.html' with modal_id='purchaseOrderModal' %}
+  {% include 'advanceReport/purchaseOrderModal.html' with modal_id='purchaseOrderModal' hide_ok=lockLevel %}
 
   <script type="text/javascript">
     var editRow
@@ -457,6 +457,25 @@
       $(tabDiv).find('.expense-sum-vat-total').text(format(sum_vat))
       $(tabDiv).find('.accounting-sum-total').text(format(accounting_sum))
       $(tabDiv).find('.accounting-diff-total').text(format(sum_rub - accounting_sum))
+    }
+
+    function updateDiffSum() {
+      let totalSum = 0.0
+      const visibleInventoryModal = $('.inventoryModal:visible').first()
+      if (!visibleInventoryModal) return
+      const sumRub = visibleInventoryModal.find('.expense-sum-rub').first()
+      const sumVat = visibleInventoryModal.find('.expense-sum-vat').first()
+      const diffSum = visibleInventoryModal.find('input[name$="diffSum"]:visible').first()
+      
+      const inputs = $('input[name$="whOrderSum"]:visible')
+      if (inputs.length == 0 || !sumRub || !sumVat) return
+      // Снабжаем все части итоговой суммы классом total-input-part
+      const sumRubVal = parseFloat(sumRub.val().replaceAll(',', '.')) || 0
+      const sumVatVal = parseFloat(sumVat.val().replaceAll(',', '.')) || 0
+      inputs.each(function () {
+        totalSum += parseFloat($(this).val().replaceAll(',', '.')) || 0
+      })
+      diffSum.val(sumRubVal - sumVatVal - totalSum.toFixed(2))
     }
 
     $(document).ready(function () {
@@ -913,6 +932,10 @@
             $('form').submit()
           }
         }
+      })
+
+      $('.inventoryModal .expense-sum-rub, .inventoryModal .expense-sum-vat, .inventoryModal input[name$="whOrderSum"]').on('change', function (e) {
+        updateDiffSum();
       })
     })
 

@@ -156,9 +156,9 @@
         {% endif %}
         {% if itemType == 2 or itemType == 3 or itemType == 4 or itemType == 5 %}
           <td>
-            {% if not lockLevel %}
+            {% comment %} {% if not lockLevel %} {% endcomment %}
               <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#{% if itemType == 2 %}{{ item.prefix }}-modal{% elif itemType == 3 %}serviceModal{% elif itemType == 4 %}presentationModal{% elif itemType == 5 %}purchaseOrderModal{% endif %} ">...</button>
-            {% endif %}
+            {% comment %} {% endif %} {% endcomment %}
           </td>
         {% endif %}
         <td>

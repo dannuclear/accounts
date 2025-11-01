@@ -22,7 +22,9 @@
             <div class="col-sm-12 p-1">
               <div class="row g-1">
                 <div class="col-sm-12 p-1 rounded" style="background: gainsboro;">
-                  <button class="btn btn-sm btn-outline-primary btn-add-entity-row" data-prefix="{{ item.prefix }}-item">Добавить</button>
+                  {% if not lockLevel %}
+                    <button class="btn btn-sm btn-outline-primary btn-add-entity-row" data-prefix="{{ item.prefix }}-item">Добавить</button>
+                  {% endif %}
                 </div>
               </div>
 
@@ -107,7 +109,9 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-        <button type="button" class="btn btn-primary ok-button" data-bs-dismiss="modal">Ок</button>
+        {% if not lockLevel %}
+          <button type="button" class="btn btn-primary ok-button" data-bs-dismiss="modal">Ок</button>
+        {% endif %}
       </div>
     </div>
   </div>
