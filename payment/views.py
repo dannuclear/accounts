@@ -1,7 +1,7 @@
 import decimal
 import locale
 from datetime import datetime
-
+import re
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
@@ -16,6 +16,7 @@ import xml.etree.ElementTree as ET
 from num2words import num2words
 from django.db import connection
 from .queries import ADD_PAYMENT_ENTRIES
+from .xml_templates import T_BANK_XML_TEMPLATE
 from django.views.decorators.http import require_POST
 import csv
 # Create your views here.
@@ -54,6 +55,7 @@ class PaymentCreateView(CreateView):
         initial = super().get_initial()
         initial['createDate'] = datetime.now()
         initial['executor'] = Payment.objects.latest('id').executor
+        initial['mainAccountant'] = Payment.objects.latest('id').mainAccountant
         try:
             locale.setlocale(category=locale.LC_ALL, locale="ru_RU.UTF-8")
         except:
@@ -112,7 +114,7 @@ def payments_add_all(request):
 
 class PaymentUpdateView(UpdateView):
     model = Payment
-    fields = ['name', 'createDate', 'executor']
+    fields = ['name', 'createDate', 'executor', 'mainAccountant']
     success_url = reverse_lazy('payments')
 
     def get_context_data(self, **kwargs):
@@ -172,14 +174,33 @@ def payment_certificate(request, pk):
     payment = Payment.objects.select_related('obtainMethod').select_related('prepaidDest').get(pk=pk)
     total_sum_string = num2words(int(payment.totalSum), lang='ru')
     prepayments = None
+    num = None
     if 'with_register' in request.GET:
+        num = payment.certificateRegNum
         prepayments = PaymentPrepayment.objects.select_related('prepaymentItem__prepayment').all()
+    else:
+        num = payment.certificateNum
 
+    if not num:
+        max_values = Payment.objects.filter(
+            createDate__year=payment.createDate.year
+        ).aggregate(
+            max_certificate_num=Max('certificateNum'),
+            max_certificate_reg_num=Max('certificateRegNum')
+        )
+        num = max(max_values['max_certificate_num'], max_values['max_certificate_reg_num']) + 1
+
+        if 'with_register' in request.GET:
+            Payment.objects.filter(pk=pk).update(certificateRegNum = num)
+        else:
+            Payment.objects.filter(pk=pk).update(certificateNum = num)
     context = {
         'payment': payment,
         'bank': payment.obtainMethod,
         'totalSumIntString': total_sum_string,
         'prepayments': prepayments,
+        'registryNumber': re.sub(r'\.xml|z\.xml', '', payment.fileName if payment.fileName is not None else ''),
+        'num': num
     }
     return render(request, 'payment/certificate.html', context)
 
@@ -191,7 +212,8 @@ def payment_prepayment_certificate(request, pk):
         'paymentPrepayment': paymentPrepayment,
         'payment': paymentPrepayment.payment,
         'bank': paymentPrepayment.payment.obtainMethod,
-        'totalSumIntString': totalSumIntString
+        'totalSumIntString': totalSumIntString,
+        'registryNumber': re.sub(r'\.xml|z\.xml', '', paymentPrepayment.payment.fileName if paymentPrepayment.payment.fileName is not None else '')
     }
     return render(request, 'payment/payment_prepayment_certificate.html', context)
 
@@ -258,6 +280,7 @@ def download(request):
     if not client_number:
         return render(request, 'main/error.html', {'message': 'Укажите номер клиента банка в справочнике способов получения'})
     filename = payment.fileName
+    payment_dest = payment.paymentDest_id
     date = payment.fileDateTime or datetime.now()
     if obtain_method_id == '2':    # Газпромбанк
         queryset = queryset.values('prepaymentItem__prepayment__empFullName', 'accountNumber').annotate(total_count=Count('id'), total_sum=Sum('prepaymentItem__value'))
@@ -277,6 +300,7 @@ def download(request):
         queryset = queryset.values('prepaymentItem__prepayment__empFullName', 'prepaymentItem__prepayment__empSurname', 'prepaymentItem__prepayment__empName', 'prepaymentItem__prepayment__empPatronymic', 'accountNumber').annotate(total_count=Count('id'), total_sum=Sum('prepaymentItem__value'))
         xml_result = sbp_file_generator(
             obtain_method_id,
+            payment_dest,
             date,
             register_counter,
             client_number,
@@ -309,6 +333,17 @@ def download(request):
 
         filename = filename or 'Z_%s_%s_%03d_001.txt' % (client_number, date.strftime('%Y%m%d'), register_counter)
         obtain_method.save(update_fields=['registerCounter'])
+    elif obtain_method_id == '7':  # ТБАНК
+        if not obtain_method.clientFullName:
+            return render(request, 'main/error.html', {'message': 'Укажите наименование организации'})
+        queryset = queryset.values('prepaymentItem__prepayment__empFullName', 'prepaymentItem__prepayment__empSurname', 'prepaymentItem__prepayment__empName', 'prepaymentItem__prepayment__empPatronymic', 'accountNumber').annotate(total_count=Count('id'), total_sum=Sum('prepaymentItem__value'))
+        xml_result = tbank_file_generator(queryset)
+        response = HttpResponse(xml_result, content_type='application/xml; charset=UTF-8')
+        register_counter = obtain_method.registerCounter
+        if register_counter is None:
+            register_counter = 1
+        obtain_method.registerCounter = register_counter + 1
+        filename = filename or '%s%03dz.xls' % (client_number, register_counter)
     else:
         return render(request, 'main/error.html', {'message': 'Не настроен формат файла выгрузки для данного способа получения'})
 
@@ -339,7 +374,7 @@ def vtb_file_generator(date, client_name, items):
     yield 'END;%s;%.2f;RUR' % (len(items), total)
 
 
-def sbp_file_generator(bank_type, date, register_counter, client_number, contract_number, contract_date, client_name, client_inn, client_account, bik, items):
+def sbp_file_generator(bank_type, payment_dest, date, register_counter, client_number, contract_number, contract_date, client_name, client_inn, client_account, bik, items):
     # Создаем корневой элемент
     root = ET.Element('СчетаПК')
     root.set('ДатаФормирования', date.strftime('%Y-%m-%d'))
@@ -379,12 +414,12 @@ def sbp_file_generator(bank_type, date, register_counter, client_number, contrac
         counter = counter + 1
 
     # Добавляем остальные элементы
-    if bank_type == 3: # Сбербанк
-        ET.SubElement(root, 'ВидЗачисления').text = '17'
+    if bank_type == '3': # Сбербанк
+        ET.SubElement(root, 'ВидЗачисления').text = '17' if payment_dest == 1 else '51'
         ET.SubElement(root, 'КодВидаДохода').text = '2'
-    elif bank_type == 5: # УБРиР
-        ET.SubElement(root, 'ВидЗачисления').text = '01'
-        ET.SubElement(root, 'КодВидаДохода').text = '1'
+    elif bank_type == '5': # УБРиР
+        ET.SubElement(root, 'ВидЗачисления').text = '10'
+        ET.SubElement(root, 'КодВидаДохода').text = '2'
 
     control_sums = ET.SubElement(root, 'КонтрольныеСуммы')
     ET.SubElement(control_sums, 'КоличествоЗаписей').text = str(len(items))
@@ -470,3 +505,54 @@ def entry_certificate_html(request, pk):
         'entry': entry,
     }
     return render(request, 'entry/accountingCert.html', context)
+
+def tbank_file_generator (items):
+    # Создание корневого элемента Workbook
+    workbook = ET.fromstring(T_BANK_XML_TEMPLATE)
+    # Define the namespace
+    SS_NS = '{urn:schemas-microsoft-com:office:spreadsheet}'
+    X_NS = '{urn:schemas-microsoft-com:office:excel}'
+    # Find the Table element
+    table = workbook.find('.//%sTable' % SS_NS)
+    if table is not None:
+        counter = 1
+        total_sum = 0
+        for item in items:
+            full_name_parts = item.get('prepaymentItem__prepayment__empFullName', '').split()
+            surname = item.get('prepaymentItem__prepayment__empSurname') or full_name_parts[0]
+            name = item.get('prepaymentItem__prepayment__empName') or full_name_parts[1]
+            patronymic = item.get('prepaymentItem__prepayment__empPatronymic') or full_name_parts[2]
+            account_num = item['accountNumber']
+            sum = item['total_sum']
+            deduction = str(0.00)
+            new_row = create_row(table, SS_NS, counter, surname, name, patronymic, account_num, sum, 2, deduction)
+            counter = counter + 1
+
+    # Формируем XML
+    xml_string = ET.tostring(workbook, encoding='UTF-8', method='xml').decode('UTF-8')
+
+    return '<?xml version="1.0"?>\n<?mso-application progid="Excel.Sheet"?>\n' + xml_string
+    
+def create_row (root, NS, num, surname, name, patronymic, account_num, sum, income_code, deduction_sum):
+    row = ET.SubElement(root, '%sRow' % NS)
+    row.set('%sAutoFitHeight' % NS, '0')
+    create_cell(row, NS, 's62', num)
+    create_cell(row, NS, None, surname)
+    create_cell(row, NS, None, name)
+    create_cell(row, NS, None, patronymic)
+    create_cell(row, NS, 's64', account_num, '1')
+    create_cell(row, NS, 's62', '%.2f' % (sum), None, 'Number')
+    create_cell(row, NS, 's62', 'Зарплата', None, 'String')
+    create_cell(row, NS, None, income_code, None, 'Number')
+    create_cell(row, NS, None, deduction_sum, None, 'Number')
+
+def create_cell (root, NS, style_id, data_text, data_ticked_text = None, data_type = 'String'):
+    cell = ET.SubElement(root, '%sCell' % NS)
+    if style_id:
+        cell.set('%sStyleID' % NS, style_id)
+    data = ET.SubElement(cell, '%sData' % NS)
+    if data_ticked_text:
+        data.set('{urn:schemas-microsoft-com:office:excel}Ticked', data_ticked_text)
+    data.set('%sType' % NS, data_type)
+    data.text = str(data_text) if data_text else ''
+    return cell

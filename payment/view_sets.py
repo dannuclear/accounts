@@ -6,9 +6,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_datatables.filters import DatatablesFilterBackend
 
-from .filters import PaymentFilter, PeriodFilter, LockLevelFilter
-from .models import Payment, PaymentPrepayment, PaymentEntry
-from .serializers import PaymentPrepaymentSerializer, PaymentSerializer, PaymentEntrySerializer
+from .filters import PaymentFilter, PeriodFilter, LockLevelFilter, PaymentDestFilter
+from .models import Payment, PaymentPrepayment, PaymentEntry, PaymentDest
+from .serializers import PaymentPrepaymentSerializer, PaymentSerializer, PaymentEntrySerializer, PaymentDestSerializer
 
 
 class PaymentViewSet (viewsets.ModelViewSet):
@@ -43,6 +43,8 @@ class PaymentViewSet (viewsets.ModelViewSet):
                 queryset = ImprestAccountFilter(field_name="prepaymentItem__prepayment__imprestAccount").filter_queryset(request, queryset, self)
             if 'obtainMethod' in self.request.query_params:
                 queryset = ObtainMethodFilter(field_name="prepaymentItem__obtainMethod").filter_queryset(request, queryset, self)
+            if 'paymentDest' in self.request.query_params:
+                queryset = PaymentDestFilter().filter_queryset(request, queryset, self)
             filtered_ids = list(queryset.values_list('pk', flat=True))
             self.queryset = queryset
             queryset = DatatablesFilterBackend().filter_queryset(request, queryset, self)
@@ -105,3 +107,8 @@ class PaymentEntryViewSet (viewsets.ModelViewSet):
             self.filter_backends.insert(0, StatusFilter)
 
         return super().filter_queryset(queryset)
+
+
+class PaymentDestViewSet (viewsets.ModelViewSet):
+    queryset = PaymentDest.objects.order_by('id')
+    serializer_class = PaymentDestSerializer

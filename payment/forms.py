@@ -1,5 +1,5 @@
 from django import forms
-from .models import Payment, PaymentPrepayment, PaymentEntry
+from .models import Payment, PaymentPrepayment, PaymentEntry, PaymentDest
 from guide.models import ObtainMethod, PrepaidDest
 
 
@@ -16,11 +16,13 @@ class PaymentForm(forms.ModelForm):
 
     obtainMethod = NamedChoiceField(queryset=ObtainMethod.objects.order_by('id'), label='Банк', required=True)
 
-    prepaidDest = NamedChoiceField(queryset=PrepaidDest.objects.order_by('id'), label='Назначение', required=True)
+    #prepaidDest = NamedChoiceField(queryset=PrepaidDest.objects.order_by('id'), label='Назначение', required=False)
+
+    paymentDest = NamedChoiceField(queryset=PaymentDest.objects.order_by('id'), label='Назначение', required=True)
 
     class Meta:
         model = Payment
-        fields = ['name', 'createDate', 'obtainMethod', 'prepaidDest', 'executor']
+        fields = ['name', 'createDate', 'obtainMethod', 'paymentDest', 'executor', 'mainAccountant']
 
 
 class PaymentPrepaymentForm(forms.ModelForm):

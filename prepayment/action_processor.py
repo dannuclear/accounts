@@ -167,12 +167,18 @@ def splitPurchaseOrder (data, prefix, prepayment, accounting):
         data['%s-expenseSumVAT' % materialPrefix] = materialVAT
         data['%s-expenseSumVAT' % oilPrefix] = oilVAT
         data['%s-expenseSumVAT' % partPrefix] = partVAT
-        
+
     setTotalForms(data, formPrefix, currentNum)
 
 def createPurchaseOrderItem(data, prefix, sourcePrefix, poGroup, poType):
     data['%s-poGroup' % (prefix)] = poGroup
     data['%s-poType' % (prefix)] = poType
+
+    
+    data['%s-entity-TOTAL_FORMS' % (prefix)] = 1
+    data['%s-entity-INITIAL_FORMS' % (prefix)] = 0
+    data['%s-entity-MIN_NUM_FORMS' % (prefix)] = 0
+    data['%s-entity-MAX_NUM_FORMS' % (prefix)] = 100
     if prefix != sourcePrefix:
         updatePurchaseOrderItem(data, sourcePrefix, prefix)
 

@@ -1,3 +1,4 @@
+{% load humanize %}
 {% load static %}
 <html>
   <head>
@@ -144,7 +145,7 @@
                       <td class="text-center border border-dark">{{ row.1|default_if_none:" " }}</td>
                       <td class="text-center border border-dark">{{ row.2|default_if_none:" " }}</td>
                       <td class="text-center border border-dark">{{ row.3|default_if_none:" " }}</td>
-                      <td class="text-right border border-dark">{{ row.4|default_if_none:" " }}</td>
+                      <td class="text-right border border-dark">{{ row.4|default_if_none:" "|intcomma }}</td>
                     </tr>
                   {% endfor %}
                 </tbody>

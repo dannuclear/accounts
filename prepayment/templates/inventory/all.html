@@ -8,6 +8,9 @@
   <div class="alert alert-primary" role="alert" style="display: none;"></div>
 
   <div class="row">
+    <div class="col-4">
+      {% include 'imprestAccount/filter.html' with options=imprestAccounts %}
+    </div>
     <div class="col-3">  
         {% include 'main/filters/period_filter.html' %}
     </div>
@@ -22,6 +25,7 @@
         <th style="width: 10%">Подразделение</th>
         <th style="width: 10%">Табельный</th>
         <th style="width: 10%">№ документа</th>
+        <th style="width: 10%">Дата подтверждения</th>
       </tr>
     </thead>
   </table>
@@ -34,22 +38,22 @@
         ajax: {
           url: "{% url 'prepayment-list' %}?format=datatables",
           data: function (d) {
-            let imprestAccount = urlParams.get('imprestAccount')
-            if (imprestAccount) d.imprestAccount = imprestAccount
+            if (imprestAccountFilter && imprestAccountFilter.val()) d.imprestAccount = imprestAccountFilter.val()
             if ($('#period-from').val()) d.periodFrom = $('#period-from').val()
             if ($('#period-to').val()) d.periodTo = $('#period-to').val()
-            d.filterType = 1
+            d.filterType = 3
           }
         },
         rowId: 'id',
         order: [],
         columns: [
-          { data: 'id', orderable: false, searchable: false, defaultContent: '' },
+          { data: 'null', orderable: false, searchable: false, defaultContent: '' },
           { data: 'reportAccountingNum', orderable: false, defaultContent: '' },
           { data: 'empFullName', orderable: false, defaultContent: '' },
           { data: 'empDivNum', orderable: false, defaultContent: '' },
           { data: 'empNum', orderable: false, defaultContent: '' },
-          { data: 'reportNum', orderable: false, defaultContent: '' }
+          { data: 'reportNum', orderable: false, defaultContent: '' },
+          { data: 'approveDate', orderable: false, defaultContent: '' }
         ],
         buttons: [
           {
@@ -58,10 +62,21 @@
             action: function (e, dt, node, config) {
               const periodFrom = $('#period-from').val()
               const periodTo = $('#period-to').val()
-              window.open(`/inventories/download?periodFrom=${periodFrom}&periodTo=${periodTo}`, '_blank').focus()
+              const imprestAccount = imprestAccountFilter.val()
+              window.open(`{% url 'inventoriesDownload' %}?periodFrom=${periodFrom}&periodTo=${periodTo}&imprestAccount=${imprestAccount}`, '_blank').focus()
             }
           }
-        ]
+        ],
+        on: {
+            draw: function(e) {
+                let start = e.dt.page.info().start;
+    
+                e.dt.column(0, {page: 'current'}).nodes()
+                    .each(function(cell, i) {
+                        cell.textContent = start + i + 1;
+                    });
+            }
+        }
       })
     
       periodFilter
@@ -72,6 +87,10 @@
         })
       periodFilter.find('button').on('click', function (e) {
         table.ajax.reload()
+      })
+
+      imprestAccountFilter.on('change', function (e){
+        table.ajax.reload();
       })
     })
   </script>

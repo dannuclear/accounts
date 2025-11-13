@@ -99,3 +99,35 @@ GET_ACCOUNTING_CERT_ROW = '''
 	FROM advance_report_item_entity entity
 	INNER JOIN advance_report_item item ON item.id = entity.advance_report_item_id
 	WHERE item.prepayment_id = %s AND entity.accounting_sum <> 0) t1 GROUP BY debit_account, debit_extra, credit_account, credit_extra ORDER BY MIN(entity_id) asc'''
+
+ADD_ACCOUNTING_ENTRIES_FROM_INVENTORY = '''
+INSERT INTO public.accounting_entry(ae_period, ae_no, acpl_account_debit, acpl_subaccount_debit, acpl_code_analitic_debit, acpl_code_analitic_debit_1, acpl_code_analitic_debit_2, acpl_add_sign_debit,  
+					acpl_account_credit, acpl_subaccount_credit, acpl_code_analitic_credit, acpl_code_analitic_credit_1, acpl_code_analitic_credit_2, acpl_add_sign_credit, ae_sum, prepayment_id, advance_report_item_entity_id)
+SELECT 
+	distrib_salary_date as ae_period,
+	p.report_accounting_num::integer as ae_no, -- Номер бухгалтерской справки
+
+	70 as acpl_account_debit, -- Дебет/счет
+	01 as acpl_subaccount_debit, -- Дебет/субсчет
+	'000' || LPAD(coalesce(p.emp_div_num::text, ''), 3, '0') as acpl_code_analitic_debit, -- Дебет/КАУ
+	'000' as acpl_code_analitic_debit_1, -- Дебет/КАУ1
+	LPAD(coalesce(p.emp_div_num::text, ''), 3, '0') as acpl_code_analitic_debit_2, -- Дебет/КАУ2
+	'8120' as acpl_add_sign_debit, -- Дебет/счет/ДП
+
+	SUBSTRING(LPAD(p.imprest_account_id::text, 4, '0'), 0, 3)::integer as acpl_account_credit, -- Кредит/счет
+	SUBSTRING(LPAD(p.imprest_account_id::text, 4, '0'), 3, 3)::integer as acpl_subaccount_credit, -- Кредит/субсчет
+	'000' || LPAD(coalesce(p.emp_div_num::text, ''), 3, '0') as acpl_code_analitic_credit, -- Кредит/КАУ
+	'000' as acpl_code_analitic_credit_1, -- Кредит/КАУ1
+	LPAD(coalesce(p.emp_div_num::text, ''), 3, '0') as acpl_code_analitic_credit_2, -- Кредит/КАУ2
+	LPAD(coalesce(p.emp_num::text, ''), 8, '0') as acpl_add_sign_credit, -- Кредит/счет/ДП
+	p.distrib_salary as ae_sum, -- Сумма
+	p.id,
+	null
+FROM prepayment p
+LEFT JOIN accounting_entry ON (accounting_entry.prepayment_id = p.id AND advance_report_item_entity_id IS NULL AND acpl_account_debit = 70)
+WHERE 	p.distrib_salary_date IS NOT NULL 
+	AND accounting_entry.id IS NULL
+	AND p.report_accounting_num is NOT NULL
+	AND p.emp_div_num IS NOT NULL 
+	AND p.emp_num IS NOT NULL
+	AND p.id in (%s)'''

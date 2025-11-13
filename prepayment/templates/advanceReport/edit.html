@@ -247,7 +247,7 @@
             <button class="nav-link h-100 me-1" id="tab-7" data-bs-toggle="tab" data-bs-target="#tab-content-7" type="button" role="tab" aria-controls="tab-content-7" aria-selected="false">Приложение</button>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link h-100 me-1" id="tab-8" data-bs-toggle="tab" data-bs-target="#tab-content-8" type="button" role="tab" aria-controls="tab-content-8" aria-selected="false">Сообщение</button>
+            <button class="nav-link h-100 me-1 {% if form.reportComment.value %}bg-danger-subtle{% endif %}" id="tab-8" data-bs-toggle="tab" data-bs-target="#tab-content-8" type="button" role="tab" aria-controls="tab-content-8" aria-selected="false">Сообщение</button>
           </li>
         </ul>
         <div class="tab-content border" id="tabContent">
@@ -482,16 +482,10 @@
       $('#button-add-item').on('click', function (e) {
         addForm('item')
       })
-    
-      window.location.hash && $(window.location.hash).tab('show');
-
-      $('.nav-tabs button').click(function (e) {
-        window.location.hash = e.target.id;
-      });
 
       // При показе таба обновляем итоги
       $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-        updateTotal($(e.target.dataset.target))
+        updateTotal($(e.target.dataset.bsTarget))
       })
 
       // Добавить элемент авансового отчета
@@ -557,6 +551,12 @@
       $('div.tab-pane').on('change', 'input.expense-sum, input.accounting-sum', function(e){
         updateTotal(e.delegateTarget)
       })
+
+      window.location.hash && $(window.location.hash).tab('show');
+
+      $('.nav-tabs button').click(function (e) {
+        window.location.hash = e.target.id;
+      });
 
       // Обработчик выбора наименования расхода для командировок
       $('#tab-content-1').on('change', '[id$="expenseCategory"]', function (e) {
@@ -649,7 +649,7 @@
         modal.find('#approve-doc select').remove()
         var documentSelectClone = rowDocumentSelect.clone()
         documentSelectClone.appendTo(modal.find('#approve-doc'))
-        console.log(documentSelectClone)
+        //console.log(documentSelectClone)
         
         // Выставляем значения из редактируемой строки
         documentSelectClone.val(rowDocumentSelect.val())
@@ -951,8 +951,5 @@
         fileDateInput.val(new Date().toLocaleDateString("ru-RU"))
       }
     })
-
-    var activeTab = document.querySelector('.tab-pane.show.active')
-    updateTotal(activeTab)
   </script>
 {% endblock %}

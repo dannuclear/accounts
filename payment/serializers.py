@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Payment, PaymentPrepayment, PaymentEntry
+from .models import Payment, PaymentPrepayment, PaymentEntry, PaymentDest
 from prepayment.serializers import SimplePrepaymentSerializer, PrepaymentItemSerializer
 from guide.serializers import ObtainMethodSerializer
 
@@ -23,6 +23,13 @@ class PaymentPrepaymentSerializer (serializers.ModelSerializer):
         model = PaymentPrepayment
         fields = serializers.ALL_FIELDS
         datatables_always_serialize = ('id', 'repeatNext')
+
+class PaymentDestSerializer (serializers.ModelSerializer):
+
+    class Meta:
+        model = PaymentDest
+        fields = serializers.ALL_FIELDS
+        datatables_always_serialize = ('id', 'name')
 
 # class PaymentFileSerializer (serializers.ModelSerializer):
 #     class Meta:

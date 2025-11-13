@@ -21,5 +21,6 @@ urlpatterns = [
     path('inventories/download', views.inventoriesDownload, name='inventoriesDownload'),
 
     path('deductions', views.deductions, name='deductions'),
+    path('deductions/addEntries', views.deductions_add_entries, name='deductions_add_entries'),
     path('deductions/download', views.deductionsDownload, name='deductionsDownload'),
 ]

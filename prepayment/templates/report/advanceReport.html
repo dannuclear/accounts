@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 {% load prepayment_extras %}
 <html>
   <head>
@@ -299,7 +300,7 @@
                   <tbody>
                     <tr>
                       <td class="text-center font-weight-bold align-bottom" style="width: 400px;">А.I. Получен аванс подотчетным лицом, в руб.коп.:</td>
-                      <td class="border border-dark text-center align-bottom" style="width: 130px;">{{ report.totalSum }}</td>
+                      <td class="border border-dark text-center align-bottom" style="width: 130px;">{{ report.totalSum|default_if_none:""|intcomma }}</td>
                       <td></td>
                     </tr>
                   </tbody>
@@ -351,20 +352,20 @@
                       <td class="text-center border border-dark">{{ ari.approveDocDate|date:"SHORT_DATE_FORMAT"|default_if_none:"" }}</td>
                       <td class="text-center border border-dark">{{ ari.approveDocNum|default_if_none:"" }}</td>
                       <td class="text-left border border-dark">{{ ari.expense_doc_name|default_if_none:"" }}</td>
-                      <td class="text-center border border-dark">{{ ari.expenseSumCurrency|default_if_none:"" }}</td>
-                      <td class="text-center border border-dark">{{ ari.expenseSumRub|default_if_none:"" }}</td>
-                      <td class="text-center border border-dark">{{ ari.expenseSumCurrency|default_if_none:"" }}</td>
-                      <td class="text-center border border-dark">{{ ari.expenseSumRub|default_if_none:"" }}</td>
-                      <td class="text-center border border-dark">{{ ari.expenseSumVAT|default_if_none:"" }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumCurrency|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumRub|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumCurrency|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumRub|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumVAT|default_if_none:""|intcomma }}</td>
                     </tr>
                     {% endfor %}
                     <tr>
                       <td class="text-left" colspan="4">А.II.  Израсходовано всего</td>
-                      <td class="text-center border border-dark">{{ sumCurrency1 }}</td>
-                      <td class="text-center border border-dark">{{ sumRub1 }}</td>
-                      <td class="text-center border border-dark">{{ sumCurrency1 }}</td>
-                      <td class="text-center border border-dark">{{ sumRub1 }}</td>
-                      <td class="text-center border border-dark">{{ sumVAT1 }}</td>
+                      <td class="text-center border border-dark">{{ sumCurrency1|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark">{{ sumRub1|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark">{{ sumCurrency1|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark">{{ sumRub1|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark">{{ sumVAT1|default_if_none:""|intcomma }}</td>
                     </tr>
                     <tr>
                       <td class="text-left" colspan="7">А.III.  Оплачено подотчетным лицом сверх утвержденных норм</td>
@@ -373,7 +374,7 @@
                     </tr>
                     <tr>
                       <td class="text-left" colspan="7">Остаток / перерасход по авансу, полученному подотчетным лицом, в руб.коп.</td>
-                      <td class="text-center border border-dark" colspan="7">{{ diffSum1 }}</td>
+                      <td class="text-center border border-dark" colspan="7">{{ diffSum1|default_if_none:""|intcomma }}</td>
                     </tr>
 
                   </tbody>
@@ -429,20 +430,20 @@
                       <td class="text-center border border-dark">{{ ari.approveDocDate|date:"SHORT_DATE_FORMAT"|default_if_none:"" }}</td>
                       <td class="text-center border border-dark">{{ ari.approveDocNum|default_if_none:"" }}</td>
                       <td class="text-left border border-dark">{{ ari.expense_doc_name|default_if_none:"" }}</td>
-                      <td class="text-center border border-dark">{{ ari.expenseSumCurrency|default_if_none:"" }}</td>
-                      <td class="text-center border border-dark">{{ ari.expenseSumRub|default_if_none:"" }}</td>
-                      <td class="text-center border border-dark">{{ ari.expenseSumCurrency|default_if_none:"" }}</td>
-                      <td class="text-center border border-dark">{{ ari.expenseSumRub|default_if_none:"" }}</td>
-                      <td class="text-center border border-dark">{{ ari.expenseSumVAT|default_if_none:"" }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumCurrency|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumRub|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumCurrency|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumRub|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark">{{ ari.expenseSumVAT|default_if_none:""|intcomma }}</td>
                     </tr>
                     {% endfor %}
                     <tr>
                       <td class="text-left" colspan="4">В.II.  Израсходовано всего</td>
-                      <td class="text-center border border-dark">{{ sumCurrency2 }}</td>
-                      <td class="text-center border border-dark">{{ sumRub2 }}</td>
-                      <td class="text-center border border-dark">{{ sumCurrency2 }}</td>
-                      <td class="text-center border border-dark">{{ sumRub2 }}</td>
-                      <td class="text-center border border-dark">{{ sumVAT2 }}</td>
+                      <td class="text-center border border-dark">{{ sumCurrency2|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark">{{ sumRub2|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark">{{ sumCurrency2|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark">{{ sumRub2|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark">{{ sumVAT2|default_if_none:""|intcomma }}</td>
                     </tr>
                     <tr>
                       <td class="text-left" colspan="7">В.III.  Оплачено организацией сверх утвержденных норм</td>
@@ -463,12 +464,12 @@
                   <tbody>
                     <tr>
                       <td class="border border-dark text-left" style="font-size: 0.8em; height: 30px;">Сумма к возмещению подотчетному лицу, в руб.коп. (А.I. - А.II.гр.8 + В.III. со знаком "+")</td>
-                      <td class="border border-dark text-center align-bottom" style="width: 130px;">{% if balance < 0 %} {{ balance|change_sign }} {% endif %}</td>
+                      <td class="border border-dark text-center align-bottom" style="width: 130px;">{% if balance < 0 %} {{ balance|change_sign|default_if_none:""|intcomma }} {% endif %}</td>
                       <td></td>
                     </tr>
                     <tr>
                       <td class="border border-dark text-left" style="font-size: 0.8em; height: 30px;">Сумма к удержанию из заработной платы подотчетного лица, в руб.коп. (А.I. - А.II.гр.8 + В.III. со знаком "-")</td>
-                      <td class="border border-dark text-center align-bottom" style="width: 130px;">{% if balance > 0 %} {{ balance }} {% endif %}</td>
+                      <td class="border border-dark text-center align-bottom" style="width: 130px;">{% if balance > 0 %} {{ balance|default_if_none:""|intcomma }} {% endif %}</td>
                       <td></td>
                     </tr>
                   </tbody>
@@ -515,7 +516,7 @@
                       <td class="border-bottom border-dark text-center" style="width: 30px;">{{ totalSumFrac }}</td>
                       <td class="text-center" style="width: 50px;">коп. (</td>
 
-                      <td class="border-bottom border-dark text-center" style="width: 100px;">{{ totalSumInt }}</td>
+                      <td class="border-bottom border-dark text-center" style="width: 100px;">{{ totalSumInt|default_if_none:""|intcomma }}</td>
                       <td class="text-center" style="width: 30px;">руб.</td>
                       <td class="border-bottom border-dark text-center" style="width: 30px;">{{ totalSumFrac|zfill:2 }}</td>
                       <td class="text-center" style="width: 50px;">коп. )</td>

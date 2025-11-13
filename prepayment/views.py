@@ -4,10 +4,10 @@ from rest_framework import viewsets
 from .serializers import PrepaymentSerializer
 from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm, AdvanceReportForm, AdvanceReportItemForm, AttachmentForm, ItemsFormSet, AttachmentFormSet, PrepaymentEmpNumForm
 from datetime import datetime, timedelta
-from guide.models import Status, ExpenseItem, ExpenseCategory, AccountingCert, Department, Document
+from guide.models import Status, ExpenseItem, ExpenseCategory, AccountingCert, Department, Document, ImprestAccount
 from guide.filters import StatusFilter
 from payment.models import PaymentPrepayment
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
 from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func, Sum, IntegerField, Q, Case, When, DateField, Value, F
@@ -17,7 +17,7 @@ from django.views.generic.edit import CreateView
 from django.db import connection
 from .filters import PeriodFilter, ImprestAccountFilter, FilterTypeFilter, UserFilter, DepartmentFilter
 from django.utils import formats
-from .queries import ADD_FACTS, ADD_ACCOUNTING_ENTRIES, GET_ADVANCE_REPORT_ITEMS_FOR_REPORT, GET_ACCOUNTING_CERT_ROW
+from .queries import ADD_FACTS, ADD_ACCOUNTING_ENTRIES, GET_ADVANCE_REPORT_ITEMS_FOR_REPORT, GET_ACCOUNTING_CERT_ROW, ADD_ACCOUNTING_ENTRIES_FROM_INVENTORY
 from numbers import Number
 from main import helpers
 import csv
@@ -112,11 +112,59 @@ def advanceReports(request):
     return render(request, 'advanceReport/all.html', {'isAdminOrAccountant': isAdminOrAccountant, 'statuses': Status.objects.all() })
 
 def inventories(request):
-    return render(request, 'inventory/all.html')
+    return render(request, 'inventory/all.html', {'imprestAccounts': ImprestAccount.objects.all()})
 
 def deductions(request):
     return render(request, 'deduction/all.html')
 
+def deductions_add_entries(request):
+    try:
+        ids_param = request.GET.get('ids')
+        period_from = request.GET.get('periodFrom')
+        period_to = request.GET.get('periodTo')
+        
+        if ids_param and (period_from or period_to):
+            return HttpResponseBadRequest('Use either IDs or period, not both')
+        
+        if not ids_param and not period_from and not period_to:
+            return HttpResponseBadRequest('Не заданы ids или период')
+        
+        with connection.cursor() as cursor:
+            if ids_param:
+                try:
+                    id_list = [int(id.strip()) for id in ids_param.split(',') if id.strip()]
+                except ValueError:
+                    return HttpResponseBadRequest('Invalid ID format')
+            else:
+                queryset = Prepayment.objects.all()
+                
+                if period_from:
+                    try:
+                        date_from = datetime.strptime(period_from, '%d.%m.%Y')
+                        queryset = queryset.filter(distribSalaryDate__gte=date_from)
+                    except ValueError:
+                        return HttpResponseBadRequest('Invalid periodFrom date format')
+                
+                if period_to:
+                    try:
+                        date_to = datetime.strptime(period_to, '%d.%m.%Y')
+                        queryset = queryset.filter(distribSalaryDate__lte=date_to)
+                    except ValueError:
+                        return HttpResponseBadRequest('Invalid periodTo date format')
+                
+                id_list = list(queryset.values_list('id', flat=True))
+                
+            if not id_list:
+                return HttpResponse('No records found for the specified period')
+                
+            placeholders = ','.join(['%s'] * len(id_list))
+            sql = ADD_ACCOUNTING_ENTRIES_FROM_INVENTORY % (placeholders)
+            cursor.execute(sql % tuple(id_list))
+            return HttpResponse('Создано %d проводок' % cursor.rowcount)
+            
+    except Exception as e:
+        return HttpResponseBadRequest('Error processing request: %s' % str(e))
+    
 
 def editPrepayment(request, id):
     userFullName = ('%s %s' % (request.user.last_name, request.user.first_name)).strip()
@@ -277,6 +325,9 @@ def editAdvanceReport(request, id):
                 #    prepayment.reportDate = datetime.now()
                 # Если статус авансового отчета "Согласован" и даты нет присваиваем
                 if prepayment.reportStatus_id == 3:
+                    userFullName = ('%s %s' % (request.user.last_name, request.user.first_name)).strip()
+                    prepayment.updatedByAccountant = userFullName if userFullName else request.user.username
+
                     prepayment.status_id = 3
                     if prepayment.reportDate is None: # На данную дату опирается бух справка, по договоренности 2025.07.02 сделали когда согласован
                         prepayment.reportDate = datetime.now()
@@ -286,7 +337,11 @@ def editAdvanceReport(request, id):
                     if prepayment.reportNum is None:
                         maxNumDict = Prepayment.objects.filter(imprestAccount_id=prepayment.imprestAccount_id, approveDate__year=datetime.now().year).aggregate(Max('reportNum'))
                         prepayment.reportNum = 1 if maxNumDict['reportNum__max'] is None else maxNumDict['reportNum__max'] + 1
-
+                elif prepayment.reportStatus_id == 2 and not accounting:
+                    userFullName = ('%s %s' % (request.user.last_name, request.user.first_name)).strip()
+                    prepayment.createdBy = request.user.username
+                    prepayment.createdByFullName = userFullName if userFullName else request.user.username
+                    prepayment.createdAt = datetime.now()
                 prepayment.lockLevel = lockLevel
                 
                 prepayment = form.save()
@@ -501,9 +556,11 @@ def inventoriesDownload(request):
     query = Prepayment.objects.filter(reportDate__isnull = False).select_related('status').select_related('imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment')
     
     if 'periodFrom' in request.GET and len(request.GET['periodFrom']) > 2:
-        query = query.filter(reportDate__gte=datetime.strptime(request.GET['periodFrom'], '%d.%m.%Y'))
+        query = query.filter(approveDate__gte=datetime.strptime(request.GET['periodFrom'], '%d.%m.%Y'))
     if 'periodTo' in request.GET and len(request.GET['periodTo']) > 2:
-        query = query.filter(reportDate__lte=datetime.strptime(request.GET['periodTo'], '%d.%m.%Y'))
+        query = query.filter(approveDate__lte=datetime.strptime(request.GET['periodTo'], '%d.%m.%Y'))
+    if 'imprestAccount' in request.GET and request.GET['imprestAccount']:
+        query = query.filter(imprestAccount=request.GET['imprestAccount'])
 
     prepayments = query.all()
 

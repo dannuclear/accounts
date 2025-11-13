@@ -22,6 +22,7 @@
         <th style="width: 10%">ФИО</th>
         <th style="width: 10%">Период удержания</th>
         <th style="width: 10%">Сумма</th>
+        <th style="width: 1%"></th>
       </tr>
     </thead>
   </table>
@@ -56,7 +57,19 @@
           { data: 'empNum', orderable: false, defaultContent: '' },
           { data: 'empFullName', orderable: false, defaultContent: '' },
           { data: 'distribSalaryDate', orderable: false, defaultContent: '' },
-          { data: 'distribSalary', orderable: false, defaultContent: '' }
+          { data: 'distribSalary', orderable: false, defaultContent: '' },
+          {
+            data: null,
+            defaultContent: '',
+            orderable: false,
+            searchable: false,
+            className: 'text-center align-middle p-1',
+            render: function (data, type, row) {
+                return `<a class="text-success add-single-entry" href="{% url 'deductions_add_entries' %}?ids=${row.id}" aria-expanded="false">
+                        <i class="fa-duotone fa-file-plus fa-xl"></i>
+                        </a>`
+                }
+          }
         ],
         buttons: [
           {
@@ -67,10 +80,52 @@
               const periodTo = $('#period-to').val()
               window.open(`/deductions/download?periodFrom=${periodFrom}&periodTo=${periodTo}`, '_blank').focus()
             }
+          },
+          {
+            text: '<i class="fa-light fa-file-export me-2"></i>&nbsp;Создать проводки',
+            className: 'btn btn-danger btn-sm',
+            action: function (e, dt, node, config) {
+              if (confirm('Вы уверены, что хотите создать проводки?')) {
+                const periodFrom = $('#period-from').val()
+                const periodTo = $('#period-to').val()
+                const alertEl = $('.alert')
+                const url = `{% url 'deductions_add_entries' %}?periodFrom=${periodFrom}&periodTo=${periodTo}`
+                $.get(url, function (e) {
+                  alertEl.attr('class', 'alert alert-success')
+                  alertEl.html(e)
+                })
+                .fail(function (e) {
+                  alertEl.attr('class', 'alert alert-danger')
+                  alertEl.html(e.responseText)
+                })
+                .always(function () {
+                  alertEl.show().delay(3000).fadeOut()
+                  table.ajax.reload()
+                })
+              }
+            }
           }
         ]
       })
     
+      table.on('click', '.add-single-entry', function (e) {
+        e.preventDefault()
+        const alertEl = $('.alert')
+        const url = e.currentTarget.getAttribute('href')
+        $.get(url, function (e) {
+          alertEl.attr('class', 'alert alert-success')
+          alertEl.html(e)
+        })
+          .fail(function (e) {
+            alertEl.attr('class', 'alert alert-danger')
+            alertEl.html(e.responseText)
+          })
+          .always(function () {
+            alertEl.show().delay(3000).fadeOut()
+            table.ajax.reload()
+          })
+      })
+
       periodFilter
         .find('.datepeeker')
         .datepicker()

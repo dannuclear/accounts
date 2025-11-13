@@ -107,28 +107,28 @@
               <th scope="col" colspan="4" class="text-center font-weight-bold text-uppercase">Справка</th>
             </tr>
             <tr>
-              <th scope="col" colspan="4">на перечисление командировочных расходов за {{ payment.createDate|date:'d.m.Y' }} на счета международных дебетовых карт.</th>
+              <th scope="col" colspan="4">на перечисление {{ payment.paymentDest.name }} за {{ payment.createDate|date:'d.m.Y' }} на счета международных дебетовых карт.</th>
             </tr>
 
             <tr>
               <th scope="col" colspan="4">
-                Получатель: {{ bank.printName|default_if_none:'' }}<br />
+                Получатель: {{ bank.printName|default_if_none:bank.name|default_if_none:'' }}<br />
                 ИНН/КПП {{ bank.inn|default_if_none:'' }}/{{ bank.kpp|default_if_none:'' }}<br />
                 БИК {{ bank.bik|default_if_none:'' }}<br />
                 Кор/счет {{ bank.corrAccount|default_if_none:'' }}<br />
                 Л/счет {{ paymentPrepayment.accountNumber|default_if_none:'' }}<br />
                 Б/счет {{ bank.bAccount|default_if_none:'' }}&nbsp;Д/пр. 0<br />
-                <span class="font-weight-bold">на сумму {{ paymentPrepayment.prepayment.totalSum|floatformat:'0'|intcomma|default_if_none:'' }} руб. {{ paymentPrepayment.prepayment.totalSum|floatformat:'2'|slice:'-2:'|default_if_none:'' }} коп.</span><br />
-                <span class="font-weight-bold">{{ totalSumIntString }} руб. {{ paymentPrepayment.prepayment.totalSum|floatformat:'2'|slice:'-2:'|default_if_none:'' }} коп.</span>
+                <span class="font-weight-bold">на сумму {{ paymentPrepayment.prepaymentItem.value|floatformat:'0'|intcomma|default_if_none:'' }} руб. {{ paymentPrepayment.prepaymentItem.value|floatformat:'2'|slice:'-2:'|default_if_none:'' }} коп.</span><br />
+                <span class="font-weight-bold">{{ totalSumIntString }} руб. {{ paymentPrepayment.prepaymentItem.value|floatformat:'2'|slice:'-2:'|default_if_none:'' }} коп.</span>
               </th>
             </tr>
 
             <tr>
               <th scope="col" colspan="4">
-                {% if payment.prepaidDest %}
-                  <span class="font-weight-bold">Назначение платежа:&nbsp;</span>Перевод <span class="font-weight-bold">{{ payment.prepaidDest.name }}</span>
-                {% endif %}на лиц. счет <span class="font-weight-bold">{{ paymentPrepayment.accountNumber }}</span>, получатель <span class="font-weight-bold">{{ paymentPrepayment.prepayment.empFullName }}</span> за {{ payment.createDate|date:'m месяц Y года' }} на счета международных дебетовых карт{% if bank.fileName %}
-                  &nbsp;по реестру <span class="font-weight-bold">{{ payment.fileName }} от {{ payment.fileDateTime|date:'d.m.Yг.'|default_if_none:'' }}</span>
+                {% if payment.paymentDest %}
+                  <span class="font-weight-bold">Назначение платежа:&nbsp;</span>Перевод <span class="font-weight-bold">{{ payment.paymentDest.name }}</span>
+                {% endif %}на лиц. счет <span class="font-weight-bold">{{ paymentPrepayment.accountNumber }}</span>, получатель <span class="font-weight-bold">{{ paymentPrepayment.prepaymentItem.prepayment.empFullName }}</span> за {{ payment.createDate|date:'m месяц Y года' }} на счета международных дебетовых карт{% if registryNumber %}
+                  &nbsp;по реестру <span class="font-weight-bold">{{ registryNumber }} от {{ payment.fileDateTime|date:'d.m.Yг.'|default_if_none:'' }}</span>
                 {% endif %}
                 {% if bank.clientContractNumber %}
                   &nbsp;В соответствии с договором <span class="font-weight-bold">№{{ bank.clientContractNumber }}</span> от <span class="font-weight-bold">{{ bank.clientContractDate|date:'d.m.Yг.'|default_if_none:'' }}</span>
@@ -139,7 +139,7 @@
             <tr style="height: 100px;">
               <th scope="col" colspan="2" class="text-left font-weight-bold">Главный бухгалтер</th>
               <th scope="col"></th>
-              <th scope="col" class="text-right font-weight-bold">Е.Г. Жиделева</th>
+              <th scope="col" class="text-right font-weight-bold">{{ payment.mainAccountant|default_if_none:'' }}</th>
             </tr>
 
             <tr>

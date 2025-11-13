@@ -1,0 +1,26 @@
+<fieldset class="input-group-sm btn-group btn-group-sm mb-1" aria-label="Статус" role="group">
+  <span class="input-group-text">Статус:</span>
+  <input type="radio" class="btn-check" name="archive-radio" id="archive-radio1" autocomplete="off" value="" checked="" />
+  <label class="btn btn-outline-success" for="archive-radio1" title="Все">ВСЕ</label>
+  <input type="radio" class="btn-check" name="archive-radio" id="archive-radio2" autocomplete="off" value="False" />
+  <label class="btn btn-outline-success" for="archive-radio2" title="Только архивные">АРХ</label>
+  <input type="radio" class="btn-check" name="archive-radio" id="archive-radio3" autocomplete="off" value="True" />
+  <label class="btn btn-outline-success" for="archive-radio3" title="Только не архивные">НЕ АРХ</label>
+</fieldset>
+
+<script type="text/javascript">
+    const storageKey = 'archiveKey';
+    const archiveFilter = $("input[name='archive-radio']");
+
+    $(document).ready(function () {
+        const storedValue = localStorage.getItem(storageKey);
+                if (storedValue !== null) {
+            $(`input[name="archive-radio"][value="${storedValue}"]`).prop('checked', true);
+        }
+        
+        archiveFilter.on('change', function () {
+            const val = $(this).filter(':checked').val();
+            localStorage.setItem(storageKey, val || '');
+        });
+    });
+</script>

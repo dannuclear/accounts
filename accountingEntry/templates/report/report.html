@@ -1,3 +1,4 @@
+{% load humanize %}
 {% load static %}
 {% load prepayment_extras %}
 
@@ -127,7 +128,7 @@
                                   <td class="text-center ">{{ entry.acplAddSignDebit|default_if_none:" " }}</td>
                                   <td class="text-center ">{{ entry.acplAccountCredit|zfill:2}}{{entry.acplSubaccountCredit|zfill:2 }} {{ entry.acplCodeAnaliticCredit1|zfill:3}} {{ entry.acplCodeAnaliticCredit2|zfill:3}}</td>
                                   <td class="text-center ">{{ entry.acplAddSignCredit|default_if_none:" " }}</td>
-                                  <td class="text-right ">{{ entry.ae_sum|default_if_none:" " }}</td>
+                                  <td class="text-right ">{{ entry.ae_sum|default_if_none:""|intcomma }}</td>
                               </tr>
                           {% endfor %}
                           {% if prepaymentGroup.org_expense_sum %}
@@ -137,22 +138,22 @@
                                   <td class="text-center "></td>
                                   <td class="text-center "></td>
                                   <td class="text-center "></td>
-                                  <td class="text-right ">{{ prepaymentGroup.org_expense_sum|default_if_none:" " }}</td>
+                                  <td class="text-right ">{{ prepaymentGroup.org_expense_sum|default_if_none:" "|intcomma }}</td>
                               </tr>
                           {% endif %}
                           <tr>
                               <td colspan="5" class="text-left h6" style="border-bottom: 1px dashed black;">итого по проводке №: {{ prepaymentGroup.prepayment__reportAccountingNum|zfill:6 }}</td>
-                              <td colspan="1" class="text-right h6" style="border-bottom: 1px dashed black; border-top: 1px dashed black;">{{ prepaymentGroup.prepaymentSum }}</td>
+                              <td colspan="1" class="text-right h6" style="border-bottom: 1px dashed black; border-top: 1px dashed black;">{{ prepaymentGroup.prepaymentSum|intcomma }}</td>
                           </tr>
                         {% endfor %}
                         <tr>
                             <td colspan="5" class="text-left h6" style="border-bottom: 1px solid black;">итого за {{ monthGroup.aePeriod__month|month_name|default_if_none:" " }} {{ yearGroup.aePeriod__year|default_if_none:" "}} года</td>
-                            <td colspan="1" class="text-right h6" style="border-bottom: 1px solid black;">{{ monthGroup.monthSum }}</td>
+                            <td colspan="1" class="text-right h6" style="border-bottom: 1px solid black;">{{ monthGroup.monthSum|default_if_none:""|intcomma }}</td>
                         </tr>
                     {% endfor %}
                     <tr>
                         <td colspan="5" class="text-left h6">итого за {{ yearGroup.aePeriod__year|default_if_none:" "}} год</td>
-                        <td colspan="1" class="text-right h6">{{ yearGroup.yearSum }}</td>
+                        <td colspan="1" class="text-right h6">{{ yearGroup.yearSum|default_if_none:""|intcomma }}</td>
                     </tr>
                   {% endfor %}
                 </tbody>
@@ -160,7 +161,7 @@
                 <tfoot style="background-color: rgb(190, 159, 189);">
                   <tr>
                     <th colspan="5" class="text-left h4">всего по ведомости</th>
-                    <td class="text-right h4">{{ totalSum }}</td>
+                    <td class="text-right h4">{{ totalSum|default_if_none:""|intcomma }}</td>
                   </tr>
                   <tr>
                     <th colspan="5" class="text-left h4">количество записей</th>

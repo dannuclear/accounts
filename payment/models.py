@@ -4,17 +4,34 @@ from guide.models import ObtainMethod, PrepaidDest
 
 # Create your models here.
 
+# Назначение платежа
+class PaymentDest(models.Model):
+    id = models.AutoField(primary_key=True, blank=False)
+    # Наименование
+    name = models.CharField(db_column="name", blank=True, max_length=200)
+
+    class Meta:
+        db_table = 'payment_dest'
+        verbose_name = 'Назначение выплаты'
+        verbose_name_plural = 'Назначение выплаты'
+        default_permissions = ()
+        permissions = [
+            ("view_payment_dest", "Просмотр"),
+            ("edit_payment_dest", "Редактирование")
+        ]
+
 # Выплата
-
-
 class Payment(models.Model):
     id = models.AutoField(primary_key=True, blank=False)
 
     # Наименование
     name = models.CharField(db_column="name", blank=True, max_length=200)
 
-    # Наименование
+    # Подписант
     executor = models.CharField(db_column="executor", blank=True, max_length=200)
+
+    # Главный бухгалтер
+    mainAccountant = models.CharField(db_column="main_accountant", blank=True, max_length=200)
 
     # Дата формирования реестра
     createDate = models.DateField(db_column="create_date", blank=True, null=True)
@@ -28,7 +45,9 @@ class Payment(models.Model):
 
     obtainMethod = models.ForeignKey(ObtainMethod, db_column='obtain_method_id', on_delete=models.PROTECT, blank=False, null=False)
 
-    prepaidDest = models.ForeignKey(PrepaidDest, db_column='prepaid_dest_id', on_delete=models.PROTECT, blank=False, null=False)
+    prepaidDest = models.ForeignKey(PrepaidDest, db_column='prepaid_dest_id', on_delete=models.PROTECT, blank=True, null=True)
+
+    paymentDest = models.ForeignKey(PaymentDest, db_column='payment_dest_id', on_delete=models.PROTECT, blank=True, null=True)
     # Имя файла
     fileName = models.CharField(db_column='file_name', max_length=50, blank=True, null=True)
     # Когда создан
@@ -37,6 +56,11 @@ class Payment(models.Model):
     createdBy = models.CharField(db_column='created_by', max_length=200)
     # Когда создан
     createdAt = models.DateTimeField(db_column='created_at')
+
+    # Номер в справке
+    certificateNum = models.IntegerField(db_column="certificate_num", blank=True, null=True, default=0)
+    # Номер в справке с реестром
+    certificateRegNum = models.IntegerField(db_column="certificate_reg_num", blank=True, null=True, default=0)
 
     class Meta:
         db_table = 'payment'
@@ -103,6 +127,9 @@ class PaymentPrepayment(models.Model):
 
     repeatNext = models.ForeignKey('self', db_column='repeat_next_id', on_delete=models.SET_NULL, blank=True, null=True)
 
+    # Номер в справке
+    certificateNum = models.IntegerField(db_column="certificate_num", blank=True, null=True, default=0)
+    
     class Meta:
         db_table = 'payment_prepayment'
         unique_together = (('payment', 'prepaymentItem'),)
@@ -113,6 +140,7 @@ class PaymentPrepayment(models.Model):
             ("view_payment_prepayment", "Просмотр"),
             ("edit_payment_prepayment", "Редактирование")
         ]
+
 
 class PaymentEntry (models.Model):
     id = models.AutoField(primary_key=True, blank=False)

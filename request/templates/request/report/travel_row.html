@@ -1,3 +1,4 @@
+{% load humanize %}
 <tr>
   <td colspan="{{ labelColspan|default:1 }}" style="width: 1%;">{{ label }}</td>
   {% if labelColspan|default:1 == 1 %}
@@ -10,5 +11,5 @@
       {% endif %}
     </td>
   {% endif %}
-  <td class="text-right">{{ sum|floatformat:'2'|default_if_none:'' }}</td>
+  <td class="text-right">{{ sum|intcomma:' '|default_if_none:'' }}</td>
 </tr>

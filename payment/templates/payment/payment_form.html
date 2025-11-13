@@ -27,6 +27,10 @@
         {% include 'main/input_group.html' with field=form.executor label='Исполнитель' %}
       </div>
 
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.mainAccountant label='Гл. Бухгалтер' %}
+      </div>
+
       <div class="col-12">
         {% include 'main/input_group.html' with field=form.name label='Наименование' labelStyle='width:130px' %}
       </div>
@@ -47,7 +51,7 @@
             </div>
 
             <div class="col-4">
-              {% include 'main/input_group.html' with field=form.prepaidDest label='Назначение' inputClass='form-select' %}
+              {% include 'main/input_group.html' with field=form.paymentDest label='Назначение' inputClass='form-select' %}
             </div>
           </div>
         </div>
@@ -57,7 +61,7 @@
           <div class="row g-1">
             <div class="col-2"><b>Банк: </b>{{ form.instance.obtainMethod.name }}</div>
 
-            <div class="col-4"><b>Назначение аванса: </b>{{ form.instance.prepaidDest.name }}</div>
+            <div class="col-4"><b>Назначение платежа: </b>{{ form.instance.paymentDest.name }}</div>
           </div>
         </div>
       {% endif %}
@@ -92,6 +96,14 @@
               <th scope="col" data-dt-order="disable" style="width: 80px;">Лицевой счет</th>
             </tr>
           </thead>
+          <tfoot>
+            <tr>
+              <th scope="col" colspan="4"></th>
+              <th scope="col" colspan="3" class="text-right">Итого:</th>
+              <th scope="col"></th>
+              <th scope="col" colspan="2"></th>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </div>
@@ -102,7 +114,8 @@
     const deleteIdsInput = $('#delete_ids')
     
     $(document).ready(function () {
-      obtainMethodFilter = $('#id_obtainMethod')
+      const obtainMethodFilter = $('#id_obtainMethod')
+      const paymentDestFilter = $('#id_paymentDest')
       $('.datepeeker').datepicker()
     
       var prepaymentTable = $('#prepayment-table').DataTable({
@@ -113,6 +126,7 @@
             {% if form.instance.id is None %}
               if (obtainMethodFilter && obtainMethodFilter.val()) d.obtainMethod = obtainMethodFilter.val()
               if (imprestAccountFilter && imprestAccountFilter.val()) d.imprestAccount = imprestAccountFilter.val()
+              if (paymentDestFilter && paymentDestFilter.val()) d.paymentDest = paymentDestFilter.val()
               if (periodFilter.find('#period-from').val()) d.periodFrom = periodFilter.find('#period-from').val()
               if (periodFilter.find('#period-to').val()) d.periodTo = periodFilter.find('#period-to').val()
             {% endif %}
@@ -127,9 +141,24 @@
           if (data.repeatNext != null)
             $(row).addClass('text-decoration-line-through');
         },
+        footerCallback: function(row, data, start, end, display) {
+          var intVal = function(i) {
+            return typeof i === 'string' ? i.replace(/,/g, '.').replace(/ /g, '') * 1 : typeof i === 'number' ? i : 0;
+          };
+              
+          var total = 0;
+          var api = this.api();
+              
+          api.cells(null, 7, { page: 'current' }).nodes().each(function(n) {
+            total += intVal($(n).text());
+          })
+              
+          $(api.column(7).footer()).html(total.toFixed(2));
+        },
         stateSave: false,
         rowId: 'id',
         order: [],
+        pageLength: 100,
         columns: [
           { data: 'prepaymentItem.prepayment.imprestAccount.account', orderable: false, defaultContent: '', searchable: false },
     
@@ -191,6 +220,10 @@
         })
       
         imprestAccountFilter.on('change', function (e) {
+          prepaymentTable.ajax.reload()
+        })
+
+        paymentDestFilter.on('change', function (e) {
           prepaymentTable.ajax.reload()
         })
 

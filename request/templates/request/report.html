@@ -1,4 +1,5 @@
 {% load prepayment_extras %}
+{% load humanize %}
 {% load static %}
 <html>
   <head>
@@ -193,7 +194,7 @@
               </tr>
               <tr>
                 <td colspan="3" rowspan="1" class="text-center border-bottom border-dark" style="font-size: 1.0em;">
-                  <strong>{{ issuedSumIntString }} ({{ req.issuedSum|default_if_none:'' }}) руб.</strong>
+                  <strong>{{ issuedSumIntString }} ({{ req.issuedSum|intcomma|default_if_none:'' }}) руб.</strong>
                 </td>
               </tr>
               <tr>
@@ -211,7 +212,7 @@
               </tr>
               <tr>
                 <td colspan="2" class="text-left">
-                  в сумме <b>{{ req.issuedSum|floatformat:'0'|default_if_none:'' }}</b> руб. <b>{{ req.issuedSum|floatformat:'2'|slice:'-2:'|default_if_none:'' }}</b> коп. исходя из расчета:
+                  в сумме <b>{{ req.issuedSum|floatformat:'0'|intcomma|default_if_none:'' }}</b> руб. <b>{{ req.issuedSum|floatformat:'2'|slice:'-2:'|default_if_none:'' }}</b> коп. исходя из расчета:
                 </td>
               </tr>
             {% endif %}
@@ -248,7 +249,7 @@
                     <tfoot>
                       <tr>
                         <td class="text-left font-weight-bold" colspan="2">Итого</td>
-                        <td class="text-right font-weight-bold">{{ travelExpenseSum }}</td>
+                        <td class="text-right font-weight-bold">{{ travelExpenseSum|intcomma }}</td>
                       </tr>
                     </tfoot>
                   </table>
@@ -281,10 +282,10 @@
                         {% with cnt=item.cnt|stringformat:'i' %}
                           {{ 'Количество: '|add:cnt|default_if_none:'' }}
                         {% endwith %}
-                        {% with price=item.price|stringformat:'.2f' %}
+                        {% with price=item.price|intcomma:' ' %}
                           {{ 'Цена: '|add:price|default_if_none:'' }}
                         {% endwith %}
-                        {% with total=item.total|stringformat:'.2f' %}
+                        {% with total=item.total|intcomma:' ' %}
                           {{ 'Итого: '|add:total|default_if_none:'' }}
                         {% endwith %}
                       </td>

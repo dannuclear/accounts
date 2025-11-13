@@ -25,6 +25,12 @@ class PeriodFilter(BaseFilterBackend):
                 queryset = queryset.filter(distribSalaryDate__gte=datetime.strptime(periodFrom, '%d.%m.%Y'))
             if periodTo is not None:
                 queryset = queryset.filter(distribSalaryDate__lte=datetime.strptime(periodTo, '%d.%m.%Y'))
+        # По дате подтверждения проводок
+        elif filterType == '3':
+            if periodFrom is not None:
+                queryset = queryset.filter(approveDate__gte=datetime.strptime(periodFrom, '%d.%m.%Y'))
+            if periodTo is not None:
+                queryset = queryset.filter(approveDate__lte=datetime.strptime(periodTo, '%d.%m.%Y'))
         else:
             if periodFrom is not None:
                 queryset = queryset.filter(docDate__gte=datetime.strptime(periodFrom, '%d.%m.%Y'))

@@ -42,3 +42,14 @@ class LockLevelFilter(BaseFilterBackend):
         if lock_level_value:
             queryset = queryset.filter(lockLevel=lock_level_value)
         return queryset
+
+class PaymentDestFilter(BaseFilterBackend):
+
+    def filter_queryset(self, request, queryset, view):
+        payment_dest = request.query_params.get("paymentDest")
+
+        if payment_dest == '1':
+            queryset = queryset.filter(prepaymentItem__prepayment__prepaymentpurpose__prepaidDest__id__in=[1, 4]).distinct()
+        if payment_dest == '2':
+            queryset = queryset.filter(prepaymentItem__prepayment__prepaymentpurpose__prepaidDest__id__in=[2, 3]).distinct()
+        return queryset

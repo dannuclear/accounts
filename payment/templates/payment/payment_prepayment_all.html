@@ -22,6 +22,7 @@
       </div>
     {% endif %}
     <div class="col-3">
+      {% comment %} 
       <fieldset class="input-group-sm btn-group btn-group-sm mb-1" aria-label="Статус" role="group">
         <span class="input-group-text">Статус:</span>
         <input type="radio" class="btn-check" name="archive-radio" id="archive-radio1" autocomplete="off" value="" checked="" />
@@ -30,7 +31,9 @@
         <label class="btn btn-outline-success" for="archive-radio2" title="Только архивные">АРХ</label>
         <input type="radio" class="btn-check" name="archive-radio" id="archive-radio3" autocomplete="off" value="True" />
         <label class="btn btn-outline-success" for="archive-radio3" title="Только не архивные">НЕ АРХ</label>
-      </fieldset>
+      </fieldset> 
+      {% endcomment %}
+      {% include 'payment/archive_filter.html' %}
     </div>
   </div>
 
@@ -165,7 +168,7 @@
                         },
 
 
-                        { data: 'obtainMethod.name', orderable: false, defaultContent: "", searchable: false },
+                        { data: 'prepaymentItem.obtainMethod.name', orderable: false, defaultContent: "", searchable: false },
                         { data: 'accountNumber', orderable: false, defaultContent: "", searchable: false },
                         { data: 'prepaymentItem.date', orderable: false, defaultContent: "", searchable: false },
                         { data: 'payment.id', orderable: false, defaultContent: "", searchable: false },

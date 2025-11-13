@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from .models import Request, RequestInventory, RequestInventoryItem, RequestTravelExpense
+from .models import Request, RequestInventory, RequestInventoryItem
 from prepayment.models import Prepayment, PrepaymentPurpose, PrepaymentItem
 from rest_framework import viewsets
 from .serializers import RequestSerializer
 from .forms import RequestForm, RequestInventoryFormSet, RequestTravelExpenseFormSet
+from .filters import PeriodFilter, UserFilter, TypeFilter, DepartmentFilter
 from datetime import datetime
 from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func, Sum, IntegerField, Q
 from guide.models import Status, Document, PrepaidDest
@@ -18,33 +19,6 @@ from num2words import num2words
 from main.helpers import is_user_in_group
 import decimal
 # Create your views here.
-
-
-class PeriodFilter(BaseFilterBackend):
-
-    def filter_queryset(self, request, queryset, view):
-        periodFrom = request.query_params.get("periodFrom")
-        periodTo = request.query_params.get("periodTo")
-
-        if periodFrom is not None:
-            queryset = queryset.filter(createDate__gte=datetime.strptime(periodFrom, '%d.%m.%Y'))
-        if periodTo is not None:
-            queryset = queryset.filter(createDate__lte=datetime.strptime(periodTo, '%d.%m.%Y'))
-        return queryset
-
-class UserFilter(BaseFilterBackend):
-
-    def filter_queryset(self, request, queryset, view):
-        queryset = queryset.filter(createdBy=request.user.username)
-        return queryset
-    
-class TypeFilter(BaseFilterBackend):
-    def filter_queryset(self, request, queryset, view):
-        type = request.query_params.get("typeFilter")
-
-        if type is not None:
-            queryset = queryset.filter(type=type)
-        return queryset
 
 requestInventoryItemSubquery = RequestInventoryItem.objects.annotate(itemNames=Func('name', function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')")).filter(requestInventory=OuterRef("pk"))
 requestInventorySubquery = RequestInventory.objects.annotate(itemNames=Func(Subquery(requestInventoryItemSubquery.values('itemNames')), function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')"), comments=Func('comment', function='string_agg', template="%(function)s(%(expressions)s, ', ')")).filter(request=OuterRef("pk"))
@@ -63,7 +37,9 @@ class RequestViewSet (viewsets.ModelViewSet):
             self.filter_backends.insert(0, StatusFilter)
         if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
             self.filter_backends.insert(0, PeriodFilter)
-        if self.request.user.has_perm('request.view_owner_requests') and not self.request.user.is_superuser:
+        if is_user_in_group(self.request.user, ['Руководитель']):
+            self.filter_backends.insert(0, DepartmentFilter)
+        elif self.request.user.has_perm('request.view_owner_requests') and not self.request.user.is_superuser:
             self.filter_backends.insert(0, UserFilter)
 
         return super().filter_queryset(queryset)
@@ -159,9 +135,6 @@ def deleteRequest(request, id):
     RequestInventory.objects.filter(request=id).delete()
     Request.objects.get(pk=id).delete()
     return HttpResponseRedirect('/requests')
-
-def is_user_in_group(user, groups):
-    return user.groups.filter(name__in=groups).exists()
 
 
 def createPrepayment(request, id):

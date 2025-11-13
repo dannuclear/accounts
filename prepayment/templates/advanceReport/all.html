@@ -33,7 +33,7 @@
 
             <th scope="col" rowspan="2" data-dt-order="disable">Код учета</th>
             <th scope="col" rowspan="2" data-dt-order="disable">Назначение аванса</th>
-            <th scope="col" rowspan="2" data-dt-order="disable">Место командирования</th>
+            <th scope="col" rowspan="2" data-dt-order="disable">Место командирования, период</th>
 
             <th scope="col" rowspan="2" data-dt-order="disable" class="text-center" data-width="60px">Подотчетная сумма (аванс)</th>
             <th scope="col" rowspan="2" data-dt-order="disable" class="text-center">Израсходованная сумма</th>
@@ -53,6 +53,29 @@
             <th scope="col" data-dt-order="disable">Подр.</th>
             <th scope="col" data-dt-order="disable">Таб. номер</th>
             <th scope="col" data-dt-order="disable" data-width="200px">ФИО</th>
+        </tr>
+        <tr>
+            {% if request.GET.imprestAccount == '7103' %}
+                {% for i in 'x'|rjust:'19'|make_list %}
+                    {% if forloop.counter0 > 1 and forloop.counter0 < 15 %}
+                        <th scope="col" style="padding: 1 !important;">
+                            <input type="text" class="form-control form-control-sm column-search  w-100" placeholder="Поиск..." data-column-index="{{ forloop.counter0 }}" style="font-size: 0.9em; color: brown;">
+                        </th>
+                    {% else %}
+                        <th scope="col"></th>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                {% for i in 'x'|rjust:'18'|make_list %}
+                    {% if forloop.counter0 > 0 and forloop.counter0 < 14 %}
+                        <th scope="col" style="padding: 1 !important;">
+                            <input type="text" class="form-control form-control-sm column-search w-100" placeholder="Поиск..." data-column-index="{{ forloop.counter0 }}" style="font-size: 0.9em; color: brown;">
+                        </th>
+                    {% else %}
+                        <th scope="col"></th>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
         </tr>
     </thead>
 </table>
@@ -95,6 +118,14 @@
                             $(row).find('td').addClass('text-danger')
                         if (data.reportStatus && data.reportStatus.id == 2)
                             $(row).addClass('fw-bold');
+                    },
+                    initComplete: function() {
+                        $('.column-search').each(function(i) {
+                            $(this).on('keyup', function() {
+                                var index = $(this).data('column-index');
+                                requestTable.column(index).search(this.value, regex=true).draw();
+                            });
+                        });
                     },
                     columns: [
                         {
@@ -139,7 +170,12 @@
                         { data: 'empFullName', orderable: false },
                         { data: 'accountCodes', orderable: false, defaultContent: "" },
                         { data: 'prepaidDestList', orderable: false, searchable: false },
-                        { data: 'missionDestList', orderable: false, searchable: false, visible: (['7101', '7102', '7103', '7105', '7108'].includes(imprestAccount))},
+                        {
+                            data: null, orderable: false, searchable: false, visible: (['7101', '7102', '7103', '7105', '7108'].includes(imprestAccount)), 
+                            render: function (data, type, row) {
+                                return `<span>${data.missionDestList ? data.missionDestList : ''}</span><br/>${(data.missionFrom && data.missionTo)? data.missionFrom + '-' + data.missionTo: ''}`
+                            }
+                        },
                         { data: 'totalSum', orderable: false, className: 'text-right', searchable: false, render: $.fn.dataTable.render.number( ' ', ',', 2 ) },
                         { data: 'spendedSum', orderable: false, defaultContent: "", className: 'text-right', searchable: false, render: $.fn.dataTable.render.number( ' ', ',', 2 ) },
                         { data: 'diffSum', orderable: false, className: 'text-right', defaultContent: "", searchable: false, render: $.fn.dataTable.render.number( ' ', ',', 2 ) },
@@ -177,7 +213,11 @@
                             className: 'btn-primary btn-sm'
                         }
                     ]
-                });
+                })
+
+            requestTable.on('dblclick', 'tbody tr', function () {
+                let data = requestTable.row(this).data();
+            })
 
             $('#request-table').on('click', 'tbody td .print', function(e){
                 printDialog.dialog('open')
