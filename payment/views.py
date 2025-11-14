@@ -7,11 +7,11 @@ from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from guide.models import ImprestAccount, Status, ObtainMethod
-from prepayment.models import Prepayment
+from prepayment.models import Prepayment, PrepaymentItem
 from django.http.response import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse
 from .forms import PaymentPrepaymentForm, PaymentForm, PaymentEntryForm
 from .models import Payment, PaymentPrepayment, PaymentEntry
-from django.db.models import Count, Sum, Avg, Max, Min
+from django.db.models import Count, Sum, Avg, Max, Min, Subquery, OuterRef, Case, When, Value, IntegerField
 import xml.etree.ElementTree as ET
 from num2words import num2words
 from django.db import connection
@@ -94,22 +94,45 @@ class PaymentCreateView(CreateView):
 def payments_add_all(request):
     user_full_name = ('%s %s' % (request.user.last_name, request.user.first_name)).strip()
     queryset = PaymentPrepayment.objects.filter(payment__isnull=True)
-    payment_prepayment_groups = queryset.values('prepaymentItem__prepayment__imprestAccount', 'prepaymentItem__obtainMethod').annotate(sum=Sum('prepaymentItem__value'), count=Count('prepaymentItem__prepayment'))
+
+    max_dest_subquery = PrepaymentItem.objects.filter(
+        id=OuterRef('prepaymentItem__id')
+    ).annotate(
+        max_dest=Max(
+            Case(
+                When(prepayment__prepaymentpurpose__prepaidDest__id__in=[1, 4], then=Value(1)),
+                When(prepayment__prepaymentpurpose__prepaidDest__id__in=[2, 3], then=Value(2)),
+                default=Value(0),
+                output_field=IntegerField()
+            )
+        )
+    ).values('max_dest')[:1]
+
+    payment_prepayments = queryset.annotate(
+        max_dest_id=Subquery(max_dest_subquery)
+    ).values(
+        'max_dest_id',
+        'prepaymentItem__obtainMethod',
+    ).annotate(
+        count=Count('prepaymentItem__id'),
+        total_value=Sum('prepaymentItem__value')
+    ).order_by('max_dest_id', 'prepaymentItem__obtainMethod')
+
     current_date = datetime.now()
-    for gr in payment_prepayment_groups:
-        payment_prepayments = queryset.filter(prepaymentItem__prepayment__imprestAccount=gr['prepaymentItem__prepayment__imprestAccount'], prepaymentItem__obtainMethod=gr['prepaymentItem__obtainMethod'])
+    for gr in payment_prepayments:
+        payment_prepayments = queryset.annotate(max_dest_id=Subquery(max_dest_subquery)).filter(max_dest_id=gr['max_dest_id'], prepaymentItem__obtainMethod=gr['prepaymentItem__obtainMethod'])
         payment = Payment()
         payment.createDate = current_date
         payment.name = current_date.strftime('%d.%m.%Y')
         payment.createdAt = current_date
         payment.createdBy = user_full_name if user_full_name else request.user.username
-        payment.totalSum = gr['sum']
+        payment.totalSum = gr['total_value']
         payment.totalCount = gr['count']
         payment.obtainMethod_id = gr['prepaymentItem__obtainMethod']
-        payment.prepaidDest_id = 1
+        payment.paymentDest_id = gr['max_dest_id']
         payment.save()
         payment_prepayments.update(payment=payment)
-        print(gr)
+
     return redirect('payments')
 
 class PaymentUpdateView(UpdateView):
@@ -177,7 +200,7 @@ def payment_certificate(request, pk):
     num = None
     if 'with_register' in request.GET:
         num = payment.certificateRegNum
-        prepayments = PaymentPrepayment.objects.select_related('prepaymentItem__prepayment').all()
+        prepayments = PaymentPrepayment.objects.filter(payment=payment).select_related('prepaymentItem__prepayment').all()
     else:
         num = payment.certificateNum
 

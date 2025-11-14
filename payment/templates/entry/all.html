@@ -64,7 +64,7 @@
     </thead>
     <tfoot>
       <tr>
-        <th scope="col" colspan="14" class="text-left">Итого:</th>
+        <th scope="col" colspan="15" class="text-left">Итого:</th>
         <th scope="col"></th>
         <th scope="col" colspan="4"></th>
       </tr>
@@ -126,13 +126,13 @@
           var api = this.api()
     
           api
-            .cells(null, 14, { page: 'current' })
+            .cells(null, 15, { page: 'current' })
             .nodes()
             .each(function (n) {
               total += intVal($(n).text())
             })
     
-          $(api.column(14).footer()).html(total.toFixed(2))
+          $(api.column(15).footer()).html(total.toFixed(2))
         },
         columns: [
           {
