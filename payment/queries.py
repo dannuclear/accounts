@@ -3,7 +3,7 @@ INSERT INTO public.payment_entry(ae_period, ae_no, acpl_account_debit, acpl_suba
 					acpl_account_credit, acpl_subaccount_credit, acpl_code_analitic_credit, acpl_code_analitic_credit_1, acpl_code_analitic_credit_2, acpl_add_sign_credit, ae_sum, payment_prepayment_id)
 SELECT 
 	payment.create_date as ae_period,
-	p.report_accounting_num::integer as ae_no, -- Номер бухгалтерской справки
+	57900 as ae_no, -- Номер бухгалтерской справки было p.report_accounting_num::integer, сказали фикс 57900
 
 	SUBSTRING(LPAD(p.imprest_account_id::text, 4, '0'), 0, 3)::integer as acpl_account_debit, -- Дебет/счет
 	SUBSTRING(LPAD(p.imprest_account_id::text, 4, '0'), 3, 3)::integer as acpl_subaccount_debit, -- Дебет/субсчет
@@ -27,7 +27,7 @@ INNER JOIN prepayment p ON p.id = item.prepayment_id
 INNER JOIN obtain_method om ON om.id = item.obtain_method_id
 INNER JOIN payment ON payment.id = pp.payment_id
 WHERE payment.create_date IS NOT NULL 
-	AND p.report_accounting_num IS NOT NULL 
+	--AND p.report_accounting_num IS NOT NULL 
 	AND p.imprest_account_id IS NOT NULL 
 	AND om.credit_kau_1 IS NOT NULL 
 	AND om.credit_kau_2 IS NOT NULL 

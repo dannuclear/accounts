@@ -1,0 +1,25 @@
+{% load static %}
+<table class="w-100 header-table" style="border-spacing: 2px 2px;">
+  <tr>
+    <th scope="col" colspan="3" class="text-center">
+      <img src="{% static 'main/img/logo.png' %}" height="70px" />
+    </th>
+  </tr>
+  <tr>
+    <th scope="col" colspan="3" class="text-center font-weight-bold">
+      Федеральное государственное унитарное предприятие «Комбинат «Электрохимприбор»<br />(ФГУП «Комбинат «Электрохимприбор») Бухгалтерия 054
+    </th>
+  </tr>
+  <tr>
+    <th scope="col" class="text-left font-weight-bold border-bottom border-dark w-50">
+      {% now 't.m.Y' %}
+    </th>
+    <th scope="col" class="w-0">№</th>
+    <th scope="col" class="text-left font-weight-bold border-bottom border-dark w-50">054/{{ number }}</th>
+  </tr>
+  <tr>
+    <th scope="col" class="text-left font-weight-bold border-bottom border-dark">На №</th>
+    <th scope="col" class="w-0">От</th>
+    <th scope="col" class="text-left font-weight-bold border-bottom border-dark"></th>
+  </tr>
+</table>

@@ -1,0 +1,33 @@
+<table class="w-100">
+  <tr>
+    <th scope="col" colspan="4">
+      <div class="d-flex">
+        <svg height="240" width="30" style="font-size: 0.8em;">
+          <text x="80" y="170" transform="rotate(-90, 25, 180)" text-anchor="middle">СТО Ж1.1. 001.5-201.1. форма 4</text>
+        </svg>
+        <div class="w-100 d-flex align-items-end">
+          <div class="w-100">
+            {{ payment.executor|default_if_none:'' }}
+            <table class="table table-bordered m-0">
+              <tbody>
+                <tr>
+                  <th class="align-top">Отчет о выполнении:</th>
+                  <th style="width: 25%;">
+                    В дело: ___________<br />
+                    Подпись __________<br />
+                    «__»________ 202_г.
+                  </th>
+                  <th style="width: 25%;">
+                    Вх. №: ___прил. ___<br />
+                    Осн. _____________<br />
+                    «__»________ 202_г.
+                  </th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </th>
+  </tr>
+</table>

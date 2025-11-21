@@ -46,7 +46,7 @@
       table,
       th,
       td {
-        /*border: 1px solid gainsboro;*/
+        /* border: 1px solid gainsboro;*/
       }
       th {
         font-weight: lighter;
@@ -76,34 +76,14 @@
   </head>
   <body>
     <div class="container p-4">
-      <div class="row">
+      <div class="row" style="min-height: 297mm; flex-direction: column;">
         <div class="col-12">
           <table class="w-100 header-table">
-            <tr>
-              <th scope="col" colspan="2" class="text-center" style="width: 40%;">
-                <img src="{% static 'main/img/logo.png' %}" height="70px"/>
-              </th>
-              <th scope="col" style="width: 20%;"></th>
-              <th scope="col" class="text-right" style="width: 40%;"></th>
-            </tr>
-            <tr>
-              <th scope="col" colspan="2" class="text-center font-weight-bold">
-                Федеральное государственное унитарное предприятие «Комбинат «Электрохимприбор»<br />(ФГУП «Комбинат «Электрохимприбор») Бухгалтерия 054
-              </th>
-              <th scope="col"></th>
-              <th scope="col" class="text-right">В финансовый отдел</th>
-            </tr>
-            <tr>
-              <th scope="col" colspan="2" class="text-left font-weight-bold border-bottom border-dark">
-                {% now 't.m.Y' %}
-              </th>
-              <th colspan="2" scope="col"></th>
-            </tr>
-            <tr>
-              <th scope="col" colspan="2" class="text-left font-weight-bold border-bottom border-dark">На № {{ num }}</th>
-              <th colspan="2" scope="col"></th>
-            </tr>
-            <tr>
+            <th scope="col" style="width: 40%;">
+              {% include 'payment/certificate_header.html' with number=num %}
+            </th>
+            <th scope="col" colspan="3" class="text-right">В финансовый отдел</th>
+            <tr class="align-bottom" style="height: 100;">
               <th scope="col" colspan="4" class="text-center font-weight-bold text-uppercase">Справка</th>
             </tr>
             <tr>
@@ -148,12 +128,12 @@
                     <tbody>
                       {% for p in prepayments %}
                         <tr>
-                            <td class="text-right">{{ p.prepaymentItem.value|intcomma|default_if_none:''  }}</td>
-                            <td>{{ p.accountNumber|default_if_none:''  }}</td>
-                            <td class="text-left">{{ p.prepaymentItem.prepayment.empFullName|default_if_none:''  }}</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                          <td class="text-right">{{ p.prepaymentItem.value|intcomma|default_if_none:'' }}</td>
+                          <td>{{ p.accountNumber|default_if_none:'' }}</td>
+                          <td class="text-left">{{ p.prepaymentItem.prepayment.empFullName|default_if_none:'' }}</td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
                         </tr>
                       {% endfor %}
                     </tbody>
@@ -167,39 +147,11 @@
               <th scope="col"></th>
               <th scope="col" class="text-right font-weight-bold">{{ payment.mainAccountant|default_if_none:'' }}</th>
             </tr>
-
-            <tr>
-              <th scope="col" colspan="4">
-                <div class="d-flex">
-                  <svg height="240" width="30" style="font-size: 0.8em;">
-                    <text x="80" y="170" transform="rotate(-90, 25, 180)" text-anchor="middle">СТО Ж1.1. 001.5-201.1. форма 4</text>
-                  </svg>
-                  <div class="w-100 d-flex align-items-end">
-                    <div class="w-100">
-                      {{ payment.executor|default_if_none:''  }}
-                      <table class="table table-bordered m-0">
-                        <tbody>
-                          <tr>
-                            <th class="align-top">Отчет о выполнении:</th>
-                            <th style="width: 25%;">
-                              В дело: ___________<br />
-                              Подпись __________<br />
-                              «__»________ 202_г.
-                            </th>
-                            <th style="width: 25%;">
-                              Вх. №: ___прил. ___<br />
-                              Осн. _____________<br />
-                              «__»________ 202_г.
-                            </th>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </th>
-            </tr>
           </table>
+        </div>
+
+        <div class="col-12" style="margin-top: auto; height: 100%;">
+          {% include 'payment/certificate_footer.html' %}
         </div>
       </div>
     </div>

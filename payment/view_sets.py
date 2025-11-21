@@ -38,7 +38,7 @@ class PaymentViewSet (viewsets.ModelViewSet):
         else:
             queryset = queryset.filter(payment__isnull=True, accountNumber__isnull=False)
             if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
-                queryset = UniversalPeriodFilter(field_name='prepaymentItem__prepayment__docDate').filter_queryset(request, queryset, self)
+                queryset = UniversalPeriodFilter(field_name='prepaymentItem__date').filter_queryset(request, queryset, self)
             if 'imprestAccount' in self.request.query_params:
                 queryset = ImprestAccountFilter(field_name="prepaymentItem__prepayment__imprestAccount").filter_queryset(request, queryset, self)
             if 'obtainMethod' in self.request.query_params:

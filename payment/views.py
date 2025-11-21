@@ -222,7 +222,7 @@ def payment_certificate(request, pk):
         'bank': payment.obtainMethod,
         'totalSumIntString': total_sum_string,
         'prepayments': prepayments,
-        'registryNumber': re.sub(r'\.xml|z\.xml', '', payment.fileName if payment.fileName is not None else ''),
+        'registryNumber': re.sub(r'\.xml|z\.xml|z\.xls|\.xls', '', payment.fileName if payment.fileName is not None else ''),
         'num': num
     }
     return render(request, 'payment/certificate.html', context)
@@ -236,7 +236,7 @@ def payment_prepayment_certificate(request, pk):
         'payment': paymentPrepayment.payment,
         'bank': paymentPrepayment.payment.obtainMethod,
         'totalSumIntString': totalSumIntString,
-        'registryNumber': re.sub(r'\.xml|z\.xml', '', paymentPrepayment.payment.fileName if paymentPrepayment.payment.fileName is not None else '')
+        'registryNumber': re.sub(r'\.xml|z\.xml|z\.xls|\.xls', '', paymentPrepayment.payment.fileName if paymentPrepayment.payment.fileName is not None else '')
     }
     return render(request, 'payment/payment_prepayment_certificate.html', context)
 
