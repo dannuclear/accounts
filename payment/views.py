@@ -222,7 +222,7 @@ def payment_certificate(request, pk):
         'bank': payment.obtainMethod,
         'totalSumIntString': total_sum_string,
         'prepayments': prepayments,
-        'registryNumber': re.sub(r'\.xml|z\.xml|z\.xls|\.xls', '', payment.fileName if payment.fileName is not None else ''),
+        'registryNumber': re.sub(r'\.xml|z\.xml|z\.xls|\.xls|\.txt', '', payment.fileName if payment.fileName is not None else ''),
         'num': num
     }
     return render(request, 'payment/certificate.html', context)
@@ -236,7 +236,7 @@ def payment_prepayment_certificate(request, pk):
         'payment': paymentPrepayment.payment,
         'bank': paymentPrepayment.payment.obtainMethod,
         'totalSumIntString': totalSumIntString,
-        'registryNumber': re.sub(r'\.xml|z\.xml|z\.xls|\.xls', '', paymentPrepayment.payment.fileName if paymentPrepayment.payment.fileName is not None else '')
+        'registryNumber': re.sub(r'\.xml|z\.xml|z\.xls|\.xls|\.txt', '', paymentPrepayment.payment.fileName if paymentPrepayment.payment.fileName is not None else '')
     }
     return render(request, 'payment/payment_prepayment_certificate.html', context)
 
@@ -350,11 +350,11 @@ def download(request):
 
         queryset = queryset.values('prepaymentItem__prepayment__empFullName', 'accountNumber').annotate(total_count=Count('id'), total_sum=Sum('prepaymentItem__value'))
         response = StreamingHttpResponse(
-            vtb_file_generator(date, obtain_method.clientFullName, queryset),
+            vtb_file_generator(date, obtain_method.clientFullName, queryset, register_counter),
             content_type='text/plain; charset=cp1251'
         )
 
-        filename = filename or 'Z_%s_%s_%03d_001.txt' % (client_number, date.strftime('%Y%m%d'), register_counter)
+        filename = filename or 'Z_%s_%s_%03d_01.txt' % (client_number, date.strftime('%Y%m%d'), register_counter)
         obtain_method.save(update_fields=['registerCounter'])
     elif obtain_method_id == '7':  # ТБАНК
         if not obtain_method.clientFullName:
@@ -387,14 +387,14 @@ def gpb_file_generator(date, items):
     yield 'Итого:%.2f' % (total)
 
 
-def vtb_file_generator(date, client_name, items):
-    yield 'START;%s;CREDIT;%s\n' % (date.strftime('%d%m%Y'), client_name)
+def vtb_file_generator(date, client_name, items, register_counter):
+    yield 'START;%s;%03d;CREDIT;%s\n' % (date.strftime('%d%m%Y'), register_counter, client_name)
 
     total = 0
     for item in items:
         total += item['total_sum']
-        yield '%s;%.2f;%s\n' % (item['accountNumber'], item['total_sum'], item['prepaymentItem__prepayment__empFullName'])
-    yield 'END;%s;%.2f;RUR' % (len(items), total)
+        yield '%s;%s;%s;;2\n' % (item['accountNumber'], ('%.2f' % item['total_sum']).replace('.', ','), item['prepaymentItem__prepayment__empFullName'])
+    yield 'END;%s;%s;RUR' % (len(items), ('%.2f' % total).replace('.', ','))
 
 
 def sbp_file_generator(bank_type, payment_dest, date, register_counter, client_number, contract_number, contract_date, client_name, client_inn, client_account, bik, items):
@@ -449,7 +449,7 @@ def sbp_file_generator(bank_type, payment_dest, date, register_counter, client_n
     ET.SubElement(control_sums, 'СуммаИтого').text = str(total_sum)
 
     # Формируем XML
-    xml_string = ET.tostring(root, encoding='cp1251', method='xml').decode('cp1251')
+    xml_string = ET.tostring(root, encoding='windows-1251', method='xml').decode('cp1251')
 
     return xml_string
 

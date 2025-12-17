@@ -36,7 +36,7 @@ class Employee(models.Model):
         blank=True, db_column="emp_dismiss_date", null=True)
 
     snils = models.CharField(max_length=11, db_column='snils', verbose_name="СНИЛС", blank=True, null=True)
-    accountNumber = models.CharField(max_length=20, db_column='account_number', verbose_name="Номер лицевого счета", blank=True, null=True)
+    accountNumber = models.CharField(max_length=2000, db_column='account_number', verbose_name="Номер лицевого счета", blank=True, null=True)
     
     def __str__(self):
         return '%s: %s %s %s' % (self.empOrgNo, self.pfnSurname, self.pfnName, self.pfnPatronymic)

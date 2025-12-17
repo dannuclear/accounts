@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from .models import Request, RequestInventory, RequestInventoryItem
 from prepayment.models import Prepayment, PrepaymentPurpose, PrepaymentItem
 from rest_framework import viewsets
@@ -18,6 +19,7 @@ import math
 from num2words import num2words
 from main.helpers import is_user_in_group
 import decimal
+from weasyprint import HTML
 # Create your views here.
 
 requestInventoryItemSubquery = RequestInventoryItem.objects.annotate(itemNames=Func('name', function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')")).filter(requestInventory=OuterRef("pk"))
@@ -208,3 +210,29 @@ def htmlReport(request, id):
         'travelExpenseSum': travel_expense_sum
     }
     return render(request, 'request/report.html', context)
+
+def pdfReport(request, id):
+    req  = Request.objects.filter(pk=id).select_related('applicant').select_related('imprestAccount').get()
+
+    for inv in req.requestinventory_set.all():
+        for item in inv.requestinventoryitem_set.all():
+            print (item.id)
+
+    travel_expense_sum = decimal.Decimal(0)
+    req.travelexpenses = req.requesttravelexpense_set.order_by('type')
+    for te in req.travelexpenses:
+        travel_expense_sum += te.sum
+
+    (issuedSumFrac, issuedSumInt) = math.modf(req.issuedSum)
+    issuedSumInt = int(issuedSumInt)
+    issuedSumFrac = round(issuedSumFrac, 2)
+    issuedSumIntString = num2words(int(issuedSumInt), lang='ru')
+    #issuedSumIntStringArray = textwrap.wrap(issuedSumIntString, 40)
+    context = {
+        'req': req,
+        'issuedSumIntString': issuedSumIntString,
+        'travelExpenseSum': travel_expense_sum
+    }
+    html = render_to_string('request/report.html', context)
+    pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
+    return HttpResponse(pdf, content_type='application/pdf')

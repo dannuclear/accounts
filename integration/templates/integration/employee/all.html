@@ -19,7 +19,7 @@
         <th style="width: 6rem">Изменения</th>
         <th style="width: 6rem">Увольнение</th>
         <th style="width: 6rem">СНИЛС</th>
-        <th style="width: 6rem">Лицевой счет</th>
+        {% comment %} <th style="width: 6rem">Лицевой счет</th> {% endcomment %}
       </tr>
     </thead>
   </table>
@@ -63,9 +63,9 @@
           {
             data: 'snils'
           },
-          {
-            data: 'accountNumber'
-          }
+          //{
+          //  data: 'accountNumber'
+          //}
         ],
         buttons: [
           {

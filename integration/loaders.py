@@ -6,11 +6,22 @@ from .models import Employee, Estimate, Prepayment, Protocol, WC07POrder
 estimateFields = ['xv26eicYear', 'xv26eiId', 'xv26eihDateBegin',
                   'xv26eihDateEnd', 'xv26eihName', 'xv26eirSumPlan']
 employeeFields = ['empOrgNo', 'divNo', 'persId', 'pfnSurname', 'pfnName',
-                  'pfnPatronymic', 'pqlfName', 'profName', 'empChangesDate', 'empDismissDate', 'accountNumber', 'snils']
+                  'pfnPatronymic', 'pqlfName', 'profName', 'empChangesDate', 'empDismissDate', 'snils', 'accountNumber']
 prepaymentFields = ['pdId', 'pdSource', 'empOrgNo', 'xv26eiId', 'orderId',
                     'orderIdUpd', 'orderNo', 'orderDate', 'bic', 'sum', 'acplAccount', 'acplSubaccount']
 wc07pOrderFields = ['orderName', 'orderId', 'orderNum', 'orderDate', 'empOrgNo', 'depName', 'fio', 'profName',
                     'distName', 'missionBegin', 'missionEnd', 'missionPurpose', 'estimateId', 'payDoc', 'orderIdUpd']
+
+csv.register_dialect(
+    "default_dialect",
+    delimiter="\t",
+    quotechar='"',
+    doublequote=False,
+    escapechar=None,
+    quoting=csv.QUOTE_MINIMAL,
+    skipinitialspace=False,
+    lineterminator="\r\n",
+)
 
 def get_fields(file_type):
     if file_type == FileType.ESTIMATE:
@@ -43,13 +54,12 @@ def load(path, _type):
         sample = file.read(4048)
         if not sample:
             raise Exception('Файл %s пустой' % path)
-        dialect = csv.Sniffer().sniff(sample, delimiters='\t')
-        dialect.delimiter = '\t'
+        #dialect = csv.Sniffer().sniff(sample, delimiters='\t')
         file.seek(0)
         fields = get_fields(_type)
         if fields is None:
             return
-        reader = csv.DictReader(file, fieldnames=fields, dialect=dialect)
+        reader = csv.DictReader(file, fieldnames=fields, dialect="default_dialect")
         for row in reader:
             replaced_row = replace_empty_str_with_none(row)
             if _type == FileType.EMPLOYEE:

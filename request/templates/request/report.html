@@ -6,38 +6,26 @@
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
     <link rel="stylesheet" type="text/css" href="{% static 'main/css/bootstrap4.min.css' %}" />
     <style type="text/css">
+      @page {
+        margin: 10mm;
+      }
+      
+      @media print {
+        @page {
+          margin: 0mm; /* Чтоб не было информации о браузере при печати */
+        }
+      }
+      
       @font-face {
         font-family: TimesNewRoman;
         src: url(/static/main/fonts/times.ttf);
       }
       body {
         font-family: TimesNewRoman;
-        font-size: 14px;
+        margin: 10mm;
       }
       table {
-        font-size: 20px;
-      }
-      
-      @media print {
-        @page {
-          size: auto; /*auto is the initial value */
-          margin: 0mm; /* this affects the margin in the printer settings */
-        }
-      
-        #printPageButton {
-          display: none;
-        }
-      
-        body {
-          font-size: 14pt;
-          margin: 10mm;
-        }
-      
-        body > .container {
-          width: 100% !important;
-          margin: 0px !important;
-          max-width: 100% !important;
-        }
+        font-size: 14pt;
       }
       
       table.header-table {
@@ -76,7 +64,7 @@
     </style>
   </head>
   <body>
-    <div class="container p-4">
+    <div class="container">
       <div class="row">
         <div class="col-12">
           <table class="w-100 header-table">
@@ -203,7 +191,7 @@
             {% else %}
               <tr>
                 <td colspan="2" class="text-left align-bottom">
-                  Прошу выдать мне под отчет аванс на командировочные расходы путем {% if req.obtainMethod.source == 0 %}
+                  Прошу выдать мне под отчет аванс на командировочные расходы путем{% if req.obtainMethod.source == 0 %}
                     его выдачи через кассу
                   {% else %}
                     его перечисления на карту банка <u>{{ req.obtainMethod.name }}</u>
