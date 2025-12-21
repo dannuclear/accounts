@@ -41,6 +41,8 @@ class Request(models.Model):
 
     carryOverPrepayment = models.ForeignKey('prepayment.Prepayment', db_column='carry_over_prepayment_id', on_delete=models.PROTECT, blank=True, null=True, related_name='carry_over_prepayment_id')
 
+    wc07p_id = models.CharField(db_column="wc07p_id", blank=True, null=True, max_length=20)
+
     class Meta:
         db_table = 'request'
         verbose_name = 'Заявление на аванс'
@@ -51,6 +53,7 @@ class Request(models.Model):
             ("edit_requests", "Редактирование"),
             ("view_owner_requests", "Просмотр только свои заявления"),
             ("edit_owner_requests", "Редактирование только свои заявления"),
+            ("submit_wc07p", "WC07P. Отправка"),
         ]
 
 

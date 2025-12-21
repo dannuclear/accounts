@@ -14,6 +14,8 @@ urlpatterns = [
     path('advanceReports/<id>', views.editAdvanceReport, name='editAdvanceReport'),
     path('advanceReports/<id>/print', views.pdfAdvanceReport, name='pdfAdvanceReport'),
     path('advanceReports/<id>/html', views.htmlAdvanceReport, name='htmlAdvanceReport'),
+    path('advanceReports/<id>/pdf', views.pdfAdvanceReport, name='pdfAdvanceReport'),
+    path('advanceReports/<id>/wc07p', views.submit_wc07p, name='advance_report_submit_wc07p'),
     path('advanceReports/<id>/accountingCert/html', views.htmlAccountingCert, name='htmlAccountingCert'),
     path('advanceReports/<int:pk>/empNum/add', views.EmpNumCreateView.as_view(), name='advanceReport_emp_num_add'),
 

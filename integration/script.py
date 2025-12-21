@@ -2,9 +2,28 @@
 # два обязательных именованных аргумента: "document: dict" (пример фотмата объекта "document_data_example")
 # и "files: list" (пример формата объекта "file_list_example")
 #
+# Данная функция возвращает словарь в формате представленном ниже
+#
+# success_create_example_dict = {
+#     'sucess': True
+# }
+# error_create_example_dict = {
+#     'sucess': False,
+#     'error': {error_text}
+# }
+#
 # Для удаления бухгалтерского документа используется функция "remove_script" принимающая один обязательный
 # именованный атрибут "document: dict" (пример фотмата объекта "remove_document_example")
 #
+# Данная функция возвращает словарь в формате представленном ниже
+#
+# success_remove_doc = {
+#     'success': True,
+# }
+# error_remove_doc = {
+#     'success': False,
+#     'error': {error_text}
+# }
 #
 # document_data_example = {
 #         'login': 'z00000', # str, Логин пользователя исполнителя документа
@@ -93,7 +112,6 @@ def __compress_file(input_file_path, password, archieve_name):
         process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         stdout_data, stderr_data = process.communicate(input=file_data)
 
-
         if process.returncode != 0:
             raise Exception(stderr_data.decode('utf-8'))
 
@@ -116,7 +134,7 @@ def create_script(files: list, document: dict):
         {{CALL {file_procedure_name} 
         (@структура_архива=?, @номер_блока=?, @данные=?, @код_доступа=?, @пароль=?, @файл_ID=@файл_ID OUTPUT)}}
         SELECT @файл_ID as N'@файл_ID'
-        SELECT	'Return Value' = @return_value
+        SELECT  'Return Value' = @return_value
     '''
     files_info = []
     for file in sorted_files:
@@ -150,10 +168,11 @@ def create_script(files: list, document: dict):
 
     with pyodbc.connect(__get_connection_string(ESESD_DB_NAME)) as conn:
         doc_sql = f'''
-                DECLARE @return_value int, @документ_ID varchar(20)
-                {{CALL {doc_procedure_name} (@подразделение=?, @характеристики=?, @файлы=?, @логин=?, @документ_ID=@документ_ID OUTPUT)}}
-                SELECT @документ_ID as N'@документ_ID' 
-                SELECT	'Return Value' = @return_value'''
+                DECLARE @документ_ID varchar(20)
+                {{CALL {doc_procedure_name}
+                (@подразделение=?, @характеристики=?, @файлы=?, @логин=?, @документ_ID=@документ_ID OUTPUT)}}
+                SELECT @документ_ID as N'@документ_ID'
+                '''
         specifications = f'''
             <?xml version="1.0" encoding="WINDOWS-1251" standalone="yes"?>
             <Param>
@@ -187,18 +206,41 @@ def create_script(files: list, document: dict):
             files_xml,
             document['login']
         )
-        cursor = conn.cursor()
-        cursor.execute(doc_sql, params)
+        try:
+            cursor = conn.cursor()
+            cursor.execute(doc_sql, params)
+            if not cursor.description:
+                cursor.nextset()
+            document_id = cursor.fetchone()[0]
+            return {
+                'success': True,
+                'document_id': document_id,
+            }
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e),
+            }
 
 
-def remove_script(document: dict):
-    with pyodbc.connect(__get_connection_string(ESESD_DB_NAME)) as conn:
-        remove_sql = f'''
-            {{CALL {doc_remove_procedure_name} (@документ_ID=?, @логин=?)}}
-        '''
-        params = (
-            document['document_id'] if isinstance(document['document_id'], str) else (str(document['document_id'])),
-            document['login']
-        )
-        cursor = conn.cursor()
-        cursor.execute(remove_sql, params)
+def remove_script(document: dict) -> dict:
+    try:
+        with pyodbc.connect(__get_connection_string(ESESD_DB_NAME)) as conn:
+            remove_sql = f'''
+                {{CALL {doc_remove_procedure_name} (@документ_ID=?, @логин=?)}}
+            '''
+            params = (
+                document['document_id'] if isinstance(document['document_id'], str) else (str(document['document_id'])),
+                document['login']
+            )
+            cursor = conn.cursor()
+            cursor.execute(remove_sql, params)
+        return {
+            'success': True,
+        }
+    except Exception as e:
+        return {
+            'success': False,
+            'error': str(e)
+        }
+

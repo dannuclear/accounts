@@ -61,21 +61,27 @@
             <h4 class="m-0 border rounded">Авансовый отчет <a href="{% url 'prepayments' %}/{{ form.instance.id }}" title="Перейти в выданный под отчет аванс"><i class="fa-duotone fa-money-bill-transfer"></i></a></h4>
           </div>
 
-          <div class="col-xl-2 col-md-3">
+          <div class="col-xl-2 col-md-2">
             <div class="input-group input-group-sm">
               <span class="input-group-text">{{ form.reportNum.label }}</span>
               <input type="text" class="mb-0 form-control form-control-sm" value="{{ form.instance.reportNum|default_if_none:'' }}" disabled />
             </div>
           </div>
 
-          <div class="col-xl-2 col-md-3">
+          <div class="col-xl-2 col-md-2">
             <div class="input-group input-group-sm">
               <span class="input-group-text">{{ form.reportDate.label }}</span>
               <input type="text" class="text-center mb-0 form-control form-control-sm" value="{{ form.instance.reportDate|default_if_none:'' }}" disabled />
             </div>
           </div>
 
-          <div class="col-xl-3 col-md-3 ms-auto">
+          <div class="col-2">
+            {% if perms.prepayment.submit_wc07p %}
+              <button id="wc07p-btn" type="button" class="btn btn-success btn-sm ms-auto me-1" data-url="{% url 'advance_report_submit_wc07p' form.instance.id %}"><i class="fa-light fa-floppy-disk pe-2"></i>Отправить WC07P</button>
+            {% endif %}
+          </div>
+
+          <div class="col-xl-2 col-md-2 ms-auto">
             {% include 'main/input_group.html' with field=form.reportStatus inputClass='text-center form-select' %}
           </div>
         </div>
@@ -936,6 +942,28 @@
 
       $('.inventoryModal .expense-sum-rub, .inventoryModal .expense-sum-vat, .inventoryModal input[name$="whOrderSum"]').on('change', function (e) {
         updateDiffSum();
+      })
+
+      $('#wc07p-btn').on('click', function () {
+        const url = $(this).data('url')
+        const csrfToken = $('input[name="csrfmiddlewaretoken"]').val()
+        const id = $('input[name="id"]').val()
+    
+        $.ajax({
+          url: url,
+          type: 'POST',
+          data: {
+            id: id,
+            csrfmiddlewaretoken: csrfToken
+          },
+          success: function (response) {
+            alert('WC07P отправлен')
+          },
+          error: function (xhr) {
+            alert('Ошибка отправки: ' + xhr.responseText)
+            console.error(xhr.responseText)
+          }
+        })
       })
     })
 

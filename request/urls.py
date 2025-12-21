@@ -12,5 +12,6 @@ urlpatterns = [
     path('requests/<id>/createPrepayment', views.createPrepayment),
     path('requests/<id>/html', views.htmlReport, name='htmlRequestReport'),
     path('requests/<id>/pdf', views.pdfReport, name='pdfRequestReport'),
+    path('requests/<id>/wc07p', views.submit_wc07p, name='submit_wc07p'),
     # path('requests/<id>/delete', views.deleteImprestAccount, name='deleteExpenseCode'),
 ]

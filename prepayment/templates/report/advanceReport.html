@@ -6,6 +6,16 @@
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
     <link rel="stylesheet" type="text/css" href="{% static 'main/css/bootstrap4.min.css' %}" />
     <style type="text/css">
+      @page {
+        margin: 10mm;
+      }
+      
+      @media print {
+        @page {
+          margin: 0mm; /* Чтоб не было информации о браузере при печати */
+        }
+      }
+      
       @font-face {
         font-family: TimesNewRoman;
         src: url(/static/main/fonts/times.ttf);
@@ -13,30 +23,9 @@
       body {
         font-family: TimesNewRoman;
       }
-
-      @media print {
-
-        @page 
-        {
-            size:  auto;   /*auto is the initial value */
-            margin: 0mm;  /* this affects the margin in the printer settings */
-        }
-
-        #printPageButton {
-            display: none;
-        }
-
-        body {
-            font-size: 12pt;
-            margin: 10mm;
-        }
-
-        body>.container {
-            width: 100% !important;
-            margin: 0px !important;
-            max-width: 100% !important;
-        }
-    }
+      table {
+        font-size: 10pt;
+      }
 
       table.header-table {
         border-collapse: separate;
@@ -137,7 +126,7 @@
                 <div class="d-flex align-items-end">
                   <div class="border-bottom border-dark flex-grow-1">{{ totalSumIntStringArray.3 }}&nbsp;</div>
                   <div>&nbsp;руб.</div>
-                  <div class="border-bottom border-dark col-1">{{ totalSumFrac|zfill:2 }}</div>
+                  <div class="border-bottom border-dark col-2">{{ totalSumFrac|zfill:2 }}</div>
                   <div>&nbsp;коп.</div>
                 </div>
               </td>
@@ -374,7 +363,7 @@
                     </tr>
                     <tr>
                       <td class="text-left" colspan="7">Остаток / перерасход по авансу, полученному подотчетным лицом, в руб.коп.</td>
-                      <td class="text-center border border-dark" colspan="7">{{ diffSum1|default_if_none:""|intcomma }}</td>
+                      <td class="text-center border border-dark" colspan="2">{{ diffSum1|default_if_none:""|intcomma }}</td>
                     </tr>
 
                   </tbody>

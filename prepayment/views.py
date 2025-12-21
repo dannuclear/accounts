@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from guide.models import Status, ExpenseItem, ExpenseCategory, AccountingCert, Department, Document, ImprestAccount
 from guide.filters import StatusFilter
 from payment.models import PaymentPrepayment
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, HttpResponseServerError
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
 from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func, Sum, IntegerField, Q, Case, When, DateField, Value, F
@@ -27,11 +27,14 @@ import textwrap
 from .action_processor import processActionNew, addItem, clone_from
 from decimal import Decimal
 #from xhtml2pdf import pisa
-from django.template.loader import get_template
+from django.template.loader import get_template, render_to_string
 from accounts import settings
 import os
 from django.contrib.staticfiles import finders
 from main.helpers import is_user_in_group
+from main.models import Settings
+from integration import script
+from weasyprint import HTML
 
 # Create your views here.
 purposesSubquery = PrepaymentPurpose.objects.select_related('prepaidDest').annotate(
@@ -497,8 +500,7 @@ def htmlAccountingCert(request, id):
     }
     return render(request, 'report/accountingCert.html', context)
 
-
-def htmlAdvanceReport(request, id):
+def get_report_context (id):
     prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')), days=Subquery(purposesSubquery.values('days'))).select_related('status').select_related(
     'imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
     
@@ -550,7 +552,17 @@ def htmlAdvanceReport(request, id):
         'sumVAT2': sumVAT2,
         'balance': balance
     }
+    return context
+
+def htmlAdvanceReport(request, id):
+    context = get_report_context(id)
     return render(request, 'report/advanceReport.html', context)
+
+def pdfAdvanceReport(request, id):
+    context = get_report_context(id)
+    html = render_to_string('report/advanceReport.html', context)
+    pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
+    return HttpResponse(pdf, content_type='application/pdf')
 
 def inventoriesDownload(request):
     query = Prepayment.objects.filter(reportDate__isnull = False).select_related('status').select_related('imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment')
@@ -594,3 +606,51 @@ def deductionsDownload(request):
     for p in prepayments:
         writer.writerow([p.empNum, p.empFullName, p.distribSalary, 'Комментарий'])
     return response
+
+
+def submit_wc07p (request, id):
+    settings = Settings.objects.first()
+    if not settings.outputDir:
+        return HttpResponseBadRequest('Настройте папку для исходящих документов')
+    context = get_report_context(id)
+    user = request.user
+    advance_report = context.get('report')
+    if not advance_report.empDivNum:
+        return HttpResponseBadRequest('Нет номера подразделения у заявителя')
+    if not advance_report.reportDate:
+        return HttpResponseBadRequest('Нет даты у АО')
+    if not advance_report.reportNum:
+        return HttpResponseBadRequest('Нет номера у АО')
+
+    html = render_to_string('report/advanceReport.html', context)
+    document_data_example= {
+        'login': 'z' + str(advance_report.empNum), # str, Логин пользователя исполнителя документа z00000 ? бывают длиннее
+        'div_no': str(advance_report.empDivNum).zfill(3), # str, Номер подразделения - откуда документ
+        'document_number': str(advance_report.reportNum) + '2', # str, Номер бухгалтерского документа
+        'document_date': advance_report.reportDate.strftime("%d.%m.%Y"), # str, Дата бухгалтерского документа
+        'template': 'ADVANCE_REPORT', # str, Название шаблона
+        'document_id_old': '', # str, Предыдущий документ, используется для копирования переписки/замечаний
+        'document_characteristics': 'Авансовый отчет' # str, Информация о документе
+    }
+
+    try:
+        filename = datetime.now().strftime('ADVANCE_REPORT_%Y-%m-%d_%H-%M-%S.pdf')
+        pdf_file_path = os.path.join(settings.outputDir, filename)
+        HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(target=pdf_file_path)
+        file_item = {
+            'file_path': pdf_file_path,         # полный путь к файлу
+            'sign': 'Ф',                        # Ф — бухгалтерский документ
+            'file_name': filename,              # имя файла
+            'serial_number': 1,                 # порядковый номер
+            'app_description': 'Авансовый отчет PDF', # описание
+        }
+        result = script.create_script([file_item], document_data_example)
+        if not result['success'] and result['error']:
+            return HttpResponseServerError('Ошибка в функции create: %s параметры: %s' % (result['error'], document_data_example))
+        if not result['document_id']:
+            return HttpResponseServerError('WC07P не вернул document_id')
+        Prepayment.objects.filter(pk=id).update(wc07p_id=result['document_id'])
+    except Exception as e:
+        return HttpResponseBadRequest('%s параметры: %s' % (e, document_data_example))
+
+    return HttpResponse("OK")

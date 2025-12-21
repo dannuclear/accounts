@@ -139,6 +139,8 @@ class Prepayment(models.Model):
     # Распределение остатка. (перерасход) выдан в кассе по РКО номер
     distribRKONum = models.CharField(db_column="distrib_rko_num",max_length=20, blank=True, null=True)
 
+    wc07p_id = models.CharField(db_column="wc07p_id", blank=True, null=True, max_length=20)
+
     class Meta:
         db_table = 'prepayment'
         verbose_name = 'Аванс'
@@ -160,7 +162,8 @@ class Prepayment(models.Model):
             ("view_owner_dept_prepayments", "Просмотр своего подразделения"),
             ("edit_owner_dept_prepayments", "Редактирование своего подразделения"),
             ("view_owner_dept_advance_reports", "Просмотр авансовых отчетов своего подразделения"),
-            ("edit_owner_dept_advance_reports", "Редактирование авансовых отчетов своего подразделения")
+            ("edit_owner_dept_advance_reports", "Редактирование авансовых отчетов своего подразделения"),
+            ("submit_wc07p", "WC07P. Отправка"),
         ]
 
 # Доступность аванса и авансового отчета по табельному

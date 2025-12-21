@@ -10,15 +10,19 @@ from datetime import datetime
 from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func, Sum, IntegerField, Q
 from guide.models import Status, Document, PrepaidDest
 from guide.filters import StatusFilter
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, HttpResponseServerError
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
 from integration.models import Employee
+from integration import script
 from prepayment.action_processor import addItem
 import math
 from num2words import num2words
 from main.helpers import is_user_in_group
+from main.models import Settings
 import decimal
+import os
+
 from weasyprint import HTML
 # Create your views here.
 
@@ -188,35 +192,70 @@ def createPrepayment(request, id):
     return HttpResponse('Выданный под отчет аванс создан')
 
 def htmlReport(request, id):
-    req  = Request.objects.filter(pk=id).select_related('applicant').select_related('imprestAccount').get()
-
-    for inv in req.requestinventory_set.all():
-        for item in inv.requestinventoryitem_set.all():
-            print (item.id)
-
-    travel_expense_sum = decimal.Decimal(0)
-    req.travelexpenses = req.requesttravelexpense_set.order_by('type')
-    for te in req.travelexpenses:
-        travel_expense_sum += te.sum
-
-    (issuedSumFrac, issuedSumInt) = math.modf(req.issuedSum)
-    issuedSumInt = int(issuedSumInt)
-    issuedSumFrac = round(issuedSumFrac, 2)
-    issuedSumIntString = num2words(int(issuedSumInt), lang='ru')
-    #issuedSumIntStringArray = textwrap.wrap(issuedSumIntString, 40)
-    context = {
-        'req': req,
-        'issuedSumIntString': issuedSumIntString,
-        'travelExpenseSum': travel_expense_sum
-    }
+    context = get_report_context(id)
     return render(request, 'request/report.html', context)
 
 def pdfReport(request, id):
+    context = get_report_context(id)
+    html = render_to_string('request/report.html', context)
+    pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
+    return HttpResponse(pdf, content_type='application/pdf')
+
+def submit_wc07p (request, id):
+    settings = Settings.objects.first()
+    if not settings.outputDir:
+        return HttpResponseBadRequest('Настройте папку для исходящих документов')
+    context = get_report_context(id)
+    req = context.get('req')
+    applicant = req.applicant
+    if not applicant:
+        return HttpResponseBadRequest('Заявитель не указан')
+    if not applicant.divNo:
+        return HttpResponseBadRequest('Нет номера подразделения у заявителя')
+    if not req.num:
+        return HttpResponseBadRequest('Нет номера у заявления')
+    if not req.createDate:
+        return HttpResponseBadRequest('Нет даты у заявления')
+
+    html = render_to_string('request/report.html', context)
+    document_data_example= {
+        'login': 'z' + str(applicant.empOrgNo), # str, Логин пользователя исполнителя документа z00000 ? бывают длиннее
+        'div_no': str(applicant.divNo).zfill(3), # str, Номер подразделения - откуда документ
+        'document_number': str(req.num) + '2', # str, Номер бухгалтерского документа
+        'document_date': req.createDate.strftime("%d.%m.%Y"), # str, Дата бухгалтерского документа
+        'template': 'REQUEST', # str, Название шаблона
+        'document_id_old': '', # str, Предыдущий документ, используется для копирования переписки/замечаний
+        'document_characteristics': 'О запросе денег' # str, Информация о документе
+    }
+
+    try:
+        filename = datetime.now().strftime('REQUEST_%Y-%m-%d_%H-%M-%S.pdf')
+        pdf_file_path = os.path.join(settings.outputDir, filename)
+        HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(target=pdf_file_path)
+        file_item = {
+            'file_path': pdf_file_path,         # полный путь к файлу
+            'sign': 'Ф',                        # Ф — бухгалтерский документ
+            'file_name': filename,              # имя файла
+            'serial_number': 1,                 # порядковый номер
+            'app_description': 'Заявление PDF', # описание
+        }
+        result = script.create_script([file_item], document_data_example)
+        if not result['success'] and result['error']:
+            return HttpResponseServerError('Ошибка в функции create: %s параметры: %s' % (result['error'], document_data_example))
+        if not result['document_id']:
+            return HttpResponseServerError('WC07P не вернул document_id')
+        Request.objects.filter(pk=id).update(wc07p_id=result['document_id'])
+    except Exception as e:
+        return HttpResponseBadRequest('%s параметры: %s' % (e, document_data_example))
+
+    return HttpResponse("OK")
+
+def get_report_context(id):
     req  = Request.objects.filter(pk=id).select_related('applicant').select_related('imprestAccount').get()
 
-    for inv in req.requestinventory_set.all():
-        for item in inv.requestinventoryitem_set.all():
-            print (item.id)
+    # for inv in req.requestinventory_set.all():
+    #     for item in inv.requestinventoryitem_set.all():
+    #         print (item.id)
 
     travel_expense_sum = decimal.Decimal(0)
     req.travelexpenses = req.requesttravelexpense_set.order_by('type')
@@ -233,6 +272,4 @@ def pdfReport(request, id):
         'issuedSumIntString': issuedSumIntString,
         'travelExpenseSum': travel_expense_sum
     }
-    html = render_to_string('request/report.html', context)
-    pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
-    return HttpResponse(pdf, content_type='application/pdf')
+    return context

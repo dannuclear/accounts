@@ -104,7 +104,6 @@ class PrepaymentForm (forms.ModelForm):
     class Meta:
         model = Prepayment
         fields = ['id', 'document', 'docNum', 'docDate', 'empNum', 'empSurname', 'empName', 'empPatronymic', 'empFullName', 'empProfName', 'empDivNum', 'phone', 'totalSum', 'carryOverSum', 'carryOverAdvanceReportNum', 'carryOverAdvanceReportDate', 'imprestAccount', 'status', 'orderChanges', 'orderChangeNum', 'orderChangeDate']
-        #exclude = ['createdBy', 'createdAt', 'wc07pOrder', 'request', 'iPrepayment', 'reportAccountingNum', 'reportAccountingSum', 'reportNum', 'reportDate', 'reportComment', 'reportStatus', 'empDivName', 'accountCodes', 'approveDate', 'lockLevel', 'factDate', 'approveActionDate', 'createdByFullName', 'updatedByAccountant', 'contractIdentifier']
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
@@ -225,7 +224,7 @@ class AdvanceReportForm (forms.ModelForm):
         model = Prepayment
         fields = ['reportStatus', 'empDivName', 'reportAccountingNum', 'spendedSum', 'reportAccountingSum', 'reportComment', 'phone', 'distribSalary',
                   'distribSalaryDate', 'distribBank', 'distribBankMethod', 'distribCarryover', 'distribCarryoverReportNum', 'approveDate', 'factDate', 'approveActionDate', 'contractIdentifier', 'distribBankDate', 'distribPKO', 'distribPKODate', 'distribPKONum', 'distribCombinat', 'distribCombinatDate', 'distribCombinatNum', 'distribRKO', 'distribRKODate', 'distribRKONum']
-        exclude = ['createdByFullName', 'updatedByAccountant']
+        exclude = ['createdByFullName', 'updatedByAccountant', 'wc07p_id']
 
 class AdvanceReportItemForm(forms.ModelForm):
 
