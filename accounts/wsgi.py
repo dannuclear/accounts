@@ -33,7 +33,7 @@ class LoggingMiddleware:
         request = WSGIRequest(environ)
         try:
             #request.META['REMOTE_USER'] = 'buh'
-            #request.META['REMOTE_USER'] = 'admin'
+            request.META['REMOTE_USER'] = 'admin'
             #request.META['REMOTE_USER'] = 'chief'
             #request.META['REMOTE_USER'] = 'user'
             #request.META['REMOTE_USER'] = request.COOKIES.get('username', 'admin')

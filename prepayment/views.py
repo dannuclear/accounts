@@ -624,7 +624,7 @@ def submit_wc07p (request, id):
 
     html = render_to_string('report/advanceReport.html', context)
     document_data_example= {
-        'login': 'z' + str(advance_report.empNum), # str, Логин пользователя исполнителя документа z00000 ? бывают длиннее
+        'login': 'z' + str(advance_report.empNum)[-5:], # str, Логин пользователя исполнителя документа z00000 ? бывают длиннее
         'div_no': str(advance_report.empDivNum).zfill(3), # str, Номер подразделения - откуда документ
         'document_number': str(advance_report.reportNum) + '2', # str, Номер бухгалтерского документа
         'document_date': advance_report.reportDate.strftime("%d.%m.%Y"), # str, Дата бухгалтерского документа

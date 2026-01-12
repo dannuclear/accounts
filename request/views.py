@@ -219,11 +219,11 @@ def submit_wc07p (request, id):
 
     html = render_to_string('request/report.html', context)
     document_data_example= {
-        'login': 'z' + str(applicant.empOrgNo), # str, Логин пользователя исполнителя документа z00000 ? бывают длиннее
+        'login': 'z' + str(applicant.empOrgNo)[-5:], # str, Логин пользователя исполнителя документа z00000 ? бывают длиннее
         'div_no': str(applicant.divNo).zfill(3), # str, Номер подразделения - откуда документ
         'document_number': str(req.num) + '2', # str, Номер бухгалтерского документа
         'document_date': req.createDate.strftime("%d.%m.%Y"), # str, Дата бухгалтерского документа
-        'template': 'REQUEST', # str, Название шаблона
+        'template': 'STATEMENT_ADVANCE', # str, Название шаблона
         'document_id_old': '', # str, Предыдущий документ, используется для копирования переписки/замечаний
         'document_characteristics': 'О запросе денег' # str, Информация о документе
     }
