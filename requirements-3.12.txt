@@ -1,0 +1,10 @@
+Django==4.2.16
+djangorestframework==3.14.0
+djangorestframework-datatables==0.6.0
+psycopg2-binary==2.9.9
+django-widget-tweaks==1.5.0
+num2words
+
+pyodbc
+dotenv
+weasyprint
