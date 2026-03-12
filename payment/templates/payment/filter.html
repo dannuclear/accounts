@@ -31,8 +31,8 @@
                     localStorage.setItem('paymentFilter', '');
             });
         {% else %}
-            periodFilter.find('button').on('click', function (e) {
-                periodFilter.find('input').val('')
+            paymentFilter.find('button').on('click', function (e) {
+                paymentFilter.find('input').val('')
             })
         {% endif %}
     })

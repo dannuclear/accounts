@@ -1,0 +1,30 @@
+<tr>
+  <td colspan="5">
+    <div style="border:2px solid #000; padding:8px; width:420px; font-weight:bold;">
+
+        <div style="text-align:center; margin-bottom:6px;">
+            ДОКУМЕНТ ПОДПИСАН<br>
+            ПРОСТОЙ ЭЛЕКТРОННОЙ ПОДПИСЬЮ
+        </div>
+
+        <div style="border-bottom:1px solid #000; padding-bottom:4px;">
+            Владелец: {{ owner }}
+        </div>
+
+        <div style="font-size:0.85em; margin-top:4px;">
+            Дата подписания:
+            {% if signDate %}
+                {{ signDate|date:"d.m.Y H.i.s" }}
+            {% else %}
+                {% now "d.m.Y H.i.s" %}
+            {% endif %}
+        </div>
+
+        <div style="font-size:0.85em;">
+            Система:
+            {{ signSystem|default:"XR96P" }}
+        </div>
+
+    </div>
+  </td>
+</tr>

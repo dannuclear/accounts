@@ -11,8 +11,9 @@
     <div class="col-3">
       {% include 'main/filters/period_filter.html' %}
     </div>
-    <div class="col-3">
-      {% include 'payment/filter.html' with options=payments %}
+    <div class="col-9">
+      {% comment %} {% include 'payment/filter.html' with options=payments %} {% endcomment %}
+      {% include 'payment/filter_select2.html' %}
     </div>
   </div>
 
@@ -104,9 +105,9 @@
               d.periodFieldName = 'paymentPrepayment__payment__createDate'
               d.periodTo = $('#period-to').val()
             }
-            if (paymentFilter.val()) {
+            if (paymentFilter.val() && paymentFilter.val().length) {
               d.paymentFieldName = 'paymentPrepayment__payment'
-              d.paymentId = paymentFilter.val()
+              d.paymentId = paymentFilter.val().join(',')
             }
             d.columns.push({ data: 'acplAccountDebit', searchable: true })
             d.columns.push({ data: 'acplSubaccountDebit', searchable: true })
@@ -250,8 +251,8 @@
       $('#approve-modal').on('click', '.ok-button', function (e) {
         var modal = $(e.delegateTarget)
         const modalDateInput = modal.find('input')
-        if (modalDateInput.val() && paymentFilter.val())
-          $.post(`{% url "payment_entries_approve" %}`, { csrfmiddlewaretoken: '{{ csrf_token }}', payment_ids: paymentFilter.val(), approve_date: modalDateInput.val() }).done(function (data) {
+        if (modalDateInput.val() && paymentFilter.val() && paymentFilter.val().length)
+          $.post(`{% url "payment_entries_approve" %}`, { csrfmiddlewaretoken: '{{ csrf_token }}', payment_ids: paymentFilter.val().join(','), approve_date: modalDateInput.val() }).done(function (data) {
             modal.modal('hide')
             requestTable.ajax.reload()
           })

@@ -36,19 +36,21 @@
     $(document).ready(function () {  
       var table = $('#request-table').DataTable({
         ajax: {
-          url: "{% url 'prepayment-list' %}?format=datatables",
+          url: "{% url 'prepayment-list' %}?format=datatables&noAccountingNumHide",
           data: function (d) {
             if (imprestAccountFilter && imprestAccountFilter.val()) d.imprestAccount = imprestAccountFilter.val()
             if ($('#period-from').val()) d.periodFrom = $('#period-from').val()
             if ($('#period-to').val()) d.periodTo = $('#period-to').val()
             d.filterType = 3
+            if (!d.order || !d.order.length) {
+                d.order = [{ column: 1, dir: 'asc' }];
+            }
           }
         },
         rowId: 'id',
-        order: [],
         columns: [
           { data: 'null', orderable: false, searchable: false, defaultContent: '' },
-          { data: 'reportAccountingNum', orderable: false, defaultContent: '' },
+          { data: 'reportAccountingNum', orderable: true, defaultContent: '' },
           { data: 'empFullName', orderable: false, defaultContent: '' },
           { data: 'empDivNum', orderable: false, defaultContent: '' },
           { data: 'empNum', orderable: false, defaultContent: '' },

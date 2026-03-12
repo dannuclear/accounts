@@ -1,5 +1,4 @@
 from django import template
-from distutils.util import strtobool
 
 register = template.Library()
 
@@ -40,8 +39,8 @@ def sorted_by_deleted (value):
     return value.forms
 
 def is_form_deleted (form):
-    isDeletedString = form.data.get('%s-DELETE' % form.prefix, 'False')
-    return strtobool('False' if isDeletedString == '' else isDeletedString)
+    value = form.data.get('%s-DELETE' % form.prefix, 'False')
+    return value.lower() in ('true', '1', 'on')
 
 months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь']
 @register.filter

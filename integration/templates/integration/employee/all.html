@@ -6,6 +6,37 @@
 
 {% block content %}
   <div class="alert alert-primary" role="alert" style="display: none;"></div>
+
+  <div class="modal fade" id="payment-info-dialog" tabindex="-1" aria-labelledby="payment-info-dialog-title" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="payment-info-dialog-title">Выплатная информация</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body container-fluid">
+            <div class="row p-1">
+                <table class="table table-sm table-bordered table-striped mb-0">
+                  <thead class="table-light">
+                      <tr>
+                          <th style="width:50px;">#</th>
+                          <th>БИК</th>
+                          <th>Счёт</th>
+                      </tr>
+                  </thead>
+                  <tbody id="payment-info-table-body">
+
+                  </tbody>
+              </table>
+            </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ok</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
   <table id="employee-table" class="table table-sm table-bordered table-striped table-hover table-header-sm">
     <thead>
       <tr>
@@ -19,6 +50,7 @@
         <th style="width: 6rem">Изменения</th>
         <th style="width: 6rem">Увольнение</th>
         <th style="width: 6rem">СНИЛС</th>
+        <th style="width: 2rem"></th>
         {% comment %} <th style="width: 6rem">Лицевой счет</th> {% endcomment %}
       </tr>
     </thead>
@@ -63,9 +95,18 @@
           {
             data: 'snils'
           },
-          //{
-          //  data: 'accountNumber'
-          //}
+          {
+              data: 'accountNumber',
+              defaultContent: '',
+              orderable: false,
+              searchable: false,
+              className: 'text-center align-middle px-1',
+              render: function (data, type, row) {
+                  if (!data)
+                      return ''
+                  return `<a href="#" data-bs-toggle="modal" data-bs-target="#payment-info-dialog" data-payment-info="${data}" title="Выплатная информация"><i class="fa-duotone fa-xl fa-credit-card"></i></a>`
+              }
+          }
         ],
         buttons: [
           {
@@ -90,6 +131,35 @@
           }
         ]
       })
+
+      const modal = document.getElementById('payment-info-dialog');
+
+      modal.addEventListener('show.bs.modal', function (event) {
+          const button = event.relatedTarget;
+          const rawData = button.dataset.paymentInfo;
+
+          const tbody = modal.querySelector('#payment-info-table-body');
+          tbody.innerHTML = '';
+
+          if (!rawData) {
+              return;
+          }
+
+          const parsed = rawData.split(';').map(function(item) {
+              const [bik, account] = item.split(':');
+              return { bik, account };
+          });
+
+          parsed.forEach(function(item, index) {
+              tbody.innerHTML += `
+                  <tr>
+                      <td>${index + 1}</td>
+                      <td>${item.bik}</td>
+                      <td>${item.account}</td>
+                  </tr>
+              `;
+          });
+      });
     })
   </script>
 {% endblock %}

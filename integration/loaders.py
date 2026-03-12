@@ -10,7 +10,8 @@ employeeFields = ['empOrgNo', 'divNo', 'persId', 'pfnSurname', 'pfnName',
 prepaymentFields = ['pdId', 'pdSource', 'empOrgNo', 'xv26eiId', 'orderId',
                     'orderIdUpd', 'orderNo', 'orderDate', 'bic', 'sum', 'acplAccount', 'acplSubaccount']
 wc07pOrderFields = ['orderName', 'orderId', 'orderNum', 'orderDate', 'empOrgNo', 'depName', 'fio', 'profName',
-                    'distName', 'missionBegin', 'missionEnd', 'missionPurpose', 'estimateId', 'payDoc', 'orderIdUpd']
+                    'distName', 'missionBegin', 'missionEnd', 'missionPurpose', 'estimateId', 'payDoc', 'orderIdUpd',
+                    'advanceSum', 'bik', 'balanceAccount', 'advanceDate']
 
 csv.register_dialect(
     "default_dialect",
@@ -23,6 +24,7 @@ csv.register_dialect(
     lineterminator="\r\n",
 )
 
+
 def get_fields(file_type):
     if file_type == FileType.ESTIMATE:
         return estimateFields
@@ -33,6 +35,7 @@ def get_fields(file_type):
     elif file_type == FileType.WC07P_ORDER:
         return wc07pOrderFields
     return None
+
 
 def create_object(file_type, data):
     if file_type == FileType.ESTIMATE:
@@ -45,6 +48,7 @@ def create_object(file_type, data):
         return WC07POrder(**data)
     return None
 
+
 def load(path, _type):
     def clean_snils(data):
         if 'snils' in data and data['snils']:
@@ -54,7 +58,7 @@ def load(path, _type):
         sample = file.read(4048)
         if not sample:
             raise Exception('Файл %s пустой' % path)
-        #dialect = csv.Sniffer().sniff(sample, delimiters='\t')
+        # dialect = csv.Sniffer().sniff(sample, delimiters='\t')
         file.seek(0)
         fields = get_fields(_type)
         if fields is None:

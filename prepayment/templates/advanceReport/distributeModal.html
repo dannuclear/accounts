@@ -23,7 +23,8 @@
     <div class="col-1"></div>
     <div class="col-2">{{ form.distribCarryover|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</div>
     <div class="col-4 text-end">переходящий остаток. Номер А.О.</div>
-    <div class="col-2">{{ form.distribCarryoverReportNum|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</div>
+    {% comment %} <div class="col-2">{{ form.distribCarryoverReportNum|add_class:'form-control form-control-sm'|attr:'autocomplete:off' }}</div> {% endcomment %}
+    <div class="col-2"><input type="text" class="form-control form-control-sm" value="{{ carryover_request.num }}" disabled></input></div>
     <div class="col-3"></div>
 
     <div class="col-1"></div>

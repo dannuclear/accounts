@@ -1,0 +1,31 @@
+<div class="input-group input-group-sm">
+  <span class="input-group-text">Реестр</span>
+  <select id="payment-filter" class="form-select-sm filter-input" multiple="multiple"></select>
+</div>
+
+<script type="text/javascript">
+  const paymentFilter = $('#payment-filter')
+  $(document).ready(function () {
+    $('#payment-filter').select2({
+      ajax: {
+        url: '{% url "payment-list" %}?format=json',
+        dataType: 'json',
+        data: function (params) {
+          return { q: params.term }
+        },
+        processResults: function (data) {
+          return {
+            results: data.results.map((el) => ({ id: el.id, text: el.id + ' - ' + el.name }))
+          }
+        }
+      },
+      allowClear: true,
+      placeholder: 'Реестр',
+      language: {
+        noResults: function (params) {
+          return 'Нет совпадений'
+        }
+      }
+    })
+  })
+</script>

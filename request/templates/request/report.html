@@ -25,7 +25,7 @@
         margin: 10mm;
       }
       table {
-        font-size: 14pt;
+        font-size: 16pt;
       }
       
       table.header-table {
@@ -289,19 +289,32 @@
                 <td colspan="3">
                   <table class="w-100">
                     <tbody>
-                      {% with receivingDate=req.receivingDate|date:'d.m.Y'|default_if_none:'' %}
-                        {% include 'request/signRow.html' with signUnder='(подпись подотчетного лица)' showDate='n' title='Предполагаемая дата получения денежных средств: '|add:receivingDate|add:' Способ получения: '|add:req.obtainMethod.name %}
-                      {% endwith %}
-                      {% with divNo=req.applicant.divNo|stringformat:'03d'|default_if_none:'___' %}
-                        {% include 'request/signRow.html' with title='Решение начальника структурного подразделения № '|add:divNo|add:'   __________________________________' %}
-                      {% endwith %}
-                      {% include 'request/signRow.html' with title='Решение начальника финансового отдела '|add:'   __________________________________' %}
-                      <tr>
-                        <td>СОГЛАСОВАННО</td>
-                      </tr>
-                      {% include 'request/signRow.html' with title='Главный бухгалтер комбината' %}
-                      {% include 'request/signRow.html' with title='Заместитель генерального директора по логистике' %}
-                      {% include 'request/signRow.html' with title='Начальник ОМТСКО' %}
+                      {% if ecp|default:False == False %}
+                        {% with receivingDate=req.receivingDate|date:'d.m.Y'|default_if_none:'' %}
+                          {% include 'request/signRow.html' with signUnder='(подпись подотчетного лица)' showDate='n' title='Предполагаемая дата получения денежных средств: '|add:receivingDate|add:' Способ получения: '|add:req.obtainMethod.name %}
+                        {% endwith %}
+                        {% with divNo=req.applicant.divNo|stringformat:'03d'|default_if_none:'___' %}
+                          {% include 'request/signRow.html' with title='Решение начальника структурного подразделения № '|add:divNo|add:'   __________________________________' %}
+                        {% endwith %}
+                        {% include 'request/signRow.html' with title='Решение начальника финансового отдела '|add:'   __________________________________' %}
+                        <tr>
+                          <td>СОГЛАСОВАННО</td>
+                        </tr>
+                        {% include 'request/signRow.html' with title='Главный бухгалтер комбината' %}
+                        {% include 'request/signRow.html' with title='Заместитель генерального директора по логистике' %}
+                        {% include 'request/signRow.html' with title='Начальник ОМТСКО' %}
+                      {% else %}
+                        <tr style="height: 30px;">
+                          {% with receivingDate=req.receivingDate|date:'d.m.Y'|default_if_none:'' %}
+                            <td class="text-left" colspan="5" style="width: 80px;">{{ 'Предполагаемая дата получения денежных средств: '|add:receivingDate|add:' Способ получения: '|add:req.obtainMethod.name }}</td>
+                          {% endwith %}
+                        </tr>
+                        <tr style="height: 30px;">
+                          {% with owner=req.applicant.pfnSurname|add:' '|add:req.applicant.pfnName|add:' '|add:req.applicant.pfnPatronymic|default_if_none:'' %}
+                            {% include 'request/ecpRow.html' with owner=owner %}
+                          {% endwith %}
+                        </tr>
+                      {% endif %}
                     </tbody>
                   </table>
                 </td>
@@ -325,8 +338,16 @@
                 <td colspan="3">
                   <table class="w-100">
                     <tbody>
-                      {% include 'request/signRow.html' with title='Работник' %}
-                      {% include 'request/signRow.html' with title='Руководитель организации' %}
+                      {% if ecp|default:False == False %}
+                        {% include 'request/signRow.html' with title='Работник' %}
+                        {% include 'request/signRow.html' with title='Руководитель организации' %}
+                      {% else %}
+                        <tr style="height: 30px;">
+                          {% with owner=req.applicant.pfnSurname|add:' '|add:req.applicant.pfnName|add:' '|add:req.applicant.pfnPatronymic|default_if_none:'' %}
+                            {% include 'request/ecpRow.html' with owner=owner %}
+                          {% endwith %}
+                        </tr>
+                      {% endif %}
                     </tbody>
                   </table>
                 </td>

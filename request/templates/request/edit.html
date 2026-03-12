@@ -28,12 +28,16 @@
       </div>
 
       <div class="col-2">
-        {% if perms.request.submit_wc07p %}
+        {% if perms.request.submit_wc07p and form.status.value == 3 %}
           <button id="wc07p-btn" type="button" class="btn btn-success btn-sm ms-auto me-1" data-url="{% url 'submit_wc07p' form.id.value %}"><i class="fa-light fa-floppy-disk pe-2"></i>Отправить WC07P</button>
         {% endif %}
       </div>
 
-      <div class="col-6"></div>
+      <div class="col-6">
+        {% if form.instance.wc07p_id != None %}
+          <div class="badge bg-danger text-wrap">ОТПРАВЛЕНО НА СОГЛАСОВАНИЕ ID: {{ form.instance.wc07p_id }}</div>
+        {% endif %}
+      </div>
 
       <div class="col-3">
         <div class="input-group input-group-sm">
@@ -182,7 +186,14 @@
         const url = $(this).data('url')
         const csrfToken = $('input[name="csrfmiddlewaretoken"]').val()
         const id = $('input[name="id"]').val()
-    
+
+        const wc07pId = "{{ form.instance.wc07p_id|default:'' }}"
+        if (wc07pId) {
+          if (!confirm('Документ уже отправлен на согласование.\nОтправить повторно?')) {
+              return
+          }
+        }
+
         $.ajax({
           url: url,
           type: 'POST',

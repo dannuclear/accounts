@@ -12,13 +12,13 @@
     <div class="col-4">
       <div class="input-group input-group-sm">
         <span class="input-group-text">АО</span>
-        <input type="text" class="form-control" value="{{ prepayment.distribCarryoverReportNum|default_if_none:"" }}" disabled />
+        <input type="text" class="form-control" value="{{ prepayment.docNum|default_if_none:"" }}" disabled />
       </div>
     </div>
     <div class="col-4">
       <div class="input-group input-group-sm">
         <span class="input-group-text">Дата</span>
-        <input type="text" class="form-control" value="{{ prepayment.approveDate|default_if_none:"" }}" disabled />
+        <input type="text" class="form-control" value="{{ prepayment.docDate|date:"d.m.Y"|default_if_none:"" }}" disabled />
       </div>
     </div>
   </div>

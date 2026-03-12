@@ -4,8 +4,8 @@ from .models import Prepayment, PrepaymentPurpose, ExpenseCode, PrepaymentItem, 
 from guide.models import ObtainMethod
 from guide.models import Status, ImprestAccount, Document, PrepaidDest, ExpenseCategory, ExpenseItem
 from integration.models import Employee, WC07POrder
+from request.models import Request
 from main.helpers import is_user_in_group
-from distutils.util import strtobool
 from main.fields import CachedModelChoiceField
 
 
@@ -100,10 +100,12 @@ class PrepaymentForm (forms.ModelForm):
     comment = forms.CharField(label='Приложения', required=False)
 
     carryOverAdvanceReportDate = MyDateField(label='Дата', localize=True, required=False)
+    
+    request = forms.IntegerField(label="Заявление", required=False, disabled=True)
 
     class Meta:
         model = Prepayment
-        fields = ['id', 'document', 'docNum', 'docDate', 'empNum', 'empSurname', 'empName', 'empPatronymic', 'empFullName', 'empProfName', 'empDivNum', 'phone', 'totalSum', 'carryOverSum', 'carryOverAdvanceReportNum', 'carryOverAdvanceReportDate', 'imprestAccount', 'status', 'orderChanges', 'orderChangeNum', 'orderChangeDate']
+        fields = ['id', 'document', 'docNum', 'docDate', 'empNum', 'empSurname', 'empName', 'empPatronymic', 'empFullName', 'empProfName', 'empDivNum', 'phone', 'totalSum', 'carryOverSum', 'carryOverAdvanceReportNum', 'carryOverAdvanceReportDate', 'imprestAccount', 'status', 'orderChanges', 'orderChangeNum', 'orderChangeDate', 'request']
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
@@ -115,12 +117,26 @@ class PrepaymentForm (forms.ModelForm):
 
         if is_user_in_group(self.user, ['Администратор']):
             self.fields['status'].queryset = Status.objects.filter(pk__in=[1, 3, 5]).order_by('id')
+            self.fields['request'].disabled = False
         elif is_user_in_group(self.user, ['Подотчетное лицо', 'Подотчетное лицо с расширенным функционалом', 'Руководитель']):
             self.fields['status'].queryset = Status.objects.filter(pk__in=[1]).order_by('id')
         elif is_user_in_group(self.user, ['Бухгалтер']):
             self.fields['status'].queryset = Status.objects.filter(pk__in=[3, 5]).order_by('id')
+            if self.instance.request is None:
+                self.fields['request'].disabled = False
         else:
             self.fields['status'].queryset = Status.objects.filter(pk__in=[1]).order_by('id')
+    
+    def clean_request(self):
+        request_id = self.cleaned_data.get('request')
+
+        if not request_id:
+            return None
+
+        try:
+            return Request.objects.get(pk=request_id)
+        except Request.DoesNotExist:
+            raise forms.ValidationError("Заявление не найдено")
 
 
 class PrepaymentItemForm(forms.ModelForm):

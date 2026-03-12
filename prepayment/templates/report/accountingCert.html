@@ -81,7 +81,7 @@
                   <tbody>
                     <tr>
                       <td class="text-center" style="width: 40px;">к АО</td>
-                      <td class="text-center border-bottom border-dark">{{ prepayment.reportNum|default_if_none:"" }}</td>
+                      <td class="text-center border-bottom border-dark">{{ prepayment.reportNum|default_if_none:"" }}2</td>
                       <td class="text-center" style="width: 50px;">таб. №</td>
                       <td class="text-center border-bottom border-dark" style="width: 90px">{{ prepayment.empNum|default_if_none:"" }}</td>
                       <td class="text-center" style="width: 50px;">(ФИО)</td>
@@ -160,7 +160,7 @@
                       <td class="text-center" style="width: 80px;">Бухгалтер</td>
                       <td class="border-bottom border-dark" style="width: 130px;"></td>
                       <td style="width: 10px;"></td>
-                      <td class="border-bottom border-dark" style="width: 130px;"></td>
+                      <td class="border-bottom border-dark text-center" style="width: 130px;">{% if accountant is not None %}{{ accountant.pfnSurname|add:' '|add:accountant.pfnName|add:' '|add:accountant.pfnPatronymic|default_if_none:'' }}{% endif %}</td>
                     </tr>
                     <tr style="line-height: 12px;">
                       <td></td>
@@ -168,6 +168,14 @@
                       <td></td>
                       <td class="text-center" style="font-size: 0.8em;">расшифровка подписи</td>
                     </tr>
+                    {% if prepayment.document is not None %}
+                      <tr style="height: 30px;">
+                        <td class="text-center" style="width: 80px;">{% if prepayment.document_id == 14 %}Приказ{% elif prepayment.document_id == 5 %}Заявление{% endif %} №</td>
+                        <td class="border-bottom border-dark text-center" style="width: 130px;">{{ prepayment.docNum }}</td>
+                        <td style="width: 10px;"></td>
+                        <td class="border-bottom border-dark text-center" style="width: 130px;"> от {{ prepayment.docDate|date:"d.m.Y" }}</td>
+                      </tr>
+                    {% endif %}
                   </tbody>
                 </table>
               </td>

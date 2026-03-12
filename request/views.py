@@ -22,7 +22,7 @@ from main.helpers import is_user_in_group
 from main.models import Settings
 import decimal
 import os
-
+from django.conf import settings
 from weasyprint import HTML
 # Create your views here.
 
@@ -47,6 +47,14 @@ class RequestViewSet (viewsets.ModelViewSet):
             self.filter_backends.insert(0, DepartmentFilter)
         elif self.request.user.has_perm('request.view_owner_requests') and not self.request.user.is_superuser:
             self.filter_backends.insert(0, UserFilter)
+
+        if 'empNum' in self.request.query_params:
+            emp_num = self.request.query_params.get('empNum')
+            if emp_num and emp_num != '-1':
+                queryset = queryset.filter(
+                    applicant__empOrgNo__endswith=emp_num,
+                    prepayment_id__isnull=True
+                )
 
         return super().filter_queryset(queryset)
 
@@ -198,14 +206,17 @@ def htmlReport(request, id):
 def pdfReport(request, id):
     context = get_report_context(id)
     html = render_to_string('request/report.html', context)
-    pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
+    # pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
+    pdf = HTML(string=html).write_pdf(stylesheets=[settings.BASE_DIR + '/static/main/css/bootstrap4.min.css'])
+
     return HttpResponse(pdf, content_type='application/pdf')
 
 def submit_wc07p (request, id):
-    settings = Settings.objects.first()
-    if not settings.outputDir:
+    __settings = Settings.objects.first()
+    if not __settings.outputDir:
         return HttpResponseBadRequest('Настройте папку для исходящих документов')
     context = get_report_context(id)
+    context['ecp'] = True
     req = context.get('req')
     applicant = req.applicant
     if not applicant:
@@ -227,11 +238,12 @@ def submit_wc07p (request, id):
         'document_id_old': '', # str, Предыдущий документ, используется для копирования переписки/замечаний
         'document_characteristics': 'О запросе денег' # str, Информация о документе
     }
-
+    
     try:
         filename = datetime.now().strftime('REQUEST_%Y-%m-%d_%H-%M-%S.pdf')
-        pdf_file_path = os.path.join(settings.outputDir, filename)
-        HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(target=pdf_file_path)
+        pdf_file_path = os.path.join(__settings.outputDir, filename)
+        #HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(target=pdf_file_path)
+        HTML(string=html).write_pdf(target=pdf_file_path, stylesheets=[settings.BASE_DIR + '/static/main/css/bootstrap4.min.css'])
         file_item = {
             'file_path': pdf_file_path,         # полный путь к файлу
             'sign': 'Ф',                        # Ф — бухгалтерский документ

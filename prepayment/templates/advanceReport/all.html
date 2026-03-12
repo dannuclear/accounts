@@ -13,10 +13,12 @@
     </div>
     {% if statuses %}
         <div class="col-3">
-            {% include 'status/status_filter.html' with options=statuses %}
+            {% include 'status/status_filter.html' with options=statuses not_defined=True %}
         </div>
     {% endif %}
 </div>
+
+{% include 'request/variant_dialog.html' %}
 
 {% include 'advanceReport/emp_num_dialog.html' %}
 
@@ -142,9 +144,10 @@
                         {% if request.GET.imprestAccount == '7103' %}
                         {
                             data: null, orderable: false, className: 'text-center align-middle px-1', render: function (data, type, row) {
-                                if (!data.distribCarryover || !data.reportStatus || data.reportStatus.id != 5)
+                                if (!data.distribCarryover || !data.reportStatus || (data.reportStatus.id != 5 && data.reportStatus.id != 3))
                                     return ''
-                                return `<a class="text-success m-0" href="{% url 'requests' %}/new?type=1&carryoverId=${data.id}" title="Создать заявку для переходящего остатка в ${data.distribCarryover} руб." onclick="return confirm('Создать заявку для переходящего остатка в ${data.distribCarryover} руб.?');"><i class="fa-duotone fa-file-signature fa-xl"></i></a>`
+                                //return `<a class="text-success m-0" href="{% url 'requests' %}/new?type=1&carryoverId=${data.id}" title="Создать заявку для переходящего остатка в ${data.distribCarryover} руб." onclick="return confirm('Создать заявку для переходящего остатка в ${data.distribCarryover} руб.?');"><i class="fa-duotone fa-file-signature fa-xl"></i></a>`
+                                return `<a class="text-success m-0" href="#" data-bs-toggle="modal" data-bs-target="#request-variant-dialog" data-carryover-id="${data.id}" title="Создать заявку для переходящего остатка в ${data.distribCarryover} руб."><i class="fa-duotone fa-file-signature fa-xl"></i></a>`
                             }
                         },
                         {% endif %}

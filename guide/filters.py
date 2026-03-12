@@ -60,7 +60,7 @@ class StatusFilter(BaseFilterBackend):
         status_field = request.query_params.get("statusField", "status__id")
 
         if status_filter:
-            filter_dict = {status_field: status_filter}
+            filter_dict = {status_field: None if status_filter == '-1' else status_filter}
             queryset = queryset.filter(**filter_dict)
     
         return queryset

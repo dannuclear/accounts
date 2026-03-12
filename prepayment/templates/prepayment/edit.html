@@ -33,6 +33,21 @@
           </div>
         </div>
       </div>
+      <div class="col-12 border rounded p-1">
+        <p class="h3 m-0">Заявление:</p>
+        <div class="col-7">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">
+              Заявление
+            </span>
+            <select id="id_request" name="request" class="text-left form-select-sm" {% if form.request.field.disabled %}disabled{% endif %}>
+              <option value="{{ form.instance.request.id }}" selected>
+                  {{ form.instance.request.num }} - {{ form.instance.request.createDate|date:'d.m.y' }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
 
       <div class="col-12 border rounded p-1">
         <p class="h3 m-0">Документ: 
@@ -40,7 +55,7 @@
             <i class="fa-light fa-link" title="Связь с загруженным документом: ({{ form.instance.wc07pOrder.orderId }}) {{ form.instance.wc07pOrder.orderName }} № {{ form.instance.wc07pOrder.orderNum }}" style="color: #2d9efb;"></i>
           {% endif %}
           {% if form.instance.request is not None %}
-            <i class="fa-light fa-link" title="Загружено из заявления: ({{ form.instance.request.id }}) № {{ form.instance.request.num }} {{ form.instance.request.createDate }}" style="color: #2d9efb;"></i>
+            <i class="fa-light fa-link" title="Связано с заявлением: ({{ form.instance.request.id }}) № {{ form.instance.request.num }} {{ form.instance.request.createDate }}" style="color: #2d9efb;"></i>
           {% endif %}
         </p>
 
@@ -276,6 +291,32 @@
       })
 
       $('.datepeeker').datepicker()
+
+      $('#id_request').select2({
+        ajax: {
+          url: function() {
+            const base = '{% url "request-list" %}?format=json';
+            const empNum = document.querySelector('#emp-num-input')?.value || -1;
+            return `${base}&empNum=${empNum}`;
+          },
+          dataType: 'json',
+          data: function (params) {
+            return { q: params.term }
+          },
+          processResults: function (data) {
+            return {
+              results: data.results.map((el) => ({ id: el.id, text: el.num + ' - ' + el.createDate }))
+            }
+          }
+        },
+        allowClear: true,
+        placeholder: 'Заявление',
+        language: {
+          noResults: function (params) {
+            return 'Нет совпадений'
+          }
+        }
+      })
 
       $('#emp-num-search').on('click', function(e) {
         const empNum = $('#emp-num-input').val()

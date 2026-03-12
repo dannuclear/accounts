@@ -11,7 +11,7 @@ from prepayment.models import Prepayment, PrepaymentItem
 from django.http.response import HttpResponse, HttpResponseBadRequest, StreamingHttpResponse
 from .forms import PaymentPrepaymentForm, PaymentForm, PaymentEntryForm
 from .models import Payment, PaymentPrepayment, PaymentEntry
-from django.db.models import Count, Sum, Avg, Max, Min, Subquery, OuterRef, Case, When, Value, IntegerField
+from django.db.models import Count, Sum, Avg, Max, Min, Subquery, OuterRef, Case, When, Value, IntegerField, Q
 import xml.etree.ElementTree as ET
 from num2words import num2words
 from django.db import connection
@@ -330,8 +330,8 @@ def download(request):
             obtain_method.clientContractNumber,
             obtain_method.clientContractDate,
             obtain_method.clientFullName,
-            obtain_method.clientAccountNumber,
             obtain_method.clientINN,
+            obtain_method.clientAccountNumber,
             obtain_method.bik,
             queryset)
         response = HttpResponse(xml_result, content_type='application/xml; charset=cp1251')
@@ -424,7 +424,7 @@ def sbp_file_generator(bank_type, payment_dest, date, register_counter, client_n
         ET.SubElement(employee, 'Фамилия').text = item.get('prepaymentItem__prepayment__empSurname') or full_name_parts[0]
         ET.SubElement(employee, 'Имя').text = item.get('prepaymentItem__prepayment__empName') or full_name_parts[1]
         ET.SubElement(employee, 'Отчество').text = item.get('prepaymentItem__prepayment__empPatronymic') or full_name_parts[2]
-        if bank_type == 3: # Сбербанк
+        if bank_type and int(bank_type) == 3: # Сбербанк
             ET.SubElement(employee, 'ОтделениеБанка').text = client_number
         ET.SubElement(employee, 'ЛицевойСчет').text = item['accountNumber']
         ET.SubElement(employee, 'Сумма').text = str(item['total_sum'])
@@ -464,12 +464,13 @@ def create_entries(payment_ids, delete=True):
 
 @require_POST
 def approve_entries(request):
-    payment_ids = request.POST.getlist('payment_ids')
+    payment_ids_string = request.POST.getlist('payment_ids')
     approve_date = request.POST.get('approve_date')
-    if payment_ids is None or len(payment_ids) == 0 or approve_date is None:
+    if payment_ids_string is None or len(payment_ids_string) == 0 or approve_date is None:
         return HttpResponseBadRequest('Не выбраны реестры')
     parsed = datetime.strptime(approve_date, '%d.%m.%Y')
-    PaymentEntry.objects.filter(paymentPrepayment__payment__in=payment_ids, status__lt=1).update(status=1, approveDate=parsed, approveBy=request.user.username)
+    payment_ids = payment_ids_string[0].split(',')
+    PaymentEntry.objects.filter(Q(status__lt=1) | Q(status__isnull=True), paymentPrepayment__payment__in=payment_ids).update(status=1, approveDate=parsed, approveBy=request.user.username)
     return HttpResponse('success')
 
 @require_POST

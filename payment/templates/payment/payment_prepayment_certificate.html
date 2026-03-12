@@ -80,7 +80,7 @@
         <div class="col-12">
           <table class="w-100 header-table">
             <th scope="col" style="width: 40%;">
-              {% include 'payment/certificate_header.html' with number=num %}
+              {% include 'payment/certificate_header.html' with number=num date=payment.fileDateTime %}
             </th>
             <th scope="col" colspan="3" class="text-right">В финансовый отдел</th>
             <tr class="align-bottom" style="height: 100;">

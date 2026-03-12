@@ -14,7 +14,8 @@ class PaymentFilter(BaseFilterBackend):
 
         filter_kwargs = {}
         if payment_id is not None:
-            filter_kwargs["%s" % (field_name)] = payment_id
+            payment_ids = payment_id.split(',')
+            filter_kwargs["%s__in" % (field_name)] = payment_ids
         if has_payment is not None:
             filter_kwargs["%s__isnull" % (field_name)] = (True if has_payment == 'True' else False)
 

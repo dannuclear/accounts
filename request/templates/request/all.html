@@ -13,7 +13,7 @@
     </div>
     {% if statuses %}
         <div class="col-3">
-            {% include 'status/status_filter.html' with options=statuses %}
+            {% include 'status/status_filter.html' with options=statuses not_defined=True  %}
         </div>
     {% endif %}
     <div class="col-4">
@@ -49,32 +49,7 @@
     </thead>
   </table>
 
-  <div class="modal fade" id="request-variant-dialog" tabindex="-1" aria-labelledby="requestVariantDialogLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="requestVariantDialog">Вариант заявления на выдачу аванса</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="container">
-            <div class="row p-1">
-              <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=0">Аванс на приобретение ТМЦ, работ, услуг</a>
-            </div>
-            <div class="row p-1">
-              <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=1">Аванс на приобретение ГСМ</a>
-            </div>
-            <div class="row p-1">
-              <a class="btn btn-outline-secondary btn-block" href="{% url 'requests' %}/new?type=2">Аванс на оплату расходов в служебной поездке</a>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  {% include 'request/variant_dialog.html' %}
 
   <script type="text/javascript">
     const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ', 'Аванс на оплату расходов в служебной поездке']

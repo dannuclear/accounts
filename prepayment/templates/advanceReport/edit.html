@@ -75,12 +75,16 @@
             </div>
           </div>
 
-          <div class="col-2">
-            {% if perms.prepayment.submit_wc07p %}
+          <div class="col-auto">
+            {% if perms.prepayment.submit_wc07p and form.reportStatus.value == 3 %}
               <button id="wc07p-btn" type="button" class="btn btn-success btn-sm ms-auto me-1" data-url="{% url 'advance_report_submit_wc07p' form.instance.id %}"><i class="fa-light fa-floppy-disk pe-2"></i>Отправить WC07P</button>
             {% endif %}
           </div>
-
+          <div class="col-auto">
+            {% if form.instance.wc07p_id != None %}
+              <div class="badge bg-danger text-wrap">ОТПРАВЛЕНО ID: {{ form.instance.wc07p_id }}</div>
+            {% endif %}
+          </div>
           <div class="col-xl-2 col-md-2 ms-auto">
             {% include 'main/input_group.html' with field=form.reportStatus inputClass='text-center form-select' %}
           </div>
@@ -231,7 +235,7 @@
         <ul class="nav nav-tabs w-100" id="myTab" style="font-size: 0.8em;" role="tablist">
           {% if form.instance.imprestAccount_id != 7104 and form.instance.imprestAccount_id != 7106 %}
             <li class="nav-item" role="presentation">
-              <button class="nav-link active h-100 me-1 {% if travelExpenses|length %}bg-success-subtle{% endif %}" id="tab-1" data-bs-toggle="tab" data-bs-target="#tab-content-1" type="button" role="tab" aria-controls="tab-content-1" aria-selected="true">Командировочные расходы</button>
+              <button class="nav-link h-100 me-1 {% if travelExpenses|length %}bg-success-subtle{% endif %}" id="tab-1" data-bs-toggle="tab" data-bs-target="#tab-content-1" type="button" role="tab" aria-controls="tab-content-1" aria-selected="true">Командировочные расходы</button>
             </li>
             <li class="nav-item" role="presentation">
               <button class="nav-link h-100 me-1 {% if orgServices|length %}bg-success-subtle{% endif %}" id="tab-2" data-bs-toggle="tab" data-bs-target="#tab-content-2" type="button" role="tab" aria-controls="tab-content-2" aria-selected="false">Расходы, оплаченные организацией за услуги проезда,<br />проживания подотчетного лица и пр.услуги</button>
@@ -492,6 +496,7 @@
       // При показе таба обновляем итоги
       $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
         updateTotal($(e.target.dataset.bsTarget))
+        window.location.hash = e.target.id;
       })
 
       // Добавить элемент авансового отчета
@@ -558,11 +563,7 @@
         updateTotal(e.delegateTarget)
       })
 
-      window.location.hash && $(window.location.hash).tab('show');
-
-      $('.nav-tabs button').click(function (e) {
-        window.location.hash = e.target.id;
-      });
+      $(window.location.hash ? window.location.hash : '#tab-1').tab('show');
 
       // Обработчик выбора наименования расхода для командировок
       $('#tab-content-1').on('change', '[id$="expenseCategory"]', function (e) {

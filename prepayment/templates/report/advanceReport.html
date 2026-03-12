@@ -24,7 +24,7 @@
         font-family: TimesNewRoman;
       }
       table {
-        font-size: 10pt;
+        font-size: 13pt;
       }
 
       table.header-table {
@@ -136,7 +136,7 @@
               <td>
                 <div class="d-flex align-items-end">
                   <div class="font-weight-bold pr-1">Руководитель</div>
-                  <div class="border-bottom border-dark flex-grow-1 text-center">{{ report.imprestAccount.printChiefPost|default_if_none:"начальник финансового отдела" }}</div>
+                  <div class="border-bottom border-dark flex-grow-1 text-center">{{ report.imprestAccount.printChiefPost|default_if_none:"" }}</div>
                 </div>
               </td>
             </tr>
@@ -267,11 +267,11 @@
                       <td class="border-bottom border-dark text-center align-bottom" style="min-width: 50px;"></td>
                       <td class="align-bottom text-center" style="width: 70px;">Приказ</td>
                       <td class="border-bottom border-dark text-center align-bottom" style="min-width: 50px;">
-                        {% if report.document_id == 14 %}{{ report.docNum }}{% endif %}
+                        {% if report.document_id == 14 %}{{ report.docNum }} от {{ report.docDate|date:"d.m.Y" }}{% endif %}
                       </td>
                       <td class="align-bottom text-center" style="width: 180px;">Номер заявки в ЕОСДО</td>
                       <td class="border-bottom border-dark text-center align-bottom" style="min-width: 50px;">
-                        {% if report.document_id == 5 %}{{ report.docNum }}{% endif %}
+                        {% if report.document_id == 5 %}{{ report.docNum }} от {{ report.docDate|date:"d.m.Y" }}{% endif %}
                       </td>
                     </tr>
                   </tbody>
@@ -474,18 +474,24 @@
               <td colspan="2">
                 <table class="w-50" style="margin: 0 auto;">
                   <tbody>
-                    <tr style="height: 30px;">
-                      <td class="text-center" style="width: 130px;">Подотчетное лицо</td>
-                      <td class="border-bottom border-dark" style="width: 130px;"></td>
-                      <td style="width: 10px;"></td>
-                      <td class="border-bottom border-dark" style="width: 130px;"></td>
-                    </tr>
-                    <tr style="line-height: 12px;">
-                      <td></td>
-                      <td class="text-center" style="font-size: 0.8em;">подпись</td>
-                      <td></td>
-                      <td class="text-center" style="font-size: 0.8em;">расшифровка подписи</td>
-                    </tr>
+                      {% if ecp|default:False == False %}
+                        <tr style="height: 30px;">
+                          <td class="text-center" style="width: 130px;">Подотчетное лицо</td>
+                          <td class="border-bottom border-dark" style="width: 130px;"></td>
+                          <td style="width: 10px;"></td>
+                          <td class="border-bottom border-dark text-center" style="width: 190px;">{{ report.empFullName }}</td>
+                        </tr>
+                        <tr style="line-height: 12px;">
+                          <td></td>
+                          <td class="text-center" style="font-size: 0.8em;">подпись</td>
+                          <td></td>
+                          <td class="text-center" style="font-size: 0.8em;">расшифровка подписи</td>
+                        </tr>
+                      {% else %}
+                        <tr style="height: 30px;">
+                          {% include 'request/ecpRow.html' with owner=report.empFullName %}
+                        </tr>
+                      {% endif %}
                   </tbody>
                 </table>
               </td>
@@ -553,6 +559,17 @@
                         <td class="border border-dark text-center">{{ report.distribPKONum|default_if_none:"" }}</td>
                       </tr>
                     {% endif %}
+                    {% if report.distribCarryover is not None %}
+                      <tr>
+                        <td colspan="10"></td>
+                      </tr>
+                      <tr style="height: 30px;">
+                        <td></td>
+                        <td class="border border-dark text-center" style="width: 100px;">{{ report.distribCarryover|default_if_none:"" }}</td>
+                        <td class="text-center" style="width: 300px;">переходящий остаток. Номер А.О.</td>
+                        <td colspan="4" class="border border-dark text-center">{{ carryover_request.num|default_if_none:"" }}</td>
+                      </tr>
+                    {% endif %}
                     {% if report.distribCombinat is not None %}
                       <tr>
                         <td colspan="10"></td>
@@ -597,18 +614,26 @@
               <td colspan="2">
                 <table class="w-50" style="margin: 0 auto;">
                   <tbody>
-                    <tr style="height: 30px;">
-                      <td class="text-center" style="width: 80px;">Бухгалтер</td>
-                      <td class="border-bottom border-dark" style="width: 130px;"></td>
-                      <td style="width: 10px;"></td>
-                      <td class="border-bottom border-dark" style="width: 130px;"></td>
-                    </tr>
-                    <tr style="line-height: 12px;">
-                      <td></td>
-                      <td class="text-center" style="font-size: 0.8em;">подпись</td>
-                      <td></td>
-                      <td class="text-center" style="font-size: 0.8em;">расшифровка подписи</td>
-                    </tr>
+                      {% if ecp|default:False == False or accountant is None %}
+                        <tr style="height: 30px;">
+                          <td class="text-center" style="width: 80px;">Бухгалтер</td>
+                          <td class="border-bottom border-dark" style="width: 130px;"></td>
+                          <td style="width: 10px;"></td>
+                          <td class="border-bottom border-dark text-center" style="width: 130px;">{% if accountant is not None %}{{ accountant.pfnSurname|add:' '|add:accountant.pfnName|add:' '|add:accountant.pfnPatronymic|default_if_none:'' }}{% endif %}</td>
+                        </tr>
+                        <tr style="line-height: 12px;">
+                          <td></td>
+                          <td class="text-center" style="font-size: 0.8em;">подпись</td>
+                          <td></td>
+                          <td class="text-center" style="font-size: 0.8em;">расшифровка подписи</td>
+                        </tr>
+                      {% else %}
+                        <tr style="height: 30px;">
+                          {% with owner=accountant.pfnSurname|add:' '|add:accountant.pfnName|add:' '|add:accountant.pfnPatronymic|default_if_none:'' %}
+                            {% include 'request/ecpRow.html' with owner=owner %}
+                          {% endwith %}
+                        </tr>
+                      {% endif %}
                   </tbody>
                 </table>
               </td>

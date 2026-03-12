@@ -1,0 +1,31 @@
+<div class="input-group input-group-sm">
+  <span class="input-group-text">Заявление</span>
+  <select id="request-select" class="form-select-sm"></select>
+</div>
+
+<script type="text/javascript">
+  const paymentFilter = $('#request-select')
+  $(document).ready(function () {
+    $('#request-select').select2({
+      ajax: {
+        url: '{% url "request-list" %}?format=json',
+        dataType: 'json',
+        data: function (params) {
+          return { q: params.term }
+        },
+        processResults: function (data) {
+          return {
+            results: data.results.map((el) => ({ id: el.id, text: el.num + ' - ' + el.createDate }))
+          }
+        }
+      },
+      allowClear: true,
+      placeholder: 'Заявление',
+      language: {
+        noResults: function (params) {
+          return 'Нет совпадений'
+        }
+      }
+    })
+  })
+</script>

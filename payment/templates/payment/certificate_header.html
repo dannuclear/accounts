@@ -12,7 +12,7 @@
   </tr>
   <tr>
     <th scope="col" class="text-left font-weight-bold border-bottom border-dark w-50">
-      {% now 't.m.Y' %}
+      {{ date|date:'d.m.Y' }}
     </th>
     <th scope="col" class="w-0">№</th>
     <th scope="col" class="text-left font-weight-bold border-bottom border-dark w-50">054/{{ number }}</th>

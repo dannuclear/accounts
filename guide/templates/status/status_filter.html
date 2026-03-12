@@ -2,6 +2,9 @@
     <span class="input-group-text">Статус</span>
     <select id="status-filter" class="form-select filter-input" >
         <option value="">Все</option>
+        {% if not_defined|default:False == True %}
+            <option value="-1">Не установлен</option>
+        {% endif %}
         {% for opt in options %}
             <option value="{{ opt.id }}">{{ opt.name }}</option>
         {% endfor %}

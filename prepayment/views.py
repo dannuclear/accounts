@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from guide.models import Status, ExpenseItem, ExpenseCategory, AccountingCert, Department, Document, ImprestAccount
 from guide.filters import StatusFilter
 from payment.models import PaymentPrepayment
+from request.models import Request
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, HttpResponseServerError
 from rest_framework.filters import BaseFilterBackend
 from django.forms import formset_factory, inlineformset_factory, models
@@ -30,10 +31,12 @@ from decimal import Decimal
 from django.template.loader import get_template, render_to_string
 from accounts import settings
 import os
+import re
 from django.contrib.staticfiles import finders
 from main.helpers import is_user_in_group
 from main.models import Settings
 from integration import script
+from integration.models import Employee
 from weasyprint import HTML
 
 # Create your views here.
@@ -80,6 +83,8 @@ class PrepaymentViewSet (viewsets.ModelViewSet):
             self.filter_backends.insert(0, ImprestAccountFilter)
         if 'filterType' in self.request.query_params:
             self.filter_backends.insert(0, FilterTypeFilter)
+        if 'noAccountingNumHide' in self.request.query_params:
+            queryset = queryset.filter(reportAccountingNum__isnull = False)
         if (self.request.user.has_perm('prepayment.view_owner_prepayments') or self.request.user.has_perm('prepayment.view_owner_advance_reports')) and not self.request.user.is_superuser:
             self.filter_backends.insert(0, UserFilter)
         if (self.request.user.has_perm('prepayment.view_owner_dept_prepayments') or self.request.user.has_perm('prepayment.view_owner_dept_advance_reports')) and not self.request.user.is_superuser:
@@ -240,8 +245,22 @@ def editPrepayment(request, id):
                     deletedPurpose.instance.delete()
             # Создаем PaymentPrepayment для каждого PrepaymentItem
             if prepayment.status_id == 5:
-                for item in PrepaymentItem.objects.filter(prepayment=prepayment, paymentprepayment__isnull=True).all():
-                    PaymentPrepayment (prepaymentItem=item, status=0).save()
+                for item in PrepaymentItem.objects.select_related('obtainMethod').filter(prepayment=prepayment, paymentprepayment__isnull=True).all():
+                    obtain_method = item.obtainMethod
+                    if obtain_method is not None and obtain_method.bik and prepayment.empNum:
+                        applicant = Employee.objects.filter(empOrgNo__endswith=prepayment.empNum).first()
+                        if applicant and applicant.accountNumber:
+                            pairs = applicant.accountNumber.split(';')
+                            account_number = None
+                            for pair in pairs:
+                                try:
+                                    bik, acc = pair.split(':')
+                                    if int(bik) == obtain_method.bik:
+                                        account_number = acc
+                                        break
+                                except ValueError:
+                                    continue
+                    PaymentPrepayment (prepaymentItem=item, status=0, accountNumber=account_number).save()
             return HttpResponseRedirect('/prepayments')
     if request.method == 'GET':
         form = PrepaymentForm(instance=prepayment, user=request.user)
@@ -259,6 +278,8 @@ def editPrepayment(request, id):
 def editAdvanceReport(request, id):
     prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')), days=Subquery(purposesSubquery.values('days'))).select_related('status').select_related(
         'imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
+
+    carryover_request = Request.objects.filter(carryOverPrepayment=prepayment).first()
 
     queryset = AdvanceReportItem.objects
     accounting = helpers.is_user_in_group(request.user, ['Бухгалтер'])
@@ -412,7 +433,8 @@ def editAdvanceReport(request, id):
         'presentationExpenses': presentationExpenses,
         'purchaseOrderExpenses': purchaseOrderExpenses,
         'attachments': attachments,
-        'lockLevel': lockLevel
+        'lockLevel': lockLevel,
+        'carryover_request': carryover_request
     }
     return render(request, 'advanceReport/edit.html', context)
 
@@ -481,6 +503,13 @@ def htmlAccountingCert(request, id):
     if prepayment.reportDate is None:
         return render(request, 'main/error.html', {'message': 'Дата авансового отчета не присвоена'})
 
+    accountant = None
+    if prepayment.updatedByAccountant:
+        match = re.search(r'\d+', prepayment.updatedByAccountant)
+        if match:
+            digits = match.group()
+            accountant = Employee.objects.filter(empOrgNo__endswith=digits).first()
+
     # Если номер авансового отчета не присвоен
     if prepayment.reportAccountingNum is None:
         #maxReportAccountingNum = Prepayment.objects.filter(docDate__month = now.month, docDate__year = now.year).aggregate(Max('reportAccountingNum'))['reportAccountingNum__max']
@@ -496,7 +525,8 @@ def htmlAccountingCert(request, id):
 
     context = {
         'prepayment': prepayment,
-        'rows': rows
+        'rows': rows,
+        'accountant': accountant
     }
     return render(request, 'report/accountingCert.html', context)
 
@@ -504,6 +534,13 @@ def get_report_context (id):
     prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')), days=Subquery(purposesSubquery.values('days'))).select_related('status').select_related(
     'imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
     
+    accountant = None
+    if prepayment.updatedByAccountant:
+        match = re.search(r'\d+', prepayment.updatedByAccountant)
+        if match:
+            digits = match.group()
+            accountant = Employee.objects.filter(empOrgNo__endswith=digits).first()
+
     advanceReportItems1 = AdvanceReportItem.objects.raw(GET_ADVANCE_REPORT_ITEMS_FOR_REPORT, [prepayment.id, [0,2,3,4,5]])
     sumCurrency1 = Decimal(0.0)
     sumRub1 = Decimal(0.0)
@@ -535,6 +572,7 @@ def get_report_context (id):
         totalSumIntString = num2words(int(totalSumInt), lang='ru')
         totalSumIntStringArray = textwrap.wrap(totalSumIntString, 40)
 
+    carryover_request = Request.objects.filter(carryOverPrepayment=prepayment).first()
     context = {
         'report': prepayment,
         'totalSumInt': totalSumInt,
@@ -550,7 +588,10 @@ def get_report_context (id):
         'sumCurrency2': sumCurrency2,
         'sumRub2': sumRub2,
         'sumVAT2': sumVAT2,
-        'balance': balance
+        'balance': balance,
+        'accountant': accountant,
+
+        'carryover_request': carryover_request
     }
     return context
 
@@ -561,7 +602,8 @@ def htmlAdvanceReport(request, id):
 def pdfAdvanceReport(request, id):
     context = get_report_context(id)
     html = render_to_string('report/advanceReport.html', context)
-    pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
+    # pdf = HTML(string=html, base_url=request.build_absolute_uri()).write_pdf()
+    pdf = HTML(string=html).write_pdf(stylesheets=[settings.BASE_DIR + '/static/main/css/bootstrap4.min.css'])
     return HttpResponse(pdf, content_type='application/pdf')
 
 def inventoriesDownload(request):
@@ -574,6 +616,7 @@ def inventoriesDownload(request):
     if 'imprestAccount' in request.GET and request.GET['imprestAccount']:
         query = query.filter(imprestAccount=request.GET['imprestAccount'])
 
+    query = query.filter(reportAccountingNum__isnull = False)
     prepayments = query.all()
 
     fileName = 'inventories.csv'
@@ -609,10 +652,11 @@ def deductionsDownload(request):
 
 
 def submit_wc07p (request, id):
-    settings = Settings.objects.first()
-    if not settings.outputDir:
+    __settings = Settings.objects.first()
+    if not __settings.outputDir:
         return HttpResponseBadRequest('Настройте папку для исходящих документов')
     context = get_report_context(id)
+    context['ecp'] = True
     user = request.user
     advance_report = context.get('report')
     if not advance_report.empDivNum:
@@ -635,8 +679,9 @@ def submit_wc07p (request, id):
 
     try:
         filename = datetime.now().strftime('ADVANCE_REPORT_%Y-%m-%d_%H-%M-%S.pdf')
-        pdf_file_path = os.path.join(settings.outputDir, filename)
-        HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(target=pdf_file_path)
+        pdf_file_path = os.path.join(__settings.outputDir, filename)
+        # HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(target=pdf_file_path)
+        HTML(string=html).write_pdf(target=pdf_file_path, stylesheets=[settings.BASE_DIR + '/static/main/css/bootstrap4.min.css'])
         file_item = {
             'file_path': pdf_file_path,         # полный путь к файлу
             'sign': 'Ф',                        # Ф — бухгалтерский документ

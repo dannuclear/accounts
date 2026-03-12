@@ -165,9 +165,11 @@ def createPrepaymentFromOrder(request, id):
             return HttpResponse('Приказ изменяет уже существующий, выданный под отчет аванс был обновлен')
         return HttpResponse('Приказ изменяет уже существующий, не найден исходный документ')
 
-    employee = Employee.objects.filter(Q(empOrgNo=order.empOrgNo) | Q(empOrgNo__endswith=order.empOrgNo)).first()
+    employee = Employee.objects.filter(empOrgNo=order.empOrgNo).first()
+    if employee == None:
+        employee = Employee.objects.filter(empOrgNo__endswith=order.empOrgNo).first()
 
-    #Если сотрудник не найден, то фактический табельный номер должен состоять из 8 цифр
+    # Если сотрудник не найден, то фактический табельный номер должен состоять из 8 цифр
     empOrgNo = employee.empOrgNo if employee != None else 57000000 + order.empOrgNo if order.empOrgNo < 100000 else order.empOrgNo
 
     prep = prepaymentModels.Prepayment()
@@ -186,15 +188,24 @@ def createPrepaymentFromOrder(request, id):
     prep.save()
 
     #intPrep = Prepayment.objects.filter(xv26eiId=order.estimateId, empOrgNo=empOrgNo).first()
-    intPrep = Prepayment.objects.filter(orderId=order.orderId).first()
-    if intPrep is not None:
-        obtain_method = ObtainMethod.objects.filter(bik=intPrep.bic).first()
+    if order.advanceSum is not None and order.advanceDate is not None:
+        obtain_method = ObtainMethod.objects.filter(bik=order.bik).first()
         prepItem = prepaymentModels.PrepaymentItem()
         prepItem.prepayment = prep
-        prepItem.value = intPrep.sum
-        prepItem.date = intPrep.orderDate
+        prepItem.value = order.advanceSum
+        prepItem.date = order.advanceDate
         prepItem.obtainMethod = obtain_method
         prepItem.save()
+    else:
+        intPrep = Prepayment.objects.filter(orderId=order.orderId).first()
+        if intPrep is not None:
+            obtain_method = ObtainMethod.objects.filter(bik=intPrep.bic).first()
+            prepItem = prepaymentModels.PrepaymentItem()
+            prepItem.prepayment = prep
+            prepItem.value = intPrep.sum
+            prepItem.date = intPrep.orderDate
+            prepItem.obtainMethod = obtain_method
+            prepItem.save()
     
 
     purpose = prepaymentModels.PrepaymentPurpose()

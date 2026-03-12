@@ -63,7 +63,7 @@ class WC07POrderSerializer (serializers.ModelSerializer):
 
     class Meta:
         model = WC07POrder
-        fields = ('orderName', 'orderId', 'orderNum', 'orderDate', 'empOrgNo', 'depName', 'fio', 'profName', 'distName', 'missionBegin', 'missionEnd', 'missionPurpose', 'estimateId', 'payDoc', 'orderIdUpd', 'prepaymentId')
+        fields = ('orderName', 'orderId', 'orderNum', 'orderDate', 'empOrgNo', 'depName', 'fio', 'profName', 'distName', 'missionBegin', 'missionEnd', 'missionPurpose', 'estimateId', 'payDoc', 'orderIdUpd', 'prepaymentId', 'advanceSum', 'bik', 'balanceAccount', 'advanceDate')
         datatables_always_serialize = ('orderId', 'prepaymentId')
 
 

@@ -1,0 +1,48 @@
+<div class="modal fade" id="request-variant-dialog" tabindex="-1" aria-labelledby="requestVariantDialogLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="requestVariantDialog">Вариант заявления на выдачу аванса</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container">
+          <div class="row p-1">
+            <a class="btn btn-outline-secondary btn-block request-link" href="{% url 'requests' %}/new?type=0">Аванс на приобретение ТМЦ, работ, услуг</a>
+          </div>
+          <div class="row p-1">
+            <a class="btn btn-outline-secondary btn-block request-link" href="{% url 'requests' %}/new?type=1">Аванс на приобретение ГСМ</a>
+          </div>
+          <div class="row p-1">
+            <a class="btn btn-outline-secondary btn-block request-link" href="{% url 'requests' %}/new?type=2">Аванс на оплату расходов в служебной поездке</a>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  const requestModal = document.getElementById('request-variant-dialog')
+  
+  $(document).ready(function () {
+    requestModal.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget
+      const carryoverId = button?.getAttribute('data-carryover-id')
+      const links = requestModal.querySelectorAll('.request-link')
+  
+      links.forEach(function (link) {
+        const url = new URL(link.href, window.location.origin)
+  
+        if (carryoverId) {
+          url.searchParams.set('carryoverId', carryoverId)
+        } else {
+          url.searchParams.delete('carryoverId')
+        }
+        link.href = url.pathname + url.search
+      })
+    })
+  })
+</script>

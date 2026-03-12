@@ -174,6 +174,15 @@ class WC07POrder(models.Model):
     # документ_ID_меняемый
     orderIdUpd = models.CharField(
         db_column="order_id_upd", max_length=40, blank=True, null=True)
+    # Сумма аванса
+    advanceSum = models.DecimalField(
+        max_digits=10, decimal_places=2, db_column="advance_sum", blank=True, null=True)
+    # БИК
+    bik = models.IntegerField(db_column="bik", blank=True, null=True)
+    # Балансовый счет
+    balanceAccount = models.IntegerField(db_column="balance_account", blank=True, null=True)
+    # Дата аванса
+    advanceDate= models.DateField(db_column="advance_date", blank=True, null=True)
 
     class Meta:
         db_table = 'wc07p_order'
