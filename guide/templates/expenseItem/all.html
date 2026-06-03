@@ -15,7 +15,7 @@
             <select id="imprest-account-select" class="text-center form-select">
                 <option value="">Все</option>
                 {% for opt in imprestAccounts %}
-                  <option value="{{ opt.account }}" {% ifequal opt.account|stringformat:"i" request.GET.imprestAccount %}selected="selected"{% endifequal %}>{{ opt.name }}</option>
+                  <option value="{{ opt.account }}" {% if opt.account|stringformat:"i" == request.GET.imprestAccount %}selected="selected"{% endif %}>{{ opt.name }}</option>
                 {% endfor %}
             </select>
         </div>

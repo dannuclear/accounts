@@ -398,7 +398,7 @@ def editAdvanceReport(request, id):
                 # Если отчет согласован, заполняем ФАКТЫ и проводки только если нажата кнопка подтвердить проводки(lock=1)
                 if prepayment.reportStatus_id == 3 and prepayment.lockLevel == 1:
                     # cursor.execute('DELETE FROM fact WHERE prepayment_id = %s', [prepayment.id])
-                    cursor.execute(ADD_FACTS, [prepayment.id]) # генерацию фактов тоже бы к сторно добавить но надо исключить уже имеющиеся
+                    cursor.execute(ADD_FACTS, [prepayment.id, prepayment.id]) # генерацию фактов тоже бы к сторно добавить но надо исключить уже имеющиеся
 
                     # cursor.execute('DELETE FROM accounting_entry WHERE prepayment_id = %s', [prepayment.id])
                     cursor.execute(ADD_ACCOUNTING_ENTRIES, [prepayment.id])
@@ -523,10 +523,17 @@ def htmlAccountingCert(request, id):
     cursor.execute(GET_ACCOUNTING_CERT_ROW, [prepayment.id])
     rows = cursor.fetchall()
 
+    total = sum(
+        (row[4] or 0)
+        for row in rows
+        if row[2] is not None and str(row[2]).startswith('71')
+    )
+
     context = {
         'prepayment': prepayment,
         'rows': rows,
-        'accountant': accountant
+        'accountant': accountant,
+        'total': total
     }
     return render(request, 'report/accountingCert.html', context)
 

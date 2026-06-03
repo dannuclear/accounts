@@ -8,7 +8,7 @@ class ToDateFilter(BaseFilterBackend):
         toDate = request.query_params.get("toDate")
         if toDate is not None:
             parsed = datetime.strptime(toDate, '%d.%m.%Y')
-            queryset = queryset.filter(prepayment__reportDate__month=parsed.month, prepayment__reportDate__year=parsed.year)
+            queryset = queryset.filter(prepayment__approveActionDate__month=parsed.month, prepayment__approveActionDate__year=parsed.year)
         return queryset
 
 class ImprestAccountFilter(BaseFilterBackend):

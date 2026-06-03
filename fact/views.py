@@ -29,7 +29,7 @@ def download(request):
     toDate = request.GET['toDate']
     toDateParsed = datetime.strptime(toDate, '%d.%m.%Y')
 
-    facts = Fact.objects.all().select_related('prepayment').filter(prepayment__reportDate__month=toDateParsed.month, prepayment__reportDate__year=toDateParsed.year).all()
+    facts = Fact.objects.all().select_related('prepayment').filter(prepayment__approveActionDate__month=toDateParsed.month, prepayment__approveActionDate__year=toDateParsed.year).all()
 
     fileName = '%s_fact.csv' % (toDateParsed.strftime("%Y-%m-%d"))
     response = HttpResponse()

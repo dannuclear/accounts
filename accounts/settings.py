@@ -187,3 +187,8 @@ LOGGING = {
         },
     }
 }
+
+try:
+    from setting_local import *
+except ImportError:
+    pass

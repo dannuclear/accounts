@@ -89,6 +89,17 @@
                     <tr>
                       <td class="text-center border-bottom border-dark" colspan="5">{{ prepayment.empFullName|default_if_none:" " }}</td>
                     </tr>
+                    <tr>
+                      <td  colspan="5">&nbsp;</td>
+                    </tr>
+                    {% if prepayment.document is not None %}
+                      <tr style="height: 30px;">
+                        <td class="text-center" style="width: 80px;">{% if prepayment.document_id == 14 %}Приказ{% elif prepayment.document_id == 5 %}Заявление{% endif %} №</td>
+                        <td class="border-bottom border-dark text-center" style="width: 130px;">{{ prepayment.docNum }}</td>
+                        <td style="width: 10px;"></td>
+                        <td class="border-bottom border-dark text-center" style="width: 130px;"> от {{ prepayment.docDate|date:"d.m.Y" }}</td>
+                      </tr>
+                    {% endif %}
                   </tbody>
                 </table>
               </td>
@@ -148,7 +159,14 @@
                       <td class="text-right border border-dark">{{ row.4|default_if_none:" "|intcomma }}</td>
                     </tr>
                   {% endfor %}
+                  <tr/>
                 </tbody>
+                <tfoot>
+                  <tr>
+                    <td class="text-right border border-dark" colspan="4">Израсходовано&nbsp;</td>
+                    <td class="text-right border border-dark">{{ total|default_if_none:" "|intcomma }}</td>
+                  </tr>
+                </tfoot>
               </table>
             </tr>
 
@@ -168,14 +186,6 @@
                       <td></td>
                       <td class="text-center" style="font-size: 0.8em;">расшифровка подписи</td>
                     </tr>
-                    {% if prepayment.document is not None %}
-                      <tr style="height: 30px;">
-                        <td class="text-center" style="width: 80px;">{% if prepayment.document_id == 14 %}Приказ{% elif prepayment.document_id == 5 %}Заявление{% endif %} №</td>
-                        <td class="border-bottom border-dark text-center" style="width: 130px;">{{ prepayment.docNum }}</td>
-                        <td style="width: 10px;"></td>
-                        <td class="border-bottom border-dark text-center" style="width: 130px;"> от {{ prepayment.docDate|date:"d.m.Y" }}</td>
-                      </tr>
-                    {% endif %}
                   </tbody>
                 </table>
               </td>

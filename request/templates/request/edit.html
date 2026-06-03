@@ -97,6 +97,9 @@
           {% include 'request/carry_over_prepayment.html' with prepayment=form.instance.carryOverPrepayment %}
         {% endif %}
       {% elif type == 2 %}
+        {% if form.instance.carryOverPrepayment is not None %}
+          {% include 'request/carry_over_prepayment.html' with prepayment=form.instance.carryOverPrepayment %}
+        {% endif %}
         {% include 'request/type_2.html' %}
       {% endif %}
 

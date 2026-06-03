@@ -11,9 +11,22 @@ SELECT * FROM (SELECT
 	LEFT JOIN wc07p_order ON wc07p_order.order_id  = p.order_id
 	INNER JOIN advance_report_item item ON (item.prepayment_id = p.id AND item.item_type = 0)
 	INNER JOIN advance_report_item_entity entity ON entity.advance_report_item_id = item.id 
-	WHERE p.id = %s AND p.approve_date IS NOT NULL AND
+	WHERE p.id = %s AND --p.approve_date IS NOT NULL AND
 		entity.debit_account IN (2300, 2551, 2553, 2600, 2908, 2909, 4403, 4410) AND 
 		entity.debit_expense_item IN (465, 466, 467, 468, 470, 471, 472, 473, 474, 475, 476, 477, 478, 479, 480, 481)
+    UNION ALL
+    SELECT 
+		COALESCE(int_p.xv26ei_id, wc07p_order.estimate_id) as xv26ei_id,
+		p.integration_prepayment_id,
+		COALESCE(int_p.pd_source, 0),
+		p.id,
+		coalesce(distrib_carryover, 0),
+		coalesce(item.expense_sum_rub - item.expense_sum_vat, 0)
+	FROM prepayment p
+	LEFT JOIN integration_prepayment int_p ON int_p.pd_id = p.integration_prepayment_id
+	LEFT JOIN wc07p_order ON wc07p_order.order_id  = p.order_id
+	INNER JOIN advance_report_item item ON (item.prepayment_id = p.id AND item.item_type = 1)
+	WHERE p.id = %s --AND p.approve_date IS NOT NULL
 ) t1 WHERE xv26ei_id IS NOT NULL'''
 
 ADD_ACCOUNTING_ENTRIES = '''
