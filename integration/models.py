@@ -155,7 +155,7 @@ class WC07POrder(models.Model):
         db_column="prof_name", max_length=256, blank=True, null=True)
     # место_назначение
     distName = models.CharField(
-        db_column="dist_name", max_length=500, blank=True, null=True)
+        db_column="dist_name", max_length=800, blank=True, null=True)
     # дата_начала_командирования
     missionBegin = models.DateField(
         db_column="mission_begin", blank=True, null=True)

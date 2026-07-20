@@ -25,7 +25,7 @@
       {% if lockLevel < 2 %}
         {% include 'main/save_cancel.html' with path=back_url|add:'?imprestAccount='|add:imprestAccount %}
       {% else %}
-        {% include 'main/save_cancel.html' with path=back_url|add:'?imprestAccount='|add:imprestAccount renderSave=False %}
+        {% include 'main/save_cancel.html' with path=back_url|add:'?imprestAccount='|add:imprestAccount renderSave=True %}
       {% endif %}
     {% endwith %}
 

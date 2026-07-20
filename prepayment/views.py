@@ -300,8 +300,8 @@ def editAdvanceReport(request, id):
                 postCopy['approveDate'] = None
                 # Удаляем проводки при нажатии кнопки корректировка проводки
                 cr = connection.cursor()
-                cr.execute('DELETE FROM accounting_entry WHERE prepayment_id = %s', [prepayment.id])
-                cr.execute('DELETE FROM fact WHERE prepayment_id = %s', [prepayment.id])
+                cr.execute("DELETE FROM accounting_entry ae USING prepayment p WHERE ae.prepayment_id = p.id AND p.id = %s AND p.lock_level < 2", [prepayment.id])
+                cr.execute('DELETE FROM fact USING prepayment p WHERE fact.prepayment_id = p.id AND p.id = %s AND p.lock_level < 2', [prepayment.id])
                 lockLevel = 0
             else:
                 processActionNew(postCopy, prepayment, accounting)
@@ -335,8 +335,8 @@ def editAdvanceReport(request, id):
 
         if not postCopy['action']:
             # Ничего не сохранять если уровень блокировки 2
-            if prepayment.lockLevel == 2:
-                return HttpResponseRedirect('/advanceReports?imprestAccount=%s' % (prepayment.imprestAccount_id))
+            #if prepayment.lockLevel == 2:
+            #    return HttpResponseRedirect('/advanceReports?imprestAccount=%s' % (prepayment.imprestAccount_id))
 
             if form.is_valid() and (travelExpenses is None or travelExpenses.is_valid()) and (orgServices is None or orgServices.is_valid()) and iventoryItems.is_valid() and services.is_valid() and presentationExpenses.is_valid() and purchaseOrderExpenses.is_valid() and attachments.is_valid():
                 # Если статус авансового отчета "Подготовлен" и номера нет присвоить сквозной по Коду учета и году, начиная с 1
@@ -372,8 +372,8 @@ def editAdvanceReport(request, id):
 
                 cursor = connection.cursor()
                 if (prepayment.reportStatus_id is None or prepayment.reportStatus_id <= 3) and prepayment.lockLevel == 1:
-                    cursor.execute('DELETE FROM fact WHERE prepayment_id = %s', [prepayment.id])
-                    cursor.execute('DELETE FROM accounting_entry WHERE prepayment_id = %s', [prepayment.id])
+                    cursor.execute('DELETE FROM fact USING prepayment p WHERE fact.prepayment_id = p.id AND p.id = %s AND p.lock_level < 2', [prepayment.id])
+                    cursor.execute("DELETE FROM accounting_entry ae USING prepayment p WHERE ae.prepayment_id = p.id AND p.id = %s AND p.lock_level < 2", [prepayment.id])
 
                 if prepayment.imprestAccount_id not in [7104, 7106]:
                     # Обрабатываем командироваочные расходы
@@ -403,6 +403,8 @@ def editAdvanceReport(request, id):
                     # cursor.execute('DELETE FROM accounting_entry WHERE prepayment_id = %s', [prepayment.id])
                     cursor.execute(ADD_ACCOUNTING_ENTRIES, [prepayment.id])
                 elif prepayment.reportStatus_id == 5: # Генерируем проводки для сторно, исправил ADD_ACCOUNTING_ENTRIES, ислючив уже сгенерированные.
+                    cursor.execute("""DELETE FROM accounting_entry ae USING prepayment p, advance_report_item_entity aeie 
+                                    WHERE ae.prepayment_id = p.id AND ae.advance_report_item_entity_id = aeie.id AND p.id = %s AND (p.lock_level < 2 or aeie.is_storno = 1)""", [prepayment.id])
                     cursor.execute(ADD_ACCOUNTING_ENTRIES, [prepayment.id])
                 return HttpResponseRedirect('/advanceReports?imprestAccount=%s' % (prepayment.imprestAccount_id))
 

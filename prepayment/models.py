@@ -236,7 +236,7 @@ class PrepaymentPurpose(models.Model):
     missionToDate = models.DateField(db_column="mission_to_date", blank=True, null=True)
 
     # Место командирования
-    missionDest = models.CharField(db_column="mission_dest", max_length=200, blank=True, null=True)
+    missionDest = models.CharField(db_column="mission_dest", max_length=800, blank=True, null=True)
 
     # Цель командировки
     missionPurpose = models.CharField(db_column="mission_purpose", max_length=400, blank=True, null=True)
