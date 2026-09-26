@@ -6,3 +6,4 @@ venv*
 /media
 venv.zip
 fonts.7z
+.venv
