@@ -1,0 +1,116 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+  Общий реестр лимитов
+{% endblock %}
+
+{% block content %}
+  <div class="alert alert-primary" role="alert" style="display: none;"></div>
+
+  <div class="row">
+    <div class="col-5">
+      {% include 'main/filters/year_and_month_period_filter.html' with years=years %}
+    </div>
+    <div class="col-2">
+      {% include 'main/filters/grouping_filter.html' %}
+    </div>
+    <div class="col-2">
+      {% include 'purchaseRegistry/limit_filter.html' %}
+    </div>
+  </div>
+
+  <table id="purchase-justification-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm">
+    <thead>
+      <tr>
+        <th style="width: 8%">Период</th>
+        <th style="width: 8%">ИНН</th>
+        <th style="width: auto">Контрагент</th>
+        <th style="width: 8%">Количество</th>
+        <th style="width: 8%">Сумма за квартал</th>
+        <th style="width: 8%">Лимит за квартал</th>
+        <th style="width: 8%">Остаток/Перерасход</th>
+        <th style="width: 8%">Сумма за период</th>
+        <th style="width: 2%"></th>
+        <th style="width: 2%"></th>
+      </tr>
+    </thead>
+  </table>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      const table = $('#purchase-justification-table').DataTable({
+        ajax: {
+          url: "{% url 'purchase-registry-list' %}?format=datatables",
+          data: function (d) {
+            if ($('#ymp-year-select').val()) {
+              d.year = $('#ymp-year-select').val()
+              d.monthFrom = $('#ymp-month-from-select').val()
+              d.monthTo = $('#ymp-month-to-select').val()
+            }
+            d.grouping = $('#grouping-select').val()
+            d.limit = $('#limit-select').val()
+          }
+        },
+        rowId: 'contractor_id',
+        columns: [
+          {
+            data: 'period'
+          },
+          {
+            data: 'contractor__inn'
+          },
+          {
+            data: 'contractor__short_name'
+          },
+          {
+            data: 'count'
+          },
+          {
+            data: 'quarter_amount', render: $.fn.dataTable.render.number( ' ', ',', 2 )
+          },
+          {
+            data: 'quarterly_limit_amount', render: $.fn.dataTable.render.number( ' ', ',', 2 )
+          },
+          {
+            data: 'remaining', render: $.fn.dataTable.render.number( ' ', ',', 2 )
+          },
+          {
+            data: 'amount', render: $.fn.dataTable.render.number( ' ', ',', 2 )
+          },
+          editColumn("{% url 'purchase_justifications' %}", null),
+          deleteColumn("{% url 'purchase_justifications' %}", null, 'Удалить обоснование?')
+        ],
+        buttons: [addButton("{% url 'purchase_justifications' %}")],
+        createdRow: function (row, data, dataIndex) {
+          $(row).css('height', '32px')
+          const limit = parseFloat(data.quarterly_limit_amount)
+          const amount = parseFloat(data.quarter_amount)
+
+          if (!isNaN(limit) && !isNaN(amount) && amount > limit) {
+            $(row).addClass('table-danger')
+          }
+        }
+      })
+    
+      yearMonthFilter.find('select').on('change', function (e) {
+        table.ajax.reload()
+      })
+    
+      yearMonthFilter.find('button').on('click', function (e) {
+        table.ajax.reload()
+      })
+    
+      groupingFilter.find('select').on('change', function (e) {
+        table.ajax.reload()
+      })
+    
+      limitFilter.find('select').on('change', function () {
+        table.ajax.reload()
+      })
+    
+      limitFilter.find('button').on('click', function () {
+        table.ajax.reload()
+      })
+    })
+  </script>
+{% endblock %}

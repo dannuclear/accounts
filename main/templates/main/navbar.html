@@ -303,6 +303,18 @@
                       <a class="dropdown-item" href="{% url 'productionCalendars' %}"><i class="fa-duotone fa-calendar"></i>&nbsp;Производственный календарь</a>
                     </li>
                   {% endif %}
+
+                  {% if perms.guide.view_contractor or perms.guide.edit_contractor %}
+                    <li>
+                      <a class="dropdown-item" href="{% url 'contractors' %}"><i class="fa-duotone fa-handshake"></i>&nbsp;Контрагенты</a>
+                    </li>
+                  {% endif %}
+
+                  {% if perms.guide.view_purchase_limit or perms.guide.edit_purchase_limit %}
+                    <li>
+                      <a class="dropdown-item" href="{% url 'purchase_limits' %}"><i class="fa-duotone fa-triangle-exclamation"></i>&nbsp;Лимиты закупок</a>
+                    </li>
+                  {% endif %}
                 </ul>
               </li>
             </ul>
@@ -350,6 +362,16 @@
             <div class="dropdown-menu" aria-labelledby="dropdown04">
               <a class="dropdown-item" href="{% url 'settings' %}"><i class="fa-duotone fa-sliders"></i>&nbsp;Каталоги файлов</a>
               <a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fa-duotone fa-users"></i>&nbsp;Пользователи и группы</a>
+            </div>
+          </li>
+        {% endif %}
+
+        {% if perms.limits %}
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa-duotone fa-triangle-exclamation"></i>&nbsp;Лимиты</a>
+            <div class="dropdown-menu" aria-labelledby="dropdown04">
+              <a class="dropdown-item" href="{% url 'purchase_registry' %}"><i class="fa-duotone fa-clipboard-list-check"></i>&nbsp;Реестр закупок</a>
+              <a class="dropdown-item" href="{% url 'purchase_justifications' %}"><i class="fa-duotone fa-wreath"></i>&nbsp;Обоснования</a>
             </div>
           </li>
         {% endif %}

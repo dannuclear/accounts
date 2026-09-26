@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ImprestAccount, ExpenseCode, ExpenseRate, RefundExpense, ExpenseItem, ExpenseCategory, Document, AccountingCert, Status, Department, DepartmentAccount, ObtainMethod, PrepaidDest, ProductionCalendar
+from .models import Contractor, ImprestAccount, ExpenseCode, ExpenseRate, RefundExpense, ExpenseItem, ExpenseCategory, Document, AccountingCert, Status, Department, DepartmentAccount, ObtainMethod, PrepaidDest, ProductionCalendar
 
 
 class ImprestAccountSerializer (serializers.ModelSerializer):
@@ -7,7 +7,7 @@ class ImprestAccountSerializer (serializers.ModelSerializer):
     class Meta:
         model = ImprestAccount
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('account')
+        datatables_always_serialize = ('account',)
 
 
 class ExpenseCodeSerializer (serializers.ModelSerializer):
@@ -15,7 +15,7 @@ class ExpenseCodeSerializer (serializers.ModelSerializer):
     class Meta:
         model = ExpenseCode
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('code')
+        datatables_always_serialize = ('code',)
 
 
 class ExpenseRateSerializer (serializers.ModelSerializer):
@@ -23,7 +23,7 @@ class ExpenseRateSerializer (serializers.ModelSerializer):
     class Meta:
         model = ExpenseRate
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id')
+        datatables_always_serialize = ('id',)
 
 
 class ExpenseCategorySerializer (serializers.ModelSerializer):
@@ -31,7 +31,7 @@ class ExpenseCategorySerializer (serializers.ModelSerializer):
     class Meta:
         model = ExpenseCategory
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id')
+        datatables_always_serialize = ('id',)
 
 
 class ExpenseItemSerializer (serializers.ModelSerializer):
@@ -40,41 +40,41 @@ class ExpenseItemSerializer (serializers.ModelSerializer):
     class Meta:
         model = ExpenseItem
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id', 'category')
+        datatables_always_serialize = ('id', 'category',)
 
 class DocumentSerializer (serializers.ModelSerializer):
 
     class Meta:
         model = Document
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id')
+        datatables_always_serialize = ('id',)
 
 
 class AccountingCertSerializer (serializers.ModelSerializer):
     class Meta:
         model = AccountingCert
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('account')
+        datatables_always_serialize = ('account',)
 
 
 class StatusSerializer (serializers.ModelSerializer):
     class Meta:
         model = Status
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id')
+        datatables_always_serialize = ('id',)
 
 class RefundExpenseSerializer (serializers.ModelSerializer):
     class Meta:
         model = RefundExpense
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id')
+        datatables_always_serialize = ('id',)
 
 
 class DepartmentSerializer (serializers.ModelSerializer):
     class Meta:
         model = Department
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id')
+        datatables_always_serialize = ('id',)
 
 class DepartmentAccountSerializer (serializers.ModelSerializer):
     department = DepartmentSerializer(read_only=True, many=False)
@@ -82,22 +82,28 @@ class DepartmentAccountSerializer (serializers.ModelSerializer):
     class Meta:
         model = DepartmentAccount
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id')
+        datatables_always_serialize = ('id',)
 
 class ObtainMethodSerializer (serializers.ModelSerializer):
     class Meta:
         model = ObtainMethod
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id')
+        datatables_always_serialize = ('id',)
 
 class PrepaidDestSerializer (serializers.ModelSerializer):
     class Meta:
         model = PrepaidDest
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id')
+        datatables_always_serialize = ('id',)
 
 class ProductionCalendarSerializer (serializers.ModelSerializer):
     class Meta:
         model = ProductionCalendar
         fields = serializers.ALL_FIELDS
         datatables_always_serialize = ('date')
+
+class ContractorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contractor
+        fields = serializers.ALL_FIELDS
+        datatables_always_serialize = ('id',)

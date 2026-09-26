@@ -1,0 +1,75 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+  Лимиты закупок
+{% endblock %}
+
+{% block content %}
+  <div class="alert alert-primary" role="alert" style="display: none;"></div>
+
+  <div class="row">
+    <div class="col-5">
+      {% now 'd.m.Y' as today_str %}
+      {% include 'main/filters/date_filter.html' with default_date=today_str %}
+    </div>
+  </div>
+
+  <table id="purchase-limit-table" class="table table-sm table-bordered table-striped table-hover">
+    <thead>
+      <tr>
+        <th style="width: 12%">Действует с</th>
+        <th style="width: 40%">Наименование закупки</th>
+        <th style="width: 15%">Способ закупки</th>
+        <th style="width: 15%">Период закупки</th>
+        <th style="width: 12%">Лимит, руб.</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+  </table>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      const table = $('#purchase-limit-table').DataTable({
+        ajax: {
+          url: "{% url 'purchase-limits-list' %}?format=datatables",
+          data: function (d) {
+            if ($('#date-value').val()) d.date = $('#date-value').val()
+          }
+        },
+        rowId: 'id',
+        columns: [
+          {
+            data: 'effective_date'
+          },
+          {
+            data: 'name'
+          },
+          {
+            data: 'method_display'
+          },
+          {
+            data: 'period_display'
+          },
+          {
+            data: 'amount', render: $.fn.dataTable.render.number( ' ', ',', 2 )
+          },
+          editColumn("{% url 'purchase_limits' %}", null),
+          deleteColumn("{% url 'purchase_limits' %}", null, 'Удалить лимит?')
+        ],
+        buttons: [addButton("{% url 'purchase_limits' %}")]
+      })
+    
+      dateFilter
+        .find('.datepeeker')
+        .datepicker()
+        .on('change', function (e) {
+          table.ajax.reload()
+        })
+    
+      dateFilter.find('button').on('click', function (e) {
+        table.ajax.reload()
+      })
+    })
+  </script>
+{% endblock %}

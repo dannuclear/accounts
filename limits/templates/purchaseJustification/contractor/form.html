@@ -1,0 +1,22 @@
+<div class="border rounded p-1">
+  {{ form.id }}
+  {% comment %} {{ form.errors }} {% endcomment %}
+
+  <div class="row g-1">
+    <div class="col-12 col-lg-8">
+      {% include 'main/input_group.html' with field=form.contractor label='Контрагент:' %}
+    </div>
+
+    <div class="col-12 col-lg-2">
+      {% include 'main/input_group.html' with field=form.purchase_date label='Дата закупки:' inputClass='text-center datepeeker' %}
+    </div>
+
+    <div class="col-12 col-lg-2">
+      {% include 'main/input_group.html' with field=form.amount label='Сумма:' %}
+    </div>
+
+    <div class="col-12">
+      {% include 'main/input_group.html' with field=form.name label='Обобщённое название:' %}
+    </div>
+  </div>
+</div>

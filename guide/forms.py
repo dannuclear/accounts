@@ -1,6 +1,6 @@
 from django import forms
 from django.forms.models import ALL_FIELDS
-from .models import ExpenseCode, ImprestAccount, ExpenseRate, Document, ExpenseItem, ExpenseCategory, Status, Department, DepartmentAccount, RefundExpense, AccountingCert, ObtainMethod, ProductionCalendar
+from .models import Contractor, ExpenseCode, ImprestAccount, ExpenseRate, Document, ExpenseItem, ExpenseCategory, Status, Department, DepartmentAccount, RefundExpense, AccountingCert, ObtainMethod, ProductionCalendar
 
 class ExpenseCodeForm (forms.ModelForm):
     code = forms.CharField(label='Код', required=True)
@@ -135,4 +135,8 @@ class ProductionCalendarForm (forms.ModelForm):
     class Meta:
         model = ProductionCalendar
         fields = ALL_FIELDS
-        
+
+class ContractorForm(forms.ModelForm):
+    class Meta:
+        model = Contractor
+        fields = ALL_FIELDS

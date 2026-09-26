@@ -1,0 +1,41 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+  Лимит закупки
+{% endblock %}
+
+{% block content %}
+  <form method="post" class="container-fluid">
+    {% csrf_token %}
+
+    {% url 'purchase_limits' as back_url %}
+    {% include 'main/save_cancel.html' with path=back_url %}
+
+    <div class="row g-1 pt-1">
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.effective_date label='Действует с:' inputClass='text-center datepeeker' %}
+      </div>
+      <div class="col-4">
+        {% include 'main/input_group.html' with field=form.name label='Наименование закупки:' %}
+      </div>
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.method label='Способ закупки:' %}
+      </div>
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.period label='Период закупки:' %}
+      </div>
+    </div>
+
+    <div class="row g-1 pt-1">
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.amount label='Лимит, руб.:' %}
+      </div>
+    </div>
+  </form>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $('.datepeeker').datepicker()
+    })
+  </script>
+{% endblock %}

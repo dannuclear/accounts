@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 
 from rest_framework.filters import BaseFilterBackend
 from rest_framework_datatables.filters import DatatablesBaseFilterBackend, get_param, f_search_q
@@ -28,6 +29,55 @@ class UniversalPeriodFilter(BaseFilterBackend):
             queryset = queryset.filter(**filter_kwargs)
         return queryset
 
+class UniversalYearFilter(BaseFilterBackend):
+    def __init__(self, field_name="createDate", *args, **kwargs):
+        self.field_name = field_name
+
+    def filter_queryset(self, request, queryset, view):
+        field_name = request.query_params.get("yearFieldName", self.field_name)
+        year = request.query_params.get("year")
+
+        if year:
+            queryset = queryset.filter(**{"%s__year" % (field_name): year})
+        return queryset
+
+class EmployeeNumberFilter(BaseFilterBackend):
+    def __init__(self, field_name="empNum", *args, **kwargs):
+        self.field_name = field_name
+
+    def filter_queryset(self, request, queryset, view):
+        field_name = getattr(request, 'emp_num_field_name', None) \
+            or request.query_params.get("empNumFieldName", self.field_name)
+
+        username = request.user.username or ''
+        result = re.search(r'\d+', username)
+        current_emp_org_no = result.group() if result else None
+
+        if current_emp_org_no is None:
+            return queryset.none()
+        else:
+            return queryset.filter(**{f"{field_name}__endswith": current_emp_org_no})
+
+class YearAndMonthPeriodFilter(BaseFilterBackend):
+    field_name = "createDate"
+
+    def filter_queryset(self, request, queryset, view):
+        field_name = request.query_params.get("periodFieldName", self.field_name)
+        year = request.query_params.get("year")
+        month_from = request.query_params.get("monthFrom")
+        month_to = request.query_params.get("monthTo")
+
+        if not year:
+            return queryset
+
+        filter_kwargs = {"%s__year" % (field_name): year}
+
+        if month_from:
+            filter_kwargs["%s__month__gte" % (field_name)] = month_from
+        if month_to:
+            filter_kwargs["%s__month__lte" % (field_name)] = month_to
+
+        return queryset.filter(**filter_kwargs)
 
 class DatatablesExtendFilterBackend(DatatablesBaseFilterBackend):
     def get_fields(self, request):

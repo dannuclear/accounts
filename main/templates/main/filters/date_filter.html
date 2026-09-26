@@ -1,0 +1,31 @@
+<div id="date-filter" class="input-group input-group-sm">
+  <span class="input-group-text">Дата</span>
+  <input id="date-value" value="{% if default_date %}{{ default_date }}{% endif %}" class="form-control text-center datepeeker" />
+  <button type="button" class="btn btn-sm btn-outline-success">X</button>
+</div>
+
+<script type="text/javascript">
+  const dateFilter = $('#date-filter')
+
+  $(document).ready(function () {
+    {% if save_state|default_if_none:True %}
+      const storedDate = localStorage.getItem('dateFilter');
+      if (storedDate) {
+        $('#date-value').val(storedDate);
+      }
+
+      dateFilter.find('input').on('change', function () {
+        localStorage.setItem('dateFilter', $('#date-value').val());
+      });
+
+      dateFilter.find('button').on('click', function (e) {
+        $('#date-value').val('');
+        localStorage.setItem('dateFilter', '');
+      })
+    {% else %}
+      dateFilter.find('button').on('click', function (e) {
+        $('#date-value').val('');
+      })
+    {% endif %}
+  })
+</script>

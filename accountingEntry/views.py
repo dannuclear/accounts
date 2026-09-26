@@ -7,6 +7,7 @@ from datetime import datetime
 from django.http import HttpResponse, HttpResponseRedirect
 from prepayment.models import Prepayment, PrepaymentPurpose, AdvanceReportItem
 from django.db.models import Q, Sum, Subquery, Func, OuterRef, F
+from django.db.models.functions import Coalesce
 from .queries import GET_EXPENSE_CODES_REPORT
 from guide.models import RefundExpense
 import csv
@@ -96,7 +97,7 @@ def parameterizedReportShow(request):
             for prepaymentGroup in prepaymentGroups:
                 entries = queryset.filter(aePeriod__year=yearGroup['aePeriod__year'], aePeriod__month=monthGroup['aePeriod__month'], prepayment__id=prepaymentGroup['prepayment__id']).values('acplAccountDebit', 'acplSubaccountDebit', 'acplCodeAnaliticDebit', 'acplCodeAnaliticDebit1', 'acplCodeAnaliticDebit2', 'acplAddSignDebit', 'acplAccountCredit', 'acplSubaccountCredit', 'acplCodeAnaliticCredit', 'acplCodeAnaliticCredit1', 'acplCodeAnaliticCredit2', 'acplAddSignCredit').annotate(ae_sum=Sum('aeSum'))
                 prepaymentGroup['entries'] = entries
-                org_expense_sum = AdvanceReportItem.objects.filter(prepayment=prepaymentGroup['prepayment__id'], itemType=1).aggregate(ae_sum=Sum(F('expenseSumRub') - F('expenseSumVAT')))
+                org_expense_sum = AdvanceReportItem.objects.filter(prepayment=prepaymentGroup['prepayment__id'], itemType=1).aggregate(ae_sum=Sum(F('expenseSumRub') - Coalesce(F('expenseSumVAT'), 0)))
                 if org_expense_sum['ae_sum']:
                     prepaymentGroup['org_expense_sum'] = org_expense_sum['ae_sum']
                     prepaymentGroup['prepaymentSum'] = prepaymentGroup['prepaymentSum'] + org_expense_sum['ae_sum']

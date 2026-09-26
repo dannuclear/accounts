@@ -1,0 +1,74 @@
+<div id="year-month-filter" class="input-group input-group-sm">
+  <span class="input-group-text">Год</span>
+  <select id="ymp-year-select" class="form-select">
+    <option value="">Все</option>
+    {% for year in years %}
+      <option value="{{ year }}">{{ year }}</option>
+    {% endfor %}
+  </select>
+  <span class="input-group-text">Месяц с</span>
+  <select id="ymp-month-from-select" class="form-select">
+    <option value="">-</option>
+    <option value="1">Январь</option>
+    <option value="2">Февраль</option>
+    <option value="3">Март</option>
+    <option value="4">Апрель</option>
+    <option value="5">Май</option>
+    <option value="6">Июнь</option>
+    <option value="7">Июль</option>
+    <option value="8">Август</option>
+    <option value="9">Сентябрь</option>
+    <option value="10">Октябрь</option>
+    <option value="11">Ноябрь</option>
+    <option value="12">Декабрь</option>
+  </select>
+  <span class="input-group-text">по</span>
+  <select id="ymp-month-to-select" class="form-select">
+    <option value="">-</option>
+    <option value="1">Январь</option>
+    <option value="2">Февраль</option>
+    <option value="3">Март</option>
+    <option value="4">Апрель</option>
+    <option value="5">Май</option>
+    <option value="6">Июнь</option>
+    <option value="7">Июль</option>
+    <option value="8">Август</option>
+    <option value="9">Сентябрь</option>
+    <option value="10">Октябрь</option>
+    <option value="11">Ноябрь</option>
+    <option value="12">Декабрь</option>
+  </select>
+  <button type="button" class="btn btn-sm btn-outline-success">X</button>
+</div>
+
+<script type="text/javascript">
+  const yearMonthFilter = $('#year-month-filter')
+
+  $(document).ready(function () {
+    {% if save_state|default_if_none:True %}
+      const stored = localStorage.getItem('yearMonthFilter');
+      if (stored) {
+        const result = JSON.parse(stored);
+        $('#ymp-year-select').val(result.year);
+        $('#ymp-month-from-select').val(result.monthFrom);
+        $('#ymp-month-to-select').val(result.monthTo);
+      }
+
+      yearMonthFilter.find('select').on('change', function () {
+        const year = $('#ymp-year-select').val();
+        const monthFrom = $('#ymp-month-from-select').val();
+        const monthTo = $('#ymp-month-to-select').val();
+        localStorage.setItem('yearMonthFilter', JSON.stringify({ year, monthFrom, monthTo }));
+      });
+
+      yearMonthFilter.find('button').on('click', function (e) {
+        yearMonthFilter.find('select').val('');
+        localStorage.setItem('yearMonthFilter', JSON.stringify({ year: '', monthFrom: '', monthTo: '' }));
+      })
+    {% else %}
+      yearMonthFilter.find('button').on('click', function (e) {
+        yearMonthFilter.find('select').val('');
+      })
+    {% endif %}
+  })
+</script>

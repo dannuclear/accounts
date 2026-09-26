@@ -1,22 +1,24 @@
 from django.urls import path
-from . import views
+
+from . import views, api_views
 from rest_framework import routers
 
 guideRouter = routers.DefaultRouter()
-guideRouter.register(r'imprestAccounts', views.ImprestAccountViewSet)
-guideRouter.register(r'expenseCodes', views.ExpenseCodeViewSet)
-guideRouter.register(r'expenseRates', views.ExpenseRateViewSet)
-guideRouter.register(r'expenseItems', views.ExpenseItemViewSet)
-guideRouter.register(r'expenseCategories', views.ExpenseCategoryViewSet)
-guideRouter.register(r'documents', views.DocumentViewSet)
-guideRouter.register(r'accountingCerts', views.AccountingCertViewSet)
-guideRouter.register(r'statuses', views.StatusViewSet)
-guideRouter.register(r'departments', views.DepartmentViewSet)
-guideRouter.register(r'departmentAccounts', views.DepartmentAccountViewSet)
-guideRouter.register(r'obtainMethods', views.ObtainMethodViewSet)
-guideRouter.register(r'prepaidDests', views.PrepaidDestViewSet)
-guideRouter.register(r'refundExpenses', views.RefundExpenseViewSet)
-guideRouter.register(r'productionCalendar', views.ProductionCalendarViewSet)
+guideRouter.register(r'imprestAccounts', api_views.ImprestAccountViewSet)
+guideRouter.register(r'expenseCodes', api_views.ExpenseCodeViewSet)
+guideRouter.register(r'expenseRates', api_views.ExpenseRateViewSet)
+guideRouter.register(r'expenseItems', api_views.ExpenseItemViewSet)
+guideRouter.register(r'expenseCategories', api_views.ExpenseCategoryViewSet)
+guideRouter.register(r'documents', api_views.DocumentViewSet)
+guideRouter.register(r'accountingCerts', api_views.AccountingCertViewSet)
+guideRouter.register(r'statuses', api_views.StatusViewSet)
+guideRouter.register(r'departments', api_views.DepartmentViewSet)
+guideRouter.register(r'departmentAccounts', api_views.DepartmentAccountViewSet)
+guideRouter.register(r'obtainMethods', api_views.ObtainMethodViewSet)
+guideRouter.register(r'prepaidDests', api_views.PrepaidDestViewSet)
+guideRouter.register(r'refundExpenses', api_views.RefundExpenseViewSet)
+guideRouter.register(r'productionCalendar', api_views.ProductionCalendarViewSet)
+guideRouter.register(r'contractor', api_views.ContractorViewSet)
 
 urlpatterns = [
     path('imprestAccounts', views.imprestAccounts, name='imprestAccounts'),
@@ -71,4 +73,8 @@ urlpatterns = [
     path('productionCalendars', views.productionCalendar, name='productionCalendars'),
     path('productionCalendars/<id>', views.editProductionCalendar, name='editProductionCalendar'),
     path('productionCalendars/<id>/delete', views.deleteProductionCalendar, name='deleteProductionCalendar'),
+
+    path('contractors', views.contractors, name='contractors'),
+    path('contractors/<str:id>', views.editContractor, name='editContractor'),
+    path('contractors/<int:id>/delete', views.deleteContractor, name='deleteContractor'),
 ]

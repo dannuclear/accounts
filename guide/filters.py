@@ -50,7 +50,8 @@ class DepartmentFilter(BaseFilterBackend):
 
         if departmentId:
             queryset = queryset.filter(department__id=departmentId)
-    
+        else:
+            queryset = queryset.none()
         return queryset
     
 class StatusFilter(BaseFilterBackend):

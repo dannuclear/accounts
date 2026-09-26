@@ -1,0 +1,66 @@
+{% extends 'main/base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}
+  Контрагент
+{% endblock %}
+
+{% block content %}
+  <form method="post" class="container-fluid">
+    {% csrf_token %}
+
+    {% url 'contractors' as back_url %}
+    {% include 'main/save_cancel.html' with path=back_url %}
+
+    <div class="row g-1 pt-1">
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.legal_form label='Форма:' %}
+      </div>
+      <div class="col-4">
+        {% include 'main/input_group.html' with field=form.short_name label='Краткое наименование:' %}
+      </div>
+      <div class="col-6">
+        {% include 'main/input_group.html' with field=form.full_name label='Полное наименование:' %}
+      </div>
+    </div>
+
+    <div class="row g-1 pt-1">
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.inn label='ИНН:' %}
+      </div>
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.kpp label='КПП:' %}
+      </div>
+      <div class="col-2">
+        {% include 'main/input_group.html' with field=form.ogrn label='ОГРН/ОГРНИП:' %}
+      </div>
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.phone label='Телефон:' %}
+      </div>
+      <div class="col-3">
+        {% include 'main/input_group.html' with field=form.email label='Email:' %}
+      </div>
+    </div>
+
+    <div class="row g-1 pt-1">
+      <div class="col-6">
+        {% include 'main/input_group.html' with field=form.legal_address label='Юридический адрес:' %}
+      </div>
+      <div class="col-6">
+        {% include 'main/input_group.html' with field=form.actual_address label='Фактический адрес:' %}
+      </div>
+    </div>
+
+    <div class="row g-1 pt-1">
+      <div class="col-4">
+        {% include 'main/input_group.html' with field=form.contact_person label='Контактное лицо:' %}
+      </div>
+      <div class="col-2 d-flex align-items-center justify-content-center">
+        <div class="form-check">
+          {{ form.is_active|add_class:'form-check-input' }}
+          <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Активен</label>
+        </div>
+      </div>
+    </div>
+  </form>
+{% endblock %}

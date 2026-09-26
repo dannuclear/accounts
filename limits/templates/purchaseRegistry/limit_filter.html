@@ -1,0 +1,38 @@
+<div id="limit-filter" class="input-group input-group-sm">
+  <span class="input-group-text">Лимит</span>
+
+  <select id="limit-select" class="form-select">
+    <option value="">Все</option>
+    <option value="exceeded">Превышен лимит</option>
+    <option value="not_exceeded">Не превышен лимит</option>
+  </select>
+
+  <button type="button" class="btn btn-sm btn-outline-success">X</button>
+</div>
+
+<script type="text/javascript">
+  const limitFilter = $('#limit-filter')
+
+  $(document).ready(function () {
+    {% if save_state|default_if_none:True %}
+      const stored = localStorage.getItem('limitFilter');
+
+      if (stored) {
+        $('#limit-select').val(stored);
+      }
+
+      limitFilter.find('select').on('change', function () {
+        localStorage.setItem('limitFilter', $('#limit-select').val());
+      });
+
+      limitFilter.find('button').on('click', function () {
+        $('#limit-select').val('');
+        localStorage.setItem('limitFilter', '');
+      })
+    {% else %}
+      limitFilter.find('button').on('click', function () {
+        $('#limit-select').val('');
+      })
+    {% endif %}
+  })
+</script>

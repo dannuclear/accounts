@@ -1,0 +1,25 @@
+<div id="grouping-filter" class="input-group input-group-sm">
+  <span class="input-group-text">Группировка</span>
+  <select id="grouping-select" class="form-select">
+    <option value="month">По месяцам</option>
+    <option value="quarter">По кварталам</option>
+    <option value="year">По годам</option>
+  </select>
+</div>
+
+<script type="text/javascript">
+  const groupingFilter = $('#grouping-filter')
+
+  $(document).ready(function () {
+    {% if save_state|default_if_none:True %}
+      const storedGrouping = localStorage.getItem('groupingFilter');
+      if (storedGrouping) {
+        $('#grouping-select').val(storedGrouping);
+      }
+
+      $('#grouping-select').on('change', function () {
+        localStorage.setItem('groupingFilter', $(this).val());
+      });
+    {% endif %}
+  })
+</script>

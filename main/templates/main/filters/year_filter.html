@@ -1,0 +1,36 @@
+<div id="year-filter" class="input-group input-group-sm">
+  <span class="input-group-text">Год</span>
+  <select id="year-select" class="form-select">
+    <option value="">Все</option>
+    {% for year in years %}
+      <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+    {% endfor %}
+  </select>
+  <button type="button" class="btn btn-sm btn-outline-success">X</button>
+</div>
+
+<script type="text/javascript">
+  const yearFilter = $('#year-filter')
+
+  $(document).ready(function () {
+    {% if save_state|default_if_none:True %}
+      const storedYear = localStorage.getItem('yearFilter');
+      if (storedYear) {
+        $('#year-select').val(storedYear);
+      }
+
+      $('#year-select').on('change', function () {
+        localStorage.setItem('yearFilter', $(this).val());
+      });
+
+      yearFilter.find('button').on('click', function (e) {
+        $('#year-select').val('');
+        localStorage.setItem('yearFilter', '');
+      })
+    {% else %}
+      yearFilter.find('button').on('click', function (e) {
+        $('#year-select').val('');
+      })
+    {% endif %}
+  })
+</script>

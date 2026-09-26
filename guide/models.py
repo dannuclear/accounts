@@ -395,3 +395,56 @@ class ProductionCalendar(models.Model):
             return cls.objects.get(date=date).is_holiday
         except cls.DoesNotExist:
             return False
+        
+# Контрагенты
+class Contractor(models.Model):
+    class LegalForm(models.TextChoices):
+        LEGAL_ENTITY = "legal_entity", "Юридическое лицо"
+        INDIVIDUAL_ENTREPRENEUR = "ip", "Индивидуальный предприниматель"
+        INDIVIDUAL = "individual", "Физическое лицо"
+    id = models.AutoField(primary_key=True, blank=False)
+
+    legal_form = models.CharField(max_length=20, choices=LegalForm.choices)
+
+    # Наименования
+    full_name = models.CharField("Полное наименование", max_length=500)
+    short_name = models.CharField("Краткое наименование", max_length=255)
+
+    # Идентификаторы
+    inn = models.CharField("ИНН", max_length=12, blank=True, db_index=True)
+    kpp = models.CharField("КПП", max_length=9, blank=True)
+    ogrn = models.CharField("ОГРН/ОГРНИП", max_length=15, blank=True)
+
+    # Адреса
+    legal_address = models.CharField("Юридический адрес", max_length=500, blank=True)
+    actual_address = models.CharField("Фактический адрес", max_length=500, blank=True)
+
+    # Контакты
+    phone = models.CharField(max_length=30, blank=True)
+    email = models.EmailField(blank=True)
+    contact_person = models.CharField("Контактное лицо", max_length=255, blank=True)
+
+    # Служебное
+    is_active = models.BooleanField("Активен", default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'contractor'
+        verbose_name = "Контрагент"
+        verbose_name_plural = "Контрагенты"
+        default_permissions = ()
+        permissions = [
+            ("view_contractor", "Просмотр"),
+            ("edit_contractor", "Редактирование")
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["inn", "kpp"],
+                name="uniq_contractor_inn_kpp",
+                condition=~models.Q(inn=""),
+            )
+        ]
+
+    def __str__(self):
+        return self.short_name or self.full_name

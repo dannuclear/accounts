@@ -1,0 +1,125 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+  Обоснования на приобретение
+{% endblock %}
+
+{% block content %}
+  <div class="alert alert-primary" role="alert" style="display: none;"></div>
+
+  <div class="row">
+    <div class="col-5">
+      {% comment %} {% include 'main/filters/year_filter.html' with years=years %} {% endcomment %}
+      {% include 'main/filters/year_and_month_period_filter.html' with years=years %}
+    </div>
+    {% if statuses %}
+        <div class="col-3">
+            {% include 'status/status_filter.html' with options=statuses not_defined=True  %}
+        </div>
+    {% endif %}
+  </div>
+
+  <table id="purchase-justification-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm">
+    <thead>
+      <tr>
+        <th style="width: 4%">№</th>
+        <th style="width: auto">Контрагент</th>
+        <th style="width: 15%">Подотчётное лицо</th>
+        <th style="width: 6%">Сумма</th>
+        <th style="width: 8%">Даты закупки</th>
+        <th style="width: 7%">Статус</th>
+        <th style="width: 2%"></th>
+        <th style="width: 2%"></th>
+        <th style="width: 2%"></th>
+      </tr>
+    </thead>
+  </table>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      const purchaseJustificationTable = $('#purchase-justification-table').DataTable({
+        ajax: {
+          url: "{% url 'purchase-justification-list' %}?format=datatables",
+          data: function (d) {
+            //f ($('#year-select').val()) {
+            //  d.year = $('#year-select').val()
+            //  d.yearFieldName = 'purchase_date'
+            //}
+            if ($('#ymp-year-select').val()) {
+              d.year = $('#ymp-year-select').val()
+              d.monthFrom = $('#ymp-month-from-select').val()
+              d.monthTo = $('#ymp-month-to-select').val()
+              d.periodFieldName = 'purchase_date'
+            }
+            if (statusFilter && statusFilter.val())
+              d.statusFilter = statusFilter.val()
+          }
+        },
+        rowId: 'id',
+        columns: [
+          {
+            data: 'num'
+          },
+          {
+            data: 'contractor_names'
+          },
+          {
+            data: 'employee_name'
+          },
+          {
+            data: 'total_amount',
+            render: $.fn.dataTable.render.number(' ', ',', 2)
+          },
+          {
+            data: 'purchase_date_display',
+            className: 'text-center'
+          },
+          {
+            data: 'status.name',
+            className: 'text-center'
+          },
+          {
+            data: null,
+            orderable: false,
+            searchable: false,
+            className: 'text-center align-middle',
+            render: function (data, type, row) {
+              const parts = []
+              if (data.created_by) parts.push(`Создал: ${data.created_by} (${data.created_at || ''})`)
+              if (data.updated_by) parts.push(`Обновил: ${data.updated_by} (${data.updated_at || ''})`)
+              if (data.approved_by) parts.push(`Утвердил: ${data.approved_by} (${data.approved_at || ''})`)
+    
+              const tooltip = parts.join('&#10;')
+              return `<i class="fa-light fa-circle-info fa-xl m-0 text-success" title="${tooltip}"></i>`
+            }
+          },
+          editColumn("{% url 'purchase_justifications' %}", null),
+          deleteColumn("{% url 'purchase_justifications' %}", null, 'Удалить обоснование?')
+        ],
+        buttons: [addButton("{% url 'purchase_justifications' %}")],
+        createdRow: function (row, data, dataIndex) {
+          $(row).css('height', '32px')
+          if(data.status && data.status.id == 2) {
+            $(row).addClass('fw-bold');
+          } else if (data.status && data.status.id == 4) {
+            $(row).find('td').addClass('text-danger')
+          } else if (data.status && data.status.id == 3) {
+            $(row).find('td').addClass('text-success')
+          }
+        }
+      })
+
+      yearMonthFilter.find('select').on('change', function (e) {
+        purchaseJustificationTable.ajax.reload()
+      })
+    
+      yearMonthFilter.find('button').on('click', function (e) {
+        purchaseJustificationTable.ajax.reload()
+      })
+
+      statusFilter.on('change', function (e) {
+        purchaseJustificationTable.ajax.reload()
+      })
+    })
+  </script>
+{% endblock %}

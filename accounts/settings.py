@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'fact',
     'accountingEntry',
     'payment',
+    'limits',
 ]
 
 MIDDLEWARE = [
