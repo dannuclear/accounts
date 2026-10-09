@@ -1,0 +1,11 @@
+{% if not read_only %}
+  {% if formset.management_form %}
+    {{ formset.management_form }}
+    {% for del in formset %}
+      {% if del.DELETE.value %}
+        {{ del.id }}
+        {{ del.DELETE.as_hidden }}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endif %}

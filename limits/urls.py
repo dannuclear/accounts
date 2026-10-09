@@ -23,5 +23,7 @@ urlpatterns = [
     path('purchaseJustifications', views.PurchaseJustificationAllView.as_view(), name='purchase_justifications'),
     path('purchaseJustifications/new', views.PurchaseJustificationCreateView.as_view(), name='purchase_justification_create'),
     path('purchaseJustifications/<int:pk>', views.PurchaseJustificationUpdateView.as_view(), name='purchase_justification_edit'),
-    path('purchaseJustifications/<int:pk>/delete', views.PurchaseJustificationDeleteView.as_view(), name='purchase_justification_delete')
+    path('purchaseJustifications/<int:pk>/delete', views.PurchaseJustificationDeleteView.as_view(), name='purchase_justification_delete'),
+
+    path('purchaseJustifications/uploadDoc', views.upload_doc, name='purchase_justification_upload_doc'),
 ]

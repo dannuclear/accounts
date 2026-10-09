@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-  <form method="post" class="container">
+  <form method="post" class="container-fluid">
     {% csrf_token %}
 
     <input id="action" type="hidden" name="action" />
@@ -16,24 +16,44 @@
     {% include 'main/save_cancel.html' with path=back_url %}
 
     {{ form.errors }}
-    <input type="hidden" name="id" value="{{ form.id.value }}" />
+    <div class="col-12 border rounded p-1 mt-1">
+      <div class="row g-1">
+        <div class="col-xl-4 col-md-4 text-center">
+          <h4 class="m-0">Заявление на аванс</h4>
+        </div>
 
-    <div class="row g-1">
-      <div class="col-2">
-        {% include 'main/input_group.html' with field=form.num label=form.num.label inputClass='text-center' %}
+        <div class="col-xl-2 col-md-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">№</span>
+            <input type="text" class="mb-0 form-control form-control-sm text-center" value="{{ form.instance.num|default_if_none:'-' }}" disabled />
+          </div>
+        </div>
+
+        <div class="col-xl-2 col-md-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">От</span>
+            <input type="text" class="text-center mb-0 form-control form-control-sm" value="{{ form.instance.createDate|default_if_none:'' }}" disabled />
+          </div>
+        </div>
+
+        <div class="col-2">
+          {% include 'main/input_group.html' with field=form.imprestAccount inputClass='text-center form-select' %}
+        </div>
+
+        <div class="col-xl-2 col-md-2 ms-auto">
+          {% include 'main/input_group.html' with field=form.status inputClass='text-center form-select' read_only=form.has_requests %}
+        </div>
       </div>
+    </div>
 
-      <div class="col-2">
-        {% include 'main/input_group.html' with field=form.createDate inputClass='text-center' %}
-      </div>
-
-      <div class="col-2">
+    <div class="row g-1 pt-1">
+      <div class="col-4">
         {% if perms.request.submit_wc07p and form.status.value == 3 %}
           <button id="wc07p-btn" type="button" class="btn btn-success btn-sm ms-auto me-1" data-url="{% url 'submit_wc07p' form.id.value %}"><i class="fa-light fa-floppy-disk pe-2"></i>Отправить WC07P</button>
         {% endif %}
       </div>
 
-      <div class="col-6">
+      <div class="col-8">
         {% if form.instance.wc07p_id != None %}
           <div class="badge bg-danger text-wrap">ОТПРАВЛЕНО НА СОГЛАСОВАНИЕ ID: {{ form.instance.wc07p_id }}</div>
         {% endif %}
@@ -41,8 +61,7 @@
 
       <div class="col-3">
         <div class="input-group input-group-sm">
-          <span class="input-group-text">Табельный</span>
-          {{ form.applicant|add_class:'form-select-sm' }}
+          {% include 'integration/employee/select.html' with field=form.applicant %}
         </div>
       </div>
 
@@ -84,13 +103,14 @@
       </div>
 
       <div class="col-4">
-        <div class="input-group input-group-sm">
-          <span class="input-group-text">{{ form.obtainMethod.label }}</span>
-          {{ form.obtainMethod|add_class:'form-select form-select-sm' }}
-        </div>
+        {% include 'main/input_group.html' with field=form.obtainMethod inputClass='form-select form-select-sm' %}
       </div>
 
-      {% if type == 0 %}
+      {% if purchase_justification_form %}
+        <div class="col-12">
+          {% include 'shared/formset.html' with formset=purchase_justification_form.contractor_formset title='Контрагенты' add_label='Добавить контрагента' bg_color='rgb(158, 207, 183)' form_template='purchaseJustification/contractor/form.html' read_only=True %}
+        </div>
+      {% elif type == 0 %}
         {% include 'request/type_0.html' %}
       {% elif type == 1 %}
         {% if form.instance.carryOverPrepayment is not None %}
@@ -102,22 +122,6 @@
         {% endif %}
         {% include 'request/type_2.html' %}
       {% endif %}
-
-      <div class="col-7"></div>
-
-      <div class="col-2">
-        <div class="input-group input-group-sm">
-          <span class="input-group-text">{{ form.imprestAccount.label }}</span>
-          {{ form.imprestAccount|add_class:'form-select form-select-sm' }}
-        </div>
-      </div>
-
-      <div class="col-3">
-        <div class="input-group input-group-sm">
-          <span class="input-group-text">{{ form.status.label }}</span>
-          {{ form.status|add_class:'form-select form-select-sm' }}
-        </div>
-      </div>
     </div>
   </form>
 
@@ -131,7 +135,6 @@
         let totalSum = 0.0
         const inputs = $('.total-input-part:visible')
         if (inputs.length == 0) return
-        // Снабжаем все части итоговой суммы классом total-input-part
         inputs.each(function () {
           totalSum += parseFloat($(this).val().replaceAll(',', '.')) || 0
         })
@@ -153,50 +156,27 @@
         $('#action').val('delete-' + $(e.currentTarget).data('prefix'))
       })
     
-      $('#id_applicant')
-        .select2({
-          ajax: {
-            url: '/api/v1/integration/employees/?format=json',
-            dataType: 'json',
-            data: function (params) {
-              var query = {
-                empOrgNo: params.term
-              }
-              return query
-            },
-            processResults: function (data) {
-              return {
-                results: data.results.map((el) => ({ id: el.persId, text: el.empOrgNo }))
-              }
-            }
-          },
-          language: {
-            noResults: function (params) {
-              return 'Нет совпадений'
-            }
-          }
+      $('#{{ form.applicant.id_for_label }}').on('select2:select', function (e) {
+        const id = e.params.data.id
+        $.get(`{% url 'employee-list' %}${id}?format=json`).done(function (r) {
+          $('.applicant-fio').val(r.pfnSurname + ' ' + r.pfnName + ' ' + r.pfnPatronymic)
+          $('.applicant-div').val(r.divNo)
+          $('.applicant-prof').val(r.profName)
         })
-        .on('select2:select', function (e) {
-          var data = e.params.data
-          $.get(`/api/v1/integration/employees/${e.params.data.id}?format=json`).done((response) => {
-            $('.applicant-fio').val(response.pfnSurname + ' ' + response.pfnName + ' ' + response.pfnPatronymic)
-            $('.applicant-div').val(response.divNo)
-            $('.applicant-prof').val(response.profName)
-          })
-        })
+      })
     
       $('#wc07p-btn').on('click', function () {
         const url = $(this).data('url')
         const csrfToken = $('input[name="csrfmiddlewaretoken"]').val()
         const id = $('input[name="id"]').val()
-
+    
         const wc07pId = "{{ form.instance.wc07p_id|default:'' }}"
         if (wc07pId) {
           if (!confirm('Документ уже отправлен на согласование.\nОтправить повторно?')) {
-              return
+            return
           }
         }
-
+    
         $.ajax({
           url: url,
           type: 'POST',
@@ -213,7 +193,7 @@
           }
         })
       })
-
+    
       updateIssuedSum()
     })
   </script>

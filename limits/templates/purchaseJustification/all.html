@@ -22,6 +22,7 @@
   <table id="purchase-justification-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm">
     <thead>
       <tr>
+        <th data-dt-order="disable" style="width: 2%"></th>
         <th style="width: 4%">№</th>
         <th style="width: auto">Контрагент</th>
         <th style="width: 15%">Подотчётное лицо</th>
@@ -58,7 +59,23 @@
         rowId: 'id',
         columns: [
           {
-            data: 'num'
+              data: null, orderable: false, className: 'text-center align-middle px-1', render: function (data, type, row) {
+                  if ((data.status.id != 3 && data.status.id != 5) || !data.total_amount || data.request_count)
+                      return ''
+                  return `
+                      <form method="GET" action="{% url 'requests' %}/new" class="m-0" onsubmit="return confirm('Создать заявку с суммой ${data.total_amount ?? ''} руб.?');">
+                          <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                          <input type="hidden" name="type" value="0">
+                          <input type="hidden" name="purchaseJustificationId" value="${data.id}">
+                          <button type="submit" class="btn btn-link text-success m-0 p-0" title="Создать заявку с суммой ${data.total_amount ?? ''} руб.">
+                              <i class="fa-duotone fa-file-signature fa-xl"></i>
+                          </button>
+                      </form>`
+              }
+          },
+          {
+            data: 'num',
+            className: 'text-center'
           },
           {
             data: 'contractor_names'
@@ -68,7 +85,8 @@
           },
           {
             data: 'total_amount',
-            render: $.fn.dataTable.render.number(' ', ',', 2)
+            render: $.fn.dataTable.render.number(' ', ',', 2),
+            className: 'text-center'
           },
           {
             data: 'purchase_date_display',
@@ -82,7 +100,7 @@
             data: null,
             orderable: false,
             searchable: false,
-            className: 'text-center align-middle',
+            className: 'text-center',
             render: function (data, type, row) {
               const parts = []
               if (data.created_by) parts.push(`Создал: ${data.created_by} (${data.created_at || ''})`)

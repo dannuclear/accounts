@@ -18,7 +18,7 @@ guideRouter.register(r'obtainMethods', api_views.ObtainMethodViewSet)
 guideRouter.register(r'prepaidDests', api_views.PrepaidDestViewSet)
 guideRouter.register(r'refundExpenses', api_views.RefundExpenseViewSet)
 guideRouter.register(r'productionCalendar', api_views.ProductionCalendarViewSet)
-guideRouter.register(r'contractor', api_views.ContractorViewSet)
+guideRouter.register(r'contractor', api_views.ContractorViewSet, basename='contractor')
 
 urlpatterns = [
     path('imprestAccounts', views.imprestAccounts, name='imprestAccounts'),

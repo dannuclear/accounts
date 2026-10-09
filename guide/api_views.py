@@ -1,7 +1,7 @@
 
 from rest_framework import viewsets
 
-from .filters import ImprestAccountFilter, ExpenseTypeFilter, DepartmentFilter, ExactNameFilter
+from .filters import ContractorSearchFilter, ImprestAccountFilter, ExpenseTypeFilter, DepartmentFilter, ExactNameFilter
 from .models import Contractor, ExpenseCode, ImprestAccount, ExpenseRate, ExpenseItem, Document, AccountingCert, Status, Department, DepartmentAccount, ObtainMethod, PrepaidDest, RefundExpense, ExpenseCategory, ProductionCalendar
 from .serializers import AccountingCertSerializer, ContractorSerializer, ExpenseCodeSerializer, ImprestAccountSerializer, ExpenseRateSerializer, ExpenseItemSerializer, DocumentSerializer, StatusSerializer, DepartmentSerializer, DepartmentAccountSerializer, ObtainMethodSerializer, PrepaidDestSerializer, RefundExpenseSerializer, ExpenseCategorySerializer, ProductionCalendarSerializer
 
@@ -90,3 +90,4 @@ class RefundExpenseViewSet (viewsets.ModelViewSet):
 class ContractorViewSet(viewsets.ModelViewSet):
     queryset = Contractor.objects.all().order_by('short_name')
     serializer_class = ContractorSerializer
+    filter_backends = [ContractorSearchFilter, *viewsets.ModelViewSet.filter_backends]

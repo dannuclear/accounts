@@ -40,6 +40,7 @@ class PurchaseJustificationViewSet(viewsets.ModelViewSet):
         total_amount=Sum('contractors__requests__items__amount'),
         purchase_date_min=Min('contractors__purchase_date'),
         purchase_date_max=Max('contractors__purchase_date'),
+        request_count=Count('request'),
     ).order_by('-created_at')
 
     serializer_class = PurchaseJustificationSerializer

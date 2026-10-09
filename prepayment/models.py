@@ -1,5 +1,6 @@
 from django.db import models
 from guide.models import ImprestAccount, Status, Document, PrepaidDest, ExpenseCode, ObtainMethod, ExpenseCategory
+from limits.models import PurchaseJustification
 from request.models import Request
 from integration.models import WC07POrder, Prepayment as iPrepayment
 from accounts import settings
@@ -420,15 +421,29 @@ class AdvanceReportItemEntity (models.Model):
 class Attachment (models.Model):
     id = models.AutoField(primary_key=True, blank=False)
 
-    prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.CASCADE, blank=False, null=False)
+    prepayment = models.ForeignKey(Prepayment, db_column='prepayment_id', on_delete=models.CASCADE, blank=True, null=True)
     # Наименование
     name = models.CharField(db_column="name", max_length=50, blank=False, null=False)
     # Дата прикрепления
     date = models.DateTimeField(db_column="attachment_date", blank=False, null=False)
     file = models.FileField ()
 
+    purchase_justification = models.ForeignKey(
+        PurchaseJustification,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='attachments',
+    )
+    
     class Meta:
         db_table = 'attachment'
         verbose_name = 'Вложение'
         verbose_name_plural = 'Вложения'
         default_permissions = ()
+
+        constraints = [
+            models.CheckConstraint(check=(models.Q(prepayment__isnull=False) ^ models.Q(purchase_justification__isnull=False)),
+                name='attachment_single_owner',
+            ),
+        ]

@@ -8,15 +8,15 @@
     </div>
 
     <div class="col-2 col-lg-2">
-      {% include 'main/input_group.html' with field=form.quantity label='Количество:' %}
+      {% include 'main/input_group.html' with field=form.quantity label='Количество:' inputClass='cnt-input' %}
     </div>
 
     <div class="col-2 col-lg-2">
-      {% include 'main/input_group.html' with field=form.price label='Цена:' %}
+      {% include 'main/input_group.html' with field=form.price label='Цена:' inputClass='price-input' %}
     </div>
 
     <div class="col-2 col-lg-2">
-      {% include 'main/input_group.html' with field=form.amount label='Сумма:' %}
+      {% include 'main/input_group.html' with field=form.amount label='Сумма:' inputClass='total-input' inputAttr='readonly' %}
     </div>
   </div>
 </div>

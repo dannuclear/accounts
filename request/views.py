@@ -1,5 +1,8 @@
 from django.shortcuts import render
 from django.template.loader import render_to_string
+
+from limits.forms import PurchaseJustificationForm
+from limits.models import PurchaseJustification, PurchaseJustificationContractor
 from .models import Request, RequestInventory, RequestInventoryItem
 from prepayment.models import Prepayment, PrepaymentPurpose, PrepaymentItem
 from rest_framework import viewsets
@@ -87,6 +90,17 @@ def editRequest(request, id):
             prepaymentRequest.applicant = employee
             prepaymentRequest.applicantPhone = prepayment.phone
             prepaymentRequest.carryOverPrepayment_id = prepayment.id
+        purchase_justification_id = request.GET.get('purchaseJustificationId', None)
+        if purchase_justification_id is not None:
+            purchase_justification = PurchaseJustification.objects.select_related('employee').get(pk=purchase_justification_id)
+            exist_purchase_justification = Request.objects.filter(purchase_justification=purchase_justification).first()
+            if exist_purchase_justification is not None:
+                return render(request, 'main/error.html', {'message': 'Заявка с данным обоснованием, уже существует'})
+            prepaymentRequest.createDate = purchase_justification.approved_at if purchase_justification.approved_at is not None else datetime.now()
+            prepaymentRequest.applicant = purchase_justification.employee
+            prepaymentRequest.applicantPhone = purchase_justification.phone
+            prepaymentRequest.purchase_justification_id = purchase_justification.id
+            prepaymentRequest.issuedSum = PurchaseJustificationContractor.objects.filter(justification_id=purchase_justification.id).aggregate(total=Sum('amount'))['total'] or 0
     else:
         prepaymentRequest = Request.objects.get(id=id)
 
@@ -107,12 +121,14 @@ def editRequest(request, id):
                 postCopy['%s-DELETE' % prefix] = 'True'
         
         form = RequestForm(postCopy, instance=prepaymentRequest, user=request.user)
-        if prepaymentRequest.type == 0:
+        if prepaymentRequest.purchase_justification:
+            pass
+        elif prepaymentRequest.type == 0:
             inventories_form_set = RequestInventoryFormSet(postCopy, prefix='inventory', instance=prepaymentRequest)
         elif prepaymentRequest.type == 2:
             travel_expenses_form_set = RequestTravelExpenseFormSet(postCopy, prefix='travel-expenses', instance=prepaymentRequest)
 
-        if not postCopy['action'] and form.is_valid() and (prepaymentRequest.type != 0 or inventories_form_set.is_valid()) and (prepaymentRequest.type != 2 or travel_expenses_form_set.is_valid()):
+        if not postCopy['action'] and form.is_valid() and (prepaymentRequest.type != 0 or not prepaymentRequest.purchase_justification == None or inventories_form_set.is_valid()) and (prepaymentRequest.type != 2 or travel_expenses_form_set.is_valid()):
             if is_user_in_group(request.user, ['Бухгалтер']):
                 prepaymentRequest.updatedByAccountant = userFullName if userFullName else request.user.username
                 prepaymentRequest.updatedAtAccountant = datetime.now()
@@ -128,10 +144,13 @@ def editRequest(request, id):
         if prepaymentRequest.type == 2:
             initial_data = [{'type': i} for i in range(0,5)] if prepaymentRequest.id is None else []
             travel_expenses_form_set = RequestTravelExpenseFormSet(initial=initial_data, prefix='travel-expenses', instance=prepaymentRequest)
+        if prepaymentRequest.purchase_justification:
+            purchase_justification_form = PurchaseJustificationForm(instance=prepaymentRequest.purchase_justification, user=request.user)
 
     context = {
         'form': form,
         'inventories': inventories_form_set if 'inventories_form_set' in vars() else None,
+        'purchase_justification_form': purchase_justification_form if 'purchase_justification_form' in vars() else None,
         'travelExpenses': travel_expenses_form_set if 'travel_expenses_form_set' in vars() else None,
         'title': 'Заявление',
         'type': prepaymentRequest.type

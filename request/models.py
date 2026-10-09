@@ -43,6 +43,15 @@ class Request(models.Model):
 
     wc07p_id = models.CharField(db_column="wc07p_id", blank=True, null=True, max_length=20)
 
+    purchase_justification = models.OneToOneField(
+        'limits.PurchaseJustification',
+        on_delete=models.PROTECT,
+        verbose_name="Обоснование",
+        blank=True,
+        null=True,
+        related_name='request',
+    )
+
     class Meta:
         db_table = 'request'
         verbose_name = 'Заявление на аванс'

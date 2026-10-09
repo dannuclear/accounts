@@ -112,6 +112,11 @@ table.dataTable.table.table-hover>tbody>tr.selected:hover>* {
     width: 20rem;
 }
 
+table.dataTable th,
+table.dataTable td {
+    vertical-align: middle !important;
+}
+
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {

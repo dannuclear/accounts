@@ -1,7 +1,8 @@
 from datetime import datetime
 
+from django.core.files.storage import default_storage
 from django.db.models.functions import ExtractYear
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, TemplateView, UpdateView
@@ -10,6 +11,7 @@ from guide.models import Status
 from limits.forms import PurchaseJustificationForm, PurchaseLimitForm
 from limits.models import PurchaseJustification, PurchaseLimit
 from prepayment.action_processor import addItem
+from django.core.files.base import ContentFile
 
 
 class PurchaseLimitAllView(TemplateView):
@@ -37,19 +39,17 @@ class PurchaseJustificationAllView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # context['years'] = (
-        #     PurchaseJustification.objects
-        #     .exclude(purchase_date__isnull=True)
-        #     .annotate(year=ExtractYear('purchase_date'))
-        #     .values_list('year', flat=True)
-        #     .distinct()
-        #     .order_by('-year')
-        # )
         context['statuses'] = Status.objects.all()
         return context
 
 
 class PurchaseJustificationActionMixin:
+
+    def get_user_full_name(self):
+        u = self.request.user
+        full_name = ('%s %s' % (u.last_name, u.first_name)).strip()
+        return full_name if full_name else u.username
+
     def post(self, request, *args, **kwargs):
         action = request.POST.get('action')
 
@@ -105,7 +105,6 @@ class PurchaseJustificationUpdateView(PurchaseJustificationActionMixin, UpdateVi
             form.instance.approved_at = datetime.now()
         return super().form_valid(form)
 
-
 class PurchaseJustificationDeleteView(View):
     def get(self, request, pk):
         obj = get_object_or_404(PurchaseJustification, pk=pk)
@@ -132,3 +131,10 @@ class PurchaseLimitDeleteView(View):
         obj = get_object_or_404(PurchaseLimit, pk=pk)
         obj.delete()
         return HttpResponseRedirect(reverse('purchase_limits'))
+
+def upload_doc(request):
+    file = request.FILES['file']
+    if not file:
+        return JsonResponse({"error": "Файл не выбран"}, status=400)
+    path = default_storage.save(file.name, ContentFile(file.read()))
+    return JsonResponse({'status': 'success', 'path': path})

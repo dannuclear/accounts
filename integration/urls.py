@@ -6,7 +6,7 @@ from .helper import FileType
 integrationRouter = routers.DefaultRouter()
 integrationRouter.register(r'estimates', views.EstimateViewSet)
 integrationRouter.register(r'prepayments', views.PrepaymentViewSet, basename='integration-prepayment')
-integrationRouter.register(r'employees', views.EmployeeViewSet)
+integrationRouter.register(r'employees', views.EmployeeViewSet, basename='employee')
 integrationRouter.register(r'orders', views.OrderViewSet)
 integrationRouter.register(r'protocols', views.ProtocolViewSet)
 

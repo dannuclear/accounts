@@ -1,0 +1,29 @@
+{% load widget_tweaks %}
+
+<div class="input-group input-group-sm">
+  <span class="input-group-text">{{ label|default:'Табельный' }}</span>
+  {{ field|add_class:'form-select-sm' }}
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    $('#{{ field.id_for_label }}')
+      .select2({
+        ajax: {
+          url: "{% url 'employee-list' %}?format=json",
+          dataType: 'json',
+          data: function (params) {
+            return { empOrgNo: params.term }
+          },
+          processResults: function (data) {
+            return { results: data.results.map((el) => ({ id: el.persId, text: el.empOrgNo })) }
+          }
+        },
+        language: {
+          noResults: function () {
+            return 'Нет совпадений'
+          }
+        }
+      })
+  })
+</script>

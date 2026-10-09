@@ -4,6 +4,7 @@ class NestedFormMixin:
     nested_formset_class = None
     nested_formset_suffix = None
     nested_formset_name = None
+    nested_formset_queryset = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -23,6 +24,7 @@ class NestedFormMixin:
             data,
             instance=self.instance,
             prefix=prefix,
+            queryset=self.nested_formset_queryset,
         )
 
         setattr(

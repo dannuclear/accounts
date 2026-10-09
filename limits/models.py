@@ -41,6 +41,8 @@ class PurchaseJustification(models.Model):
     approved_at = models.DateTimeField("Дата согласования", null=True, blank=True)
     approved_by = models.CharField("Согласовал", max_length=50, blank=True, null=True)
 
+    no_annual_demand_splitting = models.BooleanField('Отсутствие дробления общей годовой потребности', default=False)
+    
     def save(self, *args, **kwargs):
         if self.pk is None and not self.num:
             year = self.justification_date.year if self.justification_date else timezone.now().year

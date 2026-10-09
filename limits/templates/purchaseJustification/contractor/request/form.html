@@ -14,5 +14,14 @@
     <div class="col">
       {% include 'main/input_group.html' with field=form.financing_source label='ИФ:' %}
     </div>
+
+    <div class="col-12">
+      {% include 'shared/formset.html' with formset=form.item_formset title='ТМЦ по заявке' add_label='Добавить ТМЦ' bg_color='rgb(58, 117, 88)' form_template='purchaseJustification/contractor/request/item/form.html' %}
+    </div>
   </div>
 </div>
+
+{% comment %}
+<div class="mt-1">
+  {% include 'shared/formset.html' with formset=form.item_formset title='ТМЦ' add_label='Добавить ТМЦ' bg_color='rgb(58, 117, 88)' form_template='purchaseJustification/contractor/request/item/form.html' %}
+</div> {% endcomment %}

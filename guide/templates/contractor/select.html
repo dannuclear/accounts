@@ -1,0 +1,28 @@
+{% load widget_tweaks %}
+
+<div class="input-group input-group-sm">
+  <span class="input-group-text">{{ label|default:'Контрагент:' }}</span>
+  {{ field|add_class:'form-select-sm' }}
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    $('#{{ field.id_for_label }}').select2({
+      ajax: {
+        url: "{% url 'contractor-list' %}?format=json",
+        dataType: 'json',
+        data: function (params) {
+          return { search: params.term }
+        },
+        processResults: function (data) {
+          return { results: data.results.map((el) => ({ id: el.id, text: el.short_name })) }
+        }
+      },
+      language: {
+        noResults: function () {
+          return 'Нет совпадений'
+        }
+      }
+    })
+  })
+</script>

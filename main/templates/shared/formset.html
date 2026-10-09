@@ -1,0 +1,14 @@
+{% comment %}
+Общий шаблон вложенного formset'а.
+Параметры (все через `with` при include):
+  formset         - сам formset (обязательно)
+  form_template   - шаблон формы одной строки (обязательно)
+  title           - заголовок блока (опционально)
+  add_label       - текст кнопки добавления (опционально, дефолт "Добавить")
+  bg_color        - цвет фона блока (опционально, дефолт rgb(99, 162, 130))
+  read_only       - режим только чтение (опционально)
+{% endcomment %}
+
+{% include 'shared/formset_deleted.html' with formset=formset read_only=read_only %}
+{% include 'shared/formset_active.html' with formset=formset read_only=read_only bg_color=bg_color add_label=add_label title=title form_template=form_template %}
+

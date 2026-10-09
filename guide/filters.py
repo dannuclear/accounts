@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework.filters import BaseFilterBackend
 from datetime import datetime
 
@@ -52,6 +53,15 @@ class DepartmentFilter(BaseFilterBackend):
             queryset = queryset.filter(department__id=departmentId)
         else:
             queryset = queryset.none()
+        return queryset
+
+class ContractorSearchFilter(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        term = request.query_params.get('search')
+        if term:
+            queryset = queryset.filter(
+                Q(inn__startswith=term) | Q(short_name__icontains=term)
+            )
         return queryset
     
 class StatusFilter(BaseFilterBackend):
