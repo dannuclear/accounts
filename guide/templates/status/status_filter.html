@@ -17,7 +17,7 @@
     $(document).ready(function () {
         const storedValue = localStorage.getItem('statusFilter');
         if (storedValue) {
-            statusFilter.val(storedValue);
+            statusFilter.val(storedValue).trigger('change');
         }
 
         $("#status-filter-reset").on('click', function(e) {

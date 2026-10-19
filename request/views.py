@@ -145,7 +145,7 @@ def editRequest(request, id):
             initial_data = [{'type': i} for i in range(0,5)] if prepaymentRequest.id is None else []
             travel_expenses_form_set = RequestTravelExpenseFormSet(initial=initial_data, prefix='travel-expenses', instance=prepaymentRequest)
         if prepaymentRequest.purchase_justification:
-            purchase_justification_form = PurchaseJustificationForm(instance=prepaymentRequest.purchase_justification, user=request.user)
+            purchase_justification_form = PurchaseJustificationForm(instance=prepaymentRequest.purchase_justification, user=request.user, read_only=True)
 
     context = {
         'form': form,

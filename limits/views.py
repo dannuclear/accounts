@@ -9,7 +9,7 @@ from django.views.generic import CreateView, TemplateView, UpdateView
 from django.shortcuts import get_object_or_404
 from guide.models import Status
 from limits.forms import PurchaseJustificationForm, PurchaseLimitForm
-from limits.models import PurchaseJustification, PurchaseLimit
+from limits.models import AcquisitionMethod, PurchaseJustification, PurchaseJustificationContractor, PurchaseLimit
 from prepayment.action_processor import addItem
 from django.core.files.base import ContentFile
 
@@ -24,7 +24,7 @@ class PurchaseRegistryAllView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['years'] = (
-            PurchaseJustification.objects
+            PurchaseJustificationContractor.objects
             .exclude(purchase_date__isnull=True)
             .annotate(year=ExtractYear('purchase_date'))
             .values_list('year', flat=True)
@@ -40,6 +40,10 @@ class PurchaseJustificationAllView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['statuses'] = Status.objects.all()
+        context['acquisition_options'] = [
+            {'value': value, 'name': label}
+            for value, label in AcquisitionMethod.choices
+        ]
         return context
 
 

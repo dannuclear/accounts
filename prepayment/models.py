@@ -435,7 +435,18 @@ class Attachment (models.Model):
         blank=True,
         related_name='attachments',
     )
-    
+
+    purchase_justification_contractor = models.ForeignKey(
+        'limits.PurchaseJustificationContractor',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='attachments',
+    )
+
+    # Тип элемента
+    item_type = models.IntegerField(db_column="item_type", null=True, blank=True)
+
     class Meta:
         db_table = 'attachment'
         verbose_name = 'Вложение'
@@ -443,7 +454,18 @@ class Attachment (models.Model):
         default_permissions = ()
 
         constraints = [
-            models.CheckConstraint(check=(models.Q(prepayment__isnull=False) ^ models.Q(purchase_justification__isnull=False)),
+            models.CheckConstraint(
+                check=(
+                    models.Q(prepayment__isnull=False,
+                            purchase_justification__isnull=True,
+                            purchase_justification_contractor__isnull=True)
+                    | models.Q(prepayment__isnull=True,
+                            purchase_justification__isnull=False,
+                            purchase_justification_contractor__isnull=True)
+                    | models.Q(prepayment__isnull=True,
+                            purchase_justification__isnull=True,
+                            purchase_justification_contractor__isnull=False)
+                ),
                 name='attachment_single_owner',
             ),
         ]

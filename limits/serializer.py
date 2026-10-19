@@ -14,10 +14,17 @@ class PurchaseJustificationSerializer(serializers.ModelSerializer):
     purchase_date_display = serializers.SerializerMethodField()
     status = StatusSerializer(read_only=True, many=False)
 
+    div_num = serializers.SerializerMethodField()
+
+    def get_div_num(self, obj):
+        if (obj.div_num == None):
+            return
+        return '%03d' % obj.div_num
+    
     class Meta:
         model = PurchaseJustification
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id', 'employee_name', 'status', 'created_by', 'updated_by', 'approved_by', 'created_at', 'updated_at', 'approved_at', 'contractor_names', 'request_count')
+        datatables_always_serialize = ('id', 'employee_name', 'div_num', 'status', 'created_by', 'updated_by', 'approved_by', 'created_at', 'updated_at', 'approved_at', 'contractor_names', 'request_count')
 
     def get_purchase_date_display(self, obj):
         date_min = getattr(obj, 'purchase_date_min', None)

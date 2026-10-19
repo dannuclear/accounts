@@ -94,12 +94,41 @@
 
       <div class="row g-1 pt-1">
         <div class="col-12">
-          {% include 'shared/formset.html' with formset=form.contractor_formset title='Контрагенты' add_label='Добавить контрагента' bg_color='rgb(158, 207, 183)' form_template='purchaseJustification/contractor/form.html' %}
-        </div>
+          <ul class="nav nav-tabs w-100" id="justificationTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active h-100 me-1" id="tab-purchase" data-bs-toggle="tab" data-bs-target="#tab-content-purchase" type="button" role="tab" aria-controls="tab-content-purchase" aria-selected="true">Приобретение ТМЦ / Услуги</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link h-100 me-1" id="tab-price-analysis" data-bs-toggle="tab" data-bs-target="#tab-content-price-analysis" type="button" role="tab" aria-controls="tab-content-price-analysis" aria-selected="false">Анализ цен</button>
+            </li>
+          </ul>
 
-        <div class="col-12">
-          <input type="file" id="attachment-file-input" class="d-none" />
-          {% include 'shared/formset.html' with formset=form.attachment_formset title='Вложения' add_label='Добавить вложение' bg_color='rgb(158, 207, 183)' form_template='purchaseJustification/attachment/form.html' %}
+          <div class="tab-content border rounded-bottom p-1" id="justificationTabsContent">
+            <div class="tab-pane fade show active" id="tab-content-purchase" role="tabpanel" aria-labelledby="tab-purchase">
+              <div class="row g-1">
+                <div class="col-12">
+                  {% include 'shared/formset.html' with formset=form.contractor_formset title='Контрагенты' add_label='Добавить контрагента' bg_color='#b4bca9' form_template='purchaseJustification/contractor/form.html' %}
+                </div>
+
+                <div class="col-12">
+                  <input type="file" id="attachment-file-input" class="d-none" />
+                  {% include 'shared/formset.html' with formset=form.attachment_formset title='Вложения' add_label='Добавить вложение' bg_color='#b4bca9' form_template='purchaseJustification/attachment/form.html' %}
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-content-price-analysis" role="tabpanel" aria-labelledby="tab-price-analysis">
+              <div class="row g-1">
+                {% for contractor_form in form.contractor_formset %}
+                  {% if not contractor_form.DELETE.value %}
+                    <div class="col-12">
+                      {% include 'purchaseJustification/contractor/priceAnalysis/form.html' with form=contractor_form read_only=read_only %}
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </form>
@@ -133,6 +162,21 @@
       $('.purchase-datepeeker').datepicker({
           minDate: -4,
           maxDate: 14
+      })
+
+      // Вкладки «Контрагенты» / «Аналитическая записка». Добавление и удаление
+      // строк перерисовывает страницу, поэтому активную вкладку запоминаем.
+      const activeTabKey = 'purchaseJustificationActiveTab'
+      const tabTriggers = '#justificationTabs [data-bs-toggle="tab"]'
+      const savedTab = sessionStorage.getItem(activeTabKey)
+
+      if (savedTab) {
+        const savedTrigger = document.querySelector(`${tabTriggers}[data-bs-target="${savedTab}"]`)
+        if (savedTrigger) $(savedTrigger).trigger('click')
+      }
+
+      $(tabTriggers).on('shown.bs.tab', function (e) {
+        sessionStorage.setItem(activeTabKey, $(e.currentTarget).data('bs-target'))
       })
     
       $('#{{ form.employee.id_for_label }}').on('select2:select', function (e) {
@@ -189,12 +233,12 @@
         if (!activeRow || !input.files || !input.files[0]) return
         const row = activeRow
         const file = input.files[0]
-        /*
+        
         if (file.type !== 'application/pdf') {
           alert('Загружаемый файл должен быть PDF')
           input.value = ''
           return
-        }*/
+        }
         if (file.size > maxFileSize) {
           alert(`Размер файла не должен превышать ${Math.round((maxFileSize * 100) / 1048576.0) / 100} МБ., текущий размер: ${Math.round((file.size * 100) / 1048576.0) / 100} МБ.`)
           input.value = ''

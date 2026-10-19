@@ -128,3 +128,8 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+.form-control[readonly] {
+  background-color: #e9ecef;
+  opacity: 1;
+}

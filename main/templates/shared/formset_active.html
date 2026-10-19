@@ -2,7 +2,7 @@
   <div class="row g-1">
     <div class="col-12">
       <div class="row g-1 align-items-center">
-        {% if not read_only %}
+        {% if not read_only and not hide_add %}
           <div class="col-auto">
             <button class="btn btn-sm btn-outline-light btn-add-row" data-prefix="{{ formset.prefix }}" {% if add_attrs %} {{ add_attrs|safe }}{% endif %}>{{ add_label|default:'Добавить' }}</button>
           </div>
@@ -23,7 +23,7 @@
                 <div class="col">
                   {% include form_template with form=f %}
                 </div>
-                {% if not read_only %}
+                {% if not read_only and not hide_remove %}
                   <div class="col-auto d-flex ps-1">
                     <button class="btn btn-sm btn-outline-danger btn-delete-row h-100" data-prefix="{{ f.prefix }}"><i class="fa-light fa-trash"></i></button>
                   </div>

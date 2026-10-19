@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.utils import timezone
 
 from django.db import models, transaction
@@ -88,6 +89,17 @@ class PurchaseJustificationContractor(models.Model):
     amount = models.DecimalField("Сумма", max_digits=14, decimal_places=2)
     purchase_date = models.DateField("Дата закупки", null=True, blank=True)
 
+    # Краткое обоснование выбора
+    choice_justification = models.CharField("Краткое обоснование выбора", max_length=100, null=True, blank=True)
+    # № счета (счета-оферты)
+    invoice_num = models.CharField("№ счета (счета-оферты)", max_length=50, null=True, blank=True)
+    # Дата счета (счета-оферты)
+    invoice_date = models.DateField("Дата счета (счета-оферты)", null=True, blank=True)
+    # Контакты поставщика
+    supplier_contacts = models.CharField("Контакты поставщика", max_length=100, null=True, blank=True)
+    # Адрес фактического расчета
+    settlement_address = models.CharField("Адрес фактического расчета", max_length=100, null=True, blank=True)
+
     class Meta:
         db_table = 'purchase_justification_contractor'
         verbose_name = "Контрагент обоснования"
@@ -126,18 +138,29 @@ class PurchaseJustificationContractorRequestItem(models.Model):
 
     request = models.ForeignKey(
         PurchaseJustificationContractorRequest, on_delete=models.CASCADE, related_name="items",
-        verbose_name="Заявка",
+        verbose_name="Заявка", null=True, blank=True,
     )
     name = models.CharField("Наименование", max_length=500)
     quantity = models.DecimalField("Количество", max_digits=12, decimal_places=3)
     price = models.DecimalField("Цена", max_digits=14, decimal_places=2)
     amount = models.DecimalField("Сумма", max_digits=14, decimal_places=2)
 
+    contractor = models.ForeignKey(
+        PurchaseJustificationContractor, on_delete=models.CASCADE, related_name="items",
+        verbose_name="Контрагент", null=True, blank=True,
+    )
+    
     class Meta:
         db_table = 'purchase_justification_contractor_request_item'
         verbose_name = "Позиция заявки"
         verbose_name_plural = "Позиции заявки"
         default_permissions = ()
+        constraints = [
+            models.CheckConstraint(
+                check=(Q(request__isnull=False, contractor__isnull=True) | Q(request__isnull=True, contractor__isnull=False)),
+                name="pjcri_request_xor_contractor",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.name} — {self.quantity} × {self.price}"

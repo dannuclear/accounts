@@ -1,0 +1,57 @@
+{% comment %}
+Параметры:
+  filter_id   - уникальный id селекта и часть ключа localStorage (обязательно)
+  label       - подпись слева
+  options     - список элементов с полями value и name
+  all_option - True -> добавить пункт "Не установлен" (значение -1)
+  placeholder - текст пустого пункта (по умолчанию "Все")
+  save_state  - False -> не сохранять значение в localStorage (по умолчанию сохраняется)
+  global_key  - True -> значение общее для всех страниц (по умолчанию для каждой страницы своё)
+{% endcomment %}
+<div class="input-group input-group-sm">
+    <span class="input-group-text">{{ label }}</span>
+    <select id="{{ filter_id }}" class="form-select filter-select">
+        {% if all_option %}
+            <option value="">Все</option>
+        {% endif %}
+        {% for opt in options %}
+            <option value="{% firstof opt.id opt.value %}">{{ opt.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="button" id="{{ filter_id }}-reset" class="btn btn-sm btn-outline-success">X</button>
+</div>
+
+<script type="text/javascript">
+    (function () {
+        const select = $("#{{ filter_id|escapejs }}");
+        const resetBtn = $("#{{ filter_id|escapejs }}-reset");
+        const SAVE_STATE = {% if save_state is not False %}true{% else %}false{% endif %};
+        const storageKey = "selectFilter:" + {% if global_key %}""{% else %}location.pathname{% endif %} + ":{{ filter_id|escapejs }}";
+
+        const highlight = () => select.toggleClass("bg-warning", !!select.val());
+
+        $(function () {
+            select.on("change", function () {
+                highlight();
+                if (SAVE_STATE) {
+                    localStorage.setItem(storageKey, select.val() || "");
+                }
+            });
+
+            resetBtn.on("click", function () {
+                select.val("").trigger("change");
+            });
+
+            if (SAVE_STATE) {
+                const stored = localStorage.getItem(storageKey);
+                if (stored && select.find("option").filter(function () {
+                    return this.value === stored;
+                }).length) {
+                    select.val(stored).trigger("change");
+                }
+            }
+
+            highlight();
+        });
+    })();
+</script>

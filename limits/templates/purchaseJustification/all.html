@@ -8,22 +8,30 @@
   <div class="alert alert-primary" role="alert" style="display: none;"></div>
 
   <div class="row">
-    <div class="col-5">
+    <div class="col-3">
       {% comment %} {% include 'main/filters/year_filter.html' with years=years %} {% endcomment %}
-      {% include 'main/filters/year_and_month_period_filter.html' with years=years %}
+      {% comment %} {% include 'main/filters/year_and_month_period_filter.html' with years=years %} {% endcomment %}
+      {% include 'main/filters/period_filter.html' %}
     </div>
     {% if statuses %}
-        <div class="col-3">
-            {% include 'status/status_filter.html' with options=statuses not_defined=True  %}
-        </div>
+      <div class="col-2">
+        {% include 'shared/select_filter.html' with filter_id='status-filter' label='Статус' options=statuses all_option=True %}
+      </div>
+    {% endif %}
+    {% if acquisition_options %}
+      <div class="col-3">
+        {% include 'shared/select_filter.html' with filter_id='acquisition-method-filter' label='Способ приобретения' options=acquisition_options all_option=True %}
+      </div>
     {% endif %}
   </div>
 
-  <table id="purchase-justification-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm">
+  <table id="purchase-justification-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm mt-1">
     <thead>
       <tr>
         <th data-dt-order="disable" style="width: 2%"></th>
         <th style="width: 4%">№</th>
+        <th style="width: 4%">Дата</th>
+        <th style="width: 3%">Подр.</th>
         <th style="width: auto">Контрагент</th>
         <th style="width: 15%">Подотчётное лицо</th>
         <th style="width: 6%">Сумма</th>
@@ -36,7 +44,12 @@
     </thead>
   </table>
 
+  
   <script type="text/javascript">
+
+    const acquisitionMethodFilter = $("#acquisition-method-filter")
+    const statusFilter = $("#status-filter")
+
     $(document).ready(function () {
       const purchaseJustificationTable = $('#purchase-justification-table').DataTable({
         ajax: {
@@ -46,14 +59,28 @@
             //  d.year = $('#year-select').val()
             //  d.yearFieldName = 'purchase_date'
             //}
-            if ($('#ymp-year-select').val()) {
-              d.year = $('#ymp-year-select').val()
-              d.monthFrom = $('#ymp-month-from-select').val()
-              d.monthTo = $('#ymp-month-to-select').val()
-              d.periodFieldName = 'purchase_date'
+            //if ($('#ymp-year-select').val()) {
+            //  d.year = $('#ymp-year-select').val()
+            //  d.monthFrom = $('#ymp-month-from-select').val()
+            //  d.monthTo = $('#ymp-month-to-select').val()
+            //  d.periodFieldName = 'purchase_date'
+            //}
+            if (periodFromInput.val() || periodToInput.val()) {
+              d.periodFrom = periodFilter.find("#period-from").val()
+              d.periodTo= periodFilter.find("#period-to").val()
+              d.periodFieldName = 'justification_date'
             }
             if (statusFilter && statusFilter.val())
               d.statusFilter = statusFilter.val()
+            if (acquisitionMethodFilter && acquisitionMethodFilter.val()) {
+              d.acquisitionMethod = acquisitionMethodFilter.val()
+            }
+            d.columns.push({data: 'employee.pfnSurname', searchable: true})
+            d.columns.push({data: 'employee.pfnName', searchable: true})
+            d.columns.push({data: 'employee.pfnPatronymic', searchable: true})
+            d.columns.push({data: 'employee.divNo', searchable: true})
+            d.columns.push({data: 'employee.empOrgNo', searchable: true})
+            d.columns.push({data: 'contractor_names', searchable: true})
           }
         },
         rowId: 'id',
@@ -78,19 +105,30 @@
             className: 'text-center'
           },
           {
-            data: 'contractor_names'
+            data: 'justification_date',
+            className: 'text-center'
           },
           {
-            data: 'employee_name'
+            data: 'div_num',
+            className: 'text-center'
+          },
+          {
+            data: 'contractor_names',
+            searchable: false,
+          },
+          {
+            data: 'employee_name',
+            searchable: false,
           },
           {
             data: 'total_amount',
             render: $.fn.dataTable.render.number(' ', ',', 2),
-            className: 'text-center'
+            className: 'text-right'
           },
           {
             data: 'purchase_date_display',
-            className: 'text-center'
+            className: 'text-center',
+            searchable: false,
           },
           {
             data: 'status.name',
@@ -127,15 +165,18 @@
         }
       })
 
-      yearMonthFilter.find('select').on('change', function (e) {
-        purchaseJustificationTable.ajax.reload()
-      })
-    
-      yearMonthFilter.find('button').on('click', function (e) {
+      $(".filter-select").on('change', function (e) {
         purchaseJustificationTable.ajax.reload()
       })
 
-      statusFilter.on('change', function (e) {
+      periodFilter
+        .find('.datepeeker')
+        .datepicker()
+        .on('change', function (e) {
+          purchaseJustificationTable.ajax.reload()
+        })
+        
+      periodFilter.find('button').on('click', function (e) {
         purchaseJustificationTable.ajax.reload()
       })
     })

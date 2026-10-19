@@ -107,6 +107,22 @@
       </div>
 
       {% if purchase_justification_form %}
+        <div class="col-xl-2 col-md-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Номер обоснования</span>
+            <input type="text" class="mb-0 form-control form-control-sm text-center" value="{{ purchase_justification_form.instance.num|default_if_none:'-' }}" disabled />
+          </div>
+        </div>
+
+        <div class="col-xl-2 col-md-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Дата обоснования</span>
+            <input type="text" class="text-center mb-0 form-control form-control-sm" value="{{ purchase_justification_form.instance.justification_date|default_if_none:'' }}" disabled />
+          </div>
+        </div>
+
+        <div class="col-10"></div>
+
         <div class="col-12">
           {% include 'shared/formset.html' with formset=purchase_justification_form.contractor_formset title='Контрагенты' add_label='Добавить контрагента' bg_color='rgb(158, 207, 183)' form_template='purchaseJustification/contractor/form.html' read_only=True %}
         </div>

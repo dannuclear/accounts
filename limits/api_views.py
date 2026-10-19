@@ -3,16 +3,17 @@ from datetime import date, datetime
 from decimal import Decimal
 
 from rest_framework import mixins, viewsets
-from django.db.models import Avg, Count, DecimalField, Max, Min, OuterRef, Subquery, Sum, Window
+from django.db.models import Avg, Count, DecimalField, Max, Min, OuterRef, Subquery, Sum, Window, CharField
 from django.contrib.postgres.aggregates import StringAgg
 from django.db.models import Count, DateField, F, Sum
 
 from guide.filters import DepartmentFilter, StatusFilter
+from limits.filters import AcquisitionMethodFilter
 from main.helpers import is_user_in_group
 from prepayment.filters import UserFilter
-from .models import PurchaseJustification, PurchaseLimit
+from .models import PurchaseJustification, PurchaseJustificationContractor, PurchaseLimit
 from rest_framework.response import Response
-from django.db.models.functions import ExtractQuarter, ExtractYear, Trunc, TruncMonth, TruncYear
+from django.db.models.functions import ExtractQuarter, ExtractYear, Trunc, TruncMonth, TruncQuarter, TruncYear
 from django.db.models import Sum, Count, DateField
 from django.db.models import F, Value
 from django.db.models.functions import Concat
@@ -20,7 +21,8 @@ from rest_framework import generics, viewsets
 
 from limits.models import PurchaseJustification
 from limits.serializer import PurchaseJustificationSerializer, PurchaseLimitSerializer, PurchaseRegistryItemSerializer
-from main.filters import EmployeeNumberFilter, YearAndMonthPeriodFilter
+from main.filters import EmployeeNumberFilter, UniversalPeriodFilter, YearAndMonthPeriodFilter
+
 
 class PurchaseJustificationViewSet(viewsets.ModelViewSet):
     queryset = PurchaseJustification.objects.select_related(
@@ -32,25 +34,27 @@ class PurchaseJustificationViewSet(viewsets.ModelViewSet):
             distinct=True,
         ),
         employee_name=Concat(
+            Value('('), F('employee__empOrgNo'), Value(') '),
             F('employee__pfnSurname'), Value(' '),
             F('employee__pfnName'), Value(' '),
-            F('employee__pfnPatronymic')
+            F('employee__pfnPatronymic'),
+            output_field=CharField()
         ),
         status_name=F('status__name'),
-        total_amount=Sum('contractors__requests__items__amount'),
+        div_num=F('employee__divNo'),
+        total_amount=Sum('contractors__amount'),
         purchase_date_min=Min('contractors__purchase_date'),
         purchase_date_max=Max('contractors__purchase_date'),
         request_count=Count('request'),
     ).order_by('-created_at')
 
     serializer_class = PurchaseJustificationSerializer
+    filter_backends = [StatusFilter, UniversalPeriodFilter,
+                       AcquisitionMethodFilter, *viewsets.ModelViewSet.filter_backends]
+
     def filter_queryset(self, queryset):
         self.filter_backends = [*self.filter_backends]
 
-        if 'statusFilter' in self.request.query_params:
-            self.filter_backends.insert(0, StatusFilter)
-        # if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
-        #     self.filter_backends.insert(0, PeriodFilter)
         if is_user_in_group(self.request.user, ['Администратор', 'Нормоконтроль']) or self.request.user.is_superuser:
             pass
         elif is_user_in_group(self.request.user, ['Руководитель']):
@@ -62,41 +66,6 @@ class PurchaseJustificationViewSet(viewsets.ModelViewSet):
             queryset = queryset.none()
 
         return super().filter_queryset(queryset)
-    
-# class PurchaseJustificationViewSet(viewsets.ModelViewSet):
-#     queryset = PurchaseJustification.objects.select_related(
-#         'employee', 'status'
-#     ).annotate(
-#         # contractor_name=F('contractor__short_name'),
-#         employee_name=Concat(
-#             F('employee__pfnSurname'), Value(' '),
-#             F('employee__pfnName'), Value(' '),
-#             F('employee__pfnPatronymic')
-#         ),
-#         status_name=F('status__name'),
-#     ).order_by('-created_at')
-
-#     serializer_class = PurchaseJustificationSerializer
-#     filter_backends = [YearAndMonthPeriodFilter, *viewsets.ModelViewSet.filter_backends]
-
-#     def filter_queryset(self, queryset):
-#         self.filter_backends = [*self.filter_backends]
-
-#         if 'statusFilter' in self.request.query_params:
-#             self.filter_backends.insert(0, StatusFilter)
-#         # if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
-#         #     self.filter_backends.insert(0, PeriodFilter)
-#         if is_user_in_group(self.request.user, ['Администратор', 'Нормоконтроль']) or self.request.user.is_superuser:
-#             pass
-#         elif is_user_in_group(self.request.user, ['Руководитель']):
-#             self.filter_backends.insert(0, DepartmentFilter)
-#         elif self.request.user.has_perm('limits.view_owner_purchase_justification'):
-#             self.request.emp_num_field_name = 'employee__empOrgNo'
-#             self.filter_backends.insert(0, EmployeeNumberFilter)
-#         else:
-#             queryset = queryset.none()
-
-#         return super().filter_queryset(queryset)
 
 
 class PurchaseLimitViewSet(viewsets.ModelViewSet):
@@ -127,12 +96,6 @@ class PurchaseLimitViewSet(viewsets.ModelViewSet):
             .order_by('method', 'period')
         )
 
-
-class TruncQuarter(Trunc):
-    def __init__(self, expression, output_field=None, **extra):
-        super().__init__(expression, kind='quarter', output_field=output_field, **extra)
-
-
 GROUPING_TRUNC = {
     'month': TruncMonth,
     'quarter': TruncQuarter,
@@ -140,38 +103,38 @@ GROUPING_TRUNC = {
 }
 
 
-# quarterly_queryset = (
-#     PurchaseJustification.objects
-#     .exclude(purchase_date__isnull=True)
-#     .annotate(
-#         q_year=ExtractYear('purchase_date'),
-#         q_quarter=ExtractQuarter('purchase_date'),
-#     )
-#     .filter(
-#         contractor_id=OuterRef('contractor_id'),
-#         q_year=OuterRef('period_year'),
-#         q_quarter=OuterRef('period_quarter'),
-#     )
-#     .values(
-#         'contractor_id',
-#         'q_year',
-#         'q_quarter',
-#     )
-#     .annotate(
-#         quarter_amount=Sum('amount')
-#     )
-#     .values('quarter_amount')[:1]
-# )
+quarterly_queryset = (
+    PurchaseJustificationContractor.objects
+    .exclude(purchase_date__isnull=True)
+    .annotate(
+        q_year=ExtractYear('purchase_date'),
+        q_quarter=ExtractQuarter('purchase_date'),
+    )
+    .filter(
+        contractor_id=OuterRef('contractor_id'),
+        q_year=OuterRef('period_year'),
+        q_quarter=OuterRef('period_quarter'),
+    )
+    .values(
+        'contractor_id',
+        'q_year',
+        'q_quarter',
+    )
+    .annotate(
+        quarter_amount=Sum('amount')
+    )
+    .values('quarter_amount')[:1]
+)
 
-# limit_subquery = (
-#     PurchaseLimit.objects
-#     .filter(
-#         period='quarter',
-#         effective_date__lte=OuterRef('purchase_date'),
-#     )
-#     .order_by('-effective_date')
-#     .values('amount')[:1]
-# )
+limit_subquery = (
+    PurchaseLimit.objects
+    .filter(
+        period='quarter',
+        effective_date__lte=OuterRef('purchase_date'),
+    )
+    .order_by('-effective_date')
+    .values('amount')[:1]
+)
 
 
 class PurchaseRegistryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -185,7 +148,7 @@ class PurchaseRegistryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         month_to = request.query_params.get('monthTo')
         limit_filter = request.query_params.get('limit')
 
-        queryset = PurchaseJustification.objects.exclude(purchase_date__isnull=True)
+        queryset = PurchaseJustificationContractor.objects.exclude(purchase_date__isnull=True)
 
         if year:
             queryset = queryset.filter(purchase_date__year=year)
@@ -205,14 +168,14 @@ class PurchaseRegistryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                 ),
                 period_year=ExtractYear('purchase_date'),
                 period_quarter=ExtractQuarter('purchase_date'),
-                # quarter_amount=Subquery(
-                #     quarterly_queryset,
-                #     output_field=DecimalField()
-                # ),
-                # quarterly_limit_amount=Subquery(
-                #     limit_subquery,
-                #     output_field=DecimalField()
-                # )
+                quarter_amount=Subquery(
+                    quarterly_queryset,
+                    output_field=DecimalField()
+                ),
+                quarterly_limit_amount=Subquery(
+                    limit_subquery,
+                    output_field=DecimalField()
+                )
             )
             .values(
                 'contractor_id',

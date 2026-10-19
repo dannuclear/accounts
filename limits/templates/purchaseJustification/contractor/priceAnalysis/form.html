@@ -1,0 +1,39 @@
+<div class="border rounded p-1 contractor-price-analysis-block" style="background-color: #b4bca9">
+  <div class="row g-1 align-items-center pb-1">
+    {% if form.contractor.value %}
+      <div class="col-12 fw-semibold text-center" style="font-size: 1.2em;">{{ form.contractor_display|default:'Контрагент' }}</div>
+    {% else %}
+      <div class="col-12 text-muted fst-italic text-center">Заполняется на вкладке «Приобретение ТМЦ»</div>
+    {% endif %}
+  </div>
+
+  <div class="row g-1 pb-1">
+    <div class="col-12">
+      {% include 'main/input_group.html' with field=form.choice_justification label='Краткое обоснование выбора:' labelStyle='width: 220px' %}
+    </div>
+
+    <div class="col-12">
+      {% include 'shared/formset.html' with formset=form.analytical_note_formset title='Аналитическая записка' add_label='Добавить вложение' bg_color='#868f79' form_template='purchaseJustification/attachment/form.html' read_only=read_only %}
+    </div>
+
+    <div class="col-12 col-lg-3">
+      {% include 'main/input_group.html' with field=form.invoice_num label='№ счета (счета-оферты):' labelStyle='width: 220px' %}
+    </div>
+
+    <div class="col-12 col-lg-2">
+      {% include 'main/input_group.html' with field=form.invoice_date label='Дата счета:' labelStyle='width: 130px' inputClass='text-center datepeeker' inputAttr='readonly' %}
+    </div>
+
+    <div class="col-12 col-lg-7">
+      {% include 'main/input_group.html' with field=form.supplier_contacts label='Контакты поставщика:' labelStyle='width: 180px' %}
+    </div>
+
+    <div class="col-12">
+      {% include 'main/input_group.html' with field=form.settlement_address label='Адрес фактического расчета:' labelStyle='width: 220px' %}
+    </div>
+
+    <div class="col-12">
+      {% include 'shared/formset.html' with formset=form.invoice_formset title='Счет/Счет оферта' add_label='Добавить вложение' bg_color='#868f79' form_template='purchaseJustification/attachment/form.html' read_only=read_only hide_add=True hide_remove=True %}
+    </div>
+  </div>
+</div>
