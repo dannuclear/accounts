@@ -67,6 +67,8 @@ class DepartmentAccountViewSet (viewsets.ModelViewSet):
     serializer_class = DepartmentAccountSerializer
     filter_backends = [DepartmentFilter, *viewsets.ModelViewSet.filter_backends]
 
+    require_department=False
+
     # def filter_queryset(self, queryset):
     #     self.filter_backends = [DepartmentFilter, *self.filter_backends]
     #     return super().filter_queryset(queryset)

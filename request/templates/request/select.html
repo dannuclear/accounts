@@ -1,0 +1,41 @@
+{% load widget_tweaks %}
+
+<div class="input-group input-group-sm">
+  <span class="input-group-text">{{ label|default:'Заявление' }}</span>
+  {{ field|add_class:'form-select-sm' }}
+</div>
+
+<script>
+  $(function () {
+    const $empNum = $('#{{ empField.id_for_label }}')
+  
+    $('#{{ field.id_for_label }}').select2({
+      ajax: {
+        url: "{% url 'request-list' %}",
+        dataType: 'json',
+        data: function (params) {
+          return {
+            q: params.term,
+            empNum: $.trim($empNum.val()) || -1,
+            format: 'json'
+          }
+        },
+        processResults: function (data) {
+          return {
+            results: data.results.map((el) => ({
+              id: el.id,
+              text: el.num + ' - ' + el.createDate
+            }))
+          }
+        }
+      },
+      allowClear: true,
+      placeholder: '{{ placeholder|default:"Заявление"|escapejs }}',
+      language: {
+        noResults: function () {
+          return 'Нет совпадений'
+        }
+      }
+    })
+  })
+</script>

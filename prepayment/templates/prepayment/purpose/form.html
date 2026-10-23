@@ -1,0 +1,75 @@
+{% load prepayment_extras %}
+
+<div class="border rounded p-1 mb-1 purpose-form" data-prefix="{{ form.prefix }}">
+  {{ form.id }}
+
+  <div class="row g-1">
+    {# Основное #}
+    <div class="col-12 col-md-4">
+      {% include 'main/input_group.html' with field=form.prepaidDest label='Назначение аванса' inputClass='form-select' %}
+    </div>
+    <div class="col-6 col-md-2">
+      {% include 'main/input_group.html' with field=form.deptExpense label='Расх. подр.' inputClass='dept-exp text-center' %}
+    </div>
+    <div class="col-6 col-md-2">
+      {% include 'main/input_group.html' with field=form.expenseCode label='Код расхода' inputClass='form-select' %}
+    </div>
+    <div class="col-12 col-md">
+      <div class="d-flex gap-1">
+        <div class="flex-grow-1">
+          {% include 'main/input_group.html' with field=form.reportDeadline label='Срок предст. АО' inputClass='text-center datepeeker' %}
+        </div>
+        <button class="btn btn-sm btn-outline-primary clone-purpose align-self-start" data-prefix="{{ form.prefix }}" title="Дублировать">
+          <i class="fa-duotone fa-copy"></i>
+        </button>
+      </div>
+    </div>
+
+    {# Шифр отнесения затрат #}
+    <div class="col-8">
+      <div class="border rounded p-1 bg-light">
+        <div class="small fw-semibold text-muted mb-1 text-center">Шифр отнесения затрат</div>
+        <div class="row g-1">
+          <div class="col-6 col-md-3">
+            {% include 'main/input_group.html' with field=form.account label='Счет/субсчет' inputClass='purpose-account' %}
+          </div>
+          <div class="col-6 col-md-3">
+            {% include 'main/input_group.html' with field=form.expenditure label='КАУ: Статья' %}
+          </div>
+          <div class="col-6 col-md-3">
+            {% include 'main/input_group.html' with field=form.deptExpenditure label='КАУ: Подр./Статья' %}
+          </div>
+          <div class="col-6 col-md-3">
+            {% include 'main/input_group.html' with field=form.extra label='Доп. признак' inputClass='text-end' %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Командирование #}
+    <div class="col-4">
+      <div class="border rounded p-1 bg-light">
+        <div class="small fw-semibold text-muted mb-1 text-center">Период командирования</div>
+        <div class="d-flex gap-1">
+          <div class="flex-grow-1 flex-basis-0" style="flex-basis: 0;">
+            {% include 'main/input_group.html' with field=form.missionFromDate label='С' inputClass='text-center datepeeker period-from' %}
+          </div>
+          <div class="flex-grow-1" style="flex-basis: 0;">
+            {% include 'main/input_group.html' with field=form.missionToDate label='По' inputClass='text-center datepeeker period-to' %}
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-success purpose-split align-self-start" data-bs-toggle="modal" data-bs-target="#splitModal" title="Разбить">
+            <i class="fa-duotone fa-split"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    {# Место и цель #}
+    <div class="col-12 col-md-6">
+      {% include 'main/input_group.html' with field=form.missionDest label='Место командирования' %}
+    </div>
+    <div class="col-12 col-md-6">
+      {% include 'main/input_group.html' with field=form.missionPurpose label='Цель командировки' %}
+    </div>
+  </div>
+</div>

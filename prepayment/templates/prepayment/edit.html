@@ -9,8 +9,8 @@
 {% block content %}
   <form method="post" class="container-fluid">
     {% csrf_token %}
-    <input id="action" type="hidden" name="action">
-    <input id="split" type="hidden" name="split">
+    <input id="action" type="hidden" name="action" />
+    <input id="split" type="hidden" name="split" />
     <input type="hidden" name="id" value="{{ form.id.value }}" />
 
     {% url 'prepayments' as back_url %}
@@ -19,39 +19,35 @@
     {{ form.errors }}
     {{ form.non_field_errors }}
 
-    <div class="row g-1 mt-1 ">
-      <div class="col-12 border rounded p-1">
+    <div class="row g-1 mt-1">
+      <div class="col-12 border rounded p-1 mt-1">
         <div class="row g-1">
+          <div class="col-xl-4 col-md-4 text-center">
+            <h4 class="m-0">Выданный аванс</h4>
+          </div>
+
+          <div class="col-4"></div>
+
           <div class="col-2">
             {% include 'main/input_group.html' with field=form.imprestAccount inputClass='text-center form-select' %}
           </div>
 
-          <div class="col-8"></div>
-
-          <div class="col-2">
-            {% include 'main/input_group.html' with field=form.status inputClass='text-center form-select' %}
+          <div class="col-xl-2 col-md-2 ms-auto">
+            {% include 'main/input_group.html' with field=form.status inputClass='text-center form-select' read_only=form.has_requests %}
           </div>
         </div>
       </div>
+
       <div class="col-12 border rounded p-1">
         <p class="h3 m-0">Заявление:</p>
         <div class="col-7">
-          <div class="input-group input-group-sm">
-            <span class="input-group-text">
-              Заявление
-            </span>
-            <select id="id_request" name="request" class="text-left form-select-sm" {% if form.request.field.disabled %}disabled{% endif %}>
-              <option value="{{ form.instance.request.id }}" selected>
-                  {{ form.instance.request.num }} - {{ form.instance.request.createDate|date:'d.m.y' }}
-              </option>
-            </select>
-          </div>
+          {% include 'request/select.html' with field=form.request empField=form.empNum %}
         </div>
       </div>
 
       <div class="col-12 border rounded p-1">
-        <p class="h3 m-0">Документ: 
-          {% if form.instance.wc07pOrder is not None %}
+        <p class="h3 m-0">
+          Документ:{% if form.instance.wc07pOrder is not None %}
             <i class="fa-light fa-link" title="Связь с загруженным документом: ({{ form.instance.wc07pOrder.orderId }}) {{ form.instance.wc07pOrder.orderName }} № {{ form.instance.wc07pOrder.orderNum }}" style="color: #2d9efb;"></i>
           {% endif %}
           {% if form.instance.request is not None %}
@@ -71,11 +67,27 @@
           <div class="col-2">
             {% include 'main/input_group.html' with field=form.docDate inputClass='datepeeker text-center' %}
           </div>
+
+          {% if form.instance.request.purchase_justification %}
+            <div class="col-xl-2 col-md-2">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Номер обоснования</span>
+                <input type="text" class="mb-0 form-control form-control-sm text-center" value="{{ form.instance.request.purchase_justification.num|default_if_none:'-' }}" disabled />
+              </div>
+            </div>
+
+            <div class="col-xl-2 col-md-2">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Дата обоснования</span>
+                <input type="text" class="text-center mb-0 form-control form-control-sm" value="{{ form.instance.request.purchase_justification.justification_date|default_if_none:'' }}" disabled />
+              </div>
+            </div>
+          {% endif %}
         </div>
       </div>
 
       <div class="col-12 border rounded p-1">
-        <p class="h3 m-0">Приказ об изменении: </p>
+        <p class="h3 m-0">Приказ об изменении:</p>
 
         <div class="row g-1">
           <div class="col-2">
@@ -83,7 +95,7 @@
           </div>
 
           <div class="col-2">
-            {% include 'main/input_group.html' with field=form.orderChangeDate inputClass='datepeeker text-center' label='Дата приказа'  %}
+            {% include 'main/input_group.html' with field=form.orderChangeDate inputClass='datepeeker text-center' label='Дата приказа' %}
           </div>
 
           <div class="col-8">
@@ -96,32 +108,19 @@
         <p class="h4 m-0">Раздел 1. Подотчетное лицо:</p>
         <div class="row g-1">
           <div class="col-2">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">{{ form.empNum.label }}</span>
-              {{ form.empNum|add_class:'form-control text-center'|add_error_class:'is-invalid'|attr:'id:emp-num-input' }}
-              <button id="emp-num-search" class="btn btn-outline-secondary" type="button"><i class="fa-light fa-magnifying-glass"></i></button>
-            </div>
+            {% include 'integration/employee/search.html' with field=form.empNum %}
           </div>
 
           <div class="col-2">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">{{ form.empDivNum.label }}</span>
-              <input id="emp-div-num" type="text" class="h5 text-center mb-0 form-control {% if form.empDivNum.errors %} is-invalid {% endif %} bg-body-secondary" name="{{ form.empDivNum.name }}" value="{{ form.empDivNum.value|zfill:3|default_if_none:'' }}" readonly />
-            </div>
+            {% include 'main/input_group.html' with field=form.empDivNum inputClass='text-center bg-body-secondary' inputAttr='readonly' %}
           </div>
 
           <div class="col-3">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">{{ form.empFullName.label }}</span>
-              <input id="emp-full-name" type="text" class="mb-0 form-control {% if form.empFullName.errors %} is-invalid {% endif %} bg-body-secondary" name="{{ form.empFullName.name }}" value="{{ form.empFullName.value|default_if_none:'' }}" readonly />
-            </div>
+            {% include 'main/input_group.html' with field=form.empFullName inputClass='text-center bg-body-secondary' inputAttr='readonly' %}
           </div>
 
           <div class="col-5">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">{{ form.empProfName.label }}</span>
-              <input id="emp-prof-name" type="text" class="mb-0 form-control form-control-sm {% if form.empProfName.errors %} is-invalid {% endif %} bg-body-secondary" name="{{ form.empProfName.name }}" value="{{ form.empProfName.value|default_if_none:'' }}" readonly />
-            </div>
+            {% include 'main/input_group.html' with field=form.empProfName inputClass='text-center bg-body-secondary' inputAttr='readonly' %}
           </div>
         </div>
       </div>
@@ -152,269 +151,80 @@
         </div>
       </div>
 
-      <div class="col-12 border rounded p-1">
-        <div class="row g-1 item-container">
-          <div class="col-12">
-            <button id="button-add-item" class="btn btn-sm btn-outline-primary" data-prefix="{{ items.prefix }}">Добавить</button>
-          </div>
-          {{ items.management_form }}
-          {% for del in items %}
-            {% if del.DELETE.value %}
-              {{ del.id }}
-              {{ del.DELETE.as_hidden }}
-            {% endif %}
-          {% endfor %}
-
-          {% for itemForm in items %}
-            {% if not itemForm.DELETE.value %}
-              {% include 'prepayment/item_row.html' with form=itemForm %}
-            {% endif %}
-          {% endfor %}
+      <div class="row g-1 item-container">
+        <div class="col-12">
+          {% include 'shared/formset.html' with formset=form.item_formset title='Авансы' add_label='Добавить аванс' bg_color='#b4bca9' form_template='prepayment/item/form.html' %}
         </div>
       </div>
 
       <div class="col-12 border rounded p-1">
-        <p class="h4 m-0">Раздел 2. Сведения о назначении аванса</p>
-        <button id="button-add-purpose" class="btn btn-sm btn-outline-primary my-1" data-prefix="{{ purposes.prefix }}">Добавить</button>
-        <table class="table table-bordered table-sm text-center" style="font-size: 0.8em;">
-          <thead>
-            <tr>
-              <th scope="col" rowspan="3" style="width: 1%;"></th>
-              <th scope="col" rowspan="3" style="width: 10%;">Назначение аванса</th>
-              <th scope="col" rowspan="3" style="width: 5%;">Расходы подразделения</th>
-              <th scope="col" rowspan="3" style="width: 10%;">Код расхода</th>
-              <th scope="col" rowspan="1" colspan="4" style="width: 20%;">Шифр отнесения затрат</th>
-              <th scope="col" rowspan="1" colspan="3" style="width: 10%;">Даты командирования</th>
-              <th scope="col" rowspan="3" style="width: 10%;">Место командирования</th>
-              <th scope="col" rowspan="3" style="width: 10%;">Цель командировки</th>
-              <th scope="col" rowspan="3" style="width: 7%;">Предельный срок предоставления АО (дата)</th>
-              <th scope="col" rowspan="3" style="width: 1%;"></th>
-            </tr>
-            <tr>
-              <th scope="col" rowspan="2" style="width: 5%;">Счет/субсчет</th>
-              <th scope="col" rowspan="1" colspan="2" style="width: 10%;">КАУ</th>
-              <th scope="col" rowspan="2" style="width: 10%;">Доп. признак</th>
-              <th scope="col" rowspan="2" style="width: 7%;">С</th>
-              <th scope="col" rowspan="2" style="width: 7%;">По</th>
-              <th scope="col" rowspan="2" style="width: 1%;"></th>
-            </tr>
-            <tr>
-              <th scope="col" rowspan="1" style="width: 5%;">Статья</th>
-              <th scope="col" rowspan="1" style="width: 5%;">Подр./Статья</th>
-            </tr>
-          </thead>
-          <tbody class="purpose-container">
-          {{ purposes.management_form }}
-          {% for deletedForm in purposes.deleted_forms %}
-            {{ deletedForm.id }}
-            {{ deletedForm.DELETE.as_hidden }}
-          {% endfor %}
-          {% for purpose in purposes %}
-            {% if not purpose.DELETE.value %}
-              {% include 'prepayment/purpose_row.html' with form=purpose %}
-            {% endif %}
-          {% endfor %}
-          </tbody>
-        </table>
+        {% include 'shared/formset.html' with formset=form.purpose_formset title='Раздел 2. Сведения о назначении аванса' add_label='Добавить сведения' bg_color='#b4bca9' form_template='prepayment/purpose/form.html' %}
       </div>
     </div>
   </form>
 
-  <div class="modal fade" id="splitModal" tabindex="-1" aria-labelledby="splitModalTitle" aria-hidden="true">
-    <input id="base-row" type="hidden" disabled>
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title fs-5" id="splitModalTitle">Разбить период</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body container-fluid">
-          <div class="row">
-            <div class="col">
-              <button type="button" class="btn btn-primary btn-sm period-add">+</button>
-            </div>
-          </div>
+  {% include 'prepayment/split_modal.html' %}
 
-          <div class="row period-row pt-1">
-            <div class="col-12 input-group input-group-sm pb-1">
-              <input type="text" class="h5 text-center mb-0 form-control form-control-sm period-from" readonly/>
-            </div>
-            <div class="col-12 input-group input-group-sm">
-              <input type="text" class="h5 text-center mb-0 form-control form-control-sm period-to" readonly/>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="button" class="btn btn-primary ok-button">Ок</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
   <script type="text/javascript">
     $(document).ready(function () {
-      function updatePrepaymentSum () {
-        let prepaymentSum = 0;
-        $('.prepayment-part:visible').each(function() {
-          prepaymentSum += parseFloat($(this).val().replace(',','.')) || 0;
-        });
-        $('.prepayment-total').val(prepaymentSum.toFixed(2));
+      function updatePrepaymentSum() {
+        let prepaymentSum = 0
+        $('.prepayment-part:visible').each(function () {
+          prepaymentSum += parseFloat($(this).val().replace(',', '.')) || 0
+        })
+        $('.prepayment-total').val(prepaymentSum.toFixed(2))
       }
-
-      $('form').on('change', '.prepayment-part:visible', function(e) {
-        updatePrepaymentSum();
+    
+      $('form').on('change', '.prepayment-part:visible', function (e) {
+        updatePrepaymentSum()
       })
-
-
-      $('.purpose-container').on('change', '.dept-exp', function(e){
+    
+      $('.purpose-container').on('change', '.dept-exp', function (e) {
         const deptExpenseInput = e.currentTarget
-        const tr = $(deptExpenseInput).closest('tr')
-        const accountInput = tr.find('.purpose-account')
+        const accountInput = $(deptExpenseInput).closest('.purpose-form').find('.purpose-account')
         if (deptExpenseInput.value)
-          $.get(`/api/v1/departmentAccounts?format=json&departmentId=${deptExpenseInput.value}`).done((response) => {
-            if (response.results && response.results.length > 0)
-            accountInput.val(response.results[0].account)
-          })        
+          $.get(`{% url 'departmentaccount-list' %}?format=json&departmentId=${deptExpenseInput.value}`).done((response) => {
+            if (response.results && response.results.length > 0) accountInput.val(response.results[0].account)
+          })
       })
-
-      $('#button-add-item, #button-add-purpose').on('click', function(e){
+    
+      $('.btn-add-row').on('click', function (e) {
         $('#action').val('add-' + $(e.currentTarget).data('prefix'))
       })
-
-      $('.delete-item, .delete-purpose').on('click', function (e) {
+    
+      $('.btn-delete-row').on('click', function (e) {
         $('#action').val('delete-' + $(e.currentTarget).data('prefix'))
       })
-
+    
       $('.clone-purpose').on('click', function (e) {
         $('#action').val('clone-' + $(e.currentTarget).data('prefix'))
       })
-
+    
       $('.datepeeker').datepicker()
-
-      $('#id_request').select2({
-        ajax: {
-          url: function() {
-            const base = '{% url "request-list" %}?format=json';
-            const empNum = document.querySelector('#emp-num-input')?.value || -1;
-            return `${base}&empNum=${empNum}`;
-          },
-          dataType: 'json',
-          data: function (params) {
-            return { q: params.term }
-          },
-          processResults: function (data) {
-            return {
-              results: data.results.map((el) => ({ id: el.id, text: el.num + ' - ' + el.createDate }))
-            }
-          }
-        },
-        allowClear: true,
-        placeholder: 'Заявление',
-        language: {
-          noResults: function (params) {
-            return 'Нет совпадений'
-          }
-        }
-      })
-
-      $('#emp-num-search').on('click', function(e) {
-        const empNum = $('#emp-num-input').val()
-        if (!empNum) {
+    
+      const $empNum = $('#{{ form.empNum.id_for_label }}')
+      const $fullName = $('#{{ form.empFullName.id_for_label }}')
+      const $divNum = $('#{{ form.empDivNum.id_for_label }}')
+      const $profName = $('#{{ form.empProfName.id_for_label }}')
+      const $targets = $fullName.add($divNum).add($profName)
+    
+      $empNum
+        .on('employee:empty', function () {
           alert('Введите табельный номер')
-          return
-        }
-        $.get(`/api/v1/integration/employees?empOrgNo=${empNum}`, function(data) {
-          if (data.results && data.results.length > 0){
-            const employee = data.results[0]
-
-            $('#emp-full-name').val(employee.fullName)
-            $('#emp-prof-name').val(employee.profName)
-            $('#emp-div-num').val(employee.divNo)
-            
-          } else {
-            $('#emp-full-name, #emp-prof-name, #emp-div-num').val('')
-          }
         })
-      })
-
-      $('#splitModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget)
-        var row = button.closest('tr')
-        $('.purpose-form').removeClass('edited')
-        row.addClass('edited')
-        
-        var periodFrom = row.find('.period-from').val()
-        var periodTo = row.find('.period-to').val()
-
-        var modal = $(this)
-        modal.find('.modal-body .period-from').val(periodFrom)
-        modal.find('.modal-body .period-to').val(periodTo)
-        modal.find('.period-part-group').remove()
-      })
-
-      $('#splitModal').on('click', '.period-add', function (event) {
-        const modal = $(event.delegateTarget)
-        const body = modal.find('.modal-body')
-
-        const firstRow = modal.find('div.period-row').first()
-        const periodFromInput = firstRow.find('.input-group').last()
-        const af = periodFromInput.before(`
-            <div class="col-12 input-group input-group-sm pb-1 period-part-group">
-              <input type="text" class="h5 text-center mb-0 form-control form-control-sm period-part datepeeker"/>
-              <div class="input-group-append">
-                <button type="button" class="btn btn-sm btn-outline-danger period-delete"><i class="fa-light fa-trash"></i></button>
-              </div>
-            </div>`)
-        $('.period-part.datepeeker').datepicker({
-          beforeShow: function() {
-            setTimeout(function(){
-                $('.ui-datepicker').css('z-index', 9999999);
-            }, 0);
-          }
+        .on('employee:found', function (e, emp) {
+          $fullName.val(emp.fullName)
+          $divNum.val(emp.divNo)
+          $profName.val(emp.profName)
         })
-      })
-
-      $('#splitModal').on('click', '.period-delete', function (event) {
-        const row = $(event.target).parents('div.input-group')
-        row.remove()
-      })
-
-      // Принятие изменений из модальных форм
-      $('#splitModal').on('click', '.ok-button', function(e){
-        var modal = $(e.delegateTarget)
-        const editedRow = $('.purpose-form.edited')
-        const container = $('.purpose-container')
-
-        const periods = []
-        const periodsRow = modal.find('div.period-row').first()
-        const firstPeriodInput = periodsRow.find('.input-group>input').first()
-        const lastPeriodInput = periodsRow.find('.input-group>input').last()
-        const firstValue = dayjs(firstPeriodInput.val(), 'DD.MM.YYYY', true)
-        const lastValue = dayjs(lastPeriodInput.val(), 'DD.MM.YYYY', true)
-
-        periods.push(firstValue)
-        let isValid = true;
-        modal.find('.modal-body>.period-row>.input-group>.period-part').each(function(idx, el) {
-          $(el).removeClass('is-invalid')
-          const periodPart = dayjs(el.value, 'DD.MM.YYYY', true)
-          if (!periodPart.isValid() || periodPart.isBefore(firstValue) || periodPart.isAfter(lastValue)) {
-            $(el).addClass('is-invalid')
-            isValid = false
-          } else {
-            periods.push(dayjs(el.value, 'DD.MM.YYYY', true))
-          }
+        .on('employee:notfound', function () {
+          $targets.val('')
         })
-        periods.push(lastValue)
-        if (!isValid)
-          return;
-        //console.log(editedRow.data('prefix'))
-        $('#action').val('split-' + editedRow.data('prefix'))
-        $('#split').val(periods)
-        $('form').submit()
-      })
-
-      updatePrepaymentSum ()
+        .on('employee:error', function () {
+          alert('Ошибка при поиске сотрудника')
+        })
+    
+      updatePrepaymentSum()
     })
   </script>
 {% endblock %}

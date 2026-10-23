@@ -4,6 +4,7 @@ import re
 from rest_framework.filters import BaseFilterBackend
 from rest_framework_datatables.filters import DatatablesBaseFilterBackend, get_param, f_search_q
 from django.db.models import Q
+from main import utils
 
 
 class UniversalPeriodFilter(BaseFilterBackend):
@@ -41,22 +42,56 @@ class UniversalYearFilter(BaseFilterBackend):
             queryset = queryset.filter(**{"%s__year" % (field_name): year})
         return queryset
 
+# class EmployeeNumberFilter(BaseFilterBackend):
+#     def __init__(self, field_name="empNum", *args, **kwargs):
+#         self.field_name = field_name
+
+#     def filter_queryset(self, request, queryset, view):
+#         field_name = getattr(request, 'emp_num_field_name', None) \
+#             or request.query_params.get("empNumFieldName", self.field_name)
+
+#         username = request.user.username or ''
+#         result = re.search(r'\d+', username)
+#         current_emp_org_no = result.group() if result else None
+
+#         if current_emp_org_no is None:
+#             return queryset.none()
+#         else:
+#             return queryset.filter(**{f"{field_name}__endswith": current_emp_org_no})
+
 class EmployeeNumberFilter(BaseFilterBackend):
-    def __init__(self, field_name="empNum", *args, **kwargs):
-        self.field_name = field_name
+    """
+    Ограничивает queryset записями текущего сотрудника.
+
+    Атрибуты view (все необязательные):
+      emp_num_field         - поле модели с табельным (по умолчанию 'empNum')
+      emp_num_lookup        - 'exact' | 'endswith' | ... (по умолчанию 'exact')
+      emp_num_extra_q       - метод view(request, emp_num) -> Q | None,
+                              условие, которое добавляется через OR
+      emp_num_bypass_staff  - True: staff видит всё (по умолчанию False)
+    """
 
     def filter_queryset(self, request, queryset, view):
-        field_name = getattr(request, 'emp_num_field_name', None) \
-            or request.query_params.get("empNumFieldName", self.field_name)
+        user = request.user
 
-        username = request.user.username or ''
-        result = re.search(r'\d+', username)
-        current_emp_org_no = result.group() if result else None
+        if getattr(view, 'emp_num_bypass_staff', False) and user.is_staff:
+            return queryset
 
-        if current_emp_org_no is None:
+        emp_num = utils.get_emp_num(user)
+        if emp_num is None:
             return queryset.none()
-        else:
-            return queryset.filter(**{f"{field_name}__endswith": current_emp_org_no})
+
+        field = getattr(view, 'emp_num_field', 'empNum')
+        lookup = getattr(view, 'emp_num_lookup', 'exact')
+        q = Q(**{f'{field}__{lookup}': emp_num})
+
+        extra = getattr(view, 'emp_num_extra_q', None)
+        if extra:
+            extra_q = extra(request, emp_num)
+            if extra_q is not None:
+                q |= extra_q
+
+        return queryset.filter(q)
 
 class YearAndMonthPeriodFilter(BaseFilterBackend):
     field_name = "createDate"

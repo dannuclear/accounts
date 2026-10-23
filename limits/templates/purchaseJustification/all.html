@@ -25,7 +25,7 @@
     {% endif %}
   </div>
 
-  <table id="purchase-justification-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm mt-1">
+  <table id="purchase-justification-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm mt-1 table-row-min">
     <thead>
       <tr>
         <th data-dt-order="disable" style="width: 2%"></th>
@@ -134,21 +134,11 @@
             data: 'status.name',
             className: 'text-center'
           },
-          {
-            data: null,
-            orderable: false,
-            searchable: false,
-            className: 'text-center',
-            render: function (data, type, row) {
-              const parts = []
-              if (data.created_by) parts.push(`Создал: ${data.created_by} (${data.created_at || ''})`)
-              if (data.updated_by) parts.push(`Обновил: ${data.updated_by} (${data.updated_at || ''})`)
-              if (data.approved_by) parts.push(`Утвердил: ${data.approved_by} (${data.approved_at || ''})`)
-    
-              const tooltip = parts.join('&#10;')
-              return `<i class="fa-light fa-circle-info fa-xl m-0 text-success" title="${tooltip}"></i>`
-            }
-          },
+          auditColumn([
+            { label: 'Создал',   user: 'created_by',  date: 'created_at' },
+            { label: 'Обновил',  user: 'updated_by',  date: 'updated_at' },
+            { label: 'Утвердил', user: 'approved_by', date: 'approved_at' },
+          ]),
           editColumn("{% url 'purchase_justifications' %}", null),
           deleteColumn("{% url 'purchase_justifications' %}", null, 'Удалить обоснование?')
         ],

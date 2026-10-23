@@ -1,5 +1,8 @@
 from django import forms
-from django.forms.models import ALL_FIELDS, BaseInlineFormSet
+from django.db import transaction
+from django.forms.models import ALL_FIELDS, BaseInlineFormSet, inlineformset_factory
+
+from main.forms.mixins import NestedFormsMixin
 from .models import Prepayment, PrepaymentPurpose, ExpenseCode, PrepaymentItem, AdvanceReportItem, Attachment, AdvanceReportItemEntity, AdvanceReportInventoryItem, PrepaymentEmpNum
 from guide.models import ObtainMethod
 from guide.models import Status, ImprestAccount, Document, PrepaidDest, ExpenseCategory, ExpenseItem
@@ -80,7 +83,94 @@ class PrepaymentEmpNumForm (forms.ModelForm):
         model = PrepaymentEmpNum
         fields = ALL_FIELDS
 
-class PrepaymentForm (forms.ModelForm):
+class ZeroPaddedTextInput(forms.TextInput):
+    def __init__(self, width, *args, **kwargs):
+        self.width = width
+        super().__init__(*args, **kwargs)
+
+    def format_value(self, value):
+        if value in (None, ''):
+            return ''
+        return str(value).zfill(self.width)
+    
+# Элементы аванса по выданому авансу
+class PrepaymentItemForm(forms.ModelForm):
+
+    obtainMethod = StatusChoiceField(queryset=ObtainMethod.objects.order_by('id'), widget=forms.Select(
+        attrs={'class': 'custom-select form-control-sm'}), label='Способ получения', required=False, empty_label='Не установлен')
+
+    date = MyDateField(label='Дата', localize=True, required=False)
+
+    value = forms.DecimalField(label='Сумма', localize=True, required=False)
+
+    class Meta:
+        model = PrepaymentItem
+        fields = ('obtainMethod', 'date', 'value')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.id is not None:
+            count = self.instance.paymentprepayment_set.filter(payment__isnull=False).count()
+            if count > 0:
+                for field_name in self.fields:
+                    self.fields[field_name].disabled = True
+
+PrepaymentItemFormSet = inlineformset_factory(
+    Prepayment,
+    PrepaymentItem,
+    form=PrepaymentItemForm,
+    extra=0,
+    min_num=1,
+    can_delete=True,
+)
+
+class PrepaymentPurposeForm(forms.ModelForm):
+    # id = forms.IntegerField(widget = forms.HiddenInput(), required = False)
+
+    prepaidDest = WC07POrderChoiceField(queryset=PrepaidDest.objects.order_by('id'), label='Назначение аванса', required=False, empty_label=None)
+
+    expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), label='Коды расхода', required=False, empty_label=None)
+
+    missionFromDate = MyDateField(label='Командировка с', localize=True, required=False)
+
+    missionToDate = MyDateField(label='Командировка по', localize=True, required=False)
+
+    reportDeadline = MyDateField(label='Предельный срок предоставления АО (дата)', localize=True, required=False)
+
+    missionDest = forms.CharField(widget=forms.Textarea(attrs={'rows': 2}), required=False)
+    # Цель командировки
+    missionPurpose = forms.CharField(widget=forms.Textarea(attrs={'rows': 2}), required=False)
+
+    deptExpenditure = forms.IntegerField(widget=ZeroPaddedTextInput(width=3))
+
+    extra = forms.CharField(widget=ZeroPaddedTextInput(width=5))
+
+    class Meta:
+        model = PrepaymentPurpose
+        fields = ALL_FIELDS
+        exclude = ['prepayment']
+
+PrepaymentPurposeFormSet = inlineformset_factory(
+    Prepayment,
+    PrepaymentPurpose,
+    form=PrepaymentPurposeForm,
+    extra=0,
+    min_num=0,
+    can_delete=True,
+)
+
+class PrepaymentForm (NestedFormsMixin, forms.ModelForm):
+    nested_formsets = [
+            {
+                'formset_class': PrepaymentItemFormSet,
+                'suffix': 'item',
+            },
+            {
+                'formset_class': PrepaymentPurposeFormSet,
+                'suffix': 'purpose',
+            },
+        ]
+    
     id = forms.IntegerField(label='id', disabled=True, required=False)
 
     docNum = forms.CharField(label='Номер', required=False)
@@ -101,7 +191,7 @@ class PrepaymentForm (forms.ModelForm):
 
     carryOverAdvanceReportDate = MyDateField(label='Дата', localize=True, required=False)
     
-    request = forms.IntegerField(label="Заявление", required=False, disabled=True)
+    request = forms.IntegerField(label="Заявление", required=False, disabled=True, widget=forms.Select())
 
     class Meta:
         model = Prepayment
@@ -109,7 +199,17 @@ class PrepaymentForm (forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
+        self.read_only = False
         super(PrepaymentForm, self).__init__(*args, **kwargs)
+        self.fields['empDivNum'].widget = ZeroPaddedTextInput(width=3)
+
+        choices = [('', '')]
+        req = getattr(self.instance, 'request', None)
+        if req:
+            choices.append((req.pk, f'{req.num} - {req.createDate:%d.%m.%y}'))
+            self.initial['request'] = req.pk
+        self.fields['request'].widget.choices = choices
+
         if not is_user_in_group(self.user, ['Администратор']) and (self.instance.wc07pOrder is not None or self.instance.request is not None or self.instance.iPrepayment is not None):
             self.fields['document'].disabled = True
             self.fields['docNum'].disabled = True
@@ -138,52 +238,11 @@ class PrepaymentForm (forms.ModelForm):
         except Request.DoesNotExist:
             raise forms.ValidationError("Заявление не найдено")
 
-
-class PrepaymentItemForm(forms.ModelForm):
-
-    obtainMethod = StatusChoiceField(queryset=ObtainMethod.objects.order_by('id'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Способ получения', required=False, empty_label='Не установлен')
-
-    date = MyDateField(label='Дата', localize=True, required=False)
-
-    value = forms.DecimalField(label='Сумма', localize=True, required=False)
-
-    class Meta:
-        model = PrepaymentItem
-        fields = ALL_FIELDS
-        exclude = ['prepayment']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance.id is not None:
-            count = self.instance.paymentprepayment_set.filter(payment__isnull=False).count()
-            if count > 0:
-                for field_name in self.fields:
-                    self.fields[field_name].disabled = True
-
-
-class PrepaymentPurposeForm(forms.ModelForm):
-    # id = forms.IntegerField(widget = forms.HiddenInput(), required = False)
-
-    prepaidDest = WC07POrderChoiceField(queryset=PrepaidDest.objects.order_by('id'), label='Назначение аванса', required=False, empty_label=None)
-
-    expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), label='Коды расхода', required=False, empty_label=None)
-
-    missionFromDate = MyDateField(label='Командировка с', localize=True, required=False)
-
-    missionToDate = MyDateField(label='Командировка по', localize=True, required=False)
-
-    reportDeadline = MyDateField(label='Предельный срок предоставления АО (дата)', localize=True, required=False)
-
-    missionDest = forms.CharField(widget=forms.Textarea(attrs={'rows': 2}), required=False)
-    # Цель командировки
-    missionPurpose = forms.CharField(widget=forms.Textarea(attrs={'rows': 2}), required=False)
-
-    class Meta:
-        model = PrepaymentPurpose
-        fields = ALL_FIELDS
-        exclude = ['prepayment']
-
+    def save(self, commit=True):
+        with transaction.atomic():
+            if self.read_only:
+                pass
+            return super().save(commit=commit)
 
 class AdvanceReportForm (forms.ModelForm):
     id = forms.IntegerField(label='id', disabled=True, required=False)

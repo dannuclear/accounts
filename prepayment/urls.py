@@ -1,13 +1,15 @@
 from django.urls import path
 from . import views
+from . import api_views
 from rest_framework import routers
 
 prepaymentRouter = routers.DefaultRouter()
-prepaymentRouter.register(r'prepayments', views.PrepaymentViewSet)
+prepaymentRouter.register(r'prepayments', api_views.PrepaymentViewSet)
 
 urlpatterns = [
     path('prepayments', views.prepayments, name='prepayments'),
-    path('prepayments/<id>', views.editPrepayment, name='editPrepayment'),
+    path('prepayments/new', views.PrepaymentCreateView.as_view(), name='create_prepayment'),
+    path('prepayments/<int:pk>', views.PrepaymentUpdateView.as_view(), name='edit_prepayment'),
     path('prepayments/<id>/delete', views.deletePrepayment),
 
     path('advanceReports', views.advanceReports, name='advanceReports'),

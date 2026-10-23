@@ -49,21 +49,21 @@ class PurchaseJustificationViewSet(viewsets.ModelViewSet):
     ).order_by('-created_at')
 
     serializer_class = PurchaseJustificationSerializer
-    filter_backends = [StatusFilter, UniversalPeriodFilter,
+    filter_backends = [StatusFilter, UniversalPeriodFilter, EmployeeNumberFilter,
                        AcquisitionMethodFilter, *viewsets.ModelViewSet.filter_backends]
 
     def filter_queryset(self, queryset):
         self.filter_backends = [*self.filter_backends]
 
         if is_user_in_group(self.request.user, ['Администратор', 'Нормоконтроль']) or self.request.user.is_superuser:
-            pass
+            self.emp_num_bypass_staff = True
         elif is_user_in_group(self.request.user, ['Руководитель']):
             self.filter_backends.insert(0, DepartmentFilter)
         elif self.request.user.has_perm('limits.view_owner_purchase_justification'):
-            self.request.emp_num_field_name = 'employee__empOrgNo'
-            self.filter_backends.insert(0, EmployeeNumberFilter)
+            self.emp_num_field = 'employee__empOrgNo'
+            #self.filter_backends.insert(0, EmployeeNumberFilter)
         else:
-            queryset = queryset.none()
+            return queryset.none()
 
         return super().filter_queryset(queryset)
 

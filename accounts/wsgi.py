@@ -38,6 +38,7 @@ class LoggingMiddleware:
             # request.META['REMOTE_USER'] = 'chief'
             # request.META['REMOTE_USER'] = 'user'
             # request.META['REMOTE_USER'] = 'z12345'
+            # request.META['REMOTE_USER'] = 'z57098001'
             #request.META['REMOTE_USER'] = request.COOKIES.get('username', 'admin')
             os.environ['KRB5CCNAME'] = request.META['KRB5CCNAME']
         except Exception as ex:

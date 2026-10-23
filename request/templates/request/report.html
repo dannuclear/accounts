@@ -259,27 +259,73 @@
                 <td colspan="3" class="text-left align-bottom">Обоснование запрашиваемой суммы:</td>
               </tr>
               {% if req.type == 0 %}
-                {% for inventory in req.requestinventory_set.all %}
-                  <tr>
-                    <td colspan="3" class="text-left" style="font-size: 0.8em;">{{ 'заявка №:'|add:inventory.requestNum|add:' '|add:inventory.comment }}</td>
-                  </tr>
-                  {% for item in inventory.requestinventoryitem_set.all %}
-                    <tr>
-                      <td colspan="3" class="text-left" style="font-size: 0.8em;">
-                        {{ 'Наименование: '|add:item.name|default_if_none:'' }}
-                        {% with cnt=item.cnt|stringformat:'i' %}
-                          {{ 'Количество: '|add:cnt|default_if_none:'' }}
-                        {% endwith %}
-                        {% with price=item.price|intcomma:' ' %}
-                          {{ 'Цена: '|add:price|default_if_none:'' }}
-                        {% endwith %}
-                        {% with total=item.total|intcomma:' ' %}
-                          {{ 'Итого: '|add:total|default_if_none:'' }}
-                        {% endwith %}
-                      </td>
-                    </tr>
+                {% if req.purchase_justification %}
+                  {% for j_contr in req.purchase_justification.contractors.all %}
+                    {% for j_req in j_contr.requests.all %}
+                      <tr>
+                        <td colspan="3" class="text-left" style="font-size: 0.8em;">{{ 'заявка №:'|add:j_req.request_num }}</td>
+                      </tr>
+                      {% for j_item in j_req.items.all %}
+                        <tr>
+                          <td colspan="3" class="text-left" style="font-size: 0.8em;">
+                            {{ 'Наименование: '|add:j_item.name|default_if_none:'' }}
+                            {% with cnt=j_item.quantity|stringformat:'i' %}
+                              {{ 'Количество: '|add:cnt|default_if_none:'' }}
+                            {% endwith %}
+                            {% with price=j_item.price|intcomma:' ' %}
+                              {{ 'Цена: '|add:price|default_if_none:'' }}
+                            {% endwith %}
+                            {% with total=j_item.amount|intcomma:' ' %}
+                              {{ 'Итого: '|add:total|default_if_none:'' }}
+                            {% endwith %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    {% endfor %}
+                    
+                    {% for j_item in j_contr.items.all %}
+                      <tr>
+                        <td colspan="3" class="text-left" style="font-size: 0.8em;">
+                          {{ 'Наименование: '|add:j_item.name|default_if_none:'' }}
+                          {% with cnt=j_item.quantity|stringformat:'i' %}
+                            {{ 'Количество: '|add:cnt|default_if_none:'' }}
+                          {% endwith %}
+                          {% with price=j_item.price|intcomma:' ' %}
+                            {{ 'Цена: '|add:price|default_if_none:'' }}
+                          {% endwith %}
+                          {% with total=j_item.amount|intcomma:' ' %}
+                            {{ 'Итого: '|add:total|default_if_none:'' }}
+                          {% endwith %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+
                   {% endfor %}
-                {% endfor %}
+                {% else %}
+
+                  {% for inventory in req.requestinventory_set.all %}
+                    <tr>
+                      <td colspan="3" class="text-left" style="font-size: 0.8em;">{{ 'заявка №:'|add:inventory.requestNum|add:' '|add:inventory.comment }}</td>
+                    </tr>
+                    {% for item in inventory.requestinventoryitem_set.all %}
+                      <tr>
+                        <td colspan="3" class="text-left" style="font-size: 0.8em;">
+                          {{ 'Наименование: '|add:item.name|default_if_none:'' }}
+                          {% with cnt=item.cnt|stringformat:'i' %}
+                            {{ 'Количество: '|add:cnt|default_if_none:'' }}
+                          {% endwith %}
+                          {% with price=item.price|intcomma:' ' %}
+                            {{ 'Цена: '|add:price|default_if_none:'' }}
+                          {% endwith %}
+                          {% with total=item.total|intcomma:' ' %}
+                            {{ 'Итого: '|add:total|default_if_none:'' }}
+                          {% endwith %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  {% endfor %}
+
+                {% endif %}
               {% endif %}
               <tr>
                 <td colspan="3" class="text-center" style="font-size: 0.8em;">(привести обоснование с перечнем запрашиваемых МПЗ и при необходимости - расчет запрашиваемой суммы)</td>

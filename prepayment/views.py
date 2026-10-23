@@ -1,34 +1,30 @@
 from django.shortcuts import render
-from .models import Prepayment, PrepaymentPurpose, PrepaymentItem, AdvanceReportItem, Attachment, AdvanceReportItemEntity, PrepaymentEmpNum
-from rest_framework import viewsets
-from .serializers import PrepaymentSerializer
-from .forms import PrepaymentForm, PrepaymentItemForm, PrepaymentPurposeForm, AdvanceReportForm, AdvanceReportItemForm, AttachmentForm, ItemsFormSet, AttachmentFormSet, PrepaymentEmpNumForm
+from django.views.generic import UpdateView
+
+from main.shared.views.mixins import ActionMixin
+from prepayment import api_views
+from .models import Prepayment, PrepaymentItem, AdvanceReportItem, AdvanceReportItemEntity, PrepaymentEmpNum
+from .forms import PrepaymentForm, AdvanceReportForm, ItemsFormSet, AttachmentFormSet, PrepaymentEmpNumForm
 from datetime import datetime, timedelta
-from guide.models import Status, ExpenseItem, ExpenseCategory, AccountingCert, Department, Document, ImprestAccount
-from guide.filters import StatusFilter
+from guide.models import Status, AccountingCert, Department, ImprestAccount
 from payment.models import PaymentPrepayment
 from request.models import Request
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, HttpResponseServerError
-from rest_framework.filters import BaseFilterBackend
-from django.forms import formset_factory, inlineformset_factory, models
-from django.db.models import OuterRef, Subquery, Max, Min, Aggregate, Func, Sum, IntegerField, Q, Case, When, DateField, Value, F
-from django.db.models.functions import Cast, ExtractDay
+from django.db.models import Subquery, Max
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django.db import connection
-from .filters import PeriodFilter, ImprestAccountFilter, FilterTypeFilter, UserFilter, DepartmentFilter
 from django.utils import formats
 from .queries import ADD_FACTS, ADD_ACCOUNTING_ENTRIES, GET_ADVANCE_REPORT_ITEMS_FOR_REPORT, GET_ACCOUNTING_CERT_ROW, ADD_ACCOUNTING_ENTRIES_FROM_INVENTORY
-from numbers import Number
 from main import helpers
 import csv
 import math
 from num2words import num2words
 import textwrap
-from .action_processor import processActionNew, addItem, clone_from
+from .action_processor import processActionNew, clone_from
 from decimal import Decimal
 #from xhtml2pdf import pisa
-from django.template.loader import get_template, render_to_string
+from django.template.loader import render_to_string
 from accounts import settings
 import os
 import re
@@ -38,60 +34,6 @@ from main.models import Settings
 from integration import script
 from integration.models import Employee
 from weasyprint import HTML
-
-# Create your views here.
-purposesSubquery = PrepaymentPurpose.objects.select_related('prepaidDest').annotate(
-    missionFrom=Func('missionFromDate', function='min'), 
-    missionTo=Func('missionToDate', function='max'), 
-    days=Cast(ExtractDay(Func('missionToDate', function='max') - Func('missionFromDate', function='min')) + 1, output_field=IntegerField()), 
-    missionDestList=Func('missionDest', function='string_agg', template="%(function)s(%(expressions)s, ', ')"), 
-    prepaidDestList=Func('prepaidDest__name', function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')"),
-    accountList=Func('account', function='string_agg', template="%(function)s(distinct %(expressions)s, ', ')"),
-    deadLine=Func('reportDeadline', function='min')
-    ).filter(prepayment=OuterRef("pk"))
-
-
-class PrepaymentViewSet (viewsets.ModelViewSet):
-    queryset = Prepayment.objects.all().annotate(
-        missionFrom=Subquery(purposesSubquery.values('missionFrom')), 
-        missionTo=Subquery(purposesSubquery.values('missionTo')), 
-        missionDestList=Subquery(purposesSubquery.values('missionDestList')),
-        prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')),
-        accountList=Subquery(purposesSubquery.values('accountList')),
-        deadline=Subquery(purposesSubquery.values('deadLine'))
-        #deadline=Case(
-        #    When(wc07pOrder__isnull=False, then=F('wc07pOrder__missionEnd') + 3),
-        #    When(request__isnull=False, then=F('request__receivingDate') + 13),
-        #    default=Value(None),
-        #    output_field=DateField()
-        #)
-        ).select_related('status').select_related('imprestAccount').select_related('document').select_related('wc07pOrder').select_related('reportStatus').order_by('-id')
-    
-    serializer_class = PrepaymentSerializer
-
-    def filter_queryset(self, queryset):
-        self.filter_backends = [*self.filter_backends]
-        # if PeriodFilter in self.filter_backends:
-        #     self.filter_backends.remove(PeriodFilter)
-        # if ImprestAccountFilter in self.filter_backends:
-        #     self.filter_backends.remove(ImprestAccountFilter)
-        if 'statusFilter' in self.request.query_params:
-            self.filter_backends.insert(0, StatusFilter)
-        if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
-            self.filter_backends.insert(0, PeriodFilter)
-        if 'imprestAccount' in self.request.query_params:
-            self.filter_backends.insert(0, ImprestAccountFilter)
-        if 'filterType' in self.request.query_params:
-            self.filter_backends.insert(0, FilterTypeFilter)
-        if 'noAccountingNumHide' in self.request.query_params:
-            queryset = queryset.filter(reportAccountingNum__isnull = False)
-        if (self.request.user.has_perm('prepayment.view_owner_prepayments') or self.request.user.has_perm('prepayment.view_owner_advance_reports')) and not self.request.user.is_superuser:
-            self.filter_backends.insert(0, UserFilter)
-        if (self.request.user.has_perm('prepayment.view_owner_dept_prepayments') or self.request.user.has_perm('prepayment.view_owner_dept_advance_reports')) and not self.request.user.is_superuser:
-            self.filter_backends.insert(0, DepartmentFilter)
-        
-        return super().filter_queryset(queryset)
-
 
 class EmpNumCreateView(CreateView):
     model = PrepaymentEmpNum
@@ -172,111 +114,112 @@ def deductions_add_entries(request):
             
     except Exception as e:
         return HttpResponseBadRequest('Error processing request: %s' % str(e))
-    
 
-def editPrepayment(request, id):
-    userFullName = ('%s %s' % (request.user.last_name, request.user.first_name)).strip()
-    if id == 'new':
-        prepayment = Prepayment()
-        prepayment.createdBy = request.user.username
-        prepayment.createdByFullName = userFullName if userFullName else request.user.username
-        prepayment.createdAt = datetime.now()
-        prepayment.imprestAccount_id = 7101
-    else:
-        prepayment = Prepayment.objects.select_related('status').select_related('imprestAccount').select_related('document').select_related(
-            'reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
 
-    PrepaymentItemFormSet = inlineformset_factory(Prepayment, PrepaymentItem, form=PrepaymentItemForm, can_delete=True, extra=0, min_num=1)
-    PrepaymentPurposeFormSet = inlineformset_factory(Prepayment, PrepaymentPurpose, form=PrepaymentPurposeForm, can_delete=True, extra=0, min_num=1)
-    if request.method == 'POST':
-        postCopy = request.POST.copy()
-        if postCopy['action']:
-            action = postCopy['action']
-            # Обрабатываем добавление записи
-            if action.startswith('add-'):
-                prefix = action.replace('add-', '')
-                addItem(postCopy, prefix)
-            # Обрабатываем split
-            if action.startswith('split-'):
-                parts = action.split('-')
-                dates = [datetime.fromtimestamp(int(p)/1000) for p in postCopy.get('split', '').split(',')]
-                period_from = dates[0]
-                current_prefix = '%s-%s' % (parts[1], parts[2])
-                for d in dates[1:-1]:
-                    period_to = d
-                    postCopy['%s-missionFromDate' % current_prefix] = period_from.strftime('%d.%m.%Y')
-                    postCopy['%s-missionToDate' % current_prefix] = (period_to - timedelta(1)).strftime('%d.%m.%Y')
-                    num = clone_from(postCopy, parts[1], parts[2], None, ['prepaidDest', 'deptExpense', 'expenseCode', 'account', 'expenditure', 'deptExpenditure', 'extra', 'missionFromDate', 'missionToDate', 'missionDest', 'missionPurpose', 'missionPurpose'])
-                    current_prefix = '%s-%s' % (parts[1], num)
-                    period_from = period_to
-                postCopy['%s-missionFromDate' % current_prefix] = period_from.strftime('%d.%m.%Y')
-                postCopy['%s-missionToDate' % current_prefix] = dates[-1].strftime('%d.%m.%Y')
-            # Обрабатываем клонирование записи
-            if action.startswith('clone-'):
-                parts = action.split('-')
-                clone_from(postCopy, parts[1], parts[2], None, ['prepaidDest', 'deptExpense', 'expenseCode', 'account', 'expenditure', 'deptExpenditure', 'extra', 'missionFromDate', 'missionToDate', 'missionDest', 'missionPurpose', 'missionPurpose'])
-            # Обрабатываем удаление записи
-            elif action.startswith('delete-'):
-                prefix = action.replace('delete-', '')
-                postCopy['%s-DELETE' % prefix] = 'True'
+ACCOUNTANT_GROUP = ['Бухгалтер']
+CLONE_FIELDS = [
+    'prepaidDest', 'deptExpense', 'expenseCode', 'account', 'expenditure',
+    'deptExpenditure', 'extra', 'missionFromDate', 'missionToDate',
+    'missionDest', 'missionPurpose',
+]
 
-        form = PrepaymentForm(postCopy, instance=prepayment, user=request.user)
-        itemFormSet = PrepaymentItemFormSet(postCopy, prefix='item', instance=prepayment)
-        purposeFormSet = PrepaymentPurposeFormSet(postCopy, prefix='purpose', instance=prepayment)
+def parse_account_numbers(raw):
+    """'044525225:4081...;046015207:4082...' -> {44525225: '4081...', ...}"""
+    result = {}
+    for pair in (raw or '').split(';'):
+        try:
+            bik, acc = pair.split(':')
+            result.setdefault(int(bik), acc)
+        except ValueError:
+            continue
+    return result
 
-        #valid = form.is_valid()
-        #valid = valid and itemFormSet.is_valid()
-        #valid = valid and purposeFormSet.is_valid()
-        
-        if not postCopy['action'] and form.is_valid() and purposeFormSet.is_valid() and itemFormSet.is_valid():
-            if is_user_in_group(request.user, ['Бухгалтер']):
-                prepayment.updatedByAccountant = userFullName if userFullName else request.user.username
 
-            prepayment = form.save()
-            for item in itemFormSet.save(commit=False):
-                item.save()
-            for deletedItem in itemFormSet.deleted_forms:
-                if deletedItem.instance.id is not None:
-                    deletedItem.instance.delete()
-            for purpose in purposeFormSet.save(commit=False):
-                purpose.save()
-            for deletedPurpose in purposeFormSet.deleted_forms:
-                if deletedPurpose.instance.id is not None:
-                    deletedPurpose.instance.delete()
-            # Создаем PaymentPrepayment для каждого PrepaymentItem
-            if prepayment.status_id == 5:
-                for item in PrepaymentItem.objects.select_related('obtainMethod').filter(prepayment=prepayment, paymentprepayment__isnull=True).all():
-                    obtain_method = item.obtainMethod
-                    if obtain_method is not None and obtain_method.bik and prepayment.empNum:
-                        applicant = Employee.objects.filter(empOrgNo__endswith=prepayment.empNum).first()
-                        if applicant and applicant.accountNumber:
-                            pairs = applicant.accountNumber.split(';')
-                            account_number = None
-                            for pair in pairs:
-                                try:
-                                    bik, acc = pair.split(':')
-                                    if int(bik) == obtain_method.bik:
-                                        account_number = acc
-                                        break
-                                except ValueError:
-                                    continue
-                    PaymentPrepayment (prepaymentItem=item, status=0, accountNumber=account_number).save()
-            return HttpResponseRedirect('/prepayments')
-    if request.method == 'GET':
-        form = PrepaymentForm(instance=prepayment, user=request.user)
-        itemFormSet = PrepaymentItemFormSet(prefix='item', instance=prepayment)
-        purposeFormSet = PrepaymentPurposeFormSet(prefix='purpose', instance=prepayment)
+class PrepaymentEditMixin(ActionMixin):
+    model = Prepayment
+    form_class = PrepaymentForm
+    template_name = 'prepayment/edit.html'
+    success_url = reverse_lazy('prepayments')
+ 
+    def apply_action(self, data, action):
+        if action.startswith('split-'):
+            self.split_item(data, action)
+        elif action.startswith('clone-'):
+            parts = action.split('-')
+            clone_from(data, parts[1], parts[2], None, CLONE_FIELDS)
+        else:
+            super().apply_action(data, action)
+ 
+    def split_item(self, data, action):
+        parts = action.split('-')
+        form_prefix, index = parts[1], parts[2]
+        dates = [
+            datetime.strptime(p, '%d.%m.%Y')
+            for p in data.get('split', '').split(',') if p
+        ]
+        if len(dates) < 2:
+            return
+ 
+        period_from = dates[0]
+        current_prefix = '%s-%s' % (form_prefix, index)
+        for period_to in dates[1:-1]:
+            data['%s-missionFromDate' % current_prefix] = period_from.strftime('%d.%m.%Y')
+            data['%s-missionToDate' % current_prefix] = (period_to - timedelta(1)).strftime('%d.%m.%Y')
+            num = clone_from(data, form_prefix, index, None, CLONE_FIELDS)
+            current_prefix = '%s-%s' % (form_prefix, num)
+            period_from = period_to
+        data['%s-missionFromDate' % current_prefix] = period_from.strftime('%d.%m.%Y')
+        data['%s-missionToDate' % current_prefix] = dates[-1].strftime('%d.%m.%Y')
+ 
+    def form_valid(self, form):
+        if is_user_in_group(self.request.user, ACCOUNTANT_GROUP):
+            form.instance.updatedByAccountant = self.get_user_full_name()
+        response = super().form_valid(form)
+        self.create_payments(self.object)
+        return response
+ 
+    def create_payments(self, prepayment):
+        if prepayment.status_id != 5:
+            return
+ 
+        accounts = {}
+        if prepayment.empNum:
+            applicant = Employee.objects.filter(empOrgNo__endswith=prepayment.empNum).first()
+            if applicant:
+                accounts = parse_account_numbers(applicant.accountNumber)
+ 
+        items = (PrepaymentItem.objects
+                 .select_related('obtainMethod')
+                 .filter(prepayment=prepayment, paymentprepayment__isnull=True))
+        for item in items:
+            method = item.obtainMethod
+            account_number = accounts.get(method.bik) if method is not None and method.bik else None
+            PaymentPrepayment(prepaymentItem=item, status=0, accountNumber=account_number).save()
 
-    context = {
-        'form': form,
-        'title': 'Заявление',
-        'items': itemFormSet,
-        'purposes': purposeFormSet
-    }
-    return render(request, 'prepayment/edit.html', context)
+class PrepaymentCreateView(PrepaymentEditMixin, CreateView):
+    def get_initial(self):
+        return {**super().get_initial(), 'imprestAccount': 7101}
+
+    def form_valid(self, form):
+        form.instance.createdBy = self.get_user_full_name()
+        form.instance.createdAt = datetime.now()
+        form.instance.updatedBy = form.instance.createdBy
+        form.instance.updatedAt = form.instance.createdAt
+        return super().form_valid(form)
+
+
+class PrepaymentUpdateView(PrepaymentEditMixin, UpdateView):
+    queryset = Prepayment.objects.select_related('status').select_related('imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request__purchase_justification').select_related('iPrepayment')
+    def form_valid(self, form):
+        form.instance.updatedBy = self.get_user_full_name()
+        form.instance.updatedAt = datetime.now()
+        if form.instance.status_id == 3:
+            form.instance.approvedBy = self.get_user_full_name()
+            form.instance.approvedAt = datetime.now()
+        return super().form_valid(form)
 
 def editAdvanceReport(request, id):
-    prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')), days=Subquery(purposesSubquery.values('days'))).select_related('status').select_related(
+    prepayment = Prepayment.objects.annotate(prepaidDestList=Subquery(api_views.purposesSubquery.values('prepaidDestList')), days=Subquery(api_views.purposesSubquery.values('days'))).select_related('status').select_related(
         'imprestAccount').select_related('document').select_related('reportStatus').select_related('wc07pOrder').select_related('request').select_related('iPrepayment').get(id=id)
 
     carryover_request = Request.objects.filter(carryOverPrepayment=prepayment).first()

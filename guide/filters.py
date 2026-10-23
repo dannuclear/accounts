@@ -45,14 +45,22 @@ class ExpenseTypeFilter(BaseFilterBackend):
         return queryset
 
 class DepartmentFilter(BaseFilterBackend):
+    # По умолчанию departmentId НЕ обязателен
+    require_department = True
 
     def filter_queryset(self, request, queryset, view):
-        departmentId = request.query_params.get("departmentId")
+        department_id = request.query_params.get("departmentId")
 
-        if departmentId:
-            queryset = queryset.filter(department__id=departmentId)
-        else:
+        # Проверяем, задан ли флаг обязательности на view (переопределяет класс)
+        require = getattr(view, "require_department", self.require_department)
+
+        if department_id:
+            queryset = queryset.filter(department__id=department_id)
+        elif require:
+            # Параметр не задан, но обязателен — возвращаем пустой queryset
             queryset = queryset.none()
+        # иначе — параметр не задан и не обязателен — возвращаем queryset как есть
+
         return queryset
 
 class ContractorSearchFilter(BaseFilterBackend):

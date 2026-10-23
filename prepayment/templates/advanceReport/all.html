@@ -22,7 +22,7 @@
 
 {% include 'advanceReport/emp_num_dialog.html' %}
 
-<table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm" style="font-size: 0.9em;">
+<table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm table-row-min" style="font-size: 0.9em;">
     <thead>
         <tr>
             <th scope="col" rowspan="2" data-dt-order="disable" data-width="34px"></th>
@@ -44,9 +44,9 @@
             <th scope="col" rowspan="2" data-dt-order="disable">Бухгалтерская справка</th>
             <th scope="col" rowspan="2" data-dt-order="disable">Дата принятия на учет АО</th>
 
+            <th scope="col" rowspan="2" data-dt-order="disable"></th>
             <th scope="col" rowspan="2" data-dt-order="disable" data-width="1%"></th>
             <th scope="col" rowspan="2" data-dt-order="disable" data-width="1%"></th>
-            <th scope="col" rowspan="2" data-dt-order="disable">Создатель/Исполнитель</th>
         </tr>
         <tr>
             <th scope="col" data-dt-order="disable">Номер</th>
@@ -185,6 +185,10 @@
                         { data: 'reportStatus.name', orderable: false, className: 'text-center', defaultContent: "Не установлен", searchable: false },
                         { data: 'reportAccountingNum', orderable: false, defaultContent: "", searchable: false },
                         { data: 'approveDate', orderable: false, defaultContent: "", searchable: false },
+                        auditColumn([
+                            { label: 'Создал',  user: 'createdBy',   date: 'createdAt' },
+                            { label: 'Обновил', user: 'updatedByAccountant', date: 'updatedAtAccountant' },
+                        ]),
                         {
                             data: null,
                             defaultContent: '',
@@ -197,17 +201,7 @@
                                         </a>`
                                 }
                         },
-                        editColumn("/advanceReports", function(d){ return isAdminOrAccountant || d.reportStatus == null || [1,2,4].includes(d.reportStatus.id) }),
-                        {
-                            data: null,
-                            orderable: false,
-                            width: '1rem',
-                            className: 'text-center',
-                            searchable: false,
-                            render: function (data, type, row, meta) {
-                                return `<small style="font-size:0.8em;">${data.createdBy || ''}/${data.updatedByAccountant || ''}</small>`;
-                            },
-                        },
+                        editColumn("/advanceReports", function(d){ return isAdminOrAccountant || d.reportStatus == null || [1,2,4].includes(d.reportStatus.id) })
                     ],
                     buttons: [
                         {

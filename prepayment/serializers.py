@@ -41,7 +41,7 @@ class PrepaymentSerializer (serializers.ModelSerializer):
     class Meta:
         model = Prepayment
         fields = serializers.ALL_FIELDS
-        datatables_always_serialize = ('id', 'document', 'wc07pOrder', 'docNum', 'docDate', 'missionFrom', 'missionTo', 'missionDestList', 'prepaidDestList', 'accountList', 'deadline', 'createdByFullName', 'updatedByAccountant', 'createdBy', 'distribCarryover')
+        datatables_always_serialize = ('id', 'document', 'wc07pOrder', 'docNum', 'docDate', 'missionFrom', 'missionTo', 'missionDestList', 'prepaidDestList', 'accountList', 'deadline', 'createdByFullName', 'updatedByAccountant', 'createdBy', 'createdAt', 'distribCarryover', 'approveActionDate')
 
 
 class SimplePrepaymentSerializer (serializers.ModelSerializer):

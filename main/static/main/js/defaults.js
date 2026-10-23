@@ -61,6 +61,53 @@ function deleteColumnPost(path, confirmText = 'Удалить?') {
 	})
 }
 
+function escapeAttr(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+}
+
+/**
+ * Колонка аудита с иконкой и тултипом.
+ *
+ * @param {Array<{label: string, user: string, date?: string}>} entries
+ *   label - подпись строки в тултипе
+ *   user  - имя поля с ФИО пользователя
+ *   date  - имя поля с датой (необязательно)
+ * @param {{icon?: string, hideIfEmpty?: boolean}} [options]
+ */
+function auditColumn(entries, options = {}) {
+  const {
+    icon = 'fa-light fa-circle-info fa-2xl m-0 text-info',
+    hideIfEmpty = false,
+  } = options
+
+  return {
+    data: null,
+    orderable: false,
+    searchable: false,
+    className: 'text-center small',
+    render: function (data, type) {
+      if (type !== 'display') return ''
+
+      const lines = entries
+        .filter(({ user }) => data[user])
+        .map(({ label, user, date }) =>
+          date
+            ? `${label}: ${data[user]} (${data[date] || ''})`
+            : `${label}: ${data[user]}`
+        )
+
+      if (!lines.length && hideIfEmpty) return ''
+
+      const tooltip = escapeAttr(lines.join('\n')).replace(/\n/g, '&#10;')
+      return `<i class="${icon}" title="${tooltip}"></i>`
+    },
+  }
+}
+
 $.extend(true, $.fn.dataTable.defaults, {
 	ajax: {
 		headers: {'X-CSRFToken': csrftoken}

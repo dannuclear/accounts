@@ -1,0 +1,47 @@
+{% load widget_tweaks %}
+
+<div class="input-group input-group-sm">
+  <span class="input-group-text {{ labelClass }}" style="{{ labelStyle }}">
+    {% if label %}
+      {{ label }}
+    {% else %}
+      {{ field.label }}
+    {% endif %}
+  </span>
+  {{ field|add_class:'form-control text-center'|add_error_class:'is-invalid'|attr:'autocomplete:off' }}
+  <button type="button" id="{{ field.id_for_label }}-search" class="btn btn-outline-secondary"><i class="fa-light fa-magnifying-glass"></i></button>
+</div>
+
+<script>
+  $(function () {
+    const $input = $('#{{ field.id_for_label }}')
+    const $btn = $('#{{ field.id_for_label }}-search')
+    const url = "{% url 'employee-list' %}"
+  
+    $btn.on('click', function () {
+      const empNum = $.trim($input.val())
+  
+      if (!empNum) {
+        $input.trigger('employee:empty')
+        return
+      }
+  
+      $btn.prop('disabled', true)
+      $.get(url, { empOrgNo: empNum })
+        .done(function (data) {
+          const employee = data.results && data.results[0]
+          if (employee) {
+            $input.trigger('employee:found', [employee, data])
+          } else {
+            $input.trigger('employee:notfound', [data])
+          }
+        })
+        .fail(function () {
+          $input.trigger('employee:error')
+        })
+        .always(function () {
+          $btn.prop('disabled', false)
+        })
+    })
+  })
+</script>
