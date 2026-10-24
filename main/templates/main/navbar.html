@@ -379,14 +379,18 @@
       </ul>
 
       <div class="d-flex navbar-nav">
-        <div style="line-height: 1;">
-          <div class="nav-link active p-0">{{ user }}</div>
-          <small id="browser-info" class="p-0"></small>
+        <div class="d-flex align-items-center gap-2" style="line-height: 1;">
+          <!-- Кнопка смены пользователя -->
+          {% include 'main/user_select.html' %}
+
+          <!-- Информация о пользователе -->
+          <div>
+            <div class="nav-link active p-0">{{ user }}</div>
+            <small id="browser-info" class="p-0"></small>
+          </div>
         </div>
       </div>
     </div>
-
-    {% comment %} {% include 'main/user_select.html' %} {% endcomment %}
 
     <script type="text/javascript">
       $(document).ready(function () {

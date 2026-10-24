@@ -11,21 +11,9 @@ from request.models import Request
 from main.helpers import is_user_in_group
 from main.fields import CachedModelChoiceField
 
-
-class MyDateField(forms.DateField):
-    def prepare_value(self, value):
-        return self.widget.format_value(value)
-
-
 class ImprestAccountChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.account
-
-
-class StatusChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.name
-
 
 class DocumentChoiceField(forms.ModelChoiceField): 
 
@@ -72,10 +60,6 @@ class CachedExpenseCategoryChoiceField(CachedModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
 
-class ObtainMethodChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.name
-
 class PrepaymentEmpNumForm (forms.ModelForm):
     # empNum = forms.ChoiceField(label='Табельный', required=True)
 
@@ -96,10 +80,9 @@ class ZeroPaddedTextInput(forms.TextInput):
 # Элементы аванса по выданому авансу
 class PrepaymentItemForm(forms.ModelForm):
 
-    obtainMethod = StatusChoiceField(queryset=ObtainMethod.objects.order_by('id'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Способ получения', required=False, empty_label='Не установлен')
+    obtainMethod = forms.ModelChoiceField(queryset=ObtainMethod.objects.order_by('id'), label='Способ получения', required=False, empty_label='Не установлен')
 
-    date = MyDateField(label='Дата', localize=True, required=False)
+    date = forms.DateField(label='Дата', localize=True, required=False)
 
     value = forms.DecimalField(label='Сумма', localize=True, required=False)
 
@@ -131,11 +114,11 @@ class PrepaymentPurposeForm(forms.ModelForm):
 
     expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), label='Коды расхода', required=False, empty_label=None)
 
-    missionFromDate = MyDateField(label='Командировка с', localize=True, required=False)
+    missionFromDate = forms.DateField(label='Командировка с', localize=True, required=False)
 
-    missionToDate = MyDateField(label='Командировка по', localize=True, required=False)
+    missionToDate = forms.DateField(label='Командировка по', localize=True, required=False)
 
-    reportDeadline = MyDateField(label='Предельный срок предоставления АО (дата)', localize=True, required=False)
+    reportDeadline = forms.DateField(label='Предельный срок предоставления АО (дата)', localize=True, required=False)
 
     missionDest = forms.CharField(widget=forms.Textarea(attrs={'rows': 2}), required=False)
     # Цель командировки
@@ -174,7 +157,7 @@ class PrepaymentForm (NestedFormsMixin, forms.ModelForm):
     id = forms.IntegerField(label='id', disabled=True, required=False)
 
     docNum = forms.CharField(label='Номер', required=False)
-    docDate = MyDateField(label='Дата', localize=True, required=False)
+    docDate = forms.DateField(label='Дата', localize=True, required=False)
 
     # «приказ», «заявление», «авансовый отчет», «электронный документ» справочника «Список документов»
     document = DocumentChoiceField(queryset=Document.objects.filter(pk__in=[5, 14, 15, 16]).order_by('id'), label='Наименование', required=False)
@@ -183,13 +166,13 @@ class PrepaymentForm (NestedFormsMixin, forms.ModelForm):
 
     carryOverSum = forms.DecimalField(label='Сумма, руб.', localize=True, required=False)
 
-    status = StatusChoiceField(queryset=Status.objects.order_by('id'), label='Статус', required=True, empty_label=None)
+    status = forms.ModelChoiceField(queryset=Status.objects.none(), label='Статус', required=True, empty_label=None)
 
     imprestAccount = ImprestAccountChoiceField(queryset=ImprestAccount.objects.order_by('account'), label='Код учета', required=True, empty_label='Не указан')
 
     comment = forms.CharField(label='Приложения', required=False)
 
-    carryOverAdvanceReportDate = MyDateField(label='Дата', localize=True, required=False)
+    carryOverAdvanceReportDate = forms.DateField(label='Дата', localize=True, required=False)
     
     request = forms.IntegerField(label="Заявление", required=False, disabled=True, widget=forms.Select())
 
@@ -197,8 +180,8 @@ class PrepaymentForm (NestedFormsMixin, forms.ModelForm):
         model = Prepayment
         fields = ['id', 'document', 'docNum', 'docDate', 'empNum', 'empSurname', 'empName', 'empPatronymic', 'empFullName', 'empProfName', 'empDivNum', 'phone', 'totalSum', 'carryOverSum', 'carryOverAdvanceReportNum', 'carryOverAdvanceReportDate', 'imprestAccount', 'status', 'orderChanges', 'orderChangeNum', 'orderChangeDate', 'request']
 
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
+    def __init__(self, user = None, *args, **kwargs):
+        #self.user = kwargs.pop('user', None)
         self.read_only = False
         super(PrepaymentForm, self).__init__(*args, **kwargs)
         self.fields['empDivNum'].widget = ZeroPaddedTextInput(width=3)
@@ -210,17 +193,17 @@ class PrepaymentForm (NestedFormsMixin, forms.ModelForm):
             self.initial['request'] = req.pk
         self.fields['request'].widget.choices = choices
 
-        if not is_user_in_group(self.user, ['Администратор']) and (self.instance.wc07pOrder is not None or self.instance.request is not None or self.instance.iPrepayment is not None):
+        if not is_user_in_group(user, ['Администратор']) and (self.instance.wc07pOrder is not None or self.instance.request is not None or self.instance.iPrepayment is not None):
             self.fields['document'].disabled = True
             self.fields['docNum'].disabled = True
             self.fields['docDate'].disabled = True
 
-        if is_user_in_group(self.user, ['Администратор']):
+        if is_user_in_group(user, ['Администратор']):
             self.fields['status'].queryset = Status.objects.filter(pk__in=[1, 3, 5]).order_by('id')
             self.fields['request'].disabled = False
-        elif is_user_in_group(self.user, ['Подотчетное лицо', 'Подотчетное лицо с расширенным функционалом', 'Руководитель']):
+        elif is_user_in_group(user, ['Подотчетное лицо', 'Подотчетное лицо с расширенным функционалом', 'Руководитель']):
             self.fields['status'].queryset = Status.objects.filter(pk__in=[1]).order_by('id')
-        elif is_user_in_group(self.user, ['Бухгалтер']):
+        elif is_user_in_group(user, ['Бухгалтер']):
             self.fields['status'].queryset = Status.objects.filter(pk__in=[3, 5]).order_by('id')
             if self.instance.request is None:
                 self.fields['request'].disabled = False
@@ -248,9 +231,9 @@ class AdvanceReportForm (forms.ModelForm):
     id = forms.IntegerField(label='id', disabled=True, required=False)
 
     reportNum = forms.IntegerField(label='Номер', required=False)
-    reportDate = MyDateField(label='Дата утв. АО', localize=True, required=False)
+    reportDate = forms.DateField(label='Дата утв. АО', localize=True, required=False)
 
-    reportStatus = StatusChoiceField(queryset=Status.objects.order_by('id'), label='Статус', required=False, empty_label='Не установлен')
+    reportStatus = forms.ModelChoiceField(queryset=Status.objects.none(), label='Статус', required=False, empty_label='Не установлен')
 
     comment = forms.CharField(label='Приложения', required=False)
 
@@ -261,12 +244,12 @@ class AdvanceReportForm (forms.ModelForm):
     # Распределение остатка. Массив удержаний из зарплаты
     distribSalary = forms.DecimalField(localize=True, required=False)
     # Распределение остатка. Массив удержаний из зарплаты, за месяц, год
-    distribSalaryDate = MyDateField(label='Месяц, год', localize=True, required=False)
+    distribSalaryDate = forms.DateField(label='Месяц, год', localize=True, required=False)
 
     # Распределение остатка. На карту банка
     distribBank = forms.DecimalField(localize=True, required=False)
     # Распределение остатка. На карту банка. Способ получения
-    distribBankMethod = ObtainMethodChoiceField(queryset=ObtainMethod.objects.order_by('id'), label='Способ получения', required=False, empty_label="")
+    distribBankMethod = forms.ModelChoiceField(queryset=ObtainMethod.objects.order_by('id'), label='Способ получения', required=False, empty_label="Не установлен")
 
     # Распределение остатка. Переходящий остаток
     distribCarryover = forms.DecimalField(localize=True, required=False)
@@ -279,11 +262,11 @@ class AdvanceReportForm (forms.ModelForm):
     # Распределение остатка. Переходящий остаток
     # distribCarryoverReportNum = models.CharField(db_column='distrib_carryover_report_num', max_length=50, blank=True, null=True, verbose_name='Номер А.О.')
 
-    approveDate = MyDateField(label='Дата согласован', localize=True, required=False)
+    approveDate = forms.DateField(label='Дата согласован', localize=True, required=False)
 
-    factDate = MyDateField(label='Месяц, год фактов', localize=True, required=False)
+    factDate = forms.DateField(label='Месяц, год фактов', localize=True, required=False)
 
-    approveActionDate = MyDateField(localize=True, required=False)
+    approveActionDate = forms.DateField(localize=True, required=False)
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', False)
@@ -310,9 +293,9 @@ class AdvanceReportItemForm(forms.ModelForm):
     # expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), widget=forms.Select(
     #     attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label=None)
 
-    approveDocDate = MyDateField(localize=True, required=False)
+    approveDocDate = forms.DateField(localize=True, required=False)
 
-    sypherDate = MyDateField(localize=True, required=False)
+    sypherDate = forms.DateField(localize=True, required=False)
 
     def __init__(self, *args, **kwargs):
         self.accounting = kwargs.pop('accounting', False)
@@ -398,7 +381,7 @@ class AdvanceReportItemForm(forms.ModelForm):
 
 class AdvanceReportInventoryItemForm(forms.ModelForm):
 
-    whOrderDate = MyDateField(localize=True, required=False)
+    whOrderDate = forms.DateField(localize=True, required=False)
 
     def __init__(self, *args, **kwargs):
         self.accounting = kwargs.pop('accounting', False)
@@ -456,9 +439,9 @@ class AdvanceReportItemEntityForm(forms.ModelForm):
     expenseCode = ExpenseCodeChoiceField(queryset=ExpenseCode.objects.order_by('code'), widget=forms.Select(
         attrs={'class': 'custom-select form-control-sm', 'style': 'height: calc(1.5em + .5rem + 2px); font-size: .875rem; padding: .275rem 1.75rem .375rem .75rem'}), required=False, empty_label='')
 
-    whOrderDate = MyDateField(localize=True, required=False)
+    whOrderDate = forms.DateField(localize=True, required=False)
 
-    approveDate = MyDateField(localize=True, required=False)
+    approveDate = forms.DateField(localize=True, required=False)
 
     def __init__(self, *args, **kwargs):
         self.lockLevel = kwargs.pop('lockLevel', 0)
@@ -476,7 +459,7 @@ class AdvanceReportItemEntityForm(forms.ModelForm):
 class AttachmentForm(forms.ModelForm):
     name = forms.CharField(max_length=50)
     file = forms.FileField()
-    date = MyDateField(localize=True, required=True)
+    date = forms.DateField(localize=True, required=True)
 
     class Meta:
         model = Attachment

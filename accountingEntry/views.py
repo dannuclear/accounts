@@ -1,8 +1,10 @@
 from django.shortcuts import render
+
+from main.filters import UniversalPeriodFilter
 from .models import AccountingEntry
 from .serializers import AccountingEntrySerializer, AccountingEntryDictSerializer
 from rest_framework import viewsets
-from .filters import PeriodFilter, FilterTypeFilter
+from .filters import FilterTypeFilter
 from datetime import datetime
 from django.http import HttpResponse, HttpResponseRedirect
 from prepayment.models import Prepayment, PrepaymentPurpose, AdvanceReportItem
@@ -11,21 +13,15 @@ from django.db.models.functions import Coalesce
 from .queries import GET_EXPENSE_CODES_REPORT
 from guide.models import RefundExpense
 import csv
-# Create your views here.
-
 
 class AccountingEntryViewSet (viewsets.ModelViewSet):
     queryset = AccountingEntry.objects.select_related('prepayment').order_by('-id')
     serializer_class = AccountingEntrySerializer
+    filter_backends = [UniversalPeriodFilter, FilterTypeFilter, *viewsets.ModelViewSet.filter_backends]
+
+    period_field = 'prepayment__approveDate'
 
     def filter_queryset(self, queryset):
-        self.filter_backends = [*self.filter_backends]
-
-        if 'periodFrom' in self.request.query_params or 'periodTo' in self.request.query_params:
-            self.filter_backends.insert(0, PeriodFilter)
-        if 'filterType' in self.request.query_params:
-            self.filter_backends.insert(0, FilterTypeFilter)
-
         queryset = super().filter_queryset(queryset)
         if 'group' in self.request.query_params:
             self.serializer_class = AccountingEntryDictSerializer

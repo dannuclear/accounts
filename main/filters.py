@@ -1,10 +1,15 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+from functools import reduce
+from operator import or_
 import re
 
 from rest_framework.filters import BaseFilterBackend
 from rest_framework_datatables.filters import DatatablesBaseFilterBackend, get_param, f_search_q
 from django.db.models import Q
+from accounts import settings
+from integration.models import Employee
 from main import utils
+from rest_framework.exceptions import ValidationError
 
 
 class UniversalPeriodFilter(BaseFilterBackend):
@@ -13,22 +18,34 @@ class UniversalPeriodFilter(BaseFilterBackend):
 
     DATE_FORMAT = '%d.%m.%Y'
 
+    def get_field(self, request, view):
+        return (
+            request.query_params.get('periodFieldName')
+            or getattr(view, 'period_field', self.field_name)
+        )
+
+    def parse_date(self, request, param):
+        value = request.query_params.get(param)
+        if not value:
+            return None
+        try:
+            dt = datetime.strptime(value, self.DATE_FORMAT)
+        except ValueError:
+            raise ValidationError({param: f'Ожидается формат дд.мм.гггг, получено {value!r}'})
+        return dt
+    
     def filter_queryset(self, request, queryset, view):
-        field_name = request.query_params.get("periodFieldName", self.field_name)
-        period_from = request.query_params.get("periodFrom")
-        period_to = request.query_params.get("periodTo")
+        field  = self.get_field(request, view)
+        date_from = self.parse_date(request, 'periodFrom')
+        date_to = self.parse_date(request, 'periodTo')
 
         filter_kwargs = {}
-        if period_from:
-            date_from = datetime.strptime(period_from, self.DATE_FORMAT)
-            filter_kwargs["%s__gte" % (field_name)] = date_from
-        if period_to:
-            date_to = datetime.strptime(period_to, self.DATE_FORMAT)
-            filter_kwargs["%s__lte" % (field_name)] = date_to
+        if date_from:
+            filter_kwargs[f'{field}__gte'] = date_from
+        if date_to:
+            filter_kwargs[f'{field}__lt'] = date_to + timedelta(days=1)
 
-        if filter_kwargs:
-            queryset = queryset.filter(**filter_kwargs)
-        return queryset
+        return queryset.filter(**filter_kwargs) if filter_kwargs else queryset
 
 class UniversalYearFilter(BaseFilterBackend):
     def __init__(self, field_name="createDate", *args, **kwargs):
@@ -42,56 +59,80 @@ class UniversalYearFilter(BaseFilterBackend):
             queryset = queryset.filter(**{"%s__year" % (field_name): year})
         return queryset
 
-# class EmployeeNumberFilter(BaseFilterBackend):
-#     def __init__(self, field_name="empNum", *args, **kwargs):
-#         self.field_name = field_name
-
-#     def filter_queryset(self, request, queryset, view):
-#         field_name = getattr(request, 'emp_num_field_name', None) \
-#             or request.query_params.get("empNumFieldName", self.field_name)
-
-#         username = request.user.username or ''
-#         result = re.search(r'\d+', username)
-#         current_emp_org_no = result.group() if result else None
-
-#         if current_emp_org_no is None:
-#             return queryset.none()
-#         else:
-#             return queryset.filter(**{f"{field_name}__endswith": current_emp_org_no})
-
 class EmployeeNumberFilter(BaseFilterBackend):
     """
-    Ограничивает queryset записями текущего сотрудника.
-
-    Атрибуты view (все необязательные):
-      emp_num_field         - поле модели с табельным (по умолчанию 'empNum')
-      emp_num_lookup        - 'exact' | 'endswith' | ... (по умолчанию 'exact')
-      emp_num_extra_q       - метод view(request, emp_num) -> Q | None,
-                              условие, которое добавляется через OR
-      emp_num_bypass_staff  - True: staff видит всё (по умолчанию False)
+    Только свои записи.
+    Атрибуты view (необязательные):
+      emp_num_field   - поле с табельным (по умолчанию 'empNum')
+      emp_num_lookup  - тип совпадения (по умолчанию 'endswith')
+      emp_num_bypass  - True: видит всё
     """
 
-    def filter_queryset(self, request, queryset, view):
-        user = request.user
+    def get_emp_num(self, request):
+        """Табельный текущего пользователя, считается один раз за запрос."""
+        if not hasattr(request, '_emp_num'):
+            request._emp_num = utils.get_emp_num(request.user)
+        return request._emp_num
 
-        if getattr(view, 'emp_num_bypass_staff', False) and user.is_staff:
-            return queryset
+    @staticmethod
+    def or_q(*qs):
+        """Объединяет условия через OR, пропуская None. Все None -> None."""
+        qs = [q for q in qs if q is not None]
+        return reduce(or_, qs) if qs else None
 
-        emp_num = utils.get_emp_num(user)
+    def build_q(self, request, view):
+        """Q или None (тогда queryset.none())."""
+        emp_num = self.get_emp_num(request)
         if emp_num is None:
-            return queryset.none()
-
+            return None
         field = getattr(view, 'emp_num_field', 'empNum')
-        lookup = getattr(view, 'emp_num_lookup', 'exact')
-        q = Q(**{f'{field}__{lookup}': emp_num})
+        lookup = getattr(view, 'emp_num_lookup', 'endswith')
+        return Q(**{f'{field}__{lookup}': emp_num})
 
-        extra = getattr(view, 'emp_num_extra_q', None)
-        if extra:
-            extra_q = extra(request, emp_num)
-            if extra_q is not None:
-                q |= extra_q
+    def filter_queryset(self, request, queryset, view):
+        if getattr(view, 'emp_num_bypass', False):
+            return queryset
+        q = self.build_q(request, view)
+        return queryset.none() if q is None else queryset.filter(q)
 
-        return queryset.filter(q)
+
+class EmployeeNumberDivisionFilter(EmployeeNumberFilter):
+    """
+    Дополнительно атрибуты view:
+      emp_scope      - 'own' | 'division' | 'both' (по умолчанию 'own')
+      emp_div_field  - поле с подразделением (по умолчанию 'empDivNum')
+    """
+
+    SCOPES = ('own', 'division', 'both')
+
+    def get_div_nums(self, request, view):
+        if not hasattr(request, '_div_nums'):
+            emp_num = self.get_emp_num(request)
+            if emp_num is None:
+                request._div_nums = None
+            else:
+                lookup = getattr(view, 'emp_num_lookup', 'endswith')
+                request._div_nums = (
+                    Employee.objects
+                    .filter(**{f'empOrgNo__{lookup}': emp_num})
+                    .values('divNo')
+                )
+        return request._div_nums
+
+    def build_q(self, request, view):
+        scope = getattr(view, 'emp_scope', 'own')
+        if scope not in self.SCOPES:
+            raise ValueError(f'emp_scope: {self.SCOPES}, получено {scope!r}')
+
+        own_q = super().build_q(request, view) if scope != 'division' else None
+
+        div_q = None
+        div_nums = self.get_div_nums(request, view) if scope != 'own' else None
+        if div_nums is not None:
+            field = getattr(view, 'emp_div_field', 'empDivNum')
+            div_q = Q(**{f'{field}__in': div_nums})
+
+        return self.or_q(own_q, div_q)
 
 class YearAndMonthPeriodFilter(BaseFilterBackend):
     field_name = "createDate"

@@ -1,27 +1,23 @@
-import calendar
-from datetime import date, datetime
-from decimal import Decimal
+from datetime import datetime
 
 from rest_framework import mixins, viewsets
-from django.db.models import Avg, Count, DecimalField, Max, Min, OuterRef, Subquery, Sum, Window, CharField
+from django.db.models import Avg, Count, DecimalField, Max, Min, OuterRef, Subquery, Sum, CharField
 from django.contrib.postgres.aggregates import StringAgg
 from django.db.models import Count, DateField, F, Sum
 
-from guide.filters import DepartmentFilter, StatusFilter
+from guide.filters import StatusFilter
 from limits.filters import AcquisitionMethodFilter
 from main.helpers import is_user_in_group
-from prepayment.filters import UserFilter
 from .models import PurchaseJustification, PurchaseJustificationContractor, PurchaseLimit
-from rest_framework.response import Response
-from django.db.models.functions import ExtractQuarter, ExtractYear, Trunc, TruncMonth, TruncQuarter, TruncYear
+from django.db.models.functions import ExtractQuarter, ExtractYear, TruncMonth, TruncQuarter, TruncYear
 from django.db.models import Sum, Count, DateField
 from django.db.models import F, Value
 from django.db.models.functions import Concat
-from rest_framework import generics, viewsets
+from rest_framework import viewsets
 
 from limits.models import PurchaseJustification
 from limits.serializer import PurchaseJustificationSerializer, PurchaseLimitSerializer, PurchaseRegistryItemSerializer
-from main.filters import EmployeeNumberFilter, UniversalPeriodFilter, YearAndMonthPeriodFilter
+from main.filters import EmployeeNumberDivisionFilter, UniversalPeriodFilter
 
 
 class PurchaseJustificationViewSet(viewsets.ModelViewSet):
@@ -48,20 +44,19 @@ class PurchaseJustificationViewSet(viewsets.ModelViewSet):
         request_count=Count('request'),
     ).order_by('-created_at')
 
+    emp_num_field = 'employee__empOrgNo'
+    emp_div_field = 'employee__divNo'
     serializer_class = PurchaseJustificationSerializer
-    filter_backends = [StatusFilter, UniversalPeriodFilter, EmployeeNumberFilter,
+    filter_backends = [EmployeeNumberDivisionFilter, StatusFilter, UniversalPeriodFilter,
                        AcquisitionMethodFilter, *viewsets.ModelViewSet.filter_backends]
 
     def filter_queryset(self, queryset):
-        self.filter_backends = [*self.filter_backends]
-
         if is_user_in_group(self.request.user, ['Администратор', 'Нормоконтроль']) or self.request.user.is_superuser:
-            self.emp_num_bypass_staff = True
+            self.emp_num_bypass = True
         elif is_user_in_group(self.request.user, ['Руководитель']):
-            self.filter_backends.insert(0, DepartmentFilter)
-        elif self.request.user.has_perm('limits.view_owner_purchase_justification'):
-            self.emp_num_field = 'employee__empOrgNo'
-            #self.filter_backends.insert(0, EmployeeNumberFilter)
+            self.emp_scope = 'division'
+        elif self.request.user.has_perm('limits.view_own'):
+            pass
         else:
             return queryset.none()
 
@@ -95,6 +90,7 @@ class PurchaseLimitViewSet(viewsets.ModelViewSet):
             .filter(effective_date=Subquery(latest_per_group))
             .order_by('method', 'period')
         )
+
 
 GROUPING_TRUNC = {
     'month': TruncMonth,

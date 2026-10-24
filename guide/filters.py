@@ -3,20 +3,19 @@ from rest_framework.filters import BaseFilterBackend
 from datetime import datetime
 
 class ImprestAccountFilter(BaseFilterBackend):
-    def __init__(self, field_name="itemType", *args, **kwargs):
-        self.field_name = field_name
+    default_field = 'itemType'
+
+    def get_field(self, request, view):
+        return (
+            request.query_params.get('imprestAccountFieldName')
+            or getattr(view, 'imprest_account_field', self.default_field)
+        )
 
     def filter_queryset(self, request, queryset, view):
-        field_name = request.query_params.get("imprestAccountFieldName", self.field_name)
-        imprest_account_value = request.query_params.get("imprestAccount")
-
-        filter_kwargs = {}
-        if imprest_account_value:
-            filter_kwargs[field_name] = imprest_account_value
-    
-        if filter_kwargs:
-            queryset = queryset.filter(**filter_kwargs)
-        return queryset
+        value = request.query_params.get('imprestAccount')
+        if not value:
+            return queryset
+        return queryset.filter(**{self.get_field(request, view): value})
 
 class ObtainMethodFilter(BaseFilterBackend):
     def __init__(self, field_name="obtainMethod", *args, **kwargs):

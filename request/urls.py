@@ -1,9 +1,10 @@
 from django.urls import path
 from . import views
+from . import api_views
 from rest_framework import routers
 
 requestRouter = routers.DefaultRouter()
-requestRouter.register(r'requests', views.RequestViewSet)
+requestRouter.register(r'requests', api_views.RequestViewSet)
 
 urlpatterns = [
     path('requests', views.requests, name='requests'),

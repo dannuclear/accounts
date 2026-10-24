@@ -1,11 +1,14 @@
 
+from main.filters import UniversalPeriodFilter
+from main.helpers import is_user_in_group
+
 from .models import Prepayment, PrepaymentPurpose
 from rest_framework import viewsets
 from .serializers import PrepaymentSerializer
-from guide.filters import StatusFilter
+from guide.filters import ImprestAccountFilter, StatusFilter
 from django.db.models import OuterRef, Subquery, Func, IntegerField
 from django.db.models.functions import Cast, ExtractDay
-from .filters import PeriodFilter, ImprestAccountFilter, FilterTypeFilter, UserFilter, DepartmentFilter
+from .filters import EmployeeNumberDepartmentDelegateFilter, FilterTypeFilter
 
 
 purposesSubquery = PrepaymentPurpose.objects.select_related('prepaidDest').annotate(
@@ -30,24 +33,38 @@ class PrepaymentViewSet (viewsets.ModelViewSet):
         prepaidDestList=Subquery(purposesSubquery.values('prepaidDestList')),
         accountList=Subquery(purposesSubquery.values('accountList')),
         deadline=Subquery(purposesSubquery.values('deadLine'))
-        # deadline=Case(
-        #    When(wc07pOrder__isnull=False, then=F('wc07pOrder__missionEnd') + 3),
-        #    When(request__isnull=False, then=F('request__receivingDate') + 13),
-        #    default=Value(None),
-        #    output_field=DateField()
-        # )
     ).select_related('status').select_related('imprestAccount').select_related('document').select_related('wc07pOrder').select_related('reportStatus').order_by('-id')
 
-    filter_backends = [StatusFilter, PeriodFilter, ImprestAccountFilter, FilterTypeFilter, *viewsets.ModelViewSet.filter_backends]
+    filter_backends = [EmployeeNumberDepartmentDelegateFilter, StatusFilter, UniversalPeriodFilter,
+                       ImprestAccountFilter, FilterTypeFilter, *viewsets.ModelViewSet.filter_backends]
+    emp_num_field = 'empNum'
+    emp_div_field = 'empDivNum'
+    imprest_account_field = 'imprestAccount'
+
     serializer_class = PrepaymentSerializer
 
+    DEFAULT_PERIOD_FIELD = 'docDate'
+    PERIOD_FIELDS = {
+        '1': 'reportDate',         # Опись авансовых отчетов
+        '2': 'distribSalaryDate',  # Ведомости удержаний из зарплаты по виду удержаний 8120
+        '3': 'approveDate',        # По дате подтверждения проводок
+    }
+
+    @property
+    def period_field(self):
+        params = self.request.query_params
+        if params.get('periodType') == '1':  # periodType=1 имеет приоритет, как раньше
+            return self.PERIOD_FIELDS['1']
+        return self.PERIOD_FIELDS.get(params.get('filterType'), self.DEFAULT_PERIOD_FIELD)
+
     def filter_queryset(self, queryset):
-        self.filter_backends = [*self.filter_backends]
+        if is_user_in_group(self.request.user, ['Администратор', 'Бухгалтер']) or self.request.user.is_superuser:
+            self.emp_num_bypass = True
+        elif self.request.user.has_perm('prepayment.view_owner_dept_prepayments') or self.request.user.has_perm('prepayment.view_owner_dept_advance_reports'):
+            self.emp_scope = 'both'
+        elif self.request.user.has_perm('prepayment.view_owner_prepayments') or self.request.user.has_perm('prepayment.view_owner_advance_reports'):
+            self.emp_scope = 'own'
         if 'noAccountingNumHide' in self.request.query_params:
             queryset = queryset.filter(reportAccountingNum__isnull=False)
-        if (self.request.user.has_perm('prepayment.view_owner_prepayments') or self.request.user.has_perm('prepayment.view_owner_advance_reports')) and not self.request.user.is_superuser:
-            self.filter_backends.insert(0, UserFilter)
-        if (self.request.user.has_perm('prepayment.view_owner_dept_prepayments') or self.request.user.has_perm('prepayment.view_owner_dept_advance_reports')) and not self.request.user.is_superuser:
-            self.filter_backends.insert(0, DepartmentFilter)
-
+        
         return super().filter_queryset(queryset)

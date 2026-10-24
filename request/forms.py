@@ -5,21 +5,9 @@ from guide.models import Status, ImprestAccount, ObtainMethod, ExpenseRate
 from integration.models import Employee
 from main.helpers import is_user_in_group
 
-
-class MyDateField(forms.DateField):
-    def prepare_value(self, value):
-        return self.widget.format_value(value)
-
-
 class ImprestAccountChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.account
-
-
-class ObtainMethodChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.name
-
 
 class ApplicantChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
@@ -30,11 +18,6 @@ class ApplicantOrgNoChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return '%s' % (obj.empOrgNo)
 
-
-class StatusChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.name
-
 class ExpenseRateChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
@@ -42,23 +25,20 @@ class ExpenseRateChoiceField(forms.ModelChoiceField):
 class RequestForm (forms.ModelForm):
     id = forms.IntegerField(label='id', disabled=True, required=False)
     num = forms.IntegerField(label='Номер', disabled=True, required=False, widget=forms.TextInput)
-    createDate = MyDateField(label='Дата', localize=True, disabled=True)
+    createDate = forms.DateField(label='Дата', localize=True, disabled=True)
 
     issuedSum = forms.DecimalField(label='Сумма к выдаче', localize=True, required=True)
     # operationName = forms.CharField(label='Наименование операции', required=False)
 
-    receivingDate = MyDateField(label='Предполагаемая дата получения', localize=True, required=False)
+    receivingDate = forms.DateField(label='Предполагаемая дата получения', localize=True, required=False)
 
-    status = StatusChoiceField(queryset=Status.objects.order_by('id'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Статус', required=True, empty_label=None)
+    status = forms.ModelChoiceField(queryset=Status.objects.none(), label='Статус', required=True, empty_label=None)
 
     applicant = ApplicantOrgNoChoiceField(queryset=Employee.objects.all(), label='Сотрудник', required=True, empty_label='Не выбран')
 
-    imprestAccount = ImprestAccountChoiceField(queryset=ImprestAccount.objects.order_by('account'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Код учета', required=True, empty_label=None)
+    imprestAccount = forms.ModelChoiceField(queryset=ImprestAccount.objects.order_by('account'), label='Код учета', required=True, empty_label=None)
 
-    obtainMethod = ObtainMethodChoiceField(queryset=ObtainMethod.objects.order_by('id'), widget=forms.Select(
-        attrs={'class': 'custom-select form-control-sm'}), label='Способ получения', required=False, empty_label=None)
+    obtainMethod = forms.ModelChoiceField(queryset=ObtainMethod.objects.order_by('id'), label='Способ получения', required=False, empty_label=None)
 
     servicePayment = forms.CharField(label='Оплаты услуг', required=False)
 

@@ -55,16 +55,6 @@
         ajax: {
           url: "{% url 'purchase-justification-list' %}?format=datatables",
           data: function (d) {
-            //f ($('#year-select').val()) {
-            //  d.year = $('#year-select').val()
-            //  d.yearFieldName = 'purchase_date'
-            //}
-            //if ($('#ymp-year-select').val()) {
-            //  d.year = $('#ymp-year-select').val()
-            //  d.monthFrom = $('#ymp-month-from-select').val()
-            //  d.monthTo = $('#ymp-month-to-select').val()
-            //  d.periodFieldName = 'purchase_date'
-            //}
             if (periodFromInput.val() || periodToInput.val()) {
               d.periodFrom = periodFilter.find("#period-from").val()
               d.periodTo= periodFilter.find("#period-to").val()

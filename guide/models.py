@@ -264,6 +264,9 @@ class ObtainMethod(models.Model):
     # Дебет. Доп.признак
     creditExtra = models.CharField(db_column="credit_extra", max_length=10, blank=True, null=True)
 
+    def __str__(self):
+        return self.name
+    
     class Meta:
         db_table = 'obtain_method'
         verbose_name = 'Способ получения'
