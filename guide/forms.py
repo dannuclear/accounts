@@ -52,10 +52,6 @@ class ExpenseCodeChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return '(%s) %s' % (obj.code, obj.name)
 
-class ImprestAccountChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.account
-
 class DepartmentChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return '(%s) %s' % (obj.id, obj.name)

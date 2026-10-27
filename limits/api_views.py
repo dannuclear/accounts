@@ -55,6 +55,9 @@ class PurchaseJustificationViewSet(viewsets.ModelViewSet):
             self.emp_num_bypass = True
         elif is_user_in_group(self.request.user, ['Руководитель']):
             self.emp_scope = 'division'
+        elif self.request.user.has_perm('limits.view_075') or self.request.user.has_perm('limits.edit_075'):
+            self.emp_num_bypass = True
+            self.acquisition_method = 'through_075'
         elif self.request.user.has_perm('limits.view_own'):
             pass
         else:

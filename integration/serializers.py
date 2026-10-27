@@ -14,6 +14,10 @@ class EmployeeSerializer (serializers.ModelSerializer):
     fullName = serializers.SerializerMethodField()
     empOrgNoWithfullName = serializers.SerializerMethodField()
     empOrgNoWithfullNameAndPost = serializers.SerializerMethodField()
+    empOrgNo = serializers.SerializerMethodField()
+
+    def get_empOrgNo(self, obj):
+        return '%08d' % (obj.empOrgNo)
 
     def get_fullName(self, obj):
         return '%s %s %s' % (obj.pfnSurname, obj.pfnName, obj.pfnPatronymic)

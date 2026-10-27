@@ -8,7 +8,7 @@ class AcquisitionMethodFilter(BaseFilterBackend):
     default_field_name = "acquisition_method"
 
     def filter_queryset(self, request, queryset, view):
-        value = request.query_params.get(self.param_name)
+        value = getattr(view, 'acquisition_method', request.query_params.get(self.param_name))
         if not value:
             return queryset
 

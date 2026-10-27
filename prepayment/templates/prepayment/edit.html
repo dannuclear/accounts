@@ -1,4 +1,4 @@
-{% extends 'main/base.html' %}
+{% extends "main/base.html" %}
 {% load prepayment_extras %}
 {% load widget_tweaks %}
 
@@ -13,8 +13,8 @@
     <input id="split" type="hidden" name="split" />
     <input type="hidden" name="id" value="{{ form.id.value }}" />
 
-    {% url 'prepayments' as back_url %}
-    {% include 'main/save_cancel.html' with path=back_url %}
+    {% url "prepayments" as back_url %}
+    {% include "main/save_cancel.html" with path=back_url %}
 
     {{ form.errors }}
     {{ form.non_field_errors }}
@@ -29,19 +29,23 @@
           <div class="col-4"></div>
 
           <div class="col-2">
-            {% include 'main/input_group.html' with field=form.imprestAccount inputClass='text-center form-select' %}
+            {% include "main/input_group.html" with field=form.imprestAccount inputClass="text-center form-select" %}
           </div>
 
           <div class="col-xl-2 col-md-2 ms-auto">
-            {% include 'main/input_group.html' with field=form.status inputClass='text-center form-select' read_only=form.has_requests %}
+            {% include "main/input_group.html" with field=form.status inputClass="text-center form-select" read_only=form.has_requests %}
           </div>
         </div>
       </div>
 
       <div class="col-12 border rounded p-1">
         <p class="h3 m-0">Заявление:</p>
-        <div class="col-7">
-          {% include 'request/select.html' with field=form.request empField=form.empNum %}
+        {% comment %} <div class="col-7">
+          {% include "request/select.html" with field=form.request empField=form.empNum %}
+        </div> {% endcomment %}
+        <div class="input-group input-group-sm">
+          <span class="input-group-text">{{ label|default:"Заявление" }}</span>
+          {{ form.request|add_class:"form-select-sm request-select" }}
         </div>
       </div>
 
@@ -57,29 +61,29 @@
 
         <div class="row g-1">
           <div class="col-3">
-            {% include 'main/input_group.html' with field=form.document inputClass='text-center form-select' %}
+            {% include "main/input_group.html" with field=form.document inputClass="text-center form-select" %}
           </div>
 
           <div class="col-2">
-            {% include 'main/input_group.html' with field=form.docNum inputClass='text-center' %}
+            {% include "main/input_group.html" with field=form.docNum inputClass="text-center" %}
           </div>
 
           <div class="col-2">
-            {% include 'main/input_group.html' with field=form.docDate inputClass='datepeeker text-center' %}
+            {% include "main/input_group.html" with field=form.docDate inputClass="datepeeker text-center" %}
           </div>
 
           {% if form.instance.request.purchase_justification %}
             <div class="col-xl-2 col-md-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Номер обоснования</span>
-                <input type="text" class="mb-0 form-control form-control-sm text-center" value="{{ form.instance.request.purchase_justification.num|default_if_none:'-' }}" disabled />
+                <input type="text" class="mb-0 form-control form-control-sm text-center" value="{{ form.instance.request.purchase_justification.num|default_if_none:"-" }}" disabled />
               </div>
             </div>
 
             <div class="col-xl-2 col-md-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Дата обоснования</span>
-                <input type="text" class="text-center mb-0 form-control form-control-sm" value="{{ form.instance.request.purchase_justification.justification_date|default_if_none:'' }}" disabled />
+                <input type="text" class="text-center mb-0 form-control form-control-sm" value="{{ form.instance.request.purchase_justification.justification_date|default_if_none:"" }}" disabled />
               </div>
             </div>
           {% endif %}
@@ -91,15 +95,15 @@
 
         <div class="row g-1">
           <div class="col-2">
-            {% include 'main/input_group.html' with field=form.orderChangeNum inputClass='text-center' label='Номер приказа' %}
+            {% include "main/input_group.html" with field=form.orderChangeNum inputClass="text-center" label="Номер приказа" %}
           </div>
 
           <div class="col-2">
-            {% include 'main/input_group.html' with field=form.orderChangeDate inputClass='datepeeker text-center' label='Дата приказа' %}
+            {% include "main/input_group.html" with field=form.orderChangeDate inputClass="datepeeker text-center" label="Дата приказа" %}
           </div>
 
           <div class="col-8">
-            {% include 'main/input_group.html' with field=form.orderChanges label='Внесенные изменения в приказ' %}
+            {% include "main/input_group.html" with field=form.orderChanges label="Внесенные изменения в приказ" %}
           </div>
         </div>
       </div>
@@ -108,19 +112,19 @@
         <p class="h4 m-0">Раздел 1. Подотчетное лицо:</p>
         <div class="row g-1">
           <div class="col-2">
-            {% include 'integration/employee/search.html' with field=form.empNum %}
+            {% include "integration/employee/search.html" with field=form.empNum %}
           </div>
 
           <div class="col-2">
-            {% include 'main/input_group.html' with field=form.empDivNum inputClass='text-center bg-body-secondary' inputAttr='readonly' %}
+            {% include "main/input_group.html" with field=form.empDivNum inputClass="text-center bg-body-secondary" inputAttr="readonly" %}
           </div>
 
           <div class="col-3">
-            {% include 'main/input_group.html' with field=form.empFullName inputClass='text-center bg-body-secondary' inputAttr='readonly' %}
+            {% include "main/input_group.html" with field=form.empFullName inputClass="text-center bg-body-secondary" inputAttr="readonly" %}
           </div>
 
           <div class="col-5">
-            {% include 'main/input_group.html' with field=form.empProfName inputClass='text-center bg-body-secondary' inputAttr='readonly' %}
+            {% include "main/input_group.html" with field=form.empProfName inputClass="text-center bg-body-secondary" inputAttr="readonly" %}
           </div>
         </div>
       </div>
@@ -129,7 +133,7 @@
         <p class="h4 m-0">Сумма аванса:</p>
         <div class="row g-1">
           <div class="col-3">
-            {% include 'main/input_group.html' with field=form.totalSum inputClass='text-center prepayment-total' inputAttr='readonly' %}
+            {% include "main/input_group.html" with field=form.totalSum inputClass="text-center prepayment-total" inputAttr="readonly" %}
           </div>
         </div>
       </div>
@@ -138,34 +142,34 @@
         <p class="h4 m-0">Переходящий остаток:</p>
         <div class="row g-1">
           <div class="col-2">
-            {% include 'main/input_group.html' with field=form.carryOverSum inputClass='text-center prepayment-part' %}
+            {% include "main/input_group.html" with field=form.carryOverSum inputClass="text-center prepayment-part" %}
           </div>
 
           <div class="col-2">
-            {% include 'main/input_group.html' with field=form.carryOverAdvanceReportNum inputClass='text-center' %}
+            {% include "main/input_group.html" with field=form.carryOverAdvanceReportNum inputClass="text-center" %}
           </div>
 
           <div class="col-2">
-            {% include 'main/input_group.html' with field=form.carryOverAdvanceReportDate inputClass='datepeeker text-center' %}
+            {% include "main/input_group.html" with field=form.carryOverAdvanceReportDate inputClass="datepeeker text-center" %}
           </div>
         </div>
       </div>
 
       <div class="row g-1 item-container">
         <div class="col-12">
-          {% include 'shared/formset.html' with formset=form.item_formset title='Авансы' add_label='Добавить аванс' bg_color='#b4bca9' form_template='prepayment/item/form.html' %}
+          {% include "shared/formset.html" with formset=form.item_formset title="Авансы" add_label="Добавить аванс" bg_color="#b4bca9" form_template="prepayment/item/form.html" %}
         </div>
       </div>
 
       <div class="col-12 border rounded p-1">
-        {% include 'shared/formset.html' with formset=form.purpose_formset title='Раздел 2. Сведения о назначении аванса' add_label='Добавить сведения' bg_color='#b4bca9' form_template='prepayment/purpose/form.html' %}
+        {% include "shared/formset.html" with formset=form.purpose_formset title="Раздел 2. Сведения о назначении аванса" add_label="Добавить сведения" bg_color="#b4bca9" form_template="prepayment/purpose/form.html" %}
       </div>
     </div>
   </form>
 
-  {% include 'prepayment/split_modal.html' %}
+  {% include "prepayment/split_modal.html" %}
 
-  <script type="text/javascript">
+  <script>
     $(document).ready(function () {
       function updatePrepaymentSum() {
         let prepaymentSum = 0
@@ -223,7 +227,36 @@
         .on('employee:error', function () {
           alert('Ошибка при поиске сотрудника')
         })
-    
+
+      $('.request-select').select2({
+        ajax: {
+          url: "{% url 'request-list' %}",
+          dataType: 'json',
+          data: function (params) {
+            return {
+              q: params.term,
+              empNum: $.trim($empNum.val()) || -1,
+              format: 'json'
+            }
+          },
+          processResults: function (data) {
+            return {
+              results: data.results.map((el) => ({
+                id: el.id,
+                text: el.num + ' - ' + el.createDate
+              }))
+            }
+          }
+        },
+        allowClear: true,
+        placeholder: '{{ placeholder|default:"Заявление"|escapejs }}',
+        language: {
+          noResults: function () {
+            return 'Нет совпадений'
+          }
+        }
+      })
+
       updatePrepaymentSum()
     })
   </script>

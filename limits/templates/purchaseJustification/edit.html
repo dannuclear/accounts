@@ -1,4 +1,4 @@
-{% extends 'main/base.html' %}
+{% extends "main/base.html" %}
 {% load widget_tweaks %}
 {% load prepayment_extras %}
 {% block title %}
@@ -10,8 +10,8 @@
     <form method="post" class="container-fluid">
       {% csrf_token %}
 
-      {% url 'purchase_justifications' as back_url %}
-      {% include 'main/save_cancel.html' with path=back_url renderSave=form.can_save %}
+      {% url "purchase_justifications" as back_url %}
+      {% include "main/save_cancel.html" with path=back_url renderSave=form.can_save %}
       {{ form.errors }}
       <input id="action" type="hidden" name="action" />
 
@@ -24,53 +24,53 @@
           <div class="col-xl-2 col-md-2">
             <div class="input-group input-group-sm">
               <span class="input-group-text">№</span>
-              <input type="text" class="mb-0 form-control form-control-sm text-center" value="{{ form.instance.num|default_if_none:'-' }}" disabled />
+              <input type="text" class="mb-0 form-control form-control-sm text-center" value="{{ form.instance.num|default_if_none:"-" }}" disabled />
             </div>
           </div>
 
           <div class="col-xl-2 col-md-2">
             <div class="input-group input-group-sm">
               <span class="input-group-text">От</span>
-              <input type="text" class="text-center mb-0 form-control form-control-sm" value="{{ form.instance.justification_date|default_if_none:'' }}" disabled />
+              <input type="text" class="text-center mb-0 form-control form-control-sm" value="{{ form.instance.justification_date|default_if_none:"" }}" disabled />
             </div>
           </div>
 
           <div class="col-xl-2 col-md-2 ms-auto">
-            {% include 'main/input_group.html' with field=form.status inputClass='text-center form-select' read_only=form.has_requests %}
+            {% include "main/input_group.html" with field=form.status inputClass="text-center form-select" read_only=form.has_requests %}
           </div>
         </div>
       </div>
 
       <div class="row g-1 pt-1">
         <div class="col-2">
-          {% include 'integration/employee/select.html' with field=form.employee %}
+          {% include "integration/employee/select.html" with field=form.employee %}
         </div>
 
         <div class="col-3">
           <div class="input-group input-group-sm">
             <span class="input-group-text">ФИО</span>
-            <input type="text" class="text-center form-control employee-fio" value="{{ form.instance.employee.pfnSurname|add:' '|add:form.instance.employee.pfnName|add:' '|add:form.instance.employee.pfnPatronymic|default_if_none:'' }}" disabled />
+            <input type="text" class="text-center form-control employee-fio" value="{{ form.instance.employee.pfnSurname|add:" "|add:form.instance.employee.pfnName|add:" "|add:form.instance.employee.pfnPatronymic|default_if_none:"" }}" disabled />
           </div>
         </div>
 
         <div class="col-2">
           <div class="input-group input-group-sm">
             <span class="input-group-text">Подр.</span>
-            <input type="text" class="text-center form-control employee-div" value="{{ form.instance.employee.divNo|zfill:3|default_if_none:'' }}" disabled />
+            <input type="text" class="text-center form-control employee-div" value="{{ form.instance.employee.divNo|zfill:3|default_if_none:"" }}" disabled />
           </div>
         </div>
 
         <div class="col-5">
           <div class="input-group input-group-sm">
             <span class="input-group-text">Должность</span>
-            <input type="text" class="text-center form-control employee-prof" value="{{ form.instance.employee.profName|default_if_none:'' }}" disabled />
+            <input type="text" class="text-center form-control employee-prof" value="{{ form.instance.employee.profName|default_if_none:"" }}" disabled />
           </div>
         </div>
         <div class="col-5">
-          {% include 'main/input_group.html' with field=form.phone label='Телефон:' labelStyle='width: 150px' %}
+          {% include "main/input_group.html" with field=form.phone label="Телефон:" labelStyle="width: 150px" %}
         </div>
         <div class="col-5">
-          {% include 'main/input_group.html' with field=form.acquisition_method label='Способ приобретения:' %}
+          {% include "main/input_group.html" with field=form.acquisition_method label="Способ приобретения:" %}
         </div>
         <div class="col-2">
           <input id="total-amount" class="text-center form-control form-control-sm" readonly disabled />
@@ -79,16 +79,16 @@
 
       <div class="row g-1 pt-1">
         <div class="col-9">
-          {% include 'main/input_group.html' with field=form.justification_text label='Текст обоснования:' labelStyle='width: 150px' %}
+          {% include "main/input_group.html" with field=form.justification_text label="Текст обоснования:" labelStyle="width: 150px" %}
         </div>
         <div class="col-3 d-flex align-items-center justify-content-center">
           <div class="form-check">
-            {{ form.no_annual_demand_splitting|add_class:'form-check-input' }}
+            {{ form.no_annual_demand_splitting|add_class:"form-check-input" }}
             <label class="form-check-label" for="{{ form.no_annual_demand_splitting.id_for_label }}">Отсутствие дробления общей годовой потребности</label>
           </div>
         </div>
         <div class="col-12">
-          {% include 'main/input_group.html' with field=form.comment label='Комментарий:' labelStyle='width: 150px' %}
+          {% include "main/input_group.html" with field=form.comment label="Комментарий:" labelStyle="width: 150px" %}
         </div>
       </div>
 
@@ -107,12 +107,12 @@
             <div class="tab-pane fade show active" id="tab-content-purchase" role="tabpanel" aria-labelledby="tab-purchase">
               <div class="row g-1">
                 <div class="col-12">
-                  {% include 'shared/formset.html' with formset=form.contractor_formset title='Контрагенты' add_label='Добавить контрагента' bg_color='#b4bca9' form_template='purchaseJustification/contractor/form.html' %}
+                  {% include "shared/formset.html" with formset=form.contractor_formset title="Контрагенты" add_label="Добавить контрагента" bg_color="#b4bca9" form_template="purchaseJustification/contractor/form.html" %}
                 </div>
 
                 <div class="col-12">
                   <input type="file" id="attachment-file-input" class="d-none" />
-                  {% include 'shared/formset.html' with formset=form.attachment_formset title='Вложения' add_label='Добавить вложение' bg_color='#b4bca9' form_template='purchaseJustification/attachment/form.html' %}
+                  {% include "shared/formset.html" with formset=form.attachment_formset title="Вложения по обоснованию" add_label="Добавить вложение" bg_color="#b4bca9" form_template="purchaseJustification/attachment/form.html" %}
                 </div>
               </div>
             </div>
@@ -122,7 +122,7 @@
                 {% for contractor_form in form.contractor_formset %}
                   {% if not contractor_form.DELETE.value %}
                     <div class="col-12">
-                      {% include 'purchaseJustification/contractor/priceAnalysis/form.html' with form=contractor_form read_only=read_only %}
+                      {% include "purchaseJustification/contractor/priceAnalysis/form.html" with form=contractor_form read_only=read_only %}
                     </div>
                   {% endif %}
                 {% endfor %}
@@ -134,7 +134,7 @@
     </form>
   {% endwith %}
 
-  <script type="text/javascript">
+  <script>
     const maxFileSize = 5 * 1048576
     const fileInput = $('#attachment-file-input')
     let activeRow = null

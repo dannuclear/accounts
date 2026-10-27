@@ -11,10 +11,6 @@ from request.models import Request
 from main.helpers import is_user_in_group
 from main.fields import CachedModelChoiceField
 
-class ImprestAccountChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.account
-
 class DocumentChoiceField(forms.ModelChoiceField): 
 
     def __init__(self, *args, **kwargs):
@@ -86,12 +82,33 @@ class PrepaymentItemForm(forms.ModelForm):
 
     value = forms.DecimalField(label='Сумма', localize=True, required=False)
 
+    request = forms.IntegerField(label="Заявление", required=False, widget=forms.Select())
+
     class Meta:
         model = PrepaymentItem
-        fields = ('obtainMethod', 'date', 'value')
+        fields = ('obtainMethod', 'date', 'value', 'request')
 
+    def clean_request(self):
+        request_id = self.cleaned_data.get('request')
+
+        if not request_id:
+            return None
+
+        try:
+            return Request.objects.get(pk=request_id)
+        except Request.DoesNotExist:
+            raise forms.ValidationError("Заявление не найдено")
+        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        choices = [('', '')]
+        req = getattr(self.instance, 'request', None)
+        if req:
+            choices.append((req.pk, f'{req.num} - {req.createDate:%d.%m.%y}'))
+            self.initial['request'] = req.pk
+        self.fields['request'].widget.choices = choices
+
         if self.instance.id is not None:
             count = self.instance.paymentprepayment_set.filter(payment__isnull=False).count()
             if count > 0:
@@ -168,7 +185,7 @@ class PrepaymentForm (NestedFormsMixin, forms.ModelForm):
 
     status = forms.ModelChoiceField(queryset=Status.objects.none(), label='Статус', required=True, empty_label=None)
 
-    imprestAccount = ImprestAccountChoiceField(queryset=ImprestAccount.objects.order_by('account'), label='Код учета', required=True, empty_label='Не указан')
+    imprestAccount = forms.ModelChoiceField(queryset=ImprestAccount.objects.order_by('account'), label='Код учета', required=True, empty_label='Не указан')
 
     comment = forms.CharField(label='Приложения', required=False)
 

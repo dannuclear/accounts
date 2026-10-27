@@ -51,7 +51,7 @@ PurchaseJustificationContractorServiceItemFormSet = inlineformset_factory(
     PurchaseJustificationContractor,
     PurchaseJustificationContractorRequestItem,
     form=PurchaseJustificationContractorRequestItemForm,
-    max_num=1,
+    max_num=0,
     can_delete=True,
 )
 
@@ -70,7 +70,7 @@ PurchaseJustificationContractorRequestFormSet = inlineformset_factory(
     PurchaseJustificationContractor,
     PurchaseJustificationContractorRequest,
     form=PurchaseJustificationContractorRequestForm,
-    max_num=1,
+    max_num=0,
     can_delete=True,
 )
 
@@ -238,7 +238,7 @@ class PurchaseJustificationForm(NestedFormsMixin, forms.ModelForm):
 
     def __init__(self, *args, user=None, read_only=False, **kwargs):
         super().__init__(*args, **kwargs)
-
+    
         self._has_requests = bool(self.instance.pk and Request.objects.filter(
             purchase_justification=self.instance).exists())
 
@@ -300,11 +300,4 @@ class PurchaseJustificationForm(NestedFormsMixin, forms.ModelForm):
 
                 return instance
 
-            instance = super().save(commit=commit)
-
-            self.attachment_formset.instance = instance
-
-            if commit:
-                self.attachment_formset.save()
-
-            return instance
+            return super().save(commit=commit)

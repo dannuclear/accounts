@@ -1,6 +1,6 @@
-<div class="col-12 container-fluid p-1 border rounded" style="background-color: {{ bg_color|default:'rgb(99, 162, 130)' }};">
+<div class="col-12 container-fluid p-0">
   <div class="row g-1">
-    <div class="col-12">
+    <div class="col-12 p-1 border rounded" style="background-color: {{ bg_color|default:'rgb(99, 162, 130)' }};">
       <div class="row g-1 align-items-center">
         {% if not read_only and not hide_add %}
           <div class="col-auto">
@@ -18,7 +18,7 @@
       <div class="row g-1 {{ formset.prefix }}-container">
         {% for f in formset %}
           {% if not f.DELETE.value %}
-            <div class="col-12">
+            <div class="col-12 p-1 border rounded" style="background-color: {{ bg_color|default:'rgb(99, 162, 130)' }};">
               <div class="row g-1 align-items-stretch">
                 <div class="col">
                   {% include form_template with form=f %}

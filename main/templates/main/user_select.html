@@ -1,29 +1,48 @@
-<button type="button" class="btn btn-sm btn-outline-light p-1" id="switch-user-btn" title="Сменить пользователя" data-bs-toggle="modal" data-bs-target="#switchUserModal">
+<button type="button"
+        class="btn btn-sm btn-outline-light p-1"
+        id="switch-user-btn"
+        title="Сменить пользователя"
+        data-bs-toggle="modal"
+        data-bs-target="#switchUserModal">
   <i class="fa-duotone fa-arrows-rotate"></i>
 </button>
-
-<div class="modal fade" id="switchUserModal" tabindex="-1" aria-labelledby="switchUserModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 380px;">
+<div class="modal fade"
+     id="switchUserModal"
+     tabindex="-1"
+     aria-labelledby="switchUserModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm"
+       style="max-width: 380px">
     <div class="modal-content">
       <div class="modal-header py-2 px-3">
         <h6 class="modal-title mb-0" id="switchUserModalLabel">
           <i class="fa-duotone fa-user-switch"></i>&nbsp;Смена пользователя
         </h6>
-        <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        <button type="button"
+                class="btn-close btn-close-sm"
+                data-bs-dismiss="modal"
+                aria-label="Закрыть"></button>
       </div>
       <div class="modal-body py-2 px-3">
-        <select id="change-user" name="current_user" class="form-select form-select-sm">
-          <option value="z57098001" {% if request.META.REMOTE_USER == 'z57098001' %}selected{% endif %}>Подотчетное лицо (z57098001)</option>
-          <option value="buh"       {% if request.META.REMOTE_USER == 'buh' %}selected{% endif %}>Бухгалтер (buh)</option>
-          <option value="admin"     {% if request.META.REMOTE_USER == 'admin' %}selected{% endif %}>Администратор (admin)</option>
-          <option value="norms"     {% if request.META.REMOTE_USER == 'norms' %}selected{% endif %}>Нормоконтроль (norms)</option>
-          <option value="chief"     {% if request.META.REMOTE_USER == 'chief' %}selected{% endif %}>Руководитель (chief)</option>
-          <option value="user"      {% if request.META.REMOTE_USER == 'user' %}selected{% endif %}>Подотчетное лицо (user)</option>
-          <option value="z12345"    {% if request.META.REMOTE_USER == 'z12345' %}selected{% endif %}>z12345</option>
+        <select id="change-user"
+                name="current_user"
+                class="form-select form-select-sm">
+          {% with remote_user=request.META.REMOTE_USER %}
+            <option value="z57098001" {% if remote_user == 'z57098001' %}selected{% endif %}>Подотчетное лицо (z57098001)</option>
+            <option value="buh" {% if remote_user == 'buh' %}selected{% endif %}>Бухгалтер (buh)</option>
+            <option value="admin" {% if remote_user == 'admin' %}selected{% endif %}>Администратор (admin)</option>
+            <option value="norms" {% if remote_user == 'norms' %}selected{% endif %}>Нормоконтроль (norms)</option>
+            <option value="z00000075" {% if remote_user == 'z00000075' %}selected{% endif %}>Специалист 075 (z00000075)</option>
+            <option value="chief" {% if remote_user == 'chief' %}selected{% endif %}>Руководитель (chief)</option>
+            <option value="user" {% if remote_user == 'user' %}selected{% endif %}>Подотчетное лицо (user)</option>
+            <option value="z12345" {% if remote_user == 'z12345' %}selected{% endif %}>z12345</option>
+          {% endwith %}
         </select>
       </div>
       <div class="modal-footer py-2 px-3 gap-1">
-        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        <button type="button"
+                class="btn btn-sm btn-secondary"
+                data-bs-dismiss="modal">Отмена</button>
         <button type="button" class="btn btn-sm btn-success" id="switch-user-apply">
           <i class="fa-duotone fa-right-to-bracket"></i>&nbsp;Сменить
         </button>
@@ -31,8 +50,7 @@
     </div>
   </div>
 </div>
-
-<script type="text/javascript">
+<script>
   $(document).ready(function () {
     $('#switch-user-apply').on('click', function () {
        const selectedUser = $('#change-user').val();

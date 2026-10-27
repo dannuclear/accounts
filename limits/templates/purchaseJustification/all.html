@@ -1,4 +1,4 @@
-{% extends 'main/base.html' %}
+{% extends "main/base.html" %}
 
 {% block title %}
   Обоснования на приобретение
@@ -9,18 +9,16 @@
 
   <div class="row">
     <div class="col-3">
-      {% comment %} {% include 'main/filters/year_filter.html' with years=years %} {% endcomment %}
-      {% comment %} {% include 'main/filters/year_and_month_period_filter.html' with years=years %} {% endcomment %}
-      {% include 'main/filters/period_filter.html' %}
+      {% include "main/filters/period_filter.html" %}
     </div>
     {% if statuses %}
       <div class="col-2">
-        {% include 'shared/select_filter.html' with filter_id='status-filter' label='Статус' options=statuses all_option=True %}
+        {% include "shared/select_filter.html" with filter_id="status-filter" label="Статус" options=statuses all_option=True %}
       </div>
     {% endif %}
     {% if acquisition_options %}
       <div class="col-3">
-        {% include 'shared/select_filter.html' with filter_id='acquisition-method-filter' label='Способ приобретения' options=acquisition_options all_option=True %}
+        {% include "shared/select_filter.html" with filter_id="acquisition-method-filter" label="Способ приобретения" options=acquisition_options all_option=True %}
       </div>
     {% endif %}
   </div>
@@ -44,8 +42,7 @@
     </thead>
   </table>
 
-  
-  <script type="text/javascript">
+  <script>
 
     const acquisitionMethodFilter = $("#acquisition-method-filter")
     const statusFilter = $("#status-filter")

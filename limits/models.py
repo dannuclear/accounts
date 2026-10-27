@@ -67,6 +67,8 @@ class PurchaseJustification(models.Model):
             ("view_purchase_justification", "Просмотр"),
             ("edit_purchase_justification", "Редактирование"),
             ("view_own", "Просмотр только свои обоснования"),
+            ("view_075", "Просмотр 075"),
+            ("edit_075", "Редактирование 075"),
         ]
         constraints = [
             UniqueConstraint('num', ExtractYear('justification_date'), name='uniq_purchase_justification_num_year'),

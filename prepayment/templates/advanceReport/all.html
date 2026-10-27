@@ -1,4 +1,4 @@
-{% extends 'main/base.html' %}
+{% extends "main/base.html" %}
 
 {% block title %}
 Реестр авансовых отчетов
@@ -9,18 +9,18 @@
 
 <div class="row">
     <div class="col-3">  
-        {% include 'main/filters/period_filter.html' %}
+        {% include "main/filters/period_filter.html" %}
     </div>
     {% if statuses %}
         <div class="col-3">
-            {% include 'status/status_filter.html' with options=statuses not_defined=True %}
+            {% include "status/status_filter.html" with options=statuses not_defined=True %}
         </div>
     {% endif %}
 </div>
 
-{% include 'request/variant_dialog.html' %}
+{% include "request/variant_dialog.html" %}
 
-{% include 'advanceReport/emp_num_dialog.html' %}
+{% include "advanceReport/emp_num_dialog.html" %}
 
 <table id="request-table" class="table table-sm table-bordered table-hover dataTable dtr-inline w-100 table-header-sm table-row-min" style="font-size: 0.9em;">
     <thead>
@@ -82,7 +82,7 @@
     </thead>
 </table>
 
-<script type="text/javascript">
+<script>
     const purposes = ['приобретение ТМЦ, работ, услуг', 'приобретение ГСМ', 'Аванс на оплату расходов в служебной поездке']
     const isAdminOrAccountant = $('#isAdminOrAccountant').val() == 'True'
 

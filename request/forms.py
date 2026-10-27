@@ -5,22 +5,9 @@ from guide.models import Status, ImprestAccount, ObtainMethod, ExpenseRate
 from integration.models import Employee
 from main.helpers import is_user_in_group
 
-class ImprestAccountChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.account
-
-class ApplicantChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return '%s: %s %s %s (%s)' % (obj.empOrgNo, obj.pfnSurname, obj.pfnName, obj.pfnPatronymic, obj.profName)
-
-
 class ApplicantOrgNoChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return '%s' % (obj.empOrgNo)
-
-class ExpenseRateChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.name
 
 class RequestForm (forms.ModelForm):
     id = forms.IntegerField(label='id', disabled=True, required=False)
@@ -28,7 +15,6 @@ class RequestForm (forms.ModelForm):
     createDate = forms.DateField(label='Дата', localize=True, disabled=True)
 
     issuedSum = forms.DecimalField(label='Сумма к выдаче', localize=True, required=True)
-    # operationName = forms.CharField(label='Наименование операции', required=False)
 
     receivingDate = forms.DateField(label='Предполагаемая дата получения', localize=True, required=False)
 
@@ -118,7 +104,7 @@ class RequestInventoryForm (forms.ModelForm):
         localized_fields = ALL_FIELDS
 
 class RequestTravelExpenseForm (forms.ModelForm):
-    expenseRate = ExpenseRateChoiceField(queryset=ExpenseRate.objects.all(), required=False, empty_label='Не выбран')
+    expenseRate = forms.ModelChoiceField(queryset=ExpenseRate.objects.all(), required=False, empty_label='Не выбран')
 
     # Надо JavaScript править
     #sum = forms.DecimalField(localize=True, required=True)

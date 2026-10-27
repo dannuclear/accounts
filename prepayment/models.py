@@ -193,6 +193,7 @@ class PrepaymentItem (models.Model):
     value = models.DecimalField(max_digits=10, decimal_places=2, db_column="value", null=True, verbose_name='Сумма')
     obtainMethod = models.ForeignKey(ObtainMethod, db_column='obtain_method_id', on_delete=models.PROTECT, blank=True, null=True)
     date = models.DateField(db_column='obtain_date', verbose_name='Дата', null=True)
+    request = models.ForeignKey(Request, db_column='request_id', on_delete=models.PROTECT, null=True)
 
     class Meta:
         db_table = 'prepayment_item'
