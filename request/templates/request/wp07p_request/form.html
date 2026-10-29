@@ -1,0 +1,18 @@
+<div class="border rounded p-1">
+  {{ form.id }}
+  {% comment %} {{ form.errors }} {% endcomment %}
+  <div class="row g-1">
+    {% with type=form.instance.elementType|default_if_none:'0'|stringformat:'s' %}
+      {% if type == '0' %}
+        {% include 'main/input_group.html' with field=form.requestNum label='Приобретение МПЗ (заявка №:' appendLabel=')' %}
+        <div class="col-12">{% include 'main/input_group.html' with field=form.comment label='Комментарий' %}</div>
+        <div class="col-12">{% include 'request/wp07p_request/item/table.html' with formset=form.item_formset add_label='Добавить ТМЦ по заявке' title='ТМЦ по заявке' bg_color='#868b7e' %}</div>
+      {% elif type == '1' %}
+        {% include 'main/input_group.html' with field=form.requestNum label='Приобретение услуг (заявка №:' appendLabel=')' %}
+        <div class="col-12">{% include 'main/input_group.html' with field=form.comment label='Комментарий' %}</div>
+        <div class="col-12">{% include 'request/wp07p_request/item/table.html' with formset=form.item_formset add_label='Добавить услугу' title='Услуги по заявке' bg_color='#5b684b' %}</div>
+      {% endif %}
+      <div class="col-12">{% include 'main/input_group.html' with field=form.attachment label='Приложение' %}</div>
+    {% endwith %}
+  </div>
+</div>

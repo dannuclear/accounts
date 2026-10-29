@@ -1,0 +1,24 @@
+{% extends 'shared/formset_table.html' %}
+{% load widget_tweaks %}
+{% block header %}
+    <th scope="col" style="width: 80px">№ п/п</th>
+    {% if type == '0' %}
+        <th scope="col" >Наименование ТМЦ</th>
+        <th scope="col" style="width: 100px">Кол-во</th>
+        <th scope="col" style="width: 150px">Цена</th>
+    {% elif type == '1' %}
+        <th scope="col" >Наименование</th>
+    {% endif %}
+    <th scope="col" style="width: 150px">Сумма, итого</th>
+{% endblock %}
+{% block row %}
+    <td class="text-center">{{ forloop.counter }}</td>
+    <td>{{ form.name|add_class:'form-control form-control-sm'|add_error_class:'is-invalid'|attr:'autocomplete:off' }}</td>
+    {% if type == '0' %}
+        <td>{{ form.cnt|add_class:'form-control form-control-sm cnt-input text-end'|add_error_class:'is-invalid'|attr:'autocomplete:off' }}</td>
+        <td>{{ form.price|add_class:'form-control form-control-sm price-input text-end'|add_error_class:'is-invalid'|attr:'autocomplete:off' }}</td>
+        <td>{{ form.total|add_class:'form-control form-control-sm total-input total-input-part text-end'|add_error_class:'is-invalid'|attr:'autocomplete:off'|attr:'readonly' }}</td>
+    {% elif type == '1' %}
+        <td>{{ form.total|add_class:'form-control form-control-sm total-input-part text-end'|add_error_class:'is-invalid'|attr:'autocomplete:off' }}</td>
+    {% endif %}
+{% endblock %}

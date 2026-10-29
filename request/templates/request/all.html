@@ -123,6 +123,15 @@
                         if (data.prepaymentId)
                             return ''
                         return `<a href='{% url "requests" %}/${data.id}/createPrepayment' title="Создать запись в реестре выданных под отчет авансов" class="create-prepayment-button"><i class="fa-duotone fa-xl fa-money-bill-transfer"></i></a>`
+                        /*
+                        return `
+                        <form method="GET" action="{% url 'prepayments' %}/new" class="m-0" onsubmit="return confirm('Создать запись в реестре выданных под отчет авансов?');">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                            <input type="hidden" name="requestId" value="${data.id}">
+                            <button type="submit" class="btn btn-link m-0 p-0" title="Создать заявку с суммой ${data.total_amount ?? ''} руб.">
+                                <i class="fa-duotone fa-xl fa-money-bill-transfer"></i>
+                            </button>
+                        </form>`*/
                     }
                 },
                 editColumn("{% url 'requests' %}", null),

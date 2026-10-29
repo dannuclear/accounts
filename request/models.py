@@ -1,4 +1,7 @@
-from django.db import models
+from datetime import datetime
+
+from django.db import IntegrityError, models, transaction
+from django.db.models.aggregates import Max
 from integration.models import Employee
 from guide.models import Status, ImprestAccount, ObtainMethod, ExpenseRate
 # Create your models here.
@@ -64,6 +67,22 @@ class Request(models.Model):
             ("edit_owner_requests", "Редактирование только свои заявления"),
             ("submit_wc07p", "WC07P. Отправка"),
         ]
+        
+    @classmethod
+    def _next_num(cls):
+        return (cls.objects.aggregate(m=Max('num'))['m'] or 4000 - 1) + 1
+
+    def save(self, *args, **kwargs):
+        if self.pk is not None or self.num is not None:
+            return super().save(*args, **kwargs)
+
+        self.num = self._next_num()
+        self.createDate = datetime.now()
+        try:
+            with transaction.atomic():
+                return super().save(*args, **kwargs)
+        except IntegrityError:
+            raise
 
 
 class RequestInventory(models.Model):

@@ -75,7 +75,7 @@
       <div class="col-3">
         <div class="input-group input-group-sm">
           <span class="input-group-text">Подр.</span>
-          <input type="text" class="text-center form-control applicant-div" value="{{ form.instance.applicant.divNo|zfill:3|default_if_none:'' }}" disabled />
+          <input type="text" class="text-center form-control applicant-div" value="{{ form.instance.applicant.divNo|zfillIfNotNone:3|default_if_none:'' }}" disabled />
         </div>
       </div>
 
@@ -141,7 +141,7 @@
     </div>
   </form>
 
-  <script type="text/javascript">
+  <script>
     $(document).ready(function () {
       const issuedSumInput = $('.issued-sum')
     

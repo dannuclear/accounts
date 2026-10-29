@@ -1,38 +1,30 @@
 {% load widget_tweaks %}
 
-{{ travelExpenses.management_form }}
-{% for del in travelExpenses %}
-  {% if del.DELETE.value %}
-    {{ del.id }}
-    {{ del.DELETE.as_hidden }}
-  {% endif %}
-{% endfor %}
-
 <div class="col-12">
-  {% include 'request/travel_expense_table.html' with expenses=travelExpenses name='Суточные' type=0 %}
+  {% include 'request/travel_expense/table.html' with formset=form.travel_daily_formset name='Суточные' hide_header=True thead_class='table-success' bg_color='#ffffff' %}
 </div>
 
 <div class="col-12">
-  {% include 'request/travel_expense_table.html' with expenses=travelExpenses name='Проживание' type=1 %}
+  {% include 'request/travel_expense/table.html' with formset=form.travel_lodging_formset name='Проживание' hide_header=True thead_class='table-success' bg_color='#ffffff' %}
 </div>
 
 <div class="col-12">
-  {% include 'request/travel_expense_table.html' with expenses=travelExpenses name='Проезд' type=2 %}
+  {% include 'request/travel_expense/table.html' with formset=form.travel_transport_formset name='Проезд' hide_header=True thead_class='table-success' bg_color='#ffffff' %}
 </div>
 
 <div class="col-12">
   <div class="row">
     <div class="col-6">
-      {% include 'request/travel_expense_table.html' with expenses=travelExpenses name='Подотчет по распоряжению' type=3 %}
+      {% include 'request/travel_expense/table.html' with formset=form.travel_order_formset name='Подотчет по распоряжению' hide_header=True thead_class='table-success' bg_color='#ffffff' %}
     </div>
 
     <div class="col-6">
-      {% include 'request/travel_expense_table.html' with expenses=travelExpenses name='Подотчет на приобретение ГСМ' type=4 %}
+      {% include 'request/travel_expense/table.html' with formset=form.travel_fuel_formset name='Подотчет на приобретение ГСМ' hide_header=True thead_class='table-success' bg_color='#ffffff' %}
     </div>
   </div>
 </div>
 
-<script type="text/javascript">
+<script>
   $(document).ready(function () {
     $('select[id$="expenseRate"]')//.select2()
       .on('change', function (e) {
@@ -51,8 +43,9 @@
         else rateInput.val('').trigger('change')
       })
   
-    $('input[id^="id_travel-expenses"]')
-      .not('.total-input-part')
+    //$('input[id^="id_travel-expenses"]')
+      //.not('.total-input-part')
+      $('.row-total-part')
       .on('change', function (e) {
         const row = $(e.target).parent().parent()
         const rateInput = row.find('input[id$="rate"]')

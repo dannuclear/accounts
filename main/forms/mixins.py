@@ -1,5 +1,10 @@
 
 
+from django import forms
+from django.db.models import Q, Value
+from django.db.models.functions import Coalesce
+
+
 class NestedFormMixin:
     nested_formset_class = None
     nested_formset_suffix = None
@@ -119,3 +124,40 @@ class NestedFormsMixin:
                 formset.save()
 
         return instance
+
+
+class TypedInlineFormSet(forms.BaseInlineFormSet):
+    """Inline-формсет, отфильтрованный по полю-типу."""
+    type_field = None   # имя поля модели
+    type_kwarg = None   # имя kwarg, через который приходит значение
+    null_as = 0         # какому типу соответствует NULL
+
+    def __init__(self, *args, rows=None, **kwargs):
+        value = kwargs.pop(self.type_kwarg, None)
+        if value is None:
+            raise ValueError(f"{self.__class__.__name__} requires '{self.type_kwarg}'")
+
+        self.type_value = value
+        self._rows = rows
+
+        manager = self.model._default_manager
+        if rows is not None:
+            kwargs['queryset'] = manager.none()
+        else:
+            cond = Q(**{self.type_field: value})
+            if value == self.null_as:
+                cond |= Q(**{f'{self.type_field}__isnull': True})
+            kwargs['queryset'] = manager.filter(cond)
+
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self):
+        if self._rows is not None:
+            return self._rows
+        return super().get_queryset()
+
+    def _construct_form(self, i, **kwargs):
+        form = super()._construct_form(i, **kwargs)
+        if getattr(form.instance, self.type_field) != self.type_value:
+            setattr(form.instance, self.type_field, self.type_value)
+        return form

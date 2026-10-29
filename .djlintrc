@@ -3,5 +3,6 @@
   "ignore": "H021",
   "max_line_length": 300,
   "collapse_inline": false,
-  "break_on_blank_lines": true
+  "break_on_blank_lines": true,
+  "quote_style": "single"
 }

@@ -41,6 +41,9 @@ class Employee(models.Model):
     def __str__(self):
         return '%s: %s %s %s' % (self.empOrgNo, self.pfnSurname, self.pfnName, self.pfnPatronymic)
 
+    def get_full_name (self):
+        return '%s %s %s' % (self.pfnSurname, self.pfnName, self.pfnPatronymic)
+
     class Meta:
         db_table = 'employee'
         verbose_name = 'Сотрудник'

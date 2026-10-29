@@ -192,12 +192,23 @@ class PrepaymentForm (NestedFormsMixin, forms.ModelForm):
     carryOverAdvanceReportDate = forms.DateField(label='Дата', localize=True, required=False)
     
     request = forms.IntegerField(label="Заявление", required=False, disabled=True, widget=forms.Select())
-
+    
     class Meta:
         model = Prepayment
         fields = ['id', 'document', 'docNum', 'docDate', 'empNum', 'empSurname', 'empName', 'empPatronymic', 'empFullName', 'empProfName', 'empDivNum', 'phone', 'totalSum', 'carryOverSum', 'carryOverAdvanceReportNum', 'carryOverAdvanceReportDate', 'imprestAccount', 'status', 'orderChanges', 'orderChangeNum', 'orderChangeDate', 'request']
 
     def __init__(self, user = None, *args, **kwargs):
+        self.nested_formsets = [
+                    {
+                        'formset_class': PrepaymentItemFormSet,
+                        'suffix': 'item',
+                        'extra_kwargs': { 'min_num': 2, 'initial': [{ 'value': 222 }, { 'value': 333 }] }
+                    },
+                    {
+                        'formset_class': PrepaymentPurposeFormSet,
+                        'suffix': 'purpose',
+                    },
+                ]
         #self.user = kwargs.pop('user', None)
         self.read_only = False
         super(PrepaymentForm, self).__init__(*args, **kwargs)
@@ -226,6 +237,13 @@ class PrepaymentForm (NestedFormsMixin, forms.ModelForm):
                 self.fields['request'].disabled = False
         else:
             self.fields['status'].queryset = Status.objects.filter(pk__in=[1]).order_by('id')
+
+    def clean(self):
+        data = super().clean()
+        req = data.get('request')
+        if req and Prepayment.objects.filter(request=req).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError('Выданный под отчет аванс уже существует')
+        return data
     
     def clean_request(self):
         request_id = self.cleaned_data.get('request')

@@ -1,52 +1,14 @@
 {% load widget_tweaks %}
 
-{{ inventories.management_form }}
-{% for del in inventories %}
-  {% if del.DELETE.value %}
-    {{ del.id }}
-    {{ del.DELETE.as_hidden }}
-  {% endif %}
-{% endfor %}
-
 <div class="col-12">
-  <div class="container-fluid p-1 border rounded" style="background-color:rgb(130, 184, 154);">
-    <div class="row g-1 inventory-container">
-      <div class="col-auto">
-        <button class="btn btn-sm btn-outline-light btn-add-row" data-prefix="{{ inventories.prefix }}" data-element-type="0">Добавить</button>
-      </div>
-      <div class="col text-center fs-5">Приобретение ТМЦ</div>
-
-      {% for inventory in inventories %}
-        {% with type=inventory.elementType.value|default:'0'|stringformat:'s' %}
-          {% if not inventory.DELETE.value and type == '0' %}
-            {% include 'request/inventoryRow.html' with inventory=inventory type=type %}
-          {% endif %}
-        {% endwith %}
-      {% endfor %}
-    </div>
-  </div>
+  {% include 'shared/formset.html' with formset=form.inventory_formset title='Приобретение ТМЦ' add_label='Добавить ТМЦ' bg_color='#b4bca9' form_template='request/wp07p_request/form.html' %}
 </div>
 
 <div class="col-12">
-  <div class="container-fluid p-1 border rounded" style="background-color:rgb(100, 111, 161);">
-    <div class="row g-1 inventory-container">
-      <div class="col-auto">
-        <button class="btn btn-sm btn-outline-light btn-add-row" data-prefix="{{ inventories.prefix }}" data-element-type="1">Добавить</button>
-      </div>
-      <div class="col text-center fs-5">Приобретение услуг</div>
-
-      {% for inventory in inventories %}
-        {% with type=inventory.elementType.value|default:'0'|stringformat:'s' %}
-          {% if not inventory.DELETE.value and type == '1' %}
-            {% include 'request/inventoryRow.html' with inventory=inventory type=type %}
-          {% endif %}
-        {% endwith %}
-      {% endfor %}
-    </div>
-  </div>
+  {% include 'shared/formset.html' with formset=form.service_formset title='Приобретение услуг' add_label='Добавить услугу' bg_color='#8da075' form_template='request/wp07p_request/form.html' %}
 </div>
 
-<script type="text/javascript">
+<script>
   $(document).ready(function () {
     $('.cnt-input, .price-input').on('change', function (e) {
       const tr = $(e.currentTarget).closest('tr')

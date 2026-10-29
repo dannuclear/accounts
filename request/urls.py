@@ -7,8 +7,10 @@ requestRouter = routers.DefaultRouter()
 requestRouter.register(r'requests', api_views.RequestViewSet)
 
 urlpatterns = [
+    path('requests/new', views.RequestCreateView.as_view(), name='request-create'),
+    path('requests/<int:id>', views.RequestUpdateView.as_view(), name='request-edit'),
     path('requests', views.requests, name='requests'),
-    path('requests/<id>', views.editRequest, name='editRequest'),
+    # path('requests/<id>', views.editRequest, name='editRequest'),
     path('requests/<id>/delete', views.deleteRequest, name='deleteRequest'),
     path('requests/<id>/createPrepayment', views.createPrepayment),
     path('requests/<id>/html', views.htmlReport, name='htmlRequestReport'),

@@ -1,8 +1,11 @@
 from django.shortcuts import render
 from django.template.loader import render_to_string
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, UpdateView
 
 from limits.forms import PurchaseJustificationForm
 from limits.models import PurchaseJustification, PurchaseJustificationContractor
+from main.shared.views.mixins import ActionMixin
 from .models import Request, RequestInventory
 from prepayment.models import Prepayment, PrepaymentPurpose, PrepaymentItem
 from .forms import RequestForm, RequestInventoryFormSet, RequestTravelExpenseFormSet
@@ -25,97 +28,95 @@ from weasyprint import HTML
 def requests(request):
     return render(request, 'request/all.html', { 'statuses': Status.objects.all() })
 
+class RequestCreateError(Exception):
+    pass
 
-def editRequest(request, id):
-    userFullName = ('%s %s' % (request.user.last_name, request.user.first_name)).strip()
-    if id == 'new':
-        prepaymentRequest = Request()
-        maxNum = Request.objects.aggregate(Max('num'))['num__max'] or 39999
-        prepaymentRequest.num = maxNum + 1
-        prepaymentRequest.createdBy = request.user.username
-        prepaymentRequest.createdByFullName = userFullName if userFullName else request.user.username
-        prepaymentRequest.createdAt = datetime.now()
-        prepaymentRequest.createDate = datetime.now()
-        prepaymentRequest.type = int(request.GET['type'])
-        prepaymentRequest.status_id = 2
-        prepaymentRequest.imprestAccount_id = [7101, 7103, 7103][prepaymentRequest.type]
-        carryover_prepayment_id = request.GET.get('carryoverId', None)
-        if carryover_prepayment_id is not None:
-            prepayment = Prepayment.objects.select_related('request').get(pk=carryover_prepayment_id)
-            exist_request = Request.objects.filter(carryOverPrepayment=prepayment).first()
-            if exist_request is not None:
-                return render(request, 'main/error.html', {'message': 'Заявка с переходящим остатком по данному АО, уже существует'})
-            employee = Employee.objects.filter(empOrgNo=prepayment.empNum).first()
-            prepaymentRequest.createDate = prepayment.approveDate if prepayment.approveDate is not None else datetime.now()
-            prepaymentRequest.applicant = employee
-            prepaymentRequest.applicantPhone = prepayment.phone
-            prepaymentRequest.carryOverPrepayment_id = prepayment.id
-        purchase_justification_id = request.GET.get('purchaseJustificationId', None)
-        if purchase_justification_id is not None:
-            purchase_justification = PurchaseJustification.objects.select_related('employee').get(pk=purchase_justification_id)
-            exist_purchase_justification = Request.objects.filter(purchase_justification=purchase_justification).first()
-            if exist_purchase_justification is not None:
-                return render(request, 'main/error.html', {'message': 'Заявка с данным обоснованием, уже существует'})
-            prepaymentRequest.createDate = purchase_justification.approved_at if purchase_justification.approved_at is not None else datetime.now()
-            prepaymentRequest.applicant = purchase_justification.employee
-            prepaymentRequest.applicantPhone = purchase_justification.phone
-            prepaymentRequest.purchase_justification_id = purchase_justification.id
-            prepaymentRequest.issuedSum = PurchaseJustificationContractor.objects.filter(justification_id=purchase_justification.id).aggregate(total=Sum('amount'))['total'] or 0
-    else:
-        prepaymentRequest = Request.objects.get(id=id)
+class RequestEditMixin(ActionMixin):
+    model = Request
+    form_class = RequestForm
+    template_name = 'request/edit.html'
+    pk_url_kwarg = 'id'
+    success_url = reverse_lazy('requests')
 
-    if request.method == 'POST':
-        postCopy = request.POST.copy()
-        if postCopy['action']:
-            action = postCopy['action']
-            if action.startswith('add-'):
-                prefix = action.replace('add-', '')
-                new_prefix = addItem(postCopy, prefix)
-                if prefix.startswith('travel-expenses'):
-                    postCopy["%s-type" % (new_prefix)] = postCopy.get('element-type')
-                else:
-                    postCopy["%s-elementType" % (new_prefix)] = postCopy.get('element-type')
-            # Обрабатываем удаление записи
-            elif action.startswith('delete-'):
-                prefix = action.replace('delete-', '')
-                postCopy['%s-DELETE' % prefix] = 'True'
-        
-        form = RequestForm(postCopy, instance=prepaymentRequest, user=request.user)
-        if prepaymentRequest.purchase_justification:
-            pass
-        elif prepaymentRequest.type == 0:
-            inventories_form_set = RequestInventoryFormSet(postCopy, prefix='inventory', instance=prepaymentRequest)
-        elif prepaymentRequest.type == 2:
-            travel_expenses_form_set = RequestTravelExpenseFormSet(postCopy, prefix='travel-expenses', instance=prepaymentRequest)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        instance = context['form'].instance
+        justification = instance.purchase_justification
 
-        if not postCopy['action'] and form.is_valid() and (prepaymentRequest.type != 0 or not prepaymentRequest.purchase_justification == None or inventories_form_set.is_valid()) and (prepaymentRequest.type != 2 or travel_expenses_form_set.is_valid()):
-            if is_user_in_group(request.user, ['Бухгалтер']):
-                prepaymentRequest.updatedByAccountant = userFullName if userFullName else request.user.username
-                prepaymentRequest.updatedAtAccountant = datetime.now()
-            form.save()
-            if 'inventories_form_set' in vars():
-                save_form_set(inventories_form_set)
-            if 'travel_expenses_form_set' in vars():
-                save_form_set(travel_expenses_form_set)
-            return HttpResponseRedirect('/requests')
-    if request.method == 'GET':
-        form = RequestForm(instance=prepaymentRequest, user=request.user)
-        inventories_form_set = RequestInventoryFormSet(prefix='inventory', instance=prepaymentRequest)
-        if prepaymentRequest.type == 2:
-            initial_data = [{'type': i} for i in range(0,5)] if prepaymentRequest.id is None else []
-            travel_expenses_form_set = RequestTravelExpenseFormSet(initial=initial_data, prefix='travel-expenses', instance=prepaymentRequest)
-        if prepaymentRequest.purchase_justification:
-            purchase_justification_form = PurchaseJustificationForm(instance=prepaymentRequest.purchase_justification, user=request.user, read_only=True)
+        context['title'] = 'Заявление'
+        context['type'] = instance.type
+        context['purchase_justification_form'] = (
+            PurchaseJustificationForm(
+                instance=justification, user=self.request.user, read_only=True
+            ) if justification else None
+        )
+        return context
 
-    context = {
-        'form': form,
-        'inventories': inventories_form_set if 'inventories_form_set' in vars() else None,
-        'purchase_justification_form': purchase_justification_form if 'purchase_justification_form' in vars() else None,
-        'travelExpenses': travel_expenses_form_set if 'travel_expenses_form_set' in vars() else None,
-        'title': 'Заявление',
-        'type': prepaymentRequest.type
-    }
-    return render(request, 'request/edit.html', context)
+    def form_valid(self, form):
+        if is_user_in_group(self.request.user, ['Бухгалтер']):
+            form.instance.updatedByAccountant = self.get_user_full_name()
+            form.instance.updatedAtAccountant = datetime.now()
+        return super().form_valid(form)
+
+class RequestUpdateView(RequestEditMixin, UpdateView):
+    queryset=Request.objects.select_related("applicant").select_related("obtainMethod").select_related("carryOverPrepayment").select_related("purchase_justification")
+    pass
+
+class RequestCreateView(RequestEditMixin, CreateView):
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.new_request = self.build_new_request()
+        except RequestCreateError as e:
+            return render(request, 'main/error.html', {'message': str(e)})
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.new_request
+        return kwargs
+
+    def form_valid(self, form):
+        now = datetime.now()
+        form.instance.createdBy = self.request.user.username
+        form.instance.createdByFullName = self.get_user_full_name()
+        form.instance.createdAt = now
+        return super().form_valid(form)
+    
+    def build_new_request(self):
+        get = self.request.GET
+        obj = Request()
+        now = datetime.now()
+
+        obj.type = int(get['type'])
+        obj.status_id = 2
+        obj.imprestAccount_id = [7101, 7103, 7103][obj.type]
+
+        carryover_id = get.get('carryoverId')
+        if carryover_id is not None:
+            prepayment = Prepayment.objects.select_related('request').get(pk=carryover_id)
+            if Request.objects.filter(carryOverPrepayment=prepayment).exists():
+                raise RequestCreateError('Заявка с переходящим остатком по данному АО, уже существует')
+            obj.createDate = prepayment.approveDate or now
+            obj.applicant = Employee.objects.filter(empOrgNo=prepayment.empNum).first()
+            obj.applicantPhone = prepayment.phone
+            obj.carryOverPrepayment_id = prepayment.id
+
+        justification_id = get.get('purchaseJustificationId')
+        if justification_id is not None:
+            justification = PurchaseJustification.objects.select_related('employee').get(pk=justification_id)
+            if Request.objects.filter(purchase_justification=justification).exists():
+                raise RequestCreateError('Заявка с данным обоснованием, уже существует')
+            obj.createDate = justification.approved_at or now
+            obj.applicant = justification.employee
+            obj.applicantPhone = justification.phone
+            obj.purchase_justification = justification
+            obj.issuedSum = (
+                PurchaseJustificationContractor.objects
+                .filter(justification_id=justification.id)
+                .aggregate(total=Sum('amount'))['total'] or 0
+            )
+        return obj
 
 def save_form_set (form_set):
     for item in form_set.save(commit=False):

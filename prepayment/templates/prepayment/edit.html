@@ -159,11 +159,11 @@
         <div class="col-12">
           {% include "shared/formset.html" with formset=form.item_formset title="Авансы" add_label="Добавить аванс" bg_color="#b4bca9" form_template="prepayment/item/form.html" %}
         </div>
+        <div class="col-12">
+          {% include "shared/formset.html" with formset=form.purpose_formset title="Раздел 2. Сведения о назначении аванса" add_label="Добавить сведения" bg_color="#b4bca9" form_template="prepayment/purpose/form.html" %}
+        </div>
       </div>
 
-      <div class="col-12 border rounded p-1">
-        {% include "shared/formset.html" with formset=form.purpose_formset title="Раздел 2. Сведения о назначении аванса" add_label="Добавить сведения" bg_color="#b4bca9" form_template="prepayment/purpose/form.html" %}
-      </div>
     </div>
   </form>
 
